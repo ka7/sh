@@ -1,0 +1,13 @@
+# .sh/_shrc 20130315 - 20170501
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
+
+[ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
+[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
+
+# Unmanaged user override
+[ -f ~/.myrc ] && source ~/.myrc
+
+# So PHP can easily parse the basic shell defaults
+gethost > ~/.sh/lib/defaults

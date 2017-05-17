@@ -1,0 +1,54 @@
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20170507
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+alias_database = hash:/etc/aliases
+alias_maps = hash:/etc/aliases
+append_dot_mydomain = no
+biff = no
+compatibility_level = 2
+home_mailbox = Maildir/
+inet_interfaces = all
+inet_protocols = all
+mailbox_size_limit = 0
+milter_default_action = accept
+milter_protocol = 2
+mydestination = localhost
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+myorigin = /etc/mailname
+non_smtpd_milters = inet:127.0.0.1:8891
+policy-spf_time_limit = 3600s
+postscreen_access_list = permit_mynetworks
+postscreen_dnsbl_action = enforce
+postscreen_dnsbl_sites = zen.spamhaus.org dnbsbl.sorbs.net bl.spamcop.net
+postscreen_dnsbl_threshold = 2
+postscreen_greet_action = enforce
+postscreen_greet_banner = NW networks - please wait
+readme_directory = no
+recipient_delimiter = +
+relayhost =
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+smtpd_client_restrictions = permit_mynetworks permit_sasl_authenticated
+    reject_unknown_client_hostname reject_rbl_client zen.spamhaus.org
+    reject_rbl_client bl.spamcop.net
+smtpd_helo_restrictions = permit_mynetworks permit_sasl_authenticated
+    reject_invalid_helo_hostname reject_non_fqdn_helo_hostname
+    reject_unknown_helo_hostname
+smtpd_milters = inet:127.0.0.1:8891
+smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated
+    reject_unauth_destination reject_non_fqdn_recipient
+    reject_unknown_recipient_domain check_policy_service unix:private/policy-spf
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated
+    defer_unauth_destination
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_authenticated_header = yes
+smtpd_sasl_path = private/auth
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_type = dovecot
+smtpd_sender_restrictions = permit_mynetworks permit_sasl_authenticated
+    reject_non_fqdn_sender reject_unknown_sender_domain
+smtpd_tls_cert_file = /etc/ssl/$mydomain/fullchain.pem
+smtpd_tls_key_file = /etc/ssl/$mydomain/privkey.pem
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtpd_use_tls = yes
+virtual_transport = lmtp:unix:private/dovecot-lmtp

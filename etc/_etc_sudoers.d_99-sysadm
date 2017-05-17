@@ -1,0 +1,6 @@
+# .sh/etc/_etc_sudoers.d_99-sysadm 20170101 - 20170503
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+Defaults secure_path="/root/.sh/bin:/bin:/usr/bin:/usr/sbin"
+Defaults env_keep -= "HOME"
+sysadm ALL=(ALL) NOPASSWD: /root/.sh/bin/*

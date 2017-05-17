@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# .sh/bin/delvhost 20170216 - 20170502
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $2 ]] && echo "Usage: delvhost domain mysql|sqlite" && exit 1
+
+source ~/.sh/lib/functions || exit 2
+
+sethost $1
+setdb $2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
+
+BPATH="/home/backups"
+
+if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
+    echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
+    cp $C_WEB/sites-enabled/$VHOST $UPATH/etc
+    rm $C_WEB/sites-enabled/$VHOST
+fi
+
+if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
+    echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
+    cp $C_FPM/pool.d/$VHOST.conf $UPATH/etc
+    rm $C_FPM/pool.d/$VHOST.conf
+fi
+
+# TODO: dump sql database and system entries to $UPATH/etc
+# TODO: maybe add BPATH (and BFILE) to defaults config?
+
+[[ ! -d $BPATH ]] && mkdir -p $BPATH
+BFILE="$BPATH/$(date +'%Y-%m-%d')-$VHOST.tgz"
+[[ -f $BFILE ]] && rm $BFILE
+
+echo "!!! Create $BFILE"
+tar czf $BFILE $UPATH > /dev/null 2>&1
+
+VUSER=$(getent passwd | awk -F: "/:$VHOST:/ {print \$1}")
+
+if [[ -z $VUSER ]]; then
+    echo "!!! Warning: $VUSER does not exist"
+else
+    echo "!!! Remove $VUSER"
+    userdel -rf $VUSER > /dev/null 2>&1
+fi
+
+if [[ -d $UPATH ]]; then
+    echo "!!! Remove $UPATH"
+    rm -rf $UPATH
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

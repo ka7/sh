@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# shuser 20160130 - 20170506
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: shuser uid*|all" && exit 1
+
+echo "NOTICE: this needs to be converted to postfix/dovecot" && exit 2
+
+source ~/.sh/lib/functions || exit 2
+sethost $1
+
+[[ $1 == all ]] && QRY="%" || QRY="%$1%"
+
+[[ $PWTBL ]] && PWTBL=$PWTBL || PWTBL=courier
+[[ $PWFLD ]] && PWFLD=$PWFLD || PWFLD=clear
+
+RESULT=$(mysql -BNe "
+ SELECT count(*)
+   FROM $ADMIN.$PWTBL
+  WHERE uid LIKE '$QRY'")
+
+if [[ $RESULT -gt 1 ]]; then
+    mysql -BNe "
+ SELECT concat('u', muid),
+        rpad(uid,length(uid)+(32-length(uid)),' '),
+        mpath
+   FROM $ADMIN.$PWTBL
+  WHERE uid LIKE '$QRY'
+  ORDER BY muid"
+elif [[ $RESULT -eq 1 ]]; then
+    mysql -Ee "
+ SELECT uid,
+        $PWFLD,
+        mail,
+        muid,
+        mgid,
+        mquota,
+        mpath
+   FROM $ADMIN.$PWTBL
+  WHERE uid LIKE '$QRY'
+  LIMIT 1" | tail -n +2
+else
+    echo "No matching users"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

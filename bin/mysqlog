@@ -1,0 +1,11 @@
+#!/bin/sh
+# mysqlog 20130331 (C) Mark Constable (AGPLv3)
+# https://github.com/markc/sh/blob/master/doc/mysqlog.md
+
+if [ -n "$1" -a "$1" = "on" ]; then
+  mysql -e "SET GLOBAL general_log = 1;"
+elif [ -n "$1" -a "$1" = "off" ]; then
+  mysql -e "SET GLOBAL general_log = 0;"
+else
+  mysql -e "SHOW GLOBAL VARIABLES WHERE Variable_name='general_log';"
+fi

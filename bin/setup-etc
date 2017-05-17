@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-etc 20151231 - 20170501
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: setup-etc mysql|sqlite" && exit 1
+
+source ~/.sh/lib/defaults || exit 2
+
+set -x
+if [[ $1 == sqlite ]]; then
+    SQCMD=$EXSQL
+    [[ ! -d $DBSQL ]] && setup-db sqlite
+elif [[ $1 == mysql ]]; then
+    SQCMD=$EXMYS
+    [[ ! -f ~/.my.cnf ]] && setup-db mysql
+else
+    echo "ERROR: unknown argument '$1'" && exit 2
+fi
+
+if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
+    echo "Create $ADMIN @ $VHOST"
+    if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
+        groupmod -n $ADMIN ubuntu
+        usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
+    else
+        groupadd -g $A_GID $ADMIN
+        useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
+    fi
+fi
+
+if [[ ! -f /etc/postfix/main.cf.orig ]]; then
+    echo "Create postfix configs"
+    mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
+    cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
+    if [[ $1 == sqlite ]]; then
+        cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> /etc/postfix/main.cf
+
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
+            > /etc/postfix/sqlite-alias-maps.cf
+
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
+            > /etc/postfix/sqlite-gid-maps.cf
+
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
+            > /etc/postfix/sqlite-mailbox-domains.cf
+
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
+            > /etc/postfix/sqlite-mailbox-maps.cf
+
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
+            > /etc/postfix/sqlite-uid-maps.cf
+
+    elif [[ $1 == mysql ]]; then
+        cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
+    fi
+fi
+
+if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
+    echo "Create initial /etc/dovecot/dovecot.conf"
+    mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
+#    cp ~/.sh/etc/_etc_dovecot_dovecot.conf /etc/dovecot/dovecot.conf
+
+    sed -e "s;_VHOST;$VHOST;" \
+        ~/.sh/etc/_etc_dovecot_dovecot.conf \
+        > /etc/dovecot/dovecot.conf
+
+    if [[ $1 == sqlite ]]; then
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> /etc/dovecot/dovecot.conf
+
+        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
+            > /etc/dovecot/user-sqlite.conf
+
+    elif [[ $1 == mysql ]]; then
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> /etc/dovecot/dovecot.conf
+
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
+            > /etc/dovecot/user-mysql.conf
+    fi
+fi
+
+if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    echo "Create /etc/apt/sources.list"
+    mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
+fi
+
+if [[ ! -f /etc/nginx/common.conf ]]; then
+    echo "Create /etc/nginx/common.conf"
+    cp ~/.sh/etc/_etc_nginx_common.conf /etc/nginx/common.conf
+fi
+
+if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
+    echo "Create /etc/nginx/nginx.conf"
+    mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+    cp ~/.sh/etc/_etc_nginx_nginx.conf /etc/nginx/nginx.conf
+fi
+
+if [[ -h /etc/nginx/sites-enabled/default ]]; then
+    rm /etc/nginx/sites-enabled/default
+    echo "!!! Create /etc/nginx/sites-enabled/default"
+    cat << 'EOS' | tee /etc/nginx/sites-enabled/default > /dev/null
+server { listen 80; server_name ~^www\.(?<domain>.+)$; location / { return 301 http://$domain$request_uri; } }
+server { listen 80; server_name ~^(?<domain>.+)$; include /etc/nginx/common.conf; }
+EOS
+fi
+
+if [[ ! -f /etc/opendkim.conf.orig ]]; then
+    echo "Create /etc/opendkim.conf"
+    mv /etc/opendkim.conf /etc/opendkim.conf.orig
+    cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
+fi
+
+if [[ ! -f /etc/php/7.0/fpm/common.conf ]]; then
+    echo "Create /etc/php/7.0/fpm/common.conf"
+    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf /etc/php/7.0/fpm/common.conf
+fi
+
+if [[ ! -f /etc/postfix/master.cf.orig ]]; then
+    echo "Create /etc/postfix/master.cf"
+    mv /etc/postfix/master.cf /etc/postfix/master.cf.orig
+    cp ~/.sh/etc/_etc_postfix_master.cf /etc/postfix/master.cf
+fi
+
+if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
+    echo "Create /etc/powerdns/pdns.conf"
+    mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
+    cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
+fi
+
+if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
+    echo "Create /etc/sudoers.d/99-sysadm"
+    cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
+fi
+
+if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
+    echo "Create /etc/systemd/system/opendkim.service"
+    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+fi
+
+systemctl daemon-reload
+nginx -t && systemctl restart nginx
+#systemctl restart dovecot
+#systemctl restart postfix
+#systemctl restart pdns

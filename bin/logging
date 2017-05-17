@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# logging 20170417 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $2 ]] && echo "Usage: logging domain|all mysql|sqlite [update]" && exit 1
+
+source ~/.sh/lib/functions || exit 2
+
+setdb $2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
+
+[[ -n $3 && $3 == update ]] && UPD=1 || UPD=0
+
+DU="/usr/bin/du -sb"
+FIND="/usr/bin/find"
+MONTH=$(date +%Y%m)
+
+log_setup()
+{
+    local IS_ENTRY=$(echo "SELECT 1 FROM logging WHERE name='$1' AND month=$MONTH LIMIT 1" | $SQCMD)
+    [[ $IS_ENTRY ]] || echo "INSERT INTO logging (did, name, month) VALUES ($2, '$1', $MONTH)" | $SQCMD
+}
+
+log_upath()
+{
+    local UPATH=$VPATH/$1
+    local MPATH=$UPATH/home
+    local WPATH=$UPATH/var/www
+    local UDU=0; local MDU=0; local WDU=0;
+
+    [[ -d $UPATH ]] && UDU=$($DU $UPATH | cut -f1)
+    [[ -d $MPATH ]] && MDU=$($DU $MPATH | cut -f1)
+    [[ -d $WPATH ]] && WDU=$($DU $WPATH | cut -f1)
+
+    [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+    if [[ $UPD ]]; then
+        log_setup $1 $2
+        echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
+    fi
+}
+
+log_mpath()
+{
+    local MPATH=$VPATH/$1/home
+    [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
+    local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
+    [[ $UPD ]] || printf "\n%-40s %12s %12s %12s\n" "Mailbox" "Mail" "Spam" "Home"
+    for MBOX in $MBOXS; do
+        local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
+
+        [[ -d $MBOX ]] && HDU=$($DU $MBOX | cut -f1)
+        [[ -d $MBOX/Maildir ]] && MDU=$($DU $MBOX/Maildir | cut -f1)
+        [[ -d $MBOX/.spamprobe ]] && SDU=$($DU $MBOX/.spamprobe | cut -f1)
+
+        [[ -d $MBOX/Maildir ]] && TNUM=$($FIND $MBOX/Maildir -name "[0-9][0-9]*" | wc -l)
+        [[ -d $MBOX/Maildir/cur ]] && INUM=$($FIND $MBOX/Maildir/cur -name "[0-9][0-9]*" | wc -l)
+        [[ -d $MBOX/Maildir/.Spam/cur ]] && SNUM=$($FIND $MBOX/Maildir/.Spam/cur -name "[0-9][0-9]*" | wc -l)
+
+        [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+        if [[ $UPD ]]; then
+            local VUSER="$(basename $MBOX)@$1"
+            log_setup $1 $2
+            echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
+        fi
+    done
+}
+
+log_all()
+{
+    DID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
+    if [[ $DID -gt 0 ]]; then
+        log_upath $1 $DID
+        log_mpath $1 $DID
+    else
+        echo "Warning: '$1' did not return a DID from '$SQCMD'"
+    fi
+}
+
+[[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "Vhost" "Mail" "Web" "Disk"
+
+if [[ $1 == all ]]; then
+    VHOSTS=$(find /home/u -mindepth 1 -maxdepth 1 -type d \! -type l | sed 's#/home/u/##' | sort)
+    for VHOST in $VHOSTS; do log_all $VHOST; done
+else
+    log_all $1
+fi

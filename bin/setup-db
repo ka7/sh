@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+# .sh/etc/setup-db.sh 20170319 - 20170507
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: setup-db mysql|sqlite" && exit 1
+
+source ~/.sh/lib/defaults || exit 2
+
+if [[ $1 == sqlite ]]; then
+    if [[ ! -f $DBSQL ]]; then
+        echo "!!! Create $DBSQL"
+        mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
+        chown dovecot:dovecot $DBSQL/dovecot
+        chown postfix:postfix $DBSQL/postfix
+        chown $A_UID:$A_GID $DBSQL/$ADMIN
+        chmod 700 $DBSQL/*
+    fi
+    SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
+    SQCMD="sqlite3 $DPATH"
+elif [[ $1 == mysql ]]; then
+    if [[ ! -f ~/.my.cnf ]]; then
+        echo "!!! Create ~/.my.cnf"
+        cat << EOS > ~/.my.cnf
+[client]
+host = $DHOST
+port = $DPORT
+user = $DUSER
+password = $DPASS
+EOS
+    fi
+    chmod 600 ~/.my.cnf
+    SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
+    SQCMD="mysql -BN $DNAME"
+    echo "CREATE DATABASE IF NOT EXISTS $DNAME;" | mysql
+else
+    echo "ERROR: unknown argument '$1'" && exit 2
+fi
+
+cat << EOS | $SQCMD
+CREATE TABLE IF NOT EXISTS accounts (
+  id $SQLPK,
+  grp int(11) NOT NULL DEFAULT '0',
+  acl int(11) NOT NULL DEFAULT '0',
+  vhosts int(11) NOT NULL DEFAULT '1',
+  login varchar(63) NOT NULL,
+  fname varchar(63) NOT NULL DEFAULT '',
+  lname varchar(63) NOT NULL DEFAULT '',
+  altemail varchar(63) NOT NULL DEFAULT '',
+  otp varchar(15)  NOT NULL DEFAULT '',
+  otpttl int(11) NOT NULL DEFAULT '0',
+  cookie varchar(63) NOT NULL DEFAULT '',
+  webpw varchar(127) NOT NULL DEFAULT '',
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS logging (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  did int(11) NOT NULL DEFAULT '1',
+  name varchar(63) NOT NULL,
+  month int(11) NOT NULL DEFAULT '0',
+  size_mpath int(11) NOT NULL DEFAULT '0',
+  size_wpath int(11) NOT NULL DEFAULT '0',
+  size_upath int(11) NOT NULL DEFAULT '0',
+  user_mail int(11) NOT NULL DEFAULT '0',
+  user_spam int(11) NOT NULL DEFAULT '0',
+  user_home int(11) NOT NULL DEFAULT '0',
+  num_inbox int(11) NOT NULL DEFAULT '0',
+  num_spam int(11) NOT NULL DEFAULT '0',
+  num_total int(11) NOT NULL DEFAULT '0'
+);
+CREATE TABLE IF NOT EXISTS news (
+  id $SQLPK,
+  title varchar(63) NOT NULL,
+  content text NOT NULL,
+  author int(11) NOT NULL,
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS valias (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  did int(11) NOT NULL DEFAULT '1',
+  active int(1) NOT NULL DEFAULT '1',
+  source varchar(63) NOT NULL,
+  target varchar(255) NOT NULL,
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS vhosts (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  domain varchar(63) NOT NULL,
+  uname varchar(63) NOT NULL DEFAULT 'u1000',
+  uid int(11) NOT NULL DEFAULT '1000',
+  gid int(11) NOT NULL DEFAULT '1000',
+  aliases int(11) NOT NULL DEFAULT '0',
+  mailboxes int(11) NOT NULL DEFAULT '0',
+  mailquota int(11) NOT NULL DEFAULT '0',
+  diskquota int(11) NOT NULL DEFAULT '0',
+  active int(1) NOT NULL DEFAULT '1',
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS vmails (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  did int(11) NOT NULL DEFAULT '1',
+  gid int(11) NOT NULL DEFAULT '1000',
+  uid int(11) NOT NULL DEFAULT '1000',
+  active int(1) NOT NULL DEFAULT '1',
+  quota int(11) NOT NULL DEFAULT '1073741824',
+  user varchar(63) NOT NULL DEFAULT '',
+  home varchar(63) NOT NULL DEFAULT '',
+  password varchar(127) NOT NULL DEFAULT '',
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+
+
+CREATE TABLE IF NOT EXISTS comments (
+  id $SQLPK,
+  domain_id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  type varchar(15) NOT NULL,
+  modified_at int(11) NOT NULL,
+  account varchar(40) DEFAULT NULL,
+  comment text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS cryptokeys (
+  id $SQLPK,
+  domain_id int NOT NULL,
+  flags int(11) NOT NULL,
+  active bool,
+  content text
+);
+CREATE TABLE IF NOT EXISTS domainmetadata (
+  id $SQLPK,
+  domain_id int(11) NOT NULL,
+  kind varchar(31),
+  content text
+);
+CREATE TABLE IF NOT EXISTS domains (
+  id $SQLPK,
+  name varchar(63) NOT NULL DEFAULT '',
+  master varchar(63) NULL,
+  last_check int(11) NULL,
+  type varchar(63) NOT NULL DEFAULT 'master',
+  notified_serial int(11) NULL,
+  account varchar(63) NULL,
+  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS supermasters (
+  id $SQLPK,
+  ip varchar(63) NOT NULL,
+  nameserver varchar(255) NOT NULL,
+  account varchar(63) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tsigkeys (
+  id $SQLPK,
+  name varchar(255),
+  algorithm varchar(63),
+  secret varchar(255)
+);
+CREATE TABLE IF NOT EXISTS records (
+  id $SQLPK,
+  domain_id int(11) NULL,
+  name varchar(63) NULL,
+  type varchar(63) NULL,
+  content varchar(63) NULL,
+  ttl int(11) NULL,
+  prio int(11) NULL,
+  change_date int(11) NULL,
+  disabled int(11) NULL DEFAULT '0',
+  ordername varchar(63) NULL,
+  auth int(11) NULL DEFAULT '1',
+  updated datetime NULL DEFAULT '2017-01-01 00:00:01',
+  created datetime NULL DEFAULT '2017-01-01 00:00:01'
+);
+
+CREATE UNIQUE INDEX name_index ON domains (name);
+CREATE INDEX rec_name_index ON records (name);
+CREATE INDEX nametype_index ON records (name,type);
+CREATE INDEX domain_id ON records (domain_id);
+CREATE INDEX orderindex ON records (ordername);
+CREATE UNIQUE INDEX ip_nameserver_pk ON supermasters (ip, nameserver);
+CREATE INDEX comments_domain_id_index ON comments (domain_id);
+CREATE INDEX comments_nametype_index ON comments (name, type);
+CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
+CREATE INDEX domainmetaidindex ON domainmetadata (domain_id);
+CREATE INDEX domainidindex ON cryptokeys (domain_id);
+CREATE UNIQUE INDEX namealgoindex ON tsigkeys (name, algorithm);
+
+CREATE INDEX accounts_grp ON accounts (grp);
+CREATE INDEX accounts_acl ON accounts (acl);
+CREATE UNIQUE INDEX accounts_login ON accounts (login);
+CREATE UNIQUE INDEX vhosts_domain ON vhosts (domain);
+CREATE INDEX vhosts_aid ON vhosts (aid);
+CREATE INDEX logging_month ON logging (month);
+CREATE INDEX logging_name ON logging (name);
+CREATE UNIQUE INDEX virtual_users_user ON vmails (user);
+CREATE INDEX virtual_users_did ON vmails (did);
+CREATE INDEX mail_users_aid ON vmails (aid);
+CREATE INDEX virtual_aliases_source ON valias (source);
+CREATE INDEX virtual_aliases_did ON valias (did);
+CREATE INDEX mail_aliases_aid ON valias (aid);
+EOS
+
+# TODO dynamically create hash password from $UPASS
+cat << EOS | $SQCMD
+INSERT INTO news VALUES
+(null, 'News Item 1', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01'),
+(null, 'News Item 2', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01');
+INSERT INTO accounts VALUES
+(null,1,0,1,'sysadm@$VHOST','System','Administrator','',0,'','','\$2y\$10\$QiQZf.bH2zzpPJWxr0nMBuFIvFvpzkquGibg8A31XsdMJ4/GP5bki','2017-01-01 00:00:01','2017-01-01 00:00:01');
+INSERT INTO valias VALUES
+(null,1,1,1,'@$VHOST','admin@$VHOST','2017-01-01 00:00:01','2017-01-01 00:00:01');
+INSERT INTO vhosts VALUES
+(null,1,'$VHOST','$ADMIN',$A_UID,$A_GID,10,2,1073741824,2147483648,1,'2017-01-01 00:00:01','2017-01-01 00:00:01');
+INSERT INTO vmails VALUES
+(null,1,1,$A_UID,$A_GID,1,1073741824,'admin@$VHOST','/home/u/$VHOST/home/admin','{SHA512-CRYPT}$6$0d31f1c757321e00$Ahy7QY1mDLHgu8xXxhM9E3zsgqO2XGkP.vDKt2g5nYq3lV0rPGGaTngK.QoKmgKyLChpKEOToHllGmbRsSn1z/','2017-01-01 00:00:01','2017-01-01 00:00:01');
+EOS
+
+if [[ $1 == sqlite ]]; then
+    cd $DBSQL
+    chown $A_UID:$A_GID -R $ADMIN
+    chmod 644 $DPATH
+    ln $ADMIN/$(basename $DPATH) dovecot
+    ln $ADMIN/$(basename $DPATH) postfix
+fi
+
+echo "Installed '$1' database"

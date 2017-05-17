@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-host 20170319 - 20170507
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: setup-host eth-device" && exit 1
+
+ifconfig $1 > /dev/null 2>&1
+if [[ $? -gt 0 ]]; then
+    echo "!!! ERROR: problem with '$1' eth-device"
+    echo
+    echo "    Hint: to change defalt Ubuntu eth-device back to eth0..."
+    echo "    sudo nano /etc/default/grub"
+    echo "    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\""
+    echo "    sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    echo "    sudo systemctl reboot"
+    echo
+    exit 2
+fi
+
+grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
+if [[ $? -eq 0 ]]; then
+    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
+fi
+
+if [[ -d ~/.sh ]]; then
+    ~/.sh/bin/shm pull > /dev/null
+    source ~/.shrc
+    gethost > ~/.sh/lib/defaults
+    source ~/.shrc
+else
+    echo "!!! Setup local root shell"
+    cd
+    git clone -q --depth 1 https://github.com/markc/sh .sh
+    ~/.sh/bin/shm install > /dev/null
+    ~/.sh/bin/shm perms
+    source ~/.shrc
+    gethost > ~/.sh/lib/defaults
+    source ~/.shrc
+fi
+
+gethost
+

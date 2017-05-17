@@ -1,0 +1,58 @@
+# .sh/lib/aliases 20151231 - 20170501
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+alias ?='bash ~/.help'
+alias c='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias e='nano -t -x -c'
+alias l='journalctl -f'
+alias n='echo -e "-- $(date) --\n" >> ~/.note && e +10000 ~/.note'
+alias m='bash ~/.menu'
+alias p='ps auxxww | grep -v grep | grep'
+alias q='find -type f -print0 | xargs -0 grep '
+alias ..='cd ..'
+alias df='df -kTh'
+alias eh='e ~/.help'
+alias em='e ~/.menu'
+alias es='e ~/.myrc;. ~/.shrc'
+alias la='LC_COLLATE=C ls -lFAh --group-directories-first --color'
+alias ll='LC_COLLATE=C ls -lF --group-directories-first --color'
+alias ls='LC_COLLATE=C ls -F --group-directories-first --color'
+alias lx='lxc list'
+alias sc=$SUDO'systemctl'
+alias se='sudo nano -t -x -c'
+alias sn='[ -f ~/.note ] && cat ~/.note'
+alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
+
+# change to postfix equiv
+#alias cs='courier show all'
+#alias clr='courier clear'
+#alias csg='courier show all | grep'
+
+if [[ -f /etc/pacman.conf ]]; then
+    alias i=$SUDO'pacman -S'
+    alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
+    alias r=$SUDO'pacman -Rns'
+    alias s=$SUDO'pacman -Ss'
+    alias lspkg=$SUDO'pacman -Qn | grep'
+    alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
+else
+    alias i=$SUDO'apt install'
+    alias u=$SUDO'apt update && '$SUDO'apt -y full-upgrade && '$SUDO'apt-get -y autoremove'
+    alias r=$SUDO'apt remove --purge'
+    alias s='apt-cache search'
+    alias lspkg='dpkg --get-selections | awk "{print \$1}" | sort | grep'
+    alias edpkg=$SUDO'nano -t -x -c /etc/apt/sources.list'
+    alias aptkey=$SUDO'apt-key adv --recv-keys --keyserver keyserver.ubuntu.com'
+fi
+
+alias block='iptables -A INPUT -j DROP -s '
+alias shblock='iptables -L -n | grep ^DROP | awk '\''{print $4}'\'' | sort -n'
+alias unblock='iptables -D INPUT -j DROP -s '
+
+alias mlog='tail -f /var/log/mail.log'
+alias mgrep='mlog | grep '
+alias slog='journalctl -f -t sshd'
+alias hlog='journalctl -f -t hlog'
+alias alog='tail -f ../log/access.log'
+alias plog='tail -f ../log/php-errors.log'
+alias elog='tail -f /var/log/nginx/error.log'

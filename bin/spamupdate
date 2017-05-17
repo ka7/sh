@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# spamupdate 20150522 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# TODO: add args for a single account or "all" for all users
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root" && exit 3
+
+LS="/bin/ls"
+SP="/usr/bin/spamprobe -v"
+
+for JDIR in $(find /home/u/*/home -type d -name .Junk); do
+
+    MDIR=$(dirname $JDIR)
+    HDIR=$(dirname $MDIR)
+    SDIR=$HDIR/.spamprobe
+    MUSR=$(stat -c "%U" $HDIR)
+
+    if [[ -d $MDIR/.Reset ]]; then
+        rm -rf $MDIR/.Reset
+        [[ -d $JDIR ]]              && rm -rf $JDIR $JDIR.*
+
+#        [[ -d $MDIR/.IsSpam ]]      && rm -rf $MDIR/.IsSpam
+#        [[ -d $MDIR/.IsGood ]]      && rm -rf $MDIR/.IsGood
+        [[ -d $MDIR/.NotSpam ]]     && rm -rf $MDIR/.NotSpam # deprecated
+        [[ -d $MDIR/.TrainGood ]]   && rm -rf $MDIR/.TrainGood
+        [[ -d $MDIR/.TrainSpam ]]   && rm -rf $MDIR/.TrainSpam
+        [[ -d $MDIR/.UnSpam ]]      && rm -rf $MDIR/.UnSpam
+
+        [[ -f $MDIR/maildirsize ]]  && rm $MDIR/maildirsize
+        [[ -f $MDIR/quotawarn ]]    && rm $MDIR/quotawarn
+
+        if [ -f $MDIR/.Sent.*/cur/* ]; then
+            for i in $MDIR/.Sent.*/cur/*; do mv $i $MDIR/.Sent/cur; done
+        fi
+
+        [ -d $MDIR/.Sent.* ]        && rm -rf $MDIR/.Sent.*
+        [ -d $MDIR/.Trash.* ]       && rm -rf $MDIR/.Trash.*
+
+        find $MDIR -type f -name courierimapuiddb -exec rm -f {} +
+
+        if [[ -d /etc/spamprobe ]]; then
+            [[ -d $SDIR ]] && rm -rf $SDIR
+            cp -a /etc/spamprobe $SDIR
+            chmod 700 $SDIR
+            chmod 600 $SDIR/*
+        fi
+
+        for i in .Archives .Drafts .Junk .IsGood .IsSpam .Sent .Templates .Trash; do
+            [[ ! -d $MDIR/$i ]] && maildirmake $MDIR/$i
+        done
+
+        cat << EOS > $MDIR/courierimapsubscribed
+INBOX.Archives
+INBOX.Drafts
+INBOX.Junk
+INBOX.IsGood
+INBOX.IsSpam
+INBOX.Sent
+INBOX.Templates
+INBOX.Trash
+EOS
+        chown $(stat -c "%u:%g" $HDIR) -R $HDIR
+        /usr/sbin/courier restart
+    fi
+
+    # Outside the Junk folder
+
+    if [[ -d $MDIR/.IsSpam && $($LS $MDIR/.IsSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR spam $MDIR/.IsSpam/cur/*"
+        rm $MDIR/.IsSpam/cur/*
+    fi
+
+    if [[ -d $MDIR/.IsGood && $($LS $MDIR/.IsGood/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR good $MDIR/.IsGood/cur/*"
+        mv $MDIR/.IsGood/cur/* $MDIR/cur
+    fi
+
+    if [[ -d $MDIR/.TrainGood && $($LS $MDIR/.TrainGood/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR train-good $MDIR/.TrainGood/cur/*"
+        rm $MDIR/.TrainGood/cur/*
+    fi
+
+    if [[ -d $MDIR/.TrainSpam && $($LS $MDIR/.TrainSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR train-spam $MDIR/.TrainSpam/cur/*"
+        rm $MDIR/.TrainSpam/cur/*
+    fi
+
+    if [[ -d $MDIR/.UnSpam && $($LS $MDIR/.UnSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR remove $MDIR/.UnSpam/cur/*"
+        mv $MDIR/.UnSpam/cur/* $MDIR/cur
+    fi
+
+    # Inside the Junk folder (legacy, remove these one day)
+
+    if [[ -d $JDIR/.IsSpam && $($LS $JDIR/.IsSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR spam $JDIR/.IsSpam/cur/*"
+        rm $JDIR/.IsSpam/cur/*
+    fi
+
+    if [[ -d $JDIR/.IsGood && $($LS $JDIR/.IsGood/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR good $JDIR/.IsGood/cur/*"
+        mv $JDIR/.IsGood/cur/* $MDIR/cur
+    fi
+
+    # deprecated
+    if [[ -d $JDIR/.NotSpam && $($LS $JDIR/.NotSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR good $JDIR/.NotSpam/cur/*"
+        mv $JDIR/.NotSpam/cur/* $MDIR/cur
+    fi
+
+    if [[ -d $JDIR/.TrainGood && $($LS $JDIR/.TrainGood/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR train-good $JDIR/.TrainGood/cur/*"
+        rm $JDIR/.TrainGood/cur/*
+    fi
+
+    if [[ -d $JDIR/.TrainSpam && $($LS $JDIR/.TrainSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR train-spam $JDIR/.TrainSpam/cur/*"
+        rm $JDIR/.TrainSpam/cur/*
+    fi
+
+    if [[ -d $JDIR/.UnSpam && $($LS $JDIR/.UnSpam/cur) ]]; then
+        su - $MUSR -c "$SP -d $SDIR remove $JDIR/.UnSpam/cur/*"
+        mv $JDIR/.UnSpam/cur/* $MDIR/cur
+    fi
+
+    # Managed Junk and Trash folder cleanup
+
+    if [[ -d $JDIR ]]; then
+        MTIME="+0"
+        [[ -f $HDIR/.removejunkdays ]] && MTIME="+"$(< $HDIR/.removejunkdays)
+        find $JDIR -type f -mtime $MTIME -exec rm {} \;
+    fi
+
+    if [[ -d $MDIR/.Trash ]]; then
+        MTIME="+0"
+        [[ -f $HDIR/.removetrashdays ]] && MTIME="+"$(< $HDIR/.removetrashdays)
+        find $MDIR/.Trash -type f -mtime $MTIME -exec rm {} \;
+    fi
+
+done

@@ -1,0 +1,27 @@
+# ~/.help 20130212 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+cat << EOS
+? ....... Show this help
+e ....... The nano Editor with a simplified interface
+f ....... Find named files and list them (recursive)
+i ....... Install a package
+l ....... Tail the end of the most common system Logfile
+n ....... Create a new Note in the users home dir
+m ....... Menu System (TODO)
+p ....... Search for a particular running Process
+q ....... Query text string within files (recursive)
+r ....... Remove a package
+s ....... Search for a package
+u ....... Update the package system
+.. ...... Change to parent directory
+eh ...... Edit this Help file
+em ...... Edit Menu file
+es ...... Edit ~/.myrc and re-execute ~/.shrc
+la ...... List All files including dotfiles
+ll ...... Long Listing
+ls ...... Short form List
+se ...... Sudo Edit text files as root
+sn ...... Show Notes created with "n"
+env ..... Show Environmental global variables
+alias ... To show all current Aliases
+EOS

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# ~/.sh/bin/delvmail 20170418 - 20170506
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: delvmail user@domain" && exit 1
+
+M_LHS=${1%@*} # $M_LHS @ domain
+M_RHS=${1#*@} # userid @ $M_RHS
+HPATH="/home/u/$M_RHS/home/$M_LHS"
+
+if [[ -d $HPATH ]]; then
+    rm -rf $HPATH
+    echo "!!! Removed $HPATH"
+else
+    echo "!!! ERROR: '$HPATH' does not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

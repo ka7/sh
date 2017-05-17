@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# newwp 20160231 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+#wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$APASS --admin_email=$AMAIL
+
+[[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'newservice' first" && exit 2
+[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
+
+APASS=${2:-$APASS}
+DPASS=${3:-$APASS}
+FPATH=${4:-''}
+sethost $VHOST $APASS $DPASS
+gethost
+TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
+
+[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
+
+if [[ $FPATH ]]; then
+    WPURL=$SCHEME$VHOST/$FPATH
+    FPATH=$WPATH/$FPATH
+else
+    WPURL=$SCHEME$VHOST
+    FPATH=$WPATH
+fi
+
+if [[ ! -x /usr/local/bin/wp ]]; then
+    echo "!!! Install wp-cli as /usr/local/bin/wp"
+    curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+fi
+
+if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
+    echo "!!! '$DNAME' database already exists"
+else
+    echo "!!! Create $DNAME database"
+    mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
+    mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
+    mysql -e "FLUSH PRIVILEGES"
+fi
+
+if [ ! -f "$FPATH/wp-config-sample.php" ]; then
+    echo "!!! Download Wordpress"
+    cd $UPATH/var
+    if [[ ! -f latest.tar.gz ]]; then
+        wget -q --no-check-certificate https://wordpress.org/latest.tar.gz
+    fi
+    tar xf latest.tar.gz
+    rm latest.tar.gz
+    [[ -d $FPATH ]] && mv $FPATH ${FPATH}_old
+    mv wordpress $FPATH
+    chown $U_UID:www-data -R $FPATH
+fi
+
+if [ ! -f "$FPATH/wp-config.php" ]; then
+    echo "!!! Setting up Wordpress"
+    su - $VUSER -c "
+cd $FPATH
+wp core config --quiet --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
+wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user=admin --admin_password='$APASS' --admin_email='$AMAIL'
+wp plugin install --quiet contact-form-7 --activate
+wp plugin install --quiet smart-wp-login --activate
+wp plugin install --quiet user-switching --activate"
+
+    echo
+    echo "Wordpress: $WPURL/wp-admin/  ( $AMAIL / $APASS )"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

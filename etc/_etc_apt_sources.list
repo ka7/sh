@@ -1,0 +1,7 @@
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://archive.ubuntu.com/ubuntu zesty main universe
+deb http://archive.ubuntu.com/ubuntu zesty-updates main universe
+deb http://archive.ubuntu.com/ubuntu zesty-backports main universe
+deb http://security.ubuntu.com/ubuntu zesty-security main universe

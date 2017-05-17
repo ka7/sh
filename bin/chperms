@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# .sh/bin/chperms 20151231 - 20170501
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: chperms vhost|all" && exit 1
+
+source ~/.sh/lib/defaults || exit 2
+
+[[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (or use sudo)" && exit 3
+
+source ~/.sh/lib/_chperms
+
+echo "Changing permissions for:"
+
+if [[ $1 == all ]]; then
+    cd $VPATH
+    for VHOST in $(/bin/ls -d *); do
+        _chperms $VHOST
+        echo "$VHOST"
+    done
+elif [[ $1 =~ \. ]]; then # domainname with a dot
+    if [[ -d $VPATH/$1 ]]; then
+        _chperms $1
+        echo "$1"
+    else
+        echo "ERROR: $VPATH/$1 does not exist"
+    fi
+else
+    echo "ERROR: Unknown argument $1"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

@@ -1,0 +1,150 @@
+# .sh/lib/functions 20151231 - 20170507
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -f ~/.sh/lib/defaults ]] && source ~/.sh/lib/defaults || return 2
+
+chktime ()
+{
+    [[ $(($(stat -c %X $1)+$2)) < $(date +%s) ]] && return 0 || return 1
+}
+f ()
+{
+    find . -type f -iname '*'$*'*' -ls
+}
+gethost ()
+{
+    echo "\
+ADMIN='$ADMIN'
+AMAIL='$AMAIL'
+ANAME='$ANAME'
+APASS='$APASS'
+A_GID='$A_GID'
+A_UID='$A_UID'
+BPATH='$BPATH'
+CIMAP='$CIMAP'
+CSMTP='$CSMTP'
+C_DNS='$C_DNS'
+C_FPM='$C_FPM'
+C_SQL='$C_SQL'
+C_SSL='$C_SSL'
+C_WEB='$C_WEB'
+DBMYS='$DBMYS'
+DBSQL='$DBSQL'
+DHOST='$DHOST'
+DNAME='$DNAME'
+DPASS='$DPASS'
+DPATH='$DPATH'
+DPORT='$DPORT'
+DTYPE='$DTYPE'
+DUSER='$DUSER'
+EXMYS='$EXMYS'
+EXSQL='$EXSQL'
+IP4_0='$IP4_0'
+MPATH='$MPATH'
+OSMIR='$OSMIR'
+OSREL='$OSREL'
+SQCMD='$SQCMD'
+TAREA='$TAREA'
+TCITY='$TCITY'
+UPASS='$UPASS'
+UPATH='$UPATH'
+U_GID='$U_GID'
+U_SHL='$U_SHL'
+U_UID='$U_UID'
+VHOST='$VHOST'
+VPATH='$VPATH'
+VUSER='$VUSER'
+V_PHP='$V_PHP'
+WPATH='$WPATH'"
+}
+getusers ()
+{
+    getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}'
+}
+getuser ()
+{
+    echo "\
+VUSER=$VUSER
+U_UID=$U_UID
+U_GID=$U_GID
+VHOST=$VHOST
+UPATH=$UPATH
+U_SHL=$U_SHL"
+}
+go2 ()
+{
+    if [[ $1 =~ "@" ]]; then
+        cd /home/u/${1#*@}*/home/*${1%@*};
+    else
+        cd /home/u/$1*/var/www;
+    fi
+}
+grepuser ()
+{
+    getusers | grep "$1"
+}
+newuid ()
+{
+    local uid=$(( $(getusers | cut -d: -f3 | sort -n | tail -n1) + 1 ))
+    [[ $uid == 1 ]] && echo 1000 || echo $uid
+}
+getdb ()
+{
+     echo $SQCMD
+}
+setdb ()
+{
+    if [[ -z $1 ]]; then
+        echo "Usage: setdb mysql|sqlite"
+        return 1
+    elif [[ $1 == sqlite ]]; then
+        DTYPE=sqlite
+        SQCMD=$EXSQL
+    elif [[ $1 == mysql ]]; then
+        DTYPE=mysql
+        SQCMD=$EXMYS
+    fi
+    export DTYPE SQCMD
+}
+setuser ()
+{
+    local UUSER=$(grepuser "$1");
+    [[ $UUSER && (( $(grep -c . <<<"$UUSER") != 1 )) ]] && echo "Ambiguous result for '$1'" && return 10;
+    export VUSER=$(echo $UUSER | cut -d: -f1);
+    export U_UID=$(echo $UUSER | cut -d: -f3);
+    export U_GID=$(echo $UUSER | cut -d: -f4);
+    export VHOST=$(echo $UUSER | cut -d: -f5);
+    export UPATH=$(echo $UUSER | cut -d: -f6);
+    export U_SHL=$(echo $UUSER | cut -d: -f7)
+}
+sethost ()
+{
+    if [[ -z $1 ]]; then
+        echo "Usage: sethost user@domain|domain [user_pw] [mysql_pw] [shell_pw]"
+        return 1
+    elif [[ $1 =~ "@" ]]; then
+        export VUSER=${1%@*};
+        export VHOST=${1#*@};
+        [[ $VUSER == u* ]] && export U_UID=${VUSER#*u} || export U_UID=$A_UID;
+    else
+        if [[ $1 ]]; then
+            export VHOST=$1;
+            export U_UID=$(newuid);
+            export VUSER="u$U_UID";
+        fi;
+    fi;
+    export U_GID=$U_UID;
+
+    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
+    export AMAIL='admin@'$VHOST;
+    export APASS=${2:-$APASS};
+    export DPASS=${3:-$APASS};
+    export UPASS=${4:-$APASS};
+    export DUSER=$VUSER;
+    export MPATH=$VPATH/$VHOST/home;
+    export UPATH=$VPATH/$VHOST;
+    export WPATH=$VPATH/$VHOST/var/www;
+    export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh")
+}
+
+export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost

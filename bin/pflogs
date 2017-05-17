@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# pflogs 20170201 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+/usr/sbin/pflogsumm /var/log/mail.log > /tmp/pflogsumm.log

@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# newssl 20160121 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+# Depends on nginx and DNS already resolving to requested domains
+
+[[ -z $1 ]] && echo "Usage: newssl domain [IP] [--force] (ie; 0.0.0.0 --force)" && exit 1
+
+VHOST="$1"
+WPATH="/home/u/$VHOST/var/www"
+VACME="$WPATH/.well-known/acme-challenge"
+VCONF="/etc/nginx/sites-enabled"
+LEGIT="https://github.com/lukas2511/dehydrated.git"
+LECFG="/etc/dehydrated"
+LESSL="/etc/ssl"
+
+[[ -n $2 ]] && IP="$2" || IP="0.0.0.0"
+[[ -n $3 ]] && FORCE="$3" || FORCE=
+
+[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
+
+[[ ! -d $LECFG ]] && \
+    git clone --depth 1 $LEGIT $LECFG && \
+    chmod +x $LECFG/dehydrated && \
+    ln -s $LESSL $LECFG/certs
+
+if [[ ! -d $VACME ]]; then
+    mkdir -p $VACME
+    chown $(stat -c "%u:%g" $WPATH) -R $WPATH/.well-known
+fi
+
+cd $LECFG
+echo "WELLKNOWN=$VACME" > config
+
+./dehydrated -c -d $VHOST -d www.$VHOST $FORCE
+#./dehydrated -c -d $VHOST $FORCE
+
+if [[ $? -eq 0 ]]; then
+    if [[ ! -f $VCONF/$VHOST ]]; then
+        cat << EOS > $VCONF/$VHOST
+server {
+    listen                      $IP:443 ssl http2;
+    server_name                 www.$VHOST;
+    ssl_certificate             $LESSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $LESSL/$VHOST/privkey.pem;
+    return 301                  https://$VHOST\$request_uri;
+}
+server {
+    listen                      $IP:443 ssl http2;
+    server_name                 $VHOST;
+    set                         \$domain $VHOST;
+    include                     /etc/nginx/common.conf;
+    ssl_certificate             $LESSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $LESSL/$VHOST/privkey.pem;
+    ssl_trusted_certificate     $LESSL/$VHOST/chain.pem;
+}
+EOS
+    fi
+
+    cat $LESSL/$VHOST/privkey.pem $LESSL/$VHOST/fullchain.pem \
+        > $LESSL/$VHOST/mailserver.pem
+
+    chmod 644 $LESSL/$VHOST/mailserver.pem
+    chmod 755 $LESSL/$VHOST
+
+    nginx -t && systemctl reload nginx
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

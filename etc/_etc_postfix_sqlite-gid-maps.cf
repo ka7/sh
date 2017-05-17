@@ -1,0 +1,2 @@
+dbpath = _DPATH
+query = SELECT gid FROM mail_users WHERE user = '%s'

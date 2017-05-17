@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+# .sh/bin/addvhost 20170217 - 20170502
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $2 ]] && echo "Usage: addvhost user@domain|domain mysql|sqlite [user_pw] [mysql_pw] [shell_pw]" && exit 1
+
+source ~/.sh/lib/functions || exit 2
+
+sethost $1 $3 $4 $5
+setdb $2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
+
+if [[ $(grepuser ":$VHOST:") ]]; then
+    echo "!!! Warning: $VUSER for $VHOST already exists"
+else
+    echo "!!! Create $VUSER user"
+    U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
+    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $VUSER
+    [[ -n $UPASS && $UPASS != $APASS ]] && { echo $VUSER:$UPASS | chpasswd; }
+fi
+
+if [[ -d $C_WEB && -d $C_FPM ]]; then
+    if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
+        echo "!!! $C_FPM/pool.d/$VHOST.conf already exists"
+    else
+        echo "!!! Create $C_FPM/pool.d/$VHOST.conf"
+        cat << EOS > $C_FPM/pool.d/$VHOST.conf
+[$VHOST]
+user = $U_UID
+group = $U_GID
+include = $C_FPM/common.conf
+EOS
+        if [ -f $C_FPM/pool.d/www.conf ]; then
+            echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
+            mv $C_FPM/pool.d/www.conf $C_FPM
+        fi
+        php-fpm$V_PHP -t && systemctl reload php$V_PHP-fpm
+    fi
+fi
+
+if [[ -d $UPATH ]]; then
+    echo "!!! Warning: $UPATH already exists"
+else
+    echo "!!! Create $UPATH"
+    mkdir -p $UPATH/{.ssh,.nano,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
+fi
+
+if [[ -f $UPATH/.ssh/authorized_keys ]]; then
+    echo "!!! $UPATH/.ssh/authorized_keys already exists"
+else
+    if [[ -f ~/.ssh/id_rsa.pub ]]; then
+        echo "!!! Setup $UPATH/.ssh/authorized_keys with ~/.ssh/id_rsa.pub"
+        cp ~/.ssh/id_rsa.pub $UPATH/.ssh/authorized_keys
+    elif [[ -f ~/.ssh/authorized_keys ]]; then
+        echo "!!! Setup $UPATH/.ssh/authorized_keys with ~/.ssh/authorized_keys"
+        cp ~/.ssh/authorized_keys $UPATH/.ssh/authorized_keys
+    else
+        echo "!!! Warning: no ~/.ssh/authorized_keys or ~/.ssh/id_rsa.pub"
+    fi
+    [[ ! -f $UPATH/.hushlogin ]] && touch $UPATH/.hushlogin
+fi
+
+if [[ -L $UPATH/home/u/$VHOST ]]; then
+    echo "!!! $UPATH/home/u/$VHOST already exists"
+else
+    echo "!!! Create custom chroot symlink"
+    cd $UPATH/home/u
+    ln -s ../.. $VHOST
+fi
+
+if [[ -f $UPATH/bin/busybox ]]; then
+    echo "!!! $UPATH/bin/busybox already exists"
+else
+    echo "!!! Setup busybox with sh, hostname, tail symlinks"
+    cp /bin/busybox $UPATH/bin
+    cd $UPATH/bin
+    ln -s busybox sh
+    ln -s busybox hostname
+    ln -s busybox tail
+fi
+
+if [[ -f $UPATH/.profile ]]; then
+    echo "!!! $UPATH/.profile already exists"
+else
+    echo "!!! Create $UPATH/.profile"
+    cat << EOS > $UPATH/.profile
+export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
+alias la='ls -lA -F --color'
+alias ll='ls -l -F --color'
+alias ls='ls -F --color'
+EOS
+fi
+
+if [[ -f $UPATH/etc/passwd ]]; then
+    echo "!!! $UPATH/etc/passwd already exists"
+else
+    echo "!!! Create $UPATH/etc/passwd"
+    cat << EOS > $UPATH/etc/passwd
+root:x:0:0:::
+$WWWUSER:x:33:33:::
+$VUSER:x:$U_UID:$U_GID:::
+EOS
+fi
+
+if [[ -f $UPATH/etc/group ]]; then
+    echo "!!! $UPATH/etc/group already exists"
+else
+    echo "!!! Create $UPATH/etc/group"
+    cat << EOS > $UPATH/etc/group
+root:x:0:
+www-data:x:33:
+$VUSER:x:$U_GID:
+EOS
+fi
+
+if [[ -f $WPATH/index.html || -f $WPATH/index.php ]]; then
+    [[ -f $WPATH/index.html ]] && echo "!!! $WPATH/index.html already exists"
+    [[ -f $WPATH/index.php ]] && echo "!!! $WPATH/index.php already exists"
+else
+    echo "!!! Create $WPATH/index.html"
+    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $WPATH/index.html
+fi
+
+if [[ -f $WPATH/phpinfo.php ]]; then
+    echo "!!! $WPATH/phpinfo.php already exists"
+else
+    echo "!!! Create $WPATH/phpinfo.php"
+    echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" > $WPATH/phpinfo.php
+fi
+
+if [[ -f $WPATH/private/.htpasswd ]]; then
+    echo "!!! $WPATH/private/.htpasswd already exists"
+else
+    echo "!!! Create $WPATH/private/.htpasswd guest/letmein"
+    cat << 'EOS' > $WPATH/private/.htpasswd
+guest:$apr1$OH0WIbVa$21Bj05X1rO5zale7bv1971
+EOS
+fi
+
+if [[ -d $MPATH/admin/Maildir ]]; then
+    echo "!!! $MPATH/admin/Maildir already exists"
+else
+    echo "!!! Create $MPATH/admin/Maildir"
+    mkdir -p $MPATH/admin/{Maildir,sieve}
+fi
+
+if [[ -f $MPATH/admin/sieve/retrain-as-good.sieve ]]; then
+    echo "!!! $MPATH/admin/sieve/retrain-as-good.sieve already exists"
+else
+    echo "!!! Create $MPATH/admin/sieve/retrain-as-good.sieve"
+    cat << 'EOS' > $MPATH/admin/sieve/retrain-as-good.sieve
+require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
+if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
+execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
+EOS
+fi
+
+if [[ -f $MPATH/admin/sieve/retrain-as-spam.sieve ]]; then
+    echo "!!! $MPATH/admin/sieve/retrain-as-spam.sieve already exists"
+else
+    echo "!!! Create $MPATH/admin/sieve/retrain-as-spam.sieve"
+    cat << 'EOS' > $MPATH/admin/sieve/retrain-as-spam.sieve
+require ["vnd.dovecot.execute"];
+execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
+EOS
+fi
+
+if [[ -f $MPATH/admin/sieve/spamprobe.sieve ]]; then
+    echo "!!! $MPATH/admin/sieve/spamprobe.sieve already exists"
+else
+    echo "!!! Create $MPATH/admin/sieve/spamprobe.sieve"
+    cat << 'EOS' > $MPATH/admin/sieve/spamprobe.sieve
+require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
+if envelope :localpart :matches "to" "*" { set "lhs" "${1}"; }
+if envelope :domain :matches "to" "*" { set "rhs" "${1}"; }
+execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lhs}/.spamprobe", "receive"];
+addheader :last "X-Spam" "${SCORE}";
+if header :matches "X-Spam" "SPAM*" { fileinto "Spam"; }
+EOS
+fi
+
+if [[ -L $MPATH/admin/.dovecot.sieve ]]; then
+    echo "!!! $MPATH/admin/.dovecot.sieve symlink already exists"
+else
+    echo "!!! Create $MPATH/admin/.dovecot.sieve symlink to sieve/spamprobe.sieve"
+    cd $MPATH/admin
+    ln -s sieve/spamprobe.sieve .dovecot.sieve
+fi
+
+if [[ -d $MPATH/admin/.spamprobe ]]; then
+    echo "!!! $MPATH/admin/.spamprobe already exists"
+else
+    if [[ -d /etc/spamprobe ]]; then
+        echo "!!! Create $MPATH/admin/.spamprobe"
+        mkdir $MPATH/admin/.spamprobe
+        cp -a /etc/spamprobe/* $MPATH/admin/.spamprobe
+    else
+        echo "!!! Warning: /etc/spamprobe does not exist"
+    fi
+fi
+
+chperms $VHOST
+
+DID=$(echo "SELECT id FROM vhosts WHERE domain='$VHOST' LIMIT 1" | $SQCMD)
+
+if [[ -n $DID ]]; then
+    echo "
+ UPDATE vhosts SET
+        uname = '$VUSER',
+        uid = $U_UID,
+        gid = $U_GID
+  WHERE id = $DID" | $SQCMD
+
+    echo "
+ UPDATE vmails SET
+        uid = $U_UID,
+        gid = $U_GID
+  WHERE did = $DID" | $SQCMD
+else
+    echo "!!! ERROR: Vhost ID ($DID) does not exist in $SQCMD"
+fi
+
+logging $VHOST $DTYPE update
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

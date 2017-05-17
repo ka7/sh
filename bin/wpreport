@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# ~/.sh/bin/wpreport 20160817 - 20170506
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: wpreport domain|all [path]" && exit 1
+
+source ~/.sh/lib/functions || exit 2
+sethost $1
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 2
+
+if [[ $1 == all ]];then
+    WPS=$(find $VPATH -type d -name "wp-admin")
+    for WP in $WPS; do
+        WPATH=$(dirname $WP)
+        VUSER=$(stat -c "%U" $WPATH)
+        echo -e "$VUSER\t$WPATH"
+    done
+else
+    [[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
+    WPATH=$VPATH/$VHOST/var/www
+    [[ -n $2 ]] && WPATH=$WPATH/$2
+    [[ ! -d $WPATH/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
+    VUSER=$(stat -c "%U" $WPATH)
+    echo -n "$VUSER $WPATH v"
+    su - $VUSER -c "
+cd $WPATH
+wp core version
+wp theme list
+wp plugin list
+wp user list
+"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
