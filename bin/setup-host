@@ -2,20 +2,14 @@
 # .sh/bin/setup-host 20170319 - 20170517
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-#[[ -z $1 ]] && echo "Usage: setup-host eth-device" && exit 1
-#
-#ifconfig $1 > /dev/null 2>&1
-#if [[ $? -gt 0 ]]; then
-#    echo "!!! ERROR: problem with '$1' eth-device"
-#    echo
-#    echo "    Hint: to change defalt Ubuntu eth-device back to eth0..."
-#    echo "    sudo nano /etc/default/grub"
-#    echo "    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\""
-#    echo "    sudo grub-mkconfig -o /boot/grub/grub.cfg"
-#    echo "    sudo systemctl reboot"
-#    echo
-#    exit 2
-#fi
+ifconfig eth0 > /dev/null 2>&1
+[[ $? -gt 0 ]] && echo "
+    Hint: to change defalt Ubuntu eth-device back to eth0...
+    sudo nano /etc/default/grub
+    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    sudo systemctl reboot
+"
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
@@ -24,6 +18,7 @@ if [[ $? -eq 0 ]]; then
 fi
 
 if [[ -d ~/.sh ]]; then
+    echo "!!! Update local root shell"
     ~/.sh/bin/shm pull > /dev/null
     source ~/.shrc
     gethost > ~/.sh/lib/defaults
