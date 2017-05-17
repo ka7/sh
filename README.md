@@ -38,7 +38,7 @@ these very basic packages are available...
 
     sudo apt -y update
     sudo apt -y full-upgrade
-    sudo apt -y install --no-install-recommends ca-certificates curl git nano openssh-server rsync wget
+    sudo apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
 
 To install this project manually, copy and paste these 3 lines below...
 
