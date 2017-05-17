@@ -9,6 +9,7 @@ ifconfig eth0 > /dev/null 2>&1
     Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
     sudo systemctl reboot
+    # and update references in /etc/network/interfaces (.d/)
 "
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
@@ -22,7 +23,6 @@ if [[ -d ~/.sh ]]; then
     ~/.sh/bin/shm pull > /dev/null
     source ~/.shrc
     gethost > ~/.sh/lib/defaults
-    source ~/.shrc
 else
     echo "!!! Setup local root shell"
     cd
@@ -31,7 +31,6 @@ else
     ~/.sh/bin/shm perms
     source ~/.shrc
     gethost > ~/.sh/lib/defaults
-    source ~/.shrc
 fi
 
 gethost
