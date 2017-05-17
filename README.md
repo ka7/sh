@@ -37,9 +37,9 @@ To install manually and activate, copy and paste the 3 lines below...
     ~/.sh/bin/shm install
     . ~/.shrc
 
-The above will clone the Github repository to a folder called `.sh` in
-your home directory and activate the system. If you have any problems with
-the installed symlinks then just remove them with...
+The above will clone the Github repository to a folder called `.sh` in your
+home directory and activate the system. If you have any problems with the
+installed symlinks then just remove them with...
 
     shm remove
 
@@ -47,8 +47,8 @@ or to remove the entire system use...
 
     shm removeall
 
-You can pull and push from your own forked repo without having the cd to the
-~/.sh installation first...
+You can pull and push from your own forked repo without having to cd into
+the ~/.sh installation first...
 
     shm pull
     shm push
@@ -57,9 +57,10 @@ Easily reset the RWX permsissions of all SH scripts to a safe(r) default...
 
     shm perms
 
-Just type `alias` to see a set of simple aliases, typing `?` will show the most
-common ones with some explanation of their usage and `eh` can be sed to customize
-this list, and yes, `nano` is the default editor of (my) choice.
+Just type `alias` to see a set of simple aliases, typing `?` will show the
+most common ones with some explanation of their usage and `eh` can be sed
+to customize this list, and yes, `nano` is the default editor of (my)
+choice.
 
     ? ....... Show this help
     e ....... The nano Editor with a simplified interface
@@ -92,17 +93,19 @@ Some other useful aliases not list above are...
     unblock . Unblock the above blocked IP
     shblock . Show all blocked IPs
 
-Use `alias | grep log` to see some of the logging aliases, tweak or add more using `es`
-to `Edit Shell` your custom and long term persistent `~/.myrc` file.
+Use `alias | grep log` to see some of the logging aliases, tweak or add
+more using `es` to `Edit Shell` your custom and long term persistent
+`~/.myrc` file.
 
-`n` (notes) and `sn` (show notes) is an ultra simple note taking system and (TODO) should
-be expanded to keep the notes in a private Git repo (to allow for the potential of passwords
-and any other sensitive info.)
+`n` (notes) and `sn` (show notes) is an ultra simple note taking system and
+(TODO) should be expanded to keep the notes in a private Git repo (to allow
+for the potential of passwords and any other sensitive info.)
 
-There is also a couple of dozen (still in flux) fairly standard exported shell variables
-that are used by some of the scripts in the `~/.sh/bin/` dir. They can be set and overriden
-in the `~/.myrc` file to customize them for each host. For example, the `gethost` shell
-function on my main workstation shows...
+There is also a couple of dozen (still in flux) fairly standard exported
+shell variables that are used by some of the scripts in the `~/.sh/bin/`
+dir. They can be set and overriden in the `~/.myrc` file to customize them
+for each host. For example, the `gethost` shell function on my main
+workstation shows...
 ```
 ADMIN='sysadm'
 AMAIL='admin@mbox.goldcoast.org'
@@ -145,8 +148,9 @@ VUSER='u1001'
 V_PHP='7.0'
 WPATH='/home/u/mbox.goldcoast.org/var/www'
 ```
-You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to dynamically
-change them when using the `~/.sh/bin` scripts to, for instance, add a virtual host.
+You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to
+dynamically change them when using the `~/.sh/bin` scripts to, for
+instance, add a virtual host.
 
 ## More documentation (todo)
 
