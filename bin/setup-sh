@@ -3,13 +3,14 @@
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ifconfig eth0 > /dev/null 2>&1
-[[ $? -gt 0 ]] && echo "
-    Hint: to change defalt Ubuntu eth-device back to eth0...
+[[ $? -gt 0 ]] && echo "\
+!!! Hint: to change defalt Ubuntu eth-device back to eth0...
+
     sudo nano /etc/default/grub
     Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
+    # Update iface references in /etc/network/interfaces (.d/)
     sudo systemctl reboot
-    # and update references in /etc/network/interfaces (.d/)
 "
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
