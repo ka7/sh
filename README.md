@@ -36,8 +36,9 @@ Make sure `curl` and `git` are installed first. Use `which git` and if
 nothing is returned then manually update the package list and make sure
 these very basic packages are available...
 
-    sudo apt update
-    sudo apt install --no-install-recommends curl git nano wget
+    sudo apt -y update
+    sudo apt -y full-upgrade
+    sudo apt -y install --no-install-recommends curl git nano openssh-server rsync wget
 
 To install this project manually, copy and paste these 3 lines below...
 
