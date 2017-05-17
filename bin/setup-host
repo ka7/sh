@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170319 - 20170507
+# .sh/bin/setup-host 20170319 - 20170517
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-host eth-device" && exit 1
@@ -31,7 +31,7 @@ if [[ -d ~/.sh ]]; then
 else
     echo "!!! Setup local root shell"
     cd
-    git clone -q --depth 1 https://github.com/markc/sh .sh
+    git clone -q https://github.com/netserva/sh .sh
     ~/.sh/bin/shm install > /dev/null
     ~/.sh/bin/shm perms
     source ~/.shrc
