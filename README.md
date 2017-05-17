@@ -5,20 +5,21 @@ Bash aliases and env variables, along with the `shm` (SHell Manager)
 script, to help make it easier to manage your Bash shell from a known
 upstream (Github) online repository. The repository also includes an
 associated collection of shell scripts to setup and manage a simple Ubuntu
-mail and web server (WIP).
+mail and web server and provide a foundation for the [NetServa] PHP web
+interface. Note: mid-2017 both projects are in an early WIP stage.
 
 **MAY 2017**
 
 Another major update...
 
 - use zesty as a working base
-- removed all OLD scripts
+- removed all OLD/* scripts
 - moved www/* to bin/* for unified web/cli shell scripts
 - moved cfg/ to etc/ and removed shell scripts
 - added $DTYPE $EXMYS $EXSQL $SQCMD to switch between MySQL and SQLite
 - a PHP admin interface is almost working for simple tasks
 - almost ready to move "serva" from private to public repo
-- will add a lib/ dir and refactor out common script parts
+- added a lib/ dir and refactor out common script parts
 - pipe through "| $SQCMD" setting for the default database engine
 
 ## Usage
@@ -31,7 +32,14 @@ to use this script as root. Please [review the script] at Github first...
 
     curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
 
-To install manually and activate, copy and paste the 3 lines below...
+Make sure `curl` and `git` are installed first. Use `which git` and if
+nothing is returned then manually update the package list and make sure
+these very basic packages are available...
+
+    sudo apt update
+    sudo apt install --no-install-recommends curl git nano wget
+
+To install this project manually, copy and paste these 3 lines below...
 
     git clone --depth 1 https://github.com/netserva/sh ~/.sh
     ~/.sh/bin/shm install
@@ -160,6 +168,7 @@ There some also some semi-related posts on my [personal blog].
 _All scripts and documentation are Copyright (C) 2008-2017 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
+[NetServa]: https://github.com/netserva/www
 [review the script]: https://github.com/netserva/sh/blob/master/bin/setup-sh
 [AGPL-3.0]: http://www.gnu.org/licenses/agpl-3.0.html
 [fork this project]: https://help.github.com/articles/fork-a-repo
