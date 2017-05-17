@@ -26,7 +26,12 @@ Another major update...
 To use these scripts make sure you have the `git` package installed and
 either [fork this project] and clone your own copy (so you can provide
 patches via [pull requests]) or simply clone this repo and use the scripts
-anyway you care to. Just copy and paste the 3 lines below to activate...
+anyway you care to. The simplest way to install and setup this project is
+to use this script as root. Please [review the script] at Github first...
+
+    curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
+
+To install manually and activate, copy and paste the 3 lines below...
 
     git clone --depth 1 https://github.com/netserva/sh ~/.sh
     ~/.sh/bin/shm install
@@ -151,6 +156,7 @@ There some also some semi-related posts on my [personal blog].
 _All scripts and documentation are Copyright (C) 2008-2017 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
+[review the script]: https://github.com/netserva/sh/blob/master/bin/setup-sh
 [AGPL-3.0]: http://www.gnu.org/licenses/agpl-3.0.html
 [fork this project]: https://help.github.com/articles/fork-a-repo
 [pull requests]: https://help.github.com/articles/using-pull-requests

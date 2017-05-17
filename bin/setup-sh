@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170319 - 20170517
+# .sh/bin/setup-sh 20170319 - 20170517
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ifconfig eth0 > /dev/null 2>&1
@@ -35,4 +35,3 @@ else
 fi
 
 gethost
-
