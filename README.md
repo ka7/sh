@@ -3,9 +3,9 @@
 This **S**hell **H**elper project is a set of Ubuntu/systemd orientated
 Bash aliases and env variables, along with the `shm` (SHell Manager)
 script, to help make it easier to manage your Bash shell from a known
-upstream (Github) online repository. The repository also includes an
+upstream (Github) online repository. The project also includes an
 associated collection of shell scripts to setup and manage a simple Ubuntu
-mail and web server and provide a foundation for the [NetServa] PHP web
+mail and web server and provide a foundation for the [NetServa HCP] PHP web
 interface. Note: mid-2017 both projects are in an early WIP stage.
 
 **MAY 2017**
@@ -165,11 +165,10 @@ instance, add a virtual host.
 
 There some also some semi-related posts on my [personal blog].
 
-
-_All scripts and documentation are Copyright (C) 2008-2017 Mark Constable and Licensed [AGPL-3.0]_
+_All scripts and documentation are Copyright (C) 1995-2017 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
-[NetServa]: https://github.com/netserva/www
+[NetServa HCP]: https://github.com/netserva/www
 [review the script]: https://github.com/netserva/sh/blob/master/bin/setup-sh
 [AGPL-3.0]: http://www.gnu.org/licenses/agpl-3.0.html
 [fork this project]: https://help.github.com/articles/fork-a-repo
