@@ -6,10 +6,8 @@
 
 source ~/.sh/lib/functions || exit 2
 
-setup-apps $1
+setup-deb $1
 setup-etc $1
-#setup-www $1
-
-echo "!!! Installed NetServa HCP"
+setup-www sysadm@$VHOST $1
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

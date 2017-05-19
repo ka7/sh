@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-apps 20170519 - 20170519
+# .sh/bin/setup-deb 20170519 - 20170519
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: setup-apps mysql|sqlite" && exit 1
+[[ -z $1 ]] && echo "Usage: setup-deb mysql|sqlite" && exit 1
 
 source ~/.sh/lib/functions || exit 2
 
