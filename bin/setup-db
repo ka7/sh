@@ -6,6 +6,8 @@
 
 source ~/.sh/lib/defaults || exit 2
 
+set -x
+
 if [[ $1 == sqlite ]]; then
     if [[ ! -f $DBSQL ]]; then
         echo "!!! Create $DBSQL"
@@ -213,7 +215,7 @@ INSERT INTO news VALUES
 (null, 'News Item 1', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01'),
 (null, 'News Item 2', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01');
 INSERT INTO accounts VALUES
-(null,1,0,1,'sysadm@$VHOST','System','Administrator','',0,'','','\$2y\$10\$QiQZf.bH2zzpPJWxr0nMBuFIvFvpzkquGibg8A31XsdMJ4/GP5bki','2017-01-01 00:00:01','2017-01-01 00:00:01');
+(null,1,0,1,'admin@$VHOST','System','Administrator','',0,'','','\$2y\$10\$QiQZf.bH2zzpPJWxr0nMBuFIvFvpzkquGibg8A31XsdMJ4/GP5bki','2017-01-01 00:00:01','2017-01-01 00:00:01');
 INSERT INTO valias VALUES
 (null,1,1,1,'@$VHOST','admin@$VHOST','2017-01-01 00:00:01','2017-01-01 00:00:01');
 INSERT INTO vhosts VALUES
@@ -231,3 +233,5 @@ if [[ $1 == sqlite ]]; then
 fi
 
 echo "Installed '$1' database"
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

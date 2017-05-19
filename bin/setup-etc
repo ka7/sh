@@ -7,6 +7,7 @@
 source ~/.sh/lib/defaults || exit 2
 
 set -x
+
 if [[ $1 == sqlite ]]; then
     SQCMD=$EXSQL
     [[ ! -d $DBSQL ]] && setup-db sqlite
@@ -175,3 +176,5 @@ nginx -t && systemctl restart nginx
 #systemctl restart dovecot
 #systemctl restart postfix
 #systemctl restart pdns
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

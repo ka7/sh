@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20170504
+# .sh/bin/addvmail 20170418 - 20170519
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: addmbox user@domain" && exit 1
+[[ -z $1 ]] && echo "Usage: addvmail user@domain" && exit 1
 
 M_LHS=${1%@*} # $M_LHS @ domain
 M_RHS=${1#*@} # userid @ $M_RHS

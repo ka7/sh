@@ -8,7 +8,6 @@ source ~/.sh/lib/functions || exit 2
 
 setup-apps $1
 setup-etc $1
-setup-db $1
 #setup-www $1
 
 echo "!!! Installed NetServa HCP"
