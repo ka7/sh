@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-lxd 20170519 - 20170521
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large]" && exit 1
+
+if [[ ! -f ~/.sh/lib/functions ]]; then
+    echo "!!! Warning: using custom non-standard settings"
+    # Change the 3 vars below to what you need
+    APASS="changeme_N0W"
+    OSREL="zesty"
+    IP4_0=$(hostname -i)
+
+    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
+    chktime () {
+        [[ $(($(stat -c %X $1)+$2)) < $(date +%s) ]] && return 0 || return 1
+    }
+else
+    source ~/.sh/lib/functions
+fi
+
+VHOST=$1
+_HOST=$(echo ${VHOST%%.*})
+
+if [[ $2 == large ]]; then
+    VPLAN="large"
+    VSIZE=20GB
+    V_MEM=1024MB
+    V_CPU=3
+elif [[ $2 == medium ]]; then
+    VPLAN="medium"
+    VSIZE=5GB
+    V_MEM=512MB
+    V_CPU=2
+else
+    VPLAN="small"
+    VSIZE=1GB
+    V_MEM=256MB
+    V_CPU=1
+fi
+
+if [[ ! -d /var/lib/lxd ]]; then
+    grep -q "ubuntu-lxc" /etc/apt/sources.list
+    if [[ $? -ne 0 ]]; then
+        echo "!!! Add latest stable LXD PPA"
+        cat << EOS >> /etc/apt/sources.list
+deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu $OSREL main
+EOS
+        $SUDO apt-key adv --recv-keys --keyserver keyserver.ubuntu.com D5495F657635B973
+    fi
+    if [[ ! -e /usr/bin/lxd ]]; then
+        echo "!!! Install latest stable LXD from PPA"
+        chktime /var/cache/apt/pkgcache.bin 3600 && $SUDO apt-get -qq update
+        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yq --no-install-recommends lxd zfsutils-linux
+    fi
+    lxd init --auto \
+      --network-address $IP4_0 \
+      --network-port 8443 \
+      --storage-backend zfs \
+      --storage-create-loop 5 \
+      --storage-pool lxd-pool \
+      --trust-password $APASS
+fi
+
+lxc storage create "zfs$_HOST$VSIZE" zfs size=$VSIZE
+
+lxc profile create $VPLAN$_HOST
+lxc profile set $VPLAN$_HOST limits.memory $V_MEM
+lxc profile set $VPLAN$_HOST limits.cpu $V_CPU
+lxc profile device add $VPLAN$_HOST root disk path=/ pool="zfs$_HOST$VSIZE"
+lxc network attach-profile lxdbr0 $VPLAN$_HOST eth0
+
+lxc launch images:ubuntu/zesty $_HOST -p $VPLAN$_HOST
+lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
+sleep 5 # wait for DHCP
+lxc exec $_HOST -- apt update
+lxc exec $_HOST -- apt -y full-upgrade
+lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
+
+# NetServa specific, comment out these last few lines if not needed
+lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+lxc exec $_HOST -- bash -lc "setup-all sqlite"
+echo
+echo "setup-ssh $VHOST root 9 $VHOST"
+echo
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

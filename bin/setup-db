@@ -6,8 +6,6 @@
 
 source ~/.sh/lib/defaults || exit 2
 
-set -x
-
 if [[ $1 == sqlite ]]; then
     if [[ ! -f $DBSQL ]]; then
         echo "!!! Create $DBSQL"

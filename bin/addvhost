@@ -191,13 +191,15 @@ fi
 if [[ -d $MPATH/admin/.spamprobe ]]; then
     echo "!!! $MPATH/admin/.spamprobe already exists"
 else
-    if [[ -d /etc/spamprobe ]]; then
-        echo "!!! Create $MPATH/admin/.spamprobe"
-        mkdir $MPATH/admin/.spamprobe
-        cp -a /etc/spamprobe/* $MPATH/admin/.spamprobe
-    else
-        echo "!!! Warning: /etc/spamprobe does not exist"
+    if [[ ! -d /etc/spamprobe ]]; then
+        echo "!!! Fetch https://renta.net/public/_etc_spamprobe.tgz"
+        cd /etc
+        wget https://renta.net/public/_etc_spamprobe.tgz
+        tar xf _etc_spamprobe.tgz
     fi
+    echo "!!! Create $MPATH/admin/.spamprobe"
+    mkdir $MPATH/admin/.spamprobe
+    cp -a /etc/spamprobe/* $MPATH/admin/.spamprobe
 fi
 
 chperms $VHOST

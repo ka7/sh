@@ -6,8 +6,6 @@
 
 source ~/.sh/lib/defaults || exit 2
 
-set -x
-
 [[ ! -d $VPATH ]] && mkdir -p $VPATH
 
 addvhost $*
