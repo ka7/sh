@@ -33,6 +33,7 @@ sh_install ()
     source ~/.sh/lib/functions
     gethost > ~/.sh/lib/defaults
     sh_perms
+    sed -i 's/^mesg/#mesg/' ~/.profile
     echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bashrc
     echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.profile
     echo

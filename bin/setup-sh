@@ -20,18 +20,16 @@ if [[ $? -eq 0 ]]; then
 fi
 
 if [[ -d ~/.sh ]]; then
-    echo "!!! Update local root shell"
+    echo "!!! Update local SH scripts"
     ~/.sh/bin/shm pull > /dev/null
     source ~/.shrc
-    gethost > ~/.sh/lib/defaults
 else
-    echo "!!! Setup local root shell"
+    echo "!!! Setup local SH scripts"
     cd
     git clone -q https://github.com/netserva/sh .sh
     ~/.sh/bin/shm install > /dev/null
     ~/.sh/bin/shm perms
     source ~/.shrc
-    gethost > ~/.sh/lib/defaults
 fi
 
 gethost

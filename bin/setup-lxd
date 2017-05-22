@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20170521
+# .sh/bin/setup-lxd 20170519 - 20170522
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large]" && exit 1
@@ -43,7 +43,7 @@ if [[ ! -d /var/lib/lxd ]]; then
     grep -q "ubuntu-lxc" /etc/apt/sources.list
     if [[ $? -ne 0 ]]; then
         echo "!!! Add latest stable LXD PPA"
-        cat << EOS >> /etc/apt/sources.list
+        cat << EOS | $SUDO tee -a /etc/apt/sources.list
 deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu $OSREL main
 EOS
         $SUDO apt-key adv --recv-keys --keyserver keyserver.ubuntu.com D5495F657635B973
