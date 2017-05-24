@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-host 20170524 - 20170524
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if [[ -f ~/.sh/lib/functions ]]; then
+    source ~/.sh/lib/functions
+else
+    echo "!!! Warning: please run setup-sh"
+    OSMIR="archive.ubuntu.com"
+    OSREL="zesty"
+    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
+fi
+
+HLIST="
+  bsd-mailx
+  ca-certificates
+  curl
+  git
+  nano
+  openssh-server
+  rsync
+  ssmtp
+"
+
+if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    echo "!!! Setup apt sources list for $OSREL"
+    mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cat << EOS | tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe
+deb http://$OSMIR/ubuntu $OSREL-updates main universe
+deb http://$OSMIR/ubuntu $OSREL-backports main universe
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+EOS
+fi
+
+[[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] && \
+    echo "!!! Updating packages, patience please..." && \
+    $SUDO apt-get -qq update && \
+    $SUDO apt-get -qq -y -u \
+    -o Dpkg::Options::="--force-confdef" \
+    -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null
+
+# Unique trigger to know if $DLIST packages are already installed
+if [[ ! -e /usr/bin/bsd-mailx ]]; then
+    echo "!!! Installing default package set, more patience..."
+    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yq --no-install-recommends install $HLIST > /dev/null
+fi
+
+ifconfig eth0 > /dev/null 2>&1
+[[ $? -gt 0 ]] && echo "\
+!!! Hint: to change defalt Ubuntu eth-device back to eth0...
+
+    sudo nano /etc/default/grub
+    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    # Update iface references in /etc/network/interfaces (.d/)
+    sudo systemctl reboot
+"
+
+grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
+if [[ $? -eq 0 ]]; then
+    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
+fi
+
+if [[ ! -d ~/.ssh ]]; then
+    echo ">>> Create host ~/.ssh dir"
+    mkdir ~/.ssh
+    chmod 700 ~/.ssh
+fi
+
+if [[ ! -f ~/.ssh/id_rsa ]]; then
+    echo ">>> Create host ~/.ssh/id_rsa key"
+    ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    if [[ ! -f ~/.ssh/config ]]; then
+    cat << EOS > ~/.ssh/config
+Host *
+  TCPKeepAlive yes
+  ServerAliveInterval 30
+  IdentityFile ~/.ssh/id_rsa
+
+EOS
+    fi
+    chmod 600 ~/.ssh/*
+fi
+
+if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
+    cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+    echo "!!! Setup SSH Port 9"
+    sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
+    echo "!!! Setup SSH restricted ssh/sftp logins"
+    sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
+    cat << EOS | tee -a /etc/ssh/sshd_config > /dev/null
+
+Subsystem sftp internal-sftp -u 0027
+Match User u*
+  ChrootDirectory %h
+  X11Forwarding no
+  AllowTcpForwarding no
+EOS
+    systemctl restart ssh
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
