@@ -1,16 +1,18 @@
-# ~/.sh/_myrc 20130218 - 20170501
+# ~/.sh/_myrc 20130218 - 20170524
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 # Add your custom aliases and env variables here. This file is not managed or
 # removed by the shm script other than the 'es' alias to edit and reload it.
 
+export VHOST=$(hostname -f)             # Default FQDN
+export _HOST=${VHOST%%.*}               # Default Host
+
 COLOR=31
-LABEL=$(id -un)@$(hostname)
+LABEL=$(id -un)@$_HOST
 
 export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
 export EDITOR=nano
 
-export VHOST=$(hostname -f)             # Default FQDN
 export VPATH=/home/u                    # Default Path
 
 export ADMIN=sysadm                     # Admin ID/DB
