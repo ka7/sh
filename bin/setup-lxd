@@ -50,7 +50,8 @@ EOS
     fi
     if [[ ! -e /usr/bin/lxd ]]; then
         echo "!!! Install latest stable LXD from PPA"
-        chktime /var/cache/apt/pkgcache.bin 3600 && $SUDO apt-get -qq update
+        [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
+            && $SUDO apt-get -qq update
         DEBIAN_FRONTEND=noninteractive $SUDO apt install -yq --no-install-recommends lxd zfsutils-linux
     fi
     lxd init --auto \
@@ -77,7 +78,7 @@ lxc exec $_HOST -- apt update
 lxc exec $_HOST -- apt -y full-upgrade
 lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
 
-# NetServa specific, comment out these last few lines if not needed
+# NetServa specific, remove or comment out these last few lines if not needed
 lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
 lxc exec $_HOST -- bash -lc "setup-all sqlite"
 echo
