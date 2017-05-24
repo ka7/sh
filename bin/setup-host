@@ -31,8 +31,18 @@ if [[ ! -f /etc/apt/sources.list.orig ]]; then
 
 deb http://$OSMIR/ubuntu $OSREL main universe
 deb http://$OSMIR/ubuntu $OSREL-updates main universe
-deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+
+# Desktop packages
+#deb http://$OSMIR/ubuntu $OSREL main universe multiverse restricted
+#deb http://$OSMIR/ubuntu $OSREL-updates main universe multiverse restricted
+#deb http://$OSMIR/ubuntu $OSREL-backports main universe multiverse restricted
+#deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse restricted
+# adobe-flashplugin
+#deb http://archive.canonical.com/ubuntu zesty partner
+# neon-desktop
+#deb http://archive.ubuntu.com/ubuntu xenial main
+#deb http://archive.neon.kde.org/dev/stable xenial main
 EOS
 fi
 
