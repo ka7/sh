@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# .sh/bin/dbdump 20160111 - 20170525
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: dbdump vhost|all" && exit 1
+[[ ! -d /home/u ]] && echo "ERROR: /home/u does not exist" && exit 2
+
+_dbdump()
+{
+    VDB=$(echo $1|tr '.' '_')
+    if [[ -n $VDB ]]; then
+        IFDB=$(mysql -BNe "SHOW DATABASES LIKE '$VDB'")
+        if [[ -n $IFDB ]]; then
+            if [[ -d /home/u/$1/var ]]; then
+                mysqldump $VDB > /home/u/$1/var/$VDB.sql
+                W_UID=$(stat -c "%u" /home/u/$1/var/www)
+                W_GID=$(stat -c "%g" /home/u/$1/var/www)
+                chown $W_UID:$W_GID /home/u/$1/var/$VDB.sql
+                chmod 640 /home/u/$1/var/$VDB.sql
+                echo "$1 -> /home/u/$1/var/$VDB.sql"
+            else
+                echo "WARNING: /home/u/$1/var does not exist"
+            fi
+        else
+            echo "WARNING: $VDB database does not exist"
+        fi
+    fi
+}
+
+if [[ $1 = "all" ]]; then
+    for VHOST in $(/bin/ls /home/u); do
+        _dbdump $VHOST
+    done
+elif [[ $1 =~ \. ]]; then # domainname with a dot
+    _dbdump $1
+else
+    echo "ERROR: Unknown argument $1"
+fi
+
+echo "$(date +'%Y-%m-%d %X') $(whoami) $(basename $0) $*" >> /var/log/history.log
