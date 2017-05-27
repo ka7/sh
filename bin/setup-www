@@ -20,6 +20,11 @@ git clone https://github.com/netserva/www
 [[ -d www_old/public ]] && mv www_old/public www
 [[ -d www_old/private ]] && mv www_old/private www
 
+if [[ -f ~/.ssh/authorized_keys ]]; then
+    echo "!!! Create .ssh/authorized_keys"
+    cp ~/.ssh/authorized_keys $UPATH/.ssh
+fi
+
 chperms $VHOST
 
 echo "!!! Setup Netserva HCP -> http://$VHOST"

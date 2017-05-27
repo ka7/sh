@@ -1,15 +1,33 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20170525
+# .sh/bin/setup-lxd 20170519 - 20170527
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
-[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large]" && exit 1
+
+[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (50GB)]" && exit 1
+
+# Change these "plans" to suit
+if [[ $2 == large ]]; then
+    PNAME="large"
+    PSIZE=10GB
+    P_MEM=1024MB
+    P_CPU=3
+elif [[ $2 == medium ]]; then
+    PNAME="medium"
+    PSIZE=5GB
+    P_MEM=512MB
+    P_CPU=2
+else
+    PNAME="small"
+    PSIZE=1GB
+    P_MEM=256MB
+    P_CPU=1
+fi
 
 if [[ ! -f ~/.sh/lib/functions ]]; then
-    echo "!!! Warning: using custom non-standard settings"
+    echo "!!! Warning: using custom settings"
     # Change the 3 vars below to what you need
-    APASS="changeme_N0W"
-    OSREL="zesty"
-    IP4_0=$(hostname -i)
+    APASS="changeme_N0W"        # Admin password for lxd remote access
+    OSREL="zesty"               # Ubuntu distro (xenial/zesty/etc)
+    IP4_0=$(hostname -i)        # Current host IP
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 else
     source ~/.sh/lib/functions
@@ -17,26 +35,7 @@ fi
 
 VHOST=$1
 _HOST=${VHOST%%.*}
-
-if [[ $2 == large ]]; then
-    PNAME="large"
-    PSIZE=50GB
-    VSIZE=10GB
-    P_MEM=1024MB
-    P_CPU=3
-elif [[ $2 == medium ]]; then
-    PNAME="medium"
-    PSIZE=50GB
-    VSIZE=5GB
-    P_MEM=512MB
-    P_CPU=2
-else
-    PNAME="small"
-    PSIZE=50GB
-    VSIZE=1GB
-    P_MEM=256MB
-    P_CPU=1
-fi
+SPOOL=${3:-'50'}
 
 if [[ ! -d /var/lib/lxd ]]; then
     grep -q "ubuntu-lxc" /etc/apt/sources.list
@@ -51,39 +50,42 @@ EOS
         echo "!!! Install latest stable LXD from PPA"
         [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
             && $SUDO apt-get -qq update
-        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yq --no-install-recommends lxd zfsutils-linux
+        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yq --no-install-recommends lxd lxd-client zfsutils-linux
     fi
     lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
       --storage-backend zfs \
-      --storage-create-loop 10 \
+      --storage-create-loop $SPOOL \
       --storage-pool lxd-pool \
       --trust-password $APASS
 fi
 
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
-#    lxc storage create "pool$PSIZE" zfs size=$PSIZE
     lxc profile create $PNAME
     lxc profile set $PNAME limits.memory $P_MEM
     lxc profile set $PNAME limits.cpu $P_CPU
     lxc network attach-profile lxdbr0 $PNAME eth0
-    lxc profile device add $PNAME root disk path=/ pool="pool50"
-    lxc profile device set $PNAME root size $VSIZE
+    lxc profile device add $PNAME root disk path=/ pool="lxd-pool"
+    lxc profile device set $PNAME root size $PSIZE
 fi
 
-lxc launch images:ubuntu/zesty $_HOST -p $PNAME
+lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
-sleep 5 # wait for DHCP
+lxc exec $_HOST -- systemctl restart networking
+sleep 1
 lxc exec $_HOST -- apt update
 lxc exec $_HOST -- apt -y full-upgrade
 lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
-exit
-# NetServa specific, remove or comment out these last few lines if not needed
-lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-lxc exec $_HOST -- bash -lc "setup-all sqlite"
-echo
-echo "setup-ssh $VHOST root 9 $VHOST"
-echo
+
+# Continue container setup if the host is using the netserva/sh repo
+if [[ -d ~/.sh ]]; then
+    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+    [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST/$C_SSL/dhparams.pem
+    lxc exec $_HOST -- bash -c "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
+    [[ -f ~/.ssh/id_rsa.pub ]] lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
+    lxc exec $_HOST -- bash -lc "setup-all sqlite"
+    echo "setup-ssh $VHOST root 9 $VHOST"
+fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
