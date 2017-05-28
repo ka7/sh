@@ -9,7 +9,7 @@ if [[ -d ~/.sh ]]; then
 else
     echo "!!! Setup local SH scripts"
     cd
-    git clone -q https://github.com/netserva/sh .sh
+    git clone -q https://github.com/netserva/sh .sh > /dev/null
     ~/.sh/bin/shm install > /dev/null
     ~/.sh/bin/shm perms
     source ~/.shrc
