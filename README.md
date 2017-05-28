@@ -1,4 +1,4 @@
-# sh
+# NetServa SH
 
 This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env variables
 to help make it easier to manage your Bash shell from an upstream (Github)
