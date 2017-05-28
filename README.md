@@ -1,40 +1,26 @@
 # sh
 
-This **S**hell **H**elper project is a set of Ubuntu/systemd orientated
-Bash aliases and env variables, along with the `shm` (SHell Manager)
-script, to help make it easier to manage your Bash shell from a known
-upstream (Github) online repository. The project also includes an
-associated collection of shell scripts to setup and manage a simple Ubuntu
-mail and web server and provide a foundation for the [NetServa HCP] PHP web
-interface. Note: mid-2017 both projects are in an early WIP stage.
+This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env variables
+to help make it easier to manage your Bash shell from an upstream (Github)
+repository. The project also includes an associated collection of shell scripts
+to setup and manage a simple Ubuntu Web, Mail and DNS server which also provides
+a foundation for the [NetServa HCP] PHP web interface.
 
-**MAY 2017**
-
-Another major update...
-
-- use zesty as a working base
-- removed all OLD/* scripts
-- moved www/* to bin/* for unified web/cli shell scripts
-- moved cfg/ to etc/ and removed shell scripts
-- added $DTYPE $EXMYS $EXSQL $SQCMD to switch between MySQL and SQLite
-- a PHP admin interface is almost working for simple tasks
-- almost ready to move "serva" from private to public repo
-- added a lib/ dir and refactor out common script parts
-- pipe through "| $SQCMD" setting for the default database engine
+Note: mid-2017 both projects are in an early WIP alpha stage.
 
 ## Usage
 
-To use these scripts make sure you have the `git` package installed and
-either [fork this project] and clone your own copy (so you can provide
-patches via [pull requests]) or simply clone this repo and use the scripts
-anyway you care to. The simplest way to install and setup this project is
-to use this script as root. Please [review the script] at Github first...
+To use these scripts make sure you have the `git` package installed and either
+[fork this project] and clone your own copy (so you can provide patches via
+[pull requests]) or simply clone this repo and use the scripts anyway you care
+to. The simplest way to install and setup this project is to copy and paste this
+one-liner as root. Please [review the script] at Github first...
 
     curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
 
-Make sure `curl` and `git` are installed first. Use `which git` and if
-nothing is returned then manually update the package list and make sure
-these very basic packages are available...
+**Note:** make sure `curl` and `git` are installed first. Use `which git` and if
+nothing is returned then manually update the package list and make sure these
+very basic packages are available...
 
     sudo apt -y update
     sudo apt -y full-upgrade
@@ -67,9 +53,9 @@ Easily reset the RWX permsissions of all SH scripts to a safe(r) default...
     shm perms
 
 Just type `alias` to see a set of simple aliases, typing `?` will show the
-most common ones with some explanation of their usage and `eh` can be sed
+most common ones with some explanation of their usage and `eh` can be used
 to customize this list, and yes, `nano` is the default editor of (my)
-choice.
+choice. Feel free to replace the `e` alias with vim or any other editor.
 
     ? ....... Show this help
     e ....... The nano Editor with a simplified interface
