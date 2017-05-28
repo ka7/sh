@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20170524
+# .sh/bin/setup-host 20170524 - 20170528
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if [[ -f ~/.sh/lib/functions ]]; then
-    source ~/.sh/lib/functions
-else
-    echo "!!! Warning: please run setup-sh"
-    OSMIR="archive.ubuntu.com"
-    OSREL="zesty"
-    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
-fi
-
+# Basic host dependencies, adjust accordingly
 HLIST="
   bsd-mailx
   ca-certificates
@@ -21,6 +13,15 @@ HLIST="
   rsync
   ssmtp
 "
+
+if [[ ! -f ~/.sh/lib/functions ]]; then
+    echo "!!! Missing: ~/.sh, see https://github.com/netserva/sh"
+    OSMIR="archive.ubuntu.com"
+    OSREL="zesty"
+    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
+else
+    source ~/.sh/lib/functions
+fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "!!! Setup apt sources list for $OSREL"
@@ -47,7 +48,7 @@ EOS
 fi
 
 [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] && \
-    echo "!!! Updating packages, patience please..." && \
+    echo "!!! Updating package list, patience please..." && \
     $SUDO apt-get -qq update && \
     $SUDO apt-get -qq -y -u \
     -o Dpkg::Options::="--force-confdef" \
@@ -86,7 +87,11 @@ if [[ ! -f ~/.ssh/id_rsa ]]; then
     echo ">>> Create host ~/.ssh/id_rsa key"
     ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-    if [[ ! -f ~/.ssh/config ]]; then
+    chmod 600 ~/.ssh/*
+fi
+
+if [[ ! -f ~/.ssh/config ]]; then
+    echo ">>> Create host ~/.ssh/config"
     cat << EOS > ~/.ssh/config
 Host *
   TCPKeepAlive yes
@@ -94,13 +99,12 @@ Host *
   IdentityFile ~/.ssh/id_rsa
 
 EOS
-    fi
     chmod 600 ~/.ssh/*
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    echo "!!! Setup SSH Port 9"
+    echo "!!! Setup SSH on Port 9"
     sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
     echo "!!! Setup SSH restricted ssh/sftp logins"
     sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
