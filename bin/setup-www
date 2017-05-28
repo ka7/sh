@@ -30,7 +30,7 @@ chperms $VHOST
 echo "!!! Setup Netserva HCP -> http://$VHOST"
 echo "
 !!! Note: if the container has outside net access then use
-\"newssl $VHOST\" to provide a LetsEncrypt SSL certificate.
+!!! \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate.
 "
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

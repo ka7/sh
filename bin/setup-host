@@ -57,7 +57,7 @@ fi
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yq --no-install-recommends install $HLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq --no-install-recommends install $HLIST > /dev/null
 fi
 
 ifconfig eth0 > /dev/null 2>&1

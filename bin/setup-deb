@@ -123,18 +123,18 @@ chktime /var/cache/apt/pkgcache.bin 3600 && \
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yq --no-install-recommends install $DLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $DLIST > /dev/null
 fi
 
 if [[ -n $RLIST ]]; then
     echo "!!! Remove python and all related packages"
-    DEBIAN_FRONTEND=noninteractive apt-get -yq --purge remove $RLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --purge remove $RLIST > /dev/null
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
     [[ $1 == sqlite ]] && APPS=$SLIST || APPS="$SLIST $MLIST"
-    DEBIAN_FRONTEND=noninteractive apt-get -yq --no-install-recommends install $APPS > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $APPS > /dev/null
 fi
 
 echo "!!! Installed Debian packages"

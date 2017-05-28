@@ -230,6 +230,6 @@ if [[ $1 == sqlite ]]; then
     ln $ADMIN/$(basename $DPATH) postfix
 fi
 
-echo "Installed '$1' database"
+echo "!!! Create '$1' database"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
