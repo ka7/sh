@@ -50,7 +50,7 @@ EOS
         echo "!!! Install latest stable LXD from PPA"
         [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
             && $SUDO apt-get -qq update
-        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yq --no-install-recommends lxd lxd-client zfsutils-linux
+        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends lxd lxd-client zfsutils-linux > /dev/null
     fi
     lxd init --auto \
       --network-address $IP4_0 \
@@ -71,15 +71,20 @@ if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
 fi
 
 lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
+echo "!!! Wait for network to become available..."
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 lxc exec $_HOST -- systemctl restart networking
 sleep 1
-lxc exec $_HOST -- apt update
-lxc exec $_HOST -- apt -y full-upgrade
-lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
+echo "!!! Update package list"
+lxc exec $_HOST -- apt update > /dev/null
+echo "!!! Upgrade packages"
+lxc exec $_HOST -- apt -y full-upgrade > /dev/null
+echo "!!! Make sure basic packages are available"
+lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync > /dev/null
 
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
+    echo "!!! Setting up $_HOST container"
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST/$C_SSL/dhparams.pem
     lxc exec $_HOST -- bash -lxc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"

@@ -15,7 +15,8 @@ cd $UPATH/var
 
 [[ -d www ]] && mv www www_old
 
-git clone https://github.com/netserva/www
+echo "!!! Clone Netserva HCP to $WPATH"
+git clone https://github.com/netserva/www > /dev/null
 
 [[ -d www_old/public ]] && mv www_old/public www
 [[ -d www_old/private ]] && mv www_old/private www
@@ -25,7 +26,7 @@ if [[ -f ~/.ssh/authorized_keys ]]; then
     cp ~/.ssh/authorized_keys $UPATH/.ssh
 fi
 
-chperms $VHOST
+chperms $VHOST > /dev/null
 
 echo "!!! Setup Netserva HCP -> http://$VHOST"
 echo "

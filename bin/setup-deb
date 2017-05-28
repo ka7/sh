@@ -88,7 +88,7 @@ export TERM=linux DEBIAN_FRONTEND=noninteractive
 [[ -f /proc/vz/veinfo ]] && mv /etc/sysctl.d /etc/sysctl.d.orig
 
 if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
-    echo "!!! First time setup"
+    echo "!!! Create /etc/apt/apt.conf.d/20local"
     cat << EOS | tee /etc/apt/apt.conf.d/20local > /dev/null
 Dpkg::Options {
     "--force-confdef";
@@ -96,7 +96,7 @@ Dpkg::Options {
 }
 EOS
     cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
-    dpkg-reconfigure -f noninteractive tzdata > /dev/null
+    dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
@@ -118,23 +118,23 @@ chktime /var/cache/apt/pkgcache.bin 3600 && \
      apt-get -qq update && \
      apt-get -qq -y -u \
      -o Dpkg::Options::="--force-confdef" \
-     -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null
+     -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $DLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $DLIST > /dev/null 2>&1
 fi
 
 if [[ -n $RLIST ]]; then
     echo "!!! Remove python and all related packages"
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --purge remove $RLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --purge remove $RLIST > /dev/null 2>&1
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
     [[ $1 == sqlite ]] && APPS=$SLIST || APPS="$SLIST $MLIST"
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $APPS > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $APPS > /dev/null 2>&1
 fi
 
 echo "!!! Installed Debian packages"
