@@ -16,7 +16,7 @@ cd $UPATH/var
 [[ -d www ]] && mv www www_old
 
 echo "!!! Clone Netserva HCP to $WPATH"
-git clone https://github.com/netserva/www > /dev/null
+git clone https://github.com/netserva/www > /dev/null 2>&1
 
 [[ -d www_old/public ]] && mv www_old/public www
 [[ -d www_old/private ]] && mv www_old/private www

@@ -50,7 +50,7 @@ EOS
         echo "!!! Install latest stable LXD from PPA"
         [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
             && $SUDO apt-get -qq update
-        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends lxd lxd-client zfsutils-linux > /dev/null
+        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends lxd lxd-client zfsutils-linux > /dev/null 2>&1
     fi
     lxd init --auto \
       --network-address $IP4_0 \
@@ -76,11 +76,11 @@ lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 lxc exec $_HOST -- systemctl restart networking
 sleep 1
 echo "!!! Update package list"
-lxc exec $_HOST -- apt-get -qq update
+lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
 echo "!!! Upgrade current packages"
-lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade
+lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 echo "!!! Make sure basic packages are available"
-lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
+lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
 
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
