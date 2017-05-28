@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-sh 20170319 - 20170524
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-sh 20170319 - 20170528
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ -d ~/.sh ]]; then
     echo "!!! Update local SH scripts"
@@ -14,5 +14,3 @@ else
     ~/.sh/bin/shm perms
     source ~/.shrc
 fi
-
-gethost
