@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# newssl 20160121 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newssl 20160121 - 20170528
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 # Depends on nginx and DNS already resolving to requested domains
 
 [[ -z $1 ]] && echo "Usage: newssl domain [IP] [--force] (ie; 0.0.0.0 --force)" && exit 1

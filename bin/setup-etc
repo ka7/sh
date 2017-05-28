@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20170501
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-etc 20151231 - 20170528
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-etc mysql|sqlite" && exit 1
 
 source ~/.sh/lib/defaults || exit 2
+
+# Temporary self-signed SSL certificate defaults
+C="AU"
+ST="QLD"
+L="GoldCoast"
+O="NetServa"
+OU="IT Department"
 
 if [[ $1 == sqlite ]]; then
     SQCMD=$EXSQL
@@ -17,7 +24,7 @@ else
 fi
 
 if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
-    echo "Create $ADMIN @ $VHOST"
+    echo "!!! Create $ADMIN @ $VHOST"
     if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
         groupmod -n $ADMIN ubuntu
         usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
@@ -28,7 +35,7 @@ if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
 fi
 
 if [[ ! -f /etc/postfix/main.cf.orig ]]; then
-    echo "Create postfix configs"
+    echo "!!! Create postfix configs"
     mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
     if [[ $1 == sqlite ]]; then
@@ -63,7 +70,7 @@ if [[ ! -f /etc/postfix/main.cf.orig ]]; then
 fi
 
 if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
-    echo "Create initial /etc/dovecot/dovecot.conf"
+    echo "!!! Create initial /etc/dovecot/dovecot.conf"
     mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
 
     sed -e "s;_VHOST;$VHOST;" \
@@ -88,18 +95,18 @@ if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "Create /etc/apt/sources.list"
+    echo "!!! Create /etc/apt/sources.list"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
 fi
 
 if [[ ! -f /etc/nginx/common.conf ]]; then
-    echo "Create /etc/nginx/common.conf"
+    echo "!!! Create /etc/nginx/common.conf"
     cp ~/.sh/etc/_etc_nginx_common.conf /etc/nginx/common.conf
 fi
 
 if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
-    echo "Create /etc/nginx/nginx.conf"
+    echo "!!! Create /etc/nginx/nginx.conf"
     mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
     cp ~/.sh/etc/_etc_nginx_nginx.conf /etc/nginx/nginx.conf
 fi
@@ -114,35 +121,40 @@ EOS
 fi
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
-    echo "Create /etc/opendkim.conf"
+    echo "!!! Create /etc/opendkim.conf"
     mv /etc/opendkim.conf /etc/opendkim.conf.orig
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
 fi
 
 if [[ ! -f /etc/php/7.0/fpm/common.conf ]]; then
-    echo "Create /etc/php/7.0/fpm/common.conf"
+    echo "!!! Create /etc/php/7.0/fpm/common.conf"
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf /etc/php/7.0/fpm/common.conf
 fi
 
 if [[ ! -f /etc/postfix/master.cf.orig ]]; then
-    echo "Create /etc/postfix/master.cf"
+    echo "!!! Create /etc/postfix/master.cf"
     mv /etc/postfix/master.cf /etc/postfix/master.cf.orig
     cp ~/.sh/etc/_etc_postfix_master.cf /etc/postfix/master.cf
 fi
 
 if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
-    echo "Create /etc/powerdns/pdns.conf"
+    echo "!!! Create /etc/powerdns/pdns.conf"
     mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
+    echo "!!! Warning: stop and disable pdns and pdns-recursor until needed"
+    systemctl stop pdns
+    systemctl disable pdns
+    systemctl stop pdns-recursor
+    systemctl disable pdns-recursor
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
-    echo "Create /etc/sudoers.d/99-sysadm"
+    echo "!!! Create /etc/sudoers.d/99-sysadm"
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
 fi
 
 if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
-    echo "Create /etc/systemd/system/opendkim.service"
+    echo "!!! Create /etc/systemd/system/opendkim.service"
     cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
     systemctl daemon-reload
     systemctl restart opendkim
@@ -150,10 +162,8 @@ fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-
     echo "!!! Setup SSH Port 9"
     sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
-
     echo "!!! Setup SSH restricted ssh/sftp logins"
     sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
     cat << EOS | tee -a /etc/ssh/sshd_config > /dev/null
@@ -170,6 +180,15 @@ fi
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "!!! Create dhparams.pem, patience..."
     openssl dhparam -out $C_SSL/dhparams.pem 2048 > /dev/null
+fi
+
+if [[ ! -d $C_SSL/$VHOST ]]; then
+    echo "!!! Create temporary self-signed certificate for $VHOST"
+    [[ -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
+        -keyout /etc/ssl/$VHOST/privkey.pem \
+        -out /etc/ssl/$VHOST/fullchain.pem
 fi
 
 serva restart all
