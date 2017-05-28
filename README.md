@@ -1,26 +1,27 @@
 # NetServa SH
 
-This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env variables
-to help make it easier to manage your Bash shell from an upstream (Github)
-repository. The project also includes an associated collection of shell scripts
-to setup and manage a simple Ubuntu Web, Mail and DNS server which also provides
-a foundation for the [NetServa HCP] PHP web interface.
+This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env
+variables to help make it easier to manage your Bash shell from an upstream
+(Github) repository. The project also includes an associated collection of
+shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
+which also provides a foundation for the [NetServa HCP] PHP web interface.
 
 Note: mid-2017 both projects are in an early WIP alpha stage.
 
 ## Usage
 
-To use these scripts make sure you have the `git` package installed and either
-[fork this project] and clone your own copy (so you can provide patches via
-[pull requests]) or simply clone this repo and use the scripts anyway you care
-to. The simplest way to install and setup this project is to copy and paste this
-one-liner as root. Please [review the script] at Github first...
+To use these scripts make sure you have the `git` package installed and
+either [fork this project] and clone your own copy (so you can provide
+patches via [pull requests]) or simply clone this repo and use the scripts
+anyway you care to. The simplest way to install and setup this project is
+to copy and paste this one-liner as root. Please [review the script] at
+Github first...
 
     curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
 
-**Note:** make sure `curl` and `git` are installed first. Use `which git` and if
-nothing is returned then manually update the package list and make sure these
-very basic packages are available...
+**Note:** make sure `curl` and `git` are installed first. Use `which git`
+and if nothing is returned then manually update the package list and make
+sure these very basic packages are available...
 
     sudo apt -y update
     sudo apt -y full-upgrade
@@ -147,9 +148,14 @@ You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to
 dynamically change them when using the `~/.sh/bin` scripts to, for
 instance, add a virtual host.
 
-## More documentation (todo)
+## More documentation
 
-There some also some semi-related posts on my [personal blog].
+For now, see [NetServa HCP] for more docmentation about using the hosting
+management `setup-*` scripts. Some of the scripts in the `bin/` dir are
+meant to be used from the PHP web interface but can generally also be used
+standalone from the command line as well.
+
+There are also some semi-related posts on my [personal blog].
 
 _All scripts and documentation are Copyright (C) 1995-2017 Mark Constable and Licensed [AGPL-3.0]_
 
