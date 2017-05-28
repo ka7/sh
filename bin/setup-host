@@ -52,12 +52,12 @@ fi
     $SUDO apt-get -qq update && \
     $SUDO apt-get -qq -y -u \
     -o Dpkg::Options::="--force-confdef" \
-    -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null
+    -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq --no-install-recommends install $HLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -qq -y --no-install-recommends install $HLIST > /dev/null
 fi
 
 ifconfig eth0 > /dev/null 2>&1

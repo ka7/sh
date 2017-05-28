@@ -194,8 +194,8 @@ else
     if [[ ! -d /etc/spamprobe ]]; then
         echo "!!! Fetch https://renta.net/public/_etc_spamprobe.tgz"
         cd /etc
-        wget -q https://renta.net/public/_etc_spamprobe.tgz > /dev/null
-        tar xf _etc_spamprobe.tgz > /dev/null
+        wget -q https://renta.net/public/_etc_spamprobe.tgz > /dev/null 2>&1
+        tar xf _etc_spamprobe.tgz > /dev/null 2>&1
     fi
     echo "!!! Create $MPATH/admin/.spamprobe"
     mkdir $MPATH/admin/.spamprobe

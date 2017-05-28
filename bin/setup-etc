@@ -142,8 +142,8 @@ if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
     mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
     echo "!!! Warning: stop and disable pdns until needed"
-    systemctl stop pdns > /dev/null
-    systemctl disable pdns > /dev/null
+    systemctl stop pdns > /dev/null 2>&1
+    systemctl disable pdns > /dev/null 2>&1
 #    systemctl stop pdns-recursor
 #    systemctl disable pdns-recursor
 fi
