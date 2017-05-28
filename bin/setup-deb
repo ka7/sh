@@ -137,6 +137,10 @@ if [[ ! -e /usr/sbin/nginx ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $APPS > /dev/null 2>&1
 fi
 
+echo "!!! Disable pdns until actually needed"
+systemctl stop pdns > /dev/null
+systemctl disable pdns > /dev/null
+
 echo "!!! Installed Debian packages"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

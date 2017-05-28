@@ -76,18 +76,18 @@ lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 lxc exec $_HOST -- systemctl restart networking
 sleep 1
 echo "!!! Update package list"
-lxc exec $_HOST -- apt update > /dev/null
-echo "!!! Upgrade packages"
-lxc exec $_HOST -- apt -y full-upgrade > /dev/null
+lxc exec $_HOST -- apt-get -qq update
+echo "!!! Upgrade current packages"
+lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade
 echo "!!! Make sure basic packages are available"
-lxc exec $_HOST -- apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync > /dev/null
+lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
 
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
     echo "!!! Setting up $_HOST container"
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST/$C_SSL/dhparams.pem
-    lxc exec $_HOST -- bash -lxc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
+    lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
     lxc exec $_HOST -- bash -lc "setup-all sqlite"
     echo "setup-ssh $VHOST root 9 $VHOST"
