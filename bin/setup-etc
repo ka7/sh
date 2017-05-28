@@ -188,7 +188,7 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
         -keyout /etc/ssl/$VHOST/privkey.pem \
-        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null
+        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 fi
 
 serva restart all
