@@ -50,7 +50,8 @@ EOS
         echo ">>> Install latest stable LXD from PPA"
         [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
             && $SUDO apt-get -qq update
-        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends lxd lxd-client zfsutils-linux > /dev/null 2>&1
+        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends \
+            lxd lxd-client zfsutils-linux > /dev/null 2>&1
     fi
     lxd init --auto \
       --network-address $IP4_0 \
@@ -71,28 +72,33 @@ if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
 fi
 
 lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
+
 echo "!!! Entering '$_HOST' using '$PNAME' profile"
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
+
 echo "!!! Wait for network to become available..."
 lxc exec $_HOST -- systemctl restart networking
-sleep 1
-echo "!!! Update package list"
+
+echo "!!! Update $OSREL package list"
 lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
+
 echo "!!! Upgrade current packages"
 lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
+
 echo "!!! Make sure basic packages are available"
-lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
+lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
+    ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
 
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
-    echo "!!! Setting up $_HOST container"
+    echo "!!! Setting up NetServa SH/HCP in '$_HOST' container"
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
     lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
     lxc exec $_HOST -- bash -lc "setup-all sqlite"
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d ' ' -f -1")
-    echo "setup-ssh $VHOST $LXDIP"
+    echo "!!! setup-ssh $VHOST $LXDIP"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
