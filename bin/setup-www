@@ -27,7 +27,7 @@ fi
 
 chperms $VHOST > /dev/null
 
-echo "!!! Setup Netserva HCP -> http://$VHOST"
+echo "!!! Setup Netserva HCP -> https://$VHOST"
 echo "!!! Note: if this container has outside net access with DNS pointing to it's"
 echo "!!! FQDN then use \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate."
 

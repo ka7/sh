@@ -12,7 +12,7 @@ VACME="$WPATH/.well-known/acme-challenge"
 VCONF="/etc/nginx/sites-enabled"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
 LECFG="/etc/dehydrated"
-LESSL="/etc/ssl"
+C_SSL="/etc/ssl"
 
 [[ -n $2 ]] && IP="$2" || IP="0.0.0.0"
 [[ -n $3 ]] && FORCE="$3" || FORCE=
@@ -22,7 +22,7 @@ LESSL="/etc/ssl"
 [[ ! -d $LECFG ]] && \
     git clone --depth 1 $LEGIT $LECFG && \
     chmod +x $LECFG/dehydrated && \
-    ln -s $LESSL $LECFG/certs
+    ln -s $C_SSL $LECFG/certs
 
 if [[ ! -d $VACME ]]; then
     mkdir -p $VACME
@@ -37,12 +37,13 @@ echo "WELLKNOWN=$VACME" > config
 
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $VCONF/$VHOST ]]; then
+        [[ -f $VCONF/$VHOST.selfsigned ]] && rm $VCONF/$VHOST.selfsigned
         cat << EOS > $VCONF/$VHOST
 server {
     listen                      $IP:443 ssl http2;
     server_name                 www.$VHOST;
-    ssl_certificate             $LESSL/$VHOST/fullchain.pem;
-    ssl_certificate_key         $LESSL/$VHOST/privkey.pem;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     return 301                  https://$VHOST\$request_uri;
 }
 server {
@@ -50,19 +51,16 @@ server {
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
-    ssl_certificate             $LESSL/$VHOST/fullchain.pem;
-    ssl_certificate_key         $LESSL/$VHOST/privkey.pem;
-    ssl_trusted_certificate     $LESSL/$VHOST/chain.pem;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
 EOS
     fi
-
-    cat $LESSL/$VHOST/privkey.pem $LESSL/$VHOST/fullchain.pem \
-        > $LESSL/$VHOST/mailserver.pem
-
-    chmod 644 $LESSL/$VHOST/mailserver.pem
-    chmod 755 $LESSL/$VHOST
-
+    cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
+        > $C_SSL/$VHOST/mailserver.pem
+    chmod 644 $C_SSL/$VHOST/mailserver.pem
+    chmod 755 $C_SSL/$VHOST
     nginx -t && systemctl reload nginx
 fi
 
