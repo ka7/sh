@@ -40,7 +40,7 @@ SPOOL=${3:-'50'}
 if [[ ! -d /var/lib/lxd ]]; then
     grep -q "ubuntu-lxc" /etc/apt/sources.list
     if [[ $? -ne 0 ]]; then
-        echo ">>> Add latest stable LXD PPA"
+        echo ">>> Add latest stable LXD PPA for $OSREL"
         cat << EOS | $SUDO tee -a /etc/apt/sources.list
 deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu $OSREL main
 EOS
@@ -49,7 +49,7 @@ EOS
     if [[ ! -e /usr/bin/lxd ]]; then
         echo ">>> Install latest stable LXD from PPA"
         [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
-            && $SUDO apt-get -qq update
+            && $SUDO apt-get -qq update > /dev/null 2>&1
         DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends \
             lxd lxd-client zfsutils-linux > /dev/null 2>&1
     fi

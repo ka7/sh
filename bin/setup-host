@@ -15,7 +15,7 @@ HLIST="
 "
 
 if [[ ! -f ~/.sh/lib/functions ]]; then
-    echo "!!! Missing: ~/.sh, see https://github.com/netserva/sh"
+    echo ">>> Missing: ~/.sh, see https://github.com/netserva/sh"
     OSMIR="archive.ubuntu.com"
     OSREL="zesty"
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
@@ -25,14 +25,14 @@ fi
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
-    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
-    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
+    echo ">>> Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    $SUDO sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "!!! Setup apt sources list for $OSREL"
-    mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cat << EOS | tee /etc/apt/sources.list > /dev/null
+    echo ">>> Setup apt sources list for $OSREL"
+    $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
 
@@ -53,17 +53,36 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
 fi
 
-[[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] && \
-    echo "!!! Updating package list, patience please..." && \
-    $SUDO apt-get -qq update && \
-    $SUDO apt-get -qq -y -u \
-    -o Dpkg::Options::="--force-confdef" \
-    -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null 2>&1
+[[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
+    && echo ">>> Updating package list, patience please..." \
+    && $SUDO apt-get -qq -y update > /dev/null 2>&1 \
+    && $SUDO apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
-if [[ ! -e /usr/bin/bsd-mailx ]]; then
-    echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -qq -y --no-install-recommends install $HLIST > /dev/null
+[[ ! -e /usr/bin/bsd-mailx ]] \
+    && echo ">>> Installing default package set, more patience..." \
+    && DEBIAN_FRONTEND=noninteractive $SUDO apt-get -qq -y \
+        --no-install-recommends install $HLIST > /dev/null 2>&1
+fi
+
+if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
+    echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
+    $SUDO cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+
+    echo ">>> Modify host SSH port to Port 9"
+    $SUDO sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
+
+    echo ">>> Create host SSH restricted ssh/sftp logins"
+    $SUDO sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
+    cat << EOS | $SUDO tee -a /etc/ssh/sshd_config > /dev/null
+
+Subsystem sftp internal-sftp -u 0027
+Match User u*
+  ChrootDirectory %h
+  X11Forwarding no
+  AllowTcpForwarding no
+EOS
+    $SUDO systemctl restart ssh
 fi
 
 if [[ ! -d ~/.ssh ]]; then
@@ -81,7 +100,7 @@ fi
 
 if [[ ! -f ~/.ssh/config ]]; then
     echo ">>> Create host ~/.ssh/config"
-    cat << EOS > ~/.ssh/config
+    cat << EOS | tee -a ~/.ssh/config > /dev/null
 Host *
   TCPKeepAlive yes
   ServerAliveInterval 30
@@ -91,26 +110,9 @@ EOS
     chmod 600 ~/.ssh/*
 fi
 
-if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    echo "!!! Setup SSH on Port 9"
-    sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
-    echo "!!! Setup SSH restricted ssh/sftp logins"
-    sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
-    cat << EOS | tee -a /etc/ssh/sshd_config > /dev/null
-
-Subsystem sftp internal-sftp -u 0027
-Match User u*
-  ChrootDirectory %h
-  X11Forwarding no
-  AllowTcpForwarding no
-EOS
-    systemctl restart ssh
-fi
-
 ifconfig eth0 > /dev/null 2>&1
 [[ $? -gt 0 ]] && echo "\
-!!! Hint: to change defalt Ubuntu eth-device back to eth0...
+>>> Hint: to change defalt Ubuntu eth-device back to eth0...
 
     sudo nano /etc/default/grub
     Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
