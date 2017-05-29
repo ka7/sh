@@ -12,6 +12,7 @@ ST="QLD"
 L="GoldCoast"
 O="NetServa"
 OU="IT Department"
+IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
 if [[ $1 == sqlite ]]; then
     SQCMD=$EXSQL
@@ -188,12 +189,14 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         cat << EOS > $C_WEB/sites-enabled/$VHOST.selfsigned
 server {
-    listen                      443 ssl http2;
+    listen                      $IP4_0:443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_stapling                off;
+    ssl_stapling_verify         off;
 }
 EOS
     fi
