@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20170527
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-lxd 20170519 - 20170529
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (50GB)]" && exit 1
+[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (50)]" && exit 1
 
-# Change these "plans" to suit
+# Change these profile "plans" to suit
 if [[ $2 == large ]]; then
-    PNAME="large"
+    PNAME=large
     PSIZE=10GB
     P_MEM=1024MB
     P_CPU=3
 elif [[ $2 == medium ]]; then
-    PNAME="medium"
+    PNAME=medium
     PSIZE=5GB
     P_MEM=512MB
     P_CPU=2
 else
-    PNAME="small"
+    PNAME=small
     PSIZE=1GB
     P_MEM=256MB
     P_CPU=1
@@ -26,7 +26,7 @@ if [[ ! -f ~/.sh/lib/functions ]]; then
     echo "!!! Warning: using custom settings"
     # Change the 3 vars below to what you need
     APASS="changeme_N0W"        # Admin password for lxd remote access
-    OSREL="zesty"               # Ubuntu distro (xenial/zesty/etc)
+    OSREL="zesty"               # Ubuntu host distro (xenial/zesty/etc)
     IP4_0=$(hostname -i)        # Current host IP
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 else

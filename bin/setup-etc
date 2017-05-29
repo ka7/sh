@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20170528
+# .sh/bin/setup-etc 20151231 - 20170529
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-etc mysql|sqlite" && exit 1
@@ -191,6 +191,7 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
         -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 fi
 
-serva restart all
+serva restart web
+serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

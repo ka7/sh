@@ -35,7 +35,8 @@ EOS
             echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
             mv $C_FPM/pool.d/www.conf $C_FPM
         fi
-        php-fpm$V_PHP -t > /dev/null && systemctl reload php$V_PHP-fpm > /dev/null
+        php-fpm$V_PHP -t > /dev/null 2>&1 &&\
+            systemctl reload php$V_PHP-fpm > /dev/null 2>&1
     fi
 fi
 
