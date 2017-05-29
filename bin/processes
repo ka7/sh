@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# .sh/bin/processes 20170515 - 20170515
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/processes 20170515 - 2017052
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 /bin/ps -eo pcpu:4,rss:8,vsz:8,cmd --sort=-pcpu,-rss | grep -v ' 0 \['
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

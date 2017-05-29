@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20170528
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-host 20170524 - 20170529
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Basic host dependencies, adjust accordingly
 HLIST="
@@ -21,6 +21,12 @@ if [[ ! -f ~/.sh/lib/functions ]]; then
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 else
     source ~/.sh/lib/functions
+fi
+
+grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
+if [[ $? -eq 0 ]]; then
+    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
@@ -58,23 +64,6 @@ fi
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
     DEBIAN_FRONTEND=noninteractive $SUDO apt-get -qq -y --no-install-recommends install $HLIST > /dev/null
-fi
-
-ifconfig eth0 > /dev/null 2>&1
-[[ $? -gt 0 ]] && echo "\
-!!! Hint: to change defalt Ubuntu eth-device back to eth0...
-
-    sudo nano /etc/default/grub
-    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
-    # Update iface references in /etc/network/interfaces (.d/)
-    sudo systemctl reboot
-"
-
-grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
-if [[ $? -eq 0 ]]; then
-    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
-    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
 if [[ ! -d ~/.ssh ]]; then
@@ -118,5 +107,16 @@ Match User u*
 EOS
     systemctl restart ssh
 fi
+
+ifconfig eth0 > /dev/null 2>&1
+[[ $? -gt 0 ]] && echo "\
+!!! Hint: to change defalt Ubuntu eth-device back to eth0...
+
+    sudo nano /etc/default/grub
+    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    # Update iface references in /etc/network/interfaces (.d/)
+    sudo systemctl reboot
+"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

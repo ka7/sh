@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# spamupdate 20150522 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/spamupdate 20150522 - 20170506
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# This is no longer needed with Dovecot/Sieve scripts, left for reference
 
 # TODO: add args for a single account or "all" for all users
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root" && exit 3

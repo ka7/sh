@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20170522
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-www 20170519 - 20170529
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 ]] && echo "Usage: setup-www user@domain|domain mysql|sqlite [user_pw] [mysql_pw] [shell_pw]" && exit 1
 
@@ -9,7 +9,6 @@ source ~/.sh/lib/defaults || exit 2
 [[ ! -d $VPATH ]] && mkdir -p $VPATH
 
 addvhost $*
-addvmail admin@$VHOST
 
 cd $UPATH/var
 
@@ -29,9 +28,7 @@ fi
 chperms $VHOST > /dev/null
 
 echo "!!! Setup Netserva HCP -> http://$VHOST"
-echo "
-!!! Note: if the container has outside net access then use
-!!! \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate.
-"
+echo "!!! Note: if this container has outside net access with DNS pointing to it's"
+echo "!!! FQDN then use \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate."
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

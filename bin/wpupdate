@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# wpupdate 20160817 - 20170506
+# .sh/bin/wpupdate 20160817 - 20170529
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: wpupdate domain|all [path]" && exit 1

@@ -72,25 +72,25 @@ fi
 if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
     echo "!!! Create initial /etc/dovecot/dovecot.conf"
     mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
-
     sed -e "s;_VHOST;$VHOST;" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf \
         > /etc/dovecot/dovecot.conf
-
     if [[ $1 == sqlite ]]; then
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> /etc/dovecot/dovecot.conf
-
         sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > /etc/dovecot/user-sqlite.conf
-
     elif [[ $1 == mysql ]]; then
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> /etc/dovecot/dovecot.conf
-
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > /etc/dovecot/user-mysql.conf
+    fi
+    if [[ ! -d /etc/dovecot/sieve ]]; then
+        mkdir /etc/dovecot/sieve
+        cd /etc/dovecot/sieve
+        ln -s /usr/bin/spamprobe
     fi
 fi
 
@@ -141,11 +141,6 @@ if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
     echo "!!! Create /etc/powerdns/pdns.conf"
     mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
-    echo "!!! Warning: stop and disable pdns until needed"
-    systemctl stop pdns > /dev/null 2>&1
-    systemctl disable pdns > /dev/null 2>&1
-#    systemctl stop pdns-recursor
-#    systemctl disable pdns-recursor
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then

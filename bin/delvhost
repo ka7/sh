@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/delvhost 20170216 - 20170502
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 ]] && echo "Usage: delvhost domain mysql|sqlite" && exit 1
 

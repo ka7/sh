@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# ~/.sh/www/dkim 20170201 (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/dkim 20170201 - 20170529
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $EUID -ne 0 ]] && echo "Please run as root" && exit 1
 [[ ${#@} -lt 1 ]] && echo "Usage: $0 add|del|list" && exit 1
@@ -55,3 +56,5 @@ list)
 esac
 
 systemctl reload opendkim
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

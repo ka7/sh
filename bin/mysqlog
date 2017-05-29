@@ -1,11 +1,13 @@
-#!/bin/sh
-# mysqlog 20130331 (C) Mark Constable (AGPLv3)
-# https://github.com/markc/sh/blob/master/doc/mysqlog.md
+#!/usr/bin/env bash
+# .sh/bin/mysqlog 20130331 - 20170529
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if [ -n "$1" -a "$1" = "on" ]; then
-  mysql -e "SET GLOBAL general_log = 1;"
-elif [ -n "$1" -a "$1" = "off" ]; then
-  mysql -e "SET GLOBAL general_log = 0;"
+if [[ -n $1 && $1 == on ]]; then
+    mysql -e "SET GLOBAL general_log = 1;"
+elif [[ -n $1 && $1 == off ]]; then
+    mysql -e "SET GLOBAL general_log = 0;"
 else
-  mysql -e "SHOW GLOBAL VARIABLES WHERE Variable_name='general_log';"
+    mysql -e "SHOW GLOBAL VARIABLES WHERE Variable_name='general_log';"
 fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
