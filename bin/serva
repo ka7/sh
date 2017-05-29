@@ -8,13 +8,13 @@ source ~/.sh/lib/defaults || exit 2
 
 serva_web()
 {
-    [[ $(/usr/sbin/nginx -t) -eq 0 ]] && systemctl $1 nginx
+    [[ $(/usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && systemctl $1 nginx
 }
 
 serva_php()
 {
 
-    [[ $(/usr/sbin/php-fpm$V_PHP -t) -eq 0 ]] && systemctl $1 php$V_PHP-fpm
+    [[ $(/usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && systemctl $1 php$V_PHP-fpm
 }
 
 serva_mail()

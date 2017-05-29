@@ -34,6 +34,7 @@ sh_install ()
     gethost > ~/.sh/lib/defaults
     sh_perms
     sed -i 's/^mesg/#mesg/' ~/.profile
+    touch ~/.hushlogin
     echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bashrc
     echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.profile
     echo

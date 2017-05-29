@@ -138,8 +138,8 @@ if [[ ! -e /usr/sbin/nginx ]]; then
 fi
 
 echo "!!! Disable pdns until actually needed"
-systemctl stop pdns > /dev/null
-systemctl disable pdns > /dev/null
+systemctl stop pdns > /dev/null 2>&1
+systemctl disable pdns > /dev/null 2>&1
 
 echo "!!! Installed Debian packages"
 

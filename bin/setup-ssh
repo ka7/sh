@@ -2,15 +2,15 @@
 # .sh/bin/setup-ssh 20170521 - 20170521
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: setup-ssh domain [user] [port] [sshkey] [targethost]" && exit 1
+[[ -z $1 ]] && echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkey]" && exit 1
 
 source ~/.sh/lib/functions || exit 2
 
 VHOST=$1
-SUSER=${2:-'root'}
-SPORT=${3:-'9'}
-S_KEY=${4:-'id_rsa'}
-SHOST=${5:-$VHOST}
+THOST=${2:-$VHOST}
+SUSER=${3:-'root'}
+SPORT=${4:-'9'}
+S_KEY=${5:-'id_rsa'}
 
 if [[ ! -d ~/.ssh ]]; then
     echo ">>> Create local ~/.ssh dir"
@@ -35,7 +35,7 @@ if [[ $? -eq 1 ]]; then
 Host $VHOST
   User $SUSER
   Port $SPORT
-  Hostname $SHOST
+  Hostname $THOST
   IdentityFile ~/.ssh/$S_KEY" >> ~/.ssh/config
     chmod 600 ~/.ssh/config
 fi
