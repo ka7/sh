@@ -6,16 +6,16 @@
 
 [[ -z $1 ]] && echo "Usage: newssl domain [IP] [--force] (ie; 0.0.0.0 --force)" && exit 1
 
-VHOST="$1"
+VHOST=$1
+IP4_0=${2:-'0.0.0.0'}
+FORCE=${3:-''}
+
 WPATH="/home/u/$VHOST/var/www"
-VACME="$WPATH/.well-known/acme-challenge"
-VCONF="/etc/nginx/sites-enabled"
+WACME="$WPATH/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
 LECFG="/etc/dehydrated"
 C_SSL="/etc/ssl"
-
-[[ -n $2 ]] && IP="$2" || IP="0.0.0.0"
-[[ -n $3 ]] && FORCE="$3" || FORCE=
+C_WEB="/etc/nginx"
 
 [[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
 
@@ -24,30 +24,31 @@ C_SSL="/etc/ssl"
     chmod +x $LECFG/dehydrated && \
     ln -s $C_SSL $LECFG/certs
 
-if [[ ! -d $VACME ]]; then
-    mkdir -p $VACME
+if [[ ! -d $WACME ]]; then
+    mkdir -p $WACME
     chown $(stat -c "%u:%g" $WPATH) -R $WPATH/.well-known
 fi
 
 cd $LECFG
-echo "WELLKNOWN=$VACME" > config
+echo "WELLKNOWN=$WACME" > config
 
 ./dehydrated -c -d $VHOST -d www.$VHOST $FORCE
 #./dehydrated -c -d $VHOST $FORCE
 
 if [[ $? -eq 0 ]]; then
-    if [[ ! -f $VCONF/$VHOST ]]; then
-        [[ -f $VCONF/$VHOST.selfsigned ]] && rm $VCONF/$VHOST.selfsigned
-        cat << EOS > $VCONF/$VHOST
+    if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
+        [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] \
+            && rm $C_WEB/sites-enabled/$VHOST.selfsigned
+        cat << EOS > $C_WEB/sites-enabled/$VHOST
 server {
-    listen                      $IP:443 ssl http2;
+    listen                      $IP4_0:443 ssl http2;
     server_name                 www.$VHOST;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     return 301                  https://$VHOST\$request_uri;
 }
 server {
-    listen                      $IP:443 ssl http2;
+    listen                      $IP4_0:443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;

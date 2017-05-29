@@ -7,7 +7,7 @@
 # TODO: add domain|all args and change to updatessl
 
 LECFG=/etc/dehydrated
-LESSL=/etc/ssl
+C_SSL=/etc/ssl
 
 [[ -n $1 && $1 == 'force' ]] && FORCE="--force" || FORCE=""
 
@@ -17,7 +17,7 @@ cd $LECFG
 
 git pull
 
-ALL=$(/bin/ls -1 $LESSL/*/fullchain.pem)
+ALL=$(/bin/ls -1 $C_SSL/*/fullchain.pem)
 
 for i in $ALL; do
     ALTCN=$(openssl x509 -noout -text -in $i | awk -F' DNS:' '/DNS:/ {print $2$3}')
@@ -36,10 +36,10 @@ for i in $ALL; do
 
     ./dehydrated -c $D $FORCE
 
-    cat $LESSL/$VHOST/privkey.pem $LESSL/$VHOST/fullchain.pem \
-        > $LESSL/$VHOST/mailserver.pem
+    cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
+        > $C_SSL/$VHOST/mailserver.pem
 
-    chmod 644 $LESSL/$VHOST/mailserver.pem
+    chmod 644 $C_SSL/$VHOST/mailserver.pem
 
     sleep 1
 done

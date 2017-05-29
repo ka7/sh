@@ -19,7 +19,13 @@ if [[ $1 == all ]]; then
         echo "$VHOST"
     done
 elif [[ $1 =~ \. ]]; then # domainname with a dot
-    [[ -d $VPATH/$1 ]] && _chperms $1 || echo "$VPATH/$1 does not exist"
+set -x
+    if [[ -d $VPATH/$1 ]]; then
+        _chperms $1
+    else
+        echo "chperms: $VPATH/$1 does not exist"
+    fi
+set +x
 else
     echo "ERROR: Unknown argument $1"
 fi

@@ -25,7 +25,7 @@ if [[ -f ~/.ssh/authorized_keys ]]; then
     cp ~/.ssh/authorized_keys $UPATH/.ssh
 fi
 
-chperms $VHOST > /dev/null
+chperms $VHOST > /dev/null 2>&1
 
 echo "!!! Setup Netserva HCP -> https://$VHOST"
 echo "!!! Note: if this container has outside net access with DNS pointing to it's"
