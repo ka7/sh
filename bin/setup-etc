@@ -184,6 +184,19 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
         -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
         -keyout /etc/ssl/$VHOST/privkey.pem \
         -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+
+    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
+        cat << EOS > $C_WEB/sites-enabled/$VHOST.selfsigned
+server {
+    listen                      $IP:443 ssl http2;
+    server_name                 $VHOST;
+    set                         \$domain $VHOST;
+    include                     /etc/nginx/common.conf;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+}
+EOS
+    fi
 fi
 
 serva restart web
