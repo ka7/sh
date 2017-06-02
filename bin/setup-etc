@@ -36,7 +36,7 @@ if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
 fi
 
 if [[ ! -f /etc/postfix/main.cf.orig ]]; then
-    echo "!!! Create postfix configs"
+    echo "!!! Create postfix $1 configs"
     mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
     if [[ $1 == sqlite ]]; then
@@ -48,57 +48,67 @@ fi
 
 if [[ $1 == sqlite ]]; then
     if [[ ! -f /etc/postfix/sqlite-alias-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/sqlite-alias-maps.cf"
         sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
             > /etc/postfix/sqlite-alias-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-gid-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/sqlite-gid-maps.cf"
         sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
             > /etc/postfix/sqlite-gid-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-mailbox-domains.cf ]]; then
+        echo "!!! Create /etc/postfix/sqlite-mailbox-domains.cf"
         sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
             > /etc/postfix/sqlite-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-mailbox-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/sqlite-mailbox-maps.cf"
         sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
             > /etc/postfix/sqlite-mailbox-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-uid-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/sqlite-uid-maps.cf"
         sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
             > /etc/postfix/sqlite-uid-maps.cf
     fi
 elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/postfix/mysql-alias-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/mysql-alias-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
             > /etc/postfix/mysql-alias-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-gid-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/mysql-gid-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
             > /etc/postfix/mysql-gid-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-domains.cf ]]; then
+        echo "!!! Create /etc/postfix/mysql-mailbox-domains.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_v-mailbox-domains.cf \
             > /etc/postfix/mysql-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-maps.cf ]]; then
+        echo "!!! Create /etc/postfix/mysql-mailbox-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
             > /etc/postfix/mysql-mailbox-maps.cf
      fi
      if [[ ! -f /etc/postfix/mysql-uid-maps.cf ]]; then
-       sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+        echo "!!! Create /etc/postfix/mysql-uid-maps.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
             > /etc/postfix/mysql-uid-maps.cf
@@ -106,7 +116,7 @@ elif [[ $1 == mysql ]]; then
 fi
 
 if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
-    echo "!!! Create initial /etc/dovecot/dovecot.conf"
+    echo "!!! Create initial /etc/dovecot/dovecot.conf for $1"
     mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
     sed -e "s;_VHOST;$VHOST;" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf \
@@ -119,12 +129,14 @@ if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
 fi
 
 if [[ $1 == sqlite ]]; then
+    echo "!!! Create /etc/dovecot/user-sqlite.conf for $1"
     if [[ ! -f /etc/dovecot/user-sqlite.conf ]]; then
         sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > /etc/dovecot/user-sqlite.conf
     fi
 elif [[ $1 == mysql ]]; then
+    echo "!!! Create /etc/dovecot/user-mysql.conf for $1"
     if [[ ! -f /etc/dovecot/user-mysql.conf ]]; then
         sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
@@ -134,6 +146,7 @@ elif [[ $1 == mysql ]]; then
 fi
 
 if [[ ! -d /etc/dovecot/sieve ]]; then
+    echo "!!! Create /etc/dovecot/sieve/spamprobe symlink"
     mkdir /etc/dovecot/sieve
     cd /etc/dovecot/sieve
     ln -s /usr/bin/spamprobe
