@@ -36,7 +36,7 @@ if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
 fi
 
 if [[ ! -f /etc/postfix/main.cf.orig ]]; then
-    echo "!!! Create postfix $1 configs"
+    echo "!!! Create /etc/postfix/main.cf for $1"
     mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
     if [[ $1 == sqlite ]]; then
@@ -116,7 +116,7 @@ elif [[ $1 == mysql ]]; then
 fi
 
 if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
-    echo "!!! Create initial /etc/dovecot/dovecot.conf for $1"
+    echo "!!! Create /etc/dovecot/dovecot.conf for $1"
     mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
     sed -e "s;_VHOST;$VHOST;" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf \
@@ -129,15 +129,15 @@ if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
 fi
 
 if [[ $1 == sqlite ]]; then
-    echo "!!! Create /etc/dovecot/user-sqlite.conf for $1"
     if [[ ! -f /etc/dovecot/user-sqlite.conf ]]; then
+        echo "!!! Create /etc/dovecot/user-sqlite.conf"
         sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > /etc/dovecot/user-sqlite.conf
     fi
 elif [[ $1 == mysql ]]; then
-    echo "!!! Create /etc/dovecot/user-mysql.conf for $1"
     if [[ ! -f /etc/dovecot/user-mysql.conf ]]; then
+        echo "!!! Create /etc/dovecot/user-mysql.conf"
         sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
