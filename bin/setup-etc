@@ -96,7 +96,7 @@ elif [[ $1 == mysql ]]; then
         echo "!!! Create /etc/postfix/mysql-mailbox-domains.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_v-mailbox-domains.cf \
+            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
             > /etc/postfix/mysql-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-maps.cf ]]; then
