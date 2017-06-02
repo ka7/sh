@@ -6,6 +6,8 @@
 
 source ~/.sh/lib/functions || exit 2
 
+EXDEB="DEBIAN_FRONTEND=noninteractive apt-get -yqq"
+
 # Default list of packages
 DLIST="
   bc
@@ -115,26 +117,26 @@ fi
 
 chktime /var/cache/apt/pkgcache.bin 3600 && \
     echo "!!! Updating packages, patience please..." && \
-     apt-get -qq update && \
-     apt-get -qq -y -u \
+     $EXDEB update && \
+     $EXDEB -u \
      -o Dpkg::Options::="--force-confdef" \
      -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $DLIST > /dev/null 2>&1
+    $EXDEB --no-install-recommends install $DLIST > /dev/null 2>&1
 fi
 
 if [[ -n $RLIST ]]; then
     echo "!!! Remove python and all related packages"
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --purge remove $RLIST > /dev/null 2>&1
+    $EXDEB --purge remove $RLIST > /dev/null 2>&1
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
-    [[ $1 == sqlite ]] && APPS=$SLIST || APPS="$SLIST $MLIST"
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $APPS > /dev/null 2>&1
+    [[ $1 == mysql ]] && SLIST="$SLIST $MLIST"
+    $EXDEB --no-install-recommends install $SLIST > /dev/null 2>&1
 fi
 
 echo "!!! Disable pdns until actually needed"
