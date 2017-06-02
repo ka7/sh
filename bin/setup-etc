@@ -65,8 +65,30 @@ if [[ ! -f /etc/postfix/main.cf.orig ]]; then
     elif [[ $1 == mysql ]]; then
         cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
 
-#TODO: sed the mysql details
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
+            > /etc/postfix/sqlite-alias-maps.cf
 
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
+            > /etc/postfix/sqlite-gid-maps.cf
+
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
+            > /etc/postfix/sqlite-mailbox-domains.cf
+
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
+            > /etc/postfix/sqlite-mailbox-maps.cf
+
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
+            > /etc/postfix/sqlite-uid-maps.cf
     fi
 fi
 
@@ -83,7 +105,7 @@ if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
             > /etc/dovecot/user-sqlite.conf
     elif [[ $1 == mysql ]]; then
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> /etc/dovecot/dovecot.conf
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
+        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
             -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > /etc/dovecot/user-mysql.conf
