@@ -43,6 +43,7 @@ if [[ $1 == sqlite ]]; then
 elif [[ $1 == mysql ]]; then
     cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
 fi
+chmod 644 /etc/postfix/main.cf
 
 if [[ $1 == sqlite ]]; then
     if [[ ! -f /etc/postfix/sqlite-alias-maps.cf ]]; then

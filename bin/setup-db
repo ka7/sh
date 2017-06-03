@@ -212,6 +212,7 @@ CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
 
 # TODO dynamically create hash password from $UPASS
+# TODO test if these entires already exist first
 cat << EOS | $SQCMD
 INSERT INTO news VALUES
 (null, 'News Item 1', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01'),
