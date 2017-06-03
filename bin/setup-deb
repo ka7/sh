@@ -6,8 +6,8 @@
 
 source ~/.sh/lib/functions || exit 2
 
-EXDEB="DEBIAN_FRONTEND=noninteractive apt-get -yqq"
-
+EXDEB="DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq"
+set -x
 # Default list of packages
 DLIST="
   bc
@@ -87,24 +87,24 @@ MLIST="
 export TERM=linux DEBIAN_FRONTEND=noninteractive
 
 # OpenVZ has some wierd settings
-[[ -f /proc/vz/veinfo ]] && mv /etc/sysctl.d /etc/sysctl.d.orig
+[[ -f /proc/vz/veinfo ]] && $SUDO mv /etc/sysctl.d /etc/sysctl.d.orig
 
 if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
     echo "!!! Create /etc/apt/apt.conf.d/20local"
-    cat << EOS | tee /etc/apt/apt.conf.d/20local > /dev/null
+    cat << EOS | $SUDO tee /etc/apt/apt.conf.d/20local > /dev/null
 Dpkg::Options {
     "--force-confdef";
     "--force-confold";
 }
 EOS
-    cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
-    dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
+    $SUDO cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
+    $SUDO dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "!!! Setup apt sources list for $OSREL"
-    mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cat << EOS | tee /etc/apt/sources.list > /dev/null
+    $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
 
@@ -118,9 +118,7 @@ fi
 chktime /var/cache/apt/pkgcache.bin 3600 && \
     echo "!!! Updating packages, patience please..." && \
      $EXDEB update && \
-     $EXDEB -u \
-     -o Dpkg::Options::="--force-confdef" \
-     -o Dpkg::Options::="--force-confnew" dist-upgrade > /dev/null 2>&1
+     $EXDEB -u dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
@@ -136,12 +134,42 @@ fi
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
     [[ $1 == mysql ]] && SLIST="$SLIST $MLIST"
+    cat << EOS | $SUDO debconf-set-selections
+postfix	postfix/destinations	string	localhost
+postfix	postfix/mailname	string	$VHOST
+postfix	postfix/main_mailer_type	string	'Internet Site'
+EOS
     $EXDEB --no-install-recommends install $SLIST > /dev/null 2>&1
 fi
 
+if [[ $1 == mysql && ! -e /usr/sbin/mysqld ]]; then
+    cat << EOS | $SUDO debconf-set-selections
+mariadb-server-10.1	mariadb-server-10.1/postrm_remove_databases	boolean	false
+mariadb-server-10.1	mariadb-server-10.1/root_password_again	$DPASS
+mariadb-server-10.1	mariadb-server-10.1/root_password	$DPASS
+EOS
+
+# Remove plugin=unix_socket otherwise phpmyadmin will not work
+    mysql -e "UPDATE mysql.user SET plugin='';"
+    mysql -e "DROP USER ''@'localhost'"
+    mysql -e "DROP USER ''@'$_HOST'"
+    mysql -e "DROP DATABASE test"
+    mysql -e "FLUSH PRIVILEGES;"
+#    mysqladmin password $1
+
+    # Change to utf8 otherwise pdns tables will not install
+    $SUDO sed -i \
+        -e "/^character-set-server/ s/utf8mb4/utf8/" \
+        -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
+        $C_SQL/mariadb.conf.d/50-server.cnf
+
+    echo "!!! WARNING: you may have to manually kill mysql to restart it"
+    $SUDO systemctl restart mysql
+fi
+
 echo "!!! Disable pdns until actually needed"
-systemctl stop pdns > /dev/null 2>&1
-systemctl disable pdns > /dev/null 2>&1
+$SUDO systemctl stop pdns > /dev/null 2>&1
+$SUDO systemctl disable pdns > /dev/null 2>&1
 
 echo "!!! Installed Debian packages"
 
