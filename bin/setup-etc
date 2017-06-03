@@ -130,14 +130,14 @@ fi
 if [[ $1 == sqlite ]]; then
     if [[ ! -f /etc/dovecot/user-sqlite.conf ]]; then
         echo "!!! Create /etc/dovecot/user-sqlite.conf"
-        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DTYPE;$1;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > /etc/dovecot/user-sqlite.conf
     fi
 elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/dovecot/user-mysql.conf ]]; then
         echo "!!! Create /etc/dovecot/user-mysql.conf"
-        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DTYPE/$1/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > /etc/dovecot/user-mysql.conf
