@@ -149,13 +149,20 @@ mariadb-server-10.1 mariadb-server-10.1/postrm_remove_databases boolean false
 EOS
     $EXDEB --no-install-recommends install $MLIST > /dev/null 2>&1
 
+    cat << EOS | $SUDO tee ~/.my.cnf > /dev/null
+[client]
+host = $DHOST
+port = $DPORT
+user = root
+password = $DPASS
+EOS
+#    mysqladmin password $1 # maybe not needed
     # Remove plugin=unix_socket otherwise phpmyadmin will not work
     mysql -e "UPDATE mysql.user SET plugin='';"
-    mysql -e "DROP USER ''@'localhost'"
+#    mysql -e "DROP USER ''@'localhost'"
     mysql -e "DROP USER ''@'$_HOST'"
     mysql -e "DROP DATABASE test"
     mysql -e "FLUSH PRIVILEGES;"
-#    mysqladmin password $1
 
     # Change to utf8 otherwise pdns tables will not install
     $SUDO sed -i \
