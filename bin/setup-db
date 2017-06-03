@@ -27,11 +27,11 @@ port = $DPORT
 user = $DUSER
 password = $DPASS
 EOS
+        chmod 600 ~/.my.cnf
     fi
-    chmod 600 ~/.my.cnf
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
-    SQCMD="mysql -BN $DNAME"
-    echo "CREATE DATABASE IF NOT EXISTS $DNAME;" | mysql
+    SQCMD="mysql -BN $ADMIN"
+    echo "CREATE DATABASE IF NOT EXISTS $ADMIN;" | mysql
 else
     echo "ERROR: unknown argument '$1'" && exit 2
 fi
