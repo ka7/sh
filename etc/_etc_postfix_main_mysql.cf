@@ -1,9 +1,10 @@
 # .sh/etc/_etc_postfix_main_mysql.cf 20170101 - 20170501
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-relay_recipient_maps = proxy:mysql:/etc/postfix/mysql-relay-recipient.conf
-virtual_alias_maps = proxy:mysql:/etc/postfix/mysql-alias.conf,mysql:/etc/postfix/mysql-alias-domain.conf
-virtual_gid_maps = proxy:mysql:/etc/postfix/mysql-gid.conf
-virtual_mailbox_domains = proxy:mysql:/etc/postfix/mysql-domains.conf
-virtual_mailbox_maps = proxy:mysql:/etc/postfix/mysql-mailbox.conf
-virtual_uid_maps = proxy:mysql:/etc/postfix/mysql-uid.conf
+#? relay_recipient_maps = proxy:mysql:/etc/postfix/mysql-relay-recipient.conf
+
+virtual_alias_maps = proxy:mysql:/etc/postfix/mysql-alias-maps.cf
+virtual_gid_maps = proxy:mysql:/etc/postfix/mysql-gid-maps.cf
+virtual_mailbox_domains = proxy:mysql:/etc/postfix/mysql-mailbox-domains.cf
+virtual_mailbox_maps = proxy:mysql:/etc/postfix/mysql-mailbox-maps.cf
+virtual_uid_maps = proxy:mysql:/etc/postfix/mysql-uid-maps.cf
