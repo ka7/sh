@@ -63,11 +63,13 @@ SLIST="
   opendkim
   opendkim-tools
   pdns-backend-sqlite3
+  php7.0
   php7.0-curl
   php7.0-fpm
   php7.0-gd
   php7.0-imap
   php7.0-intl
+  php7.0-mbstring
   php7.0-sqlite3
   php7.0-xml
   postfix-policyd-spf-perl
@@ -80,8 +82,9 @@ MLIST="
   dovecot-mysql
   mariadb-client
   mariadb-server
-  postfix-mysql
   pdns-backend-mysql
+  php7.0-mysql
+  postfix-mysql
 "
 
 export TERM=linux DEBIAN_FRONTEND=noninteractive
@@ -159,7 +162,7 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 EOS
-    cat << EOS | $SUDO tee ~/.my.cnf > /dev/null
+    cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
 [client]
 host = $DHOST
 port = $DPORT

@@ -113,17 +113,16 @@ elif [[ $1 == mysql ]]; then
      fi
 fi
 
-if [[ ! -f /etc/dovecot/dovecot.conf.orig ]]; then
-    echo "!!! Create /etc/dovecot/dovecot.conf for $1"
-    mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
-    sed -e "s;_VHOST;$VHOST;" \
-        ~/.sh/etc/_etc_dovecot_dovecot.conf \
-        > /etc/dovecot/dovecot.conf
-    if [[ $1 == sqlite ]]; then
-        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> /etc/dovecot/dovecot.conf
-    elif [[ $1 == mysql ]]; then
-        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> /etc/dovecot/dovecot.conf
-    fi
+echo "!!! Create /etc/dovecot/dovecot.conf for $1"
+[[ ! -f /etc/dovecot/dovecot.conf.orig ]] && mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
+sed -e "s;_VHOST;$VHOST;" \
+    ~/.sh/etc/_etc_dovecot_dovecot.conf \
+    > /etc/dovecot/dovecot.conf
+
+if [[ $1 == sqlite ]]; then
+    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> /etc/dovecot/dovecot.conf
+elif [[ $1 == mysql ]]; then
+    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> /etc/dovecot/dovecot.conf
 fi
 
 if [[ $1 == sqlite ]]; then
@@ -193,6 +192,7 @@ if [[ ! -f /etc/postfix/master.cf.orig ]]; then
     cp ~/.sh/etc/_etc_postfix_master.cf /etc/postfix/master.cf
 fi
 
+# TODO switch between mysql/sqlite
 if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
     echo "!!! Create /etc/powerdns/pdns.conf"
     mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig

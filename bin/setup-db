@@ -29,9 +29,13 @@ password = $DPASS
 EOS
         chmod 600 ~/.my.cnf
     fi
+    cat << EOS | $SUDO mysql
+CREATE DATABASE IF NOT EXISTS $ADMIN;
+GRANT ALL ON $ADMIN . * TO '$ADMIN'@'localhost' IDENTIFIED BY '$DPASS';
+FLUSH PRIVILEGES;
+EOS
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
     SQCMD="mysql -BN $ADMIN"
-    echo "CREATE DATABASE IF NOT EXISTS $ADMIN;" | mysql
 else
     echo "ERROR: unknown argument '$1'" && exit 2
 fi
@@ -223,6 +227,7 @@ INSERT INTO vmails VALUES
 EOS
 
 if [[ $1 == sqlite ]]; then
+    echo "!!! Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
     chmod 644 $DPATH
