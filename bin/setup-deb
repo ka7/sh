@@ -134,7 +134,7 @@ fi
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
     cat << EOS | $SUDO debconf-set-selections
-postfix postfix/destinations string localhost
+postfix postfix/destinations string 'localhost'
 postfix postfix/mailname string '$VHOST'
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
@@ -142,13 +142,23 @@ EOS
 fi
 
 if [[ $1 == mysql && ! -e /usr/sbin/mysqld ]]; then
-    cat << EOS | $SUDO debconf-set-selections
-mariadb-server-10.1 mariadb-server-10.1/root_password password $DPASS
-mariadb-server-10.1 mariadb-server-10.1/root_password_again password $DPASS
-mariadb-server-10.1 mariadb-server-10.1/postrm_remove_databases boolean false
-EOS
     $EXDEB --no-install-recommends install $MLIST > /dev/null 2>&1
 
+    # Change to utf8 otherwise pdns tables will not install
+    $SUDO sed -i \
+        -e "/^character-set-server/ s/utf8mb4/utf8/" \
+        -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
+        $C_SQL/mariadb.conf.d/50-server.cnf
+
+    cat << EOS | $SUDO mysql
+UPDATE mysql.user SET plugin='';
+UPDATE mysql.user SET Password=PASSWORD('$DPASS') WHERE User='root';
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+EOS
     cat << EOS | $SUDO tee ~/.my.cnf > /dev/null
 [client]
 host = $DHOST
@@ -156,19 +166,6 @@ port = $DPORT
 user = root
 password = $DPASS
 EOS
-#    mysqladmin password $1 # maybe not needed
-    # Remove plugin=unix_socket otherwise phpmyadmin will not work
-    mysql -e "UPDATE mysql.user SET plugin='';"
-#    mysql -e "DROP USER ''@'localhost'"
-    mysql -e "DROP USER ''@'$_HOST'"
-    mysql -e "DROP DATABASE test"
-    mysql -e "FLUSH PRIVILEGES;"
-
-    # Change to utf8 otherwise pdns tables will not install
-    $SUDO sed -i \
-        -e "/^character-set-server/ s/utf8mb4/utf8/" \
-        -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
-        $C_SQL/mariadb.conf.d/50-server.cnf
 
     echo "!!! WARNING: you may have to manually kill mysql to restart it"
     $SUDO systemctl restart mysql
