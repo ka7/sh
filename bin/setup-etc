@@ -35,15 +35,13 @@ if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
     fi
 fi
 
-if [[ ! -f /etc/postfix/main.cf.orig ]]; then
-    echo "!!! Create /etc/postfix/main.cf for $1"
-    mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
-    cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
-    if [[ $1 == sqlite ]]; then
-        cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> /etc/postfix/main.cf
-    elif [[ $1 == mysql ]]; then
-        cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
-    fi
+echo "!!! Create /etc/postfix/main.cf for $1"
+[[ ! -f /etc/postfix/main.cf.orig ]] && mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
+cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
+if [[ $1 == sqlite ]]; then
+    cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> /etc/postfix/main.cf
+elif [[ $1 == mysql ]]; then
+    cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
 fi
 
 if [[ $1 == sqlite ]]; then
