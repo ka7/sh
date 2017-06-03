@@ -5,9 +5,9 @@
 [[ -z $1 ]] && echo "Usage: setup-deb mysql|sqlite" && exit 1
 
 source ~/.sh/lib/functions || exit 2
-
-EXDEB="DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq"
 set -x
+EXDEB="$SUDO apt-get -yqq"
+
 # Default list of packages
 DLIST="
   bc
