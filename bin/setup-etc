@@ -38,6 +38,7 @@ fi
 echo "!!! Create /etc/postfix/main.cf for $1"
 [[ ! -f /etc/postfix/main.cf.orig ]] && mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
 cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
+
 if [[ $1 == sqlite ]]; then
     cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> /etc/postfix/main.cf
 elif [[ $1 == mysql ]]; then
@@ -80,35 +81,35 @@ elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/postfix/mysql-alias-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-alias-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
             > /etc/postfix/mysql-alias-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-gid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-gid-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
             > /etc/postfix/mysql-gid-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-domains.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-mailbox-domains.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
             > /etc/postfix/mysql-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-mailbox-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
             > /etc/postfix/mysql-mailbox-maps.cf
      fi
      if [[ ! -f /etc/postfix/mysql-uid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-uid-maps.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
             > /etc/postfix/mysql-uid-maps.cf
      fi
@@ -137,7 +138,7 @@ elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/dovecot/user-mysql.conf ]]; then
         echo "!!! Create /etc/dovecot/user-mysql.conf"
         sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$DNAME/" \
-            -e "s/_DUSER/$DUSER/" -e "s/_DPASS/$DPASS/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > /etc/dovecot/user-mysql.conf
     fi
