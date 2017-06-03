@@ -134,18 +134,18 @@ fi
 if [[ ! -e /usr/sbin/nginx ]]; then
     echo "!!! Installing default applicaton set, yet more patience..."
     cat << EOS | $SUDO debconf-set-selections
-postfix	postfix/destinations	string	localhost
-postfix	postfix/mailname	string	'$VHOST'
-postfix	postfix/main_mailer_type	string	'Internet Site'
+postfix postfix/destinations string localhost
+postfix postfix/mailname string '$VHOST'
+postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB --no-install-recommends install $SLIST > /dev/null 2>&1
 fi
 
 if [[ $1 == mysql && ! -e /usr/sbin/mysqld ]]; then
     cat << EOS | $SUDO debconf-set-selections
-mariadb-server-10.1	mariadb-server-10.1/root_password	'$DPASS'
-mariadb-server-10.1	mariadb-server-10.1/root_password_again	'$DPASS'
-mariadb-server-10.1	mariadb-server-10.1/postrm_remove_databases	boolean	false
+mariadb-server-10.1 mariadb-server-10.1/root_password password $DPASS
+mariadb-server-10.1 mariadb-server-10.1/root_password_again password $DPASS
+mariadb-server-10.1 mariadb-server-10.1/postrm_remove_databases boolean false
 EOS
     $EXDEB --no-install-recommends install $MLIST > /dev/null 2>&1
 
