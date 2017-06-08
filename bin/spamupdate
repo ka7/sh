@@ -73,8 +73,10 @@ EOS
     fi
 
     if [[ -d $MDIR/.IsGood && $($LS $MDIR/.IsGood/cur) ]]; then
+set -x
         su - $MUSR -c "$SP -d $SDIR good $MDIR/.IsGood/cur/*"
         mv $MDIR/.IsGood/cur/* $MDIR/cur
+set +x
     fi
 
     if [[ -d $MDIR/.TrainGood && $($LS $MDIR/.TrainGood/cur) ]]; then
