@@ -68,8 +68,10 @@ EOS
     # Outside the Junk folder
 
     if [[ -d $MDIR/.IsSpam && $($LS $MDIR/.IsSpam/cur) ]]; then
+set -x
         su - $MUSR -c "$SP -d $SDIR spam $MDIR/.IsSpam/cur/*"
         rm $MDIR/.IsSpam/cur/*
+set +x
     fi
 
     if [[ -d $MDIR/.IsGood && $($LS $MDIR/.IsGood/cur) ]]; then
