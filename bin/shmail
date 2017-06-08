@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# shmail 20150529 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+#set -x
+
+[[ -z $1 ]] && echo "Usage: shmail user@domain" && exit 1
+
+MPATH=$(mysql -BNe "SELECT mpath FROM $ADMIN.courier WHERE uid='$1'")
+
+if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
+    cd $MPATH/Maildir
+    find -maxdepth 2 -type d -name "new" -o -name "cur"|sort|xargs -0| (
+        N1=0; N2=0; N1STR=""
+        while read dir; do
+            [[ -z $dir ]] && continue
+            cd "$dir"
+            for i in $(find -type f -printf "%s\n"); do
+                N1=$(($N1+$i))
+                ((N2++))
+            done
+            cd - >/dev/null
+            STOTAL=$(($STOTAL+$N1))
+            NTOTAL=$(($NTOTAL+$N2))
+            [[ $N1 -eq 0 ]] && N1STR="" || N1STR=$(printf "%'9.2fM" $(echo $N1/1000000|bc -l))
+            [[ $N2 -eq 0 ]] && N2=""
+            printf "%-36s %4s %10s\n" "$(echo $dir|cut -c 3-)" $N2 $N1STR
+            N1=0
+            N2=0
+        done
+
+        echo "----------------------------------------------------"
+        printf "%-36s %4s %'9.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+    )
+else
+    echo "User '$1' does not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

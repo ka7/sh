@@ -153,6 +153,7 @@ if [[ $1 == mysql && ! -e /usr/sbin/mysqld ]]; then
         -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
         $C_SQL/mariadb.conf.d/50-server.cnf
 
+    # Give up on preseeding, just make the changes directly
     cat << EOS | $SUDO mysql
 UPDATE mysql.user SET plugin='';
 UPDATE mysql.user SET Password=PASSWORD('$DPASS') WHERE User='root';
