@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: shuser uid*|all" && exit 1
 
-echo "NOTICE: this needs to be converted to postfix/dovecot" && exit 2
+#echo "NOTICE: this needs to be converted to postfix/dovecot" && exit 2
 
 source ~/.sh/lib/functions || exit 2
 sethost $1
