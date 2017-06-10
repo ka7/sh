@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# newautoconfig 20170201 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: newautoconfig domain [smtpdomain] [imapdomain]" && exit 1
+
+VHOST=$1
+VSMTP=${2:-$VHOST}
+VIMAP=${3:-$VHOST}
+
+XPATH="$VPATH/$VHOST/var/www/.well-known/autoconfig/mail"
+XFILE="config-v1.1.xml"
+
+[[ ! -d $VPATH/$VHOST ]] && echo "Error: $VPATH/$VHOST does not exist" && exit 1
+
+[[ ! -d $XPATH ]] && mkdir -p $XPATH
+
+[[ -f $XPATH/$XFILE ]] && echo "Warning: $XPATH/$XFILE exists"
+
+echo "!!! Create $XPATH/$XFILE"
+
+cat << EOS > $XPATH/$XFILE
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="$VHOST">
+    <domain>$VHOST</domain>
+    <displayName>$VHOST</displayName>
+    <displayShortName>$VHOST</displayShortName>
+    <incomingServer type="imap">
+      <hostname>$VIMAP</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>$VSMTP</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+    <documentation url="https://$VHOST">
+      <descr lang="en">Generic settings page</descr>
+    </documentation>
+  </emailProvider>
+</clientConfig>
+EOS
+
+chperms $VHOST
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
