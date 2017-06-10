@@ -70,7 +70,8 @@ EOS
     if [[ -d $MDIR/.IsSpam && $($LS $MDIR/.IsSpam/cur) ]]; then
 set -x
         su - $MUSR -c "$SP -d $SDIR spam $MDIR/.IsSpam/cur/*"
-        rm $MDIR/.IsSpam/cur/*
+$LS $MDIR/.IsSpam/cur
+#        rm $MDIR/.IsSpam/cur/*
 set +x
     fi
 
