@@ -19,15 +19,15 @@ if [[ $1 == sqlite ]]; then
     SQCMD="sqlite3 $DPATH"
 elif [[ $1 == mysql ]]; then
     if [[ ! -f ~/.my.cnf ]]; then
-        echo "!!! Create ~/.my.cnf"
-        cat << EOS > ~/.my.cnf
+        echo "!!! Create /root/.my.cnf"
+        cat << EOS | $SUDO tee /root/.my.cnf
 [client]
 host = $DHOST
 port = $DPORT
-user = $DUSER
+user = root
 password = $DPASS
 EOS
-        chmod 600 ~/.my.cnf
+        $SUDO chmod 600 /root/.my.cnf
     fi
     cat << EOS | $SUDO mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;

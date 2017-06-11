@@ -163,13 +163,15 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 EOS
-    cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
-[client]
-host = $DHOST
-port = $DPORT
-user = root
-password = $DPASS
-EOS
+
+# Do this in setup-db
+#    cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
+#[client]
+#host = $DHOST
+#port = $DPORT
+#user = root
+#password = $DPASS
+#EOS
 
     echo "!!! WARNING: you may have to manually kill mysql to restart it"
     $SUDO systemctl restart mysql
