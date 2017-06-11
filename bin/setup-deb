@@ -143,8 +143,8 @@ postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB --no-install-recommends install $SLIST > /dev/null 2>&1
 fi
-
-if [[ $1 == mysql && ! -e /usr/sbin/mysqld ]]; then
+set -x
+if [[ $1 == mysql ]] && [[ ! -e /usr/sbin/mysqld ]]; then
     $EXDEB --no-install-recommends install $MLIST > /dev/null 2>&1
 
     # Change to utf8 otherwise pdns tables will not install
@@ -174,7 +174,7 @@ EOS
     echo "!!! WARNING: you may have to manually kill mysql to restart it"
     $SUDO systemctl restart mysql
 fi
-
+set +x
 echo "!!! Disable pdns until actually needed"
 $SUDO systemctl stop pdns > /dev/null 2>&1
 $SUDO systemctl disable pdns > /dev/null 2>&1
