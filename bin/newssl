@@ -62,7 +62,9 @@ EOS
         > $C_SSL/$VHOST/mailserver.pem
     chmod 644 $C_SSL/$VHOST/mailserver.pem
     chmod 755 $C_SSL/$VHOST
+    sleep 1
     nginx -t && { systemctl stop nginx; systemctl start nginx; }
+    [[ -d /etc/postfix ]] && serva restart mail
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
