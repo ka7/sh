@@ -45,6 +45,6 @@ for i in $ALL; do
 done
 
 serva restart web
-serva restart mail
+[[ -d /etc/postfix ]] && serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
