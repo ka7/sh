@@ -14,8 +14,6 @@ O="NetServa"
 OU="IT Department"
 IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
-set -x
-
 if [[ $1 == sqlite ]]; then
     SQCMD=$EXSQL
     [[ ! -d $DBSQL ]] && setup-db sqlite
@@ -36,8 +34,6 @@ if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
         useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
     fi
 fi
-
-set -x
 
 echo "!!! Create /etc/postfix/main.cf for $1"
 [[ ! -f /etc/postfix/main.cf.orig ]] && mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
@@ -235,8 +231,21 @@ EOS
 fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
-    echo "!!! Create dhparams.pem, patience..."
-    openssl dhparam -out $C_SSL/dhparams.pem 2048 > /dev/null
+    echo "!!! Create dhparams.pem"
+    cat << EOS | $SUDO tee $C_SSL/dhparams.pem > /dev/null
+-----BEGIN DH PARAMETERS-----
+MIIBCAKCAQEAlXqSyZSb0tcCiLynuqkIfPPwMBW4Ig1jam0ZSakNYDQz65hqqf4e
+50D4JALzDWzmz0D2sbOzr9Cm1P6LasNuT9IhETC9JT1gFcsz0oACxNxqXoSKYctP
+Iq/CV8Ntg1fQOrwYy6Qk7fA8A04dO9/NKE/wIcAG5x39h7CJecOgeao4/oG78qEE
+Bnrz5uKT5hLsEn1TDiLqUR49NTqjBNbY0GJm8brC79Mlo0rRGxJbteiruF9mVdXe
+8BtzSqEyHbLIqD6vGwjgh2f1NlZNOIAW1pSMuCYLG024Ny+/QB/QMszh9zL9K6wu
+iBmX5rBIfwXIYnWhWcMEyMs1IFI294TdkwIBAg==
+-----END DH PARAMETERS-----
+EOS
+
+# This takes too long on a small instance, let's cheat
+#    echo "!!! Create dhparams.pem, patience..."
+#    openssl dhparam -out $C_SSL/dhparams.pem 2048 > /dev/null
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then
