@@ -68,34 +68,33 @@ EOS
     # Outside the Junk folder
 
     if [[ -d $MDIR/.IsSpam && $($LS $MDIR/.IsSpam/cur) ]]; then
-set -x
         su - $MUSR -c "$SP -d $SDIR spam $MDIR/.IsSpam/cur/*"
         rm $MDIR/.IsSpam/cur/*
         su - $MUSR -c "$SP -d $SDIR counts"
-set +x
     fi
 
     if [[ -d $MDIR/.IsGood && $($LS $MDIR/.IsGood/cur) ]]; then
-set -x
         su - $MUSR -c "$SP -d $SDIR good $MDIR/.IsGood/cur/*"
         mv $MDIR/.IsGood/cur/* $MDIR/cur
         su - $MUSR -c "$SP -d $SDIR counts"
-set +x
     fi
 
     if [[ -d $MDIR/.TrainGood && $($LS $MDIR/.TrainGood/cur) ]]; then
         su - $MUSR -c "$SP -d $SDIR train-good $MDIR/.TrainGood/cur/*"
         rm $MDIR/.TrainGood/cur/*
+        su - $MUSR -c "$SP -d $SDIR counts"
     fi
 
     if [[ -d $MDIR/.TrainSpam && $($LS $MDIR/.TrainSpam/cur) ]]; then
         su - $MUSR -c "$SP -d $SDIR train-spam $MDIR/.TrainSpam/cur/*"
         rm $MDIR/.TrainSpam/cur/*
+        su - $MUSR -c "$SP -d $SDIR counts"
     fi
 
     if [[ -d $MDIR/.UnSpam && $($LS $MDIR/.UnSpam/cur) ]]; then
         su - $MUSR -c "$SP -d $SDIR remove $MDIR/.UnSpam/cur/*"
         mv $MDIR/.UnSpam/cur/* $MDIR/cur
+        su - $MUSR -c "$SP -d $SDIR counts"
     fi
 
     # Inside the Junk folder (legacy, remove these one day)
