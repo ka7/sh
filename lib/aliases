@@ -49,6 +49,7 @@ alias block='iptables -A INPUT -j DROP -s '
 alias shblock='iptables -L -n | grep ^DROP | awk '\''{print $4}'\'' | sort -n'
 alias unblock='iptables -D INPUT -j DROP -s '
 
+alias dlog='journalctl -f -t pdns_server'
 alias mlog='tail -f /var/log/mail.log'
 alias mgrep='mlog | grep '
 alias slog='journalctl -f -t sshd'
