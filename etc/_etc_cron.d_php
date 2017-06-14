@@ -1,0 +1,5 @@
+# Look for and purge old sessions every 30 minutes
+#09,39 *     * * *     root   [ -x /usr/lib/php/sessionclean ] && /usr/lib/php/sessionclean
+
+# Uncomment above if using Apache
+11 * * * * root find /home/u/*/var/tmp -name 'sess_*' -type f -cmin "+240" -delete
