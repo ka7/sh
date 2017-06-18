@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# .sh/bin/sheriff 20170618 - 20170618
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ "-h" ]] && echo "Usage: sheriff [icmp IP] [ssh port] [eth0]" && exit 1
+
+IO_IP=${1:-0.0.0.0}
+DPORT=${2:-22}
+INDEV=${2:-eth0}
+
+iptables -N SSH
+iptables -A SSH -j LOG --log-prefix "Possible SSH attack! " --log-level 7
+iptables -A SSH -j DROP
+
+iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --set
+iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --update --seconds 120 --hitcount 4 -j SSH
+
+iptables -A INPUT -d $IO_IP -p ICMP --icmp-type 8 -j ACCEPT
+iptables -A OUTPUT -s $IO_IP -p ICMP --icmp-type 0 -j ACCEPT
+iptables -A INPUT -p ICMP --icmp-type 8 -j DROP
+
