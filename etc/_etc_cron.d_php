@@ -1,5 +1,10 @@
-# Look for and purge old sessions every 30 minutes
+# .sh/etc/_etc_cron.d_php 20170614 - 20170614
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+#MAILTO=
+
+# Look for and purge old sessions every 30 minutes, uncomment if using Apache
 #09,39 *     * * *     root   [ -x /usr/lib/php/sessionclean ] && /usr/lib/php/sessionclean
 
-# Uncomment above if using Apache
+# Every hour remove older than 4 hour nginx/php-fpm session files
 11 * * * * root find /home/u/*/var/tmp -name 'sess_*' -type f -cmin "+240" -delete

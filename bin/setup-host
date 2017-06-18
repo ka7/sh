@@ -59,9 +59,9 @@ fi
     && $SUDO apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
-[[ ! -e /usr/bin/bsd-mailx ]] \
-    && echo ">>> Installing default package set, more patience..." \
-    && DEBIAN_FRONTEND=noninteractive $SUDO apt-get -qq -y \
+if [[ ! -e /usr/bin/bsd-mailx ]]; then
+    echo ">>> Installing default package set, more patience..."
+    DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq \
         --no-install-recommends install $HLIST > /dev/null 2>&1
 fi
 
@@ -69,8 +69,12 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
     $SUDO cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
 
-    echo ">>> Modify host SSH port to Port 9"
-    $SUDO sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
+    echo ">>> Modify host SSH port to Port 9 and limit login attempts"
+    $SUDO sed -i /etc/ssh/sshd_config \
+        -e 's/^#Port 22/Port 9/' \
+        -e 's/^#MaxAuthTries 6/MaxAuthTries 1/' \
+        -e 's/^#MaxSessions 10/MaxSessions 3/' \
+        -e 's/^#MaxStartups 10:30:100/MaxStartups 1/'
 
     echo ">>> Create host SSH restricted ssh/sftp logins"
     $SUDO sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
