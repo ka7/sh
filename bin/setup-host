@@ -68,18 +68,17 @@ fi
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
     $SUDO cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-
-    echo ">>> Modify host SSH port to Port 9 and limit login attempts"
-    $SUDO sed -i /etc/ssh/sshd_config \
-        -e 's/^#Port 22/Port 9/' \
-        -e 's/^#MaxAuthTries 6/MaxAuthTries 1/' \
-        -e 's/^#MaxSessions 10/MaxSessions 3/' \
-        -e 's/^#MaxStartups 10:30:100/MaxStartups 1/'
-
-    echo ">>> Create host SSH restricted ssh/sftp logins"
-    $SUDO sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
-    cat << EOS | $SUDO tee -a /etc/ssh/sshd_config > /dev/null
-
+    echo ">>> Create new /etc/ssh/sshd_config"
+    cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
+Port 9
+MaxAuthTries 1
+MaxSessions 3
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding yes
+PrintMotd no
+MaxStartups 1
+AcceptEnv LANG LC_*
 Subsystem sftp internal-sftp -u 0027
 Match User u*
   ChrootDirectory %h
@@ -97,7 +96,7 @@ fi
 
 if [[ ! -f ~/.ssh/id_rsa ]]; then
     echo ">>> Create host ~/.ssh/id_rsa key"
-    ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
+    ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/*
 fi
