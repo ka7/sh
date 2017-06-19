@@ -27,88 +27,88 @@ fi
 if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
     echo "!!! Create $ADMIN @ $VHOST"
     if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
-        groupmod -n $ADMIN ubuntu
-        usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
+        $SUDO groupmod -n $ADMIN ubuntu
+        $SUDO usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
     else
-        groupadd -g $A_GID $ADMIN
-        useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
+        $SUDO groupadd -g $A_GID $ADMIN
+        $SUDO useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
     fi
 fi
 
 echo "!!! Create /etc/postfix/main.cf for $1"
 [[ ! -f /etc/postfix/main.cf.orig ]] && mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
-cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
+$SUDO cp ~/.sh/etc/_etc_postfix_main.cf /etc/postfix/main.cf
 
 if [[ $1 == sqlite ]]; then
     cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> /etc/postfix/main.cf
 elif [[ $1 == mysql ]]; then
     cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> /etc/postfix/main.cf
 fi
-chmod 644 /etc/postfix/main.cf
+$SUDO chmod 644 /etc/postfix/main.cf
 
 if [[ $1 == sqlite ]]; then
     if [[ ! -f /etc/postfix/sqlite-alias-maps.cf ]]; then
         echo "!!! Create /etc/postfix/sqlite-alias-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
             > /etc/postfix/sqlite-alias-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-gid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/sqlite-gid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
             > /etc/postfix/sqlite-gid-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-mailbox-domains.cf ]]; then
         echo "!!! Create /etc/postfix/sqlite-mailbox-domains.cf"
-        sed -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
             > /etc/postfix/sqlite-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-mailbox-maps.cf ]]; then
         echo "!!! Create /etc/postfix/sqlite-mailbox-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
             > /etc/postfix/sqlite-mailbox-maps.cf
     fi
     if [[ ! -f /etc/postfix/sqlite-uid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/sqlite-uid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
             > /etc/postfix/sqlite-uid-maps.cf
     fi
 elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/postfix/mysql-alias-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-alias-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
             > /etc/postfix/mysql-alias-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-gid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-gid-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
             > /etc/postfix/mysql-gid-maps.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-domains.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-mailbox-domains.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
             > /etc/postfix/mysql-mailbox-domains.cf
     fi
     if [[ ! -f /etc/postfix/mysql-mailbox-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-mailbox-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
             > /etc/postfix/mysql-mailbox-maps.cf
      fi
      if [[ ! -f /etc/postfix/mysql-uid-maps.cf ]]; then
         echo "!!! Create /etc/postfix/mysql-uid-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
             > /etc/postfix/mysql-uid-maps.cf
@@ -116,8 +116,8 @@ elif [[ $1 == mysql ]]; then
 fi
 
 echo "!!! Create /etc/dovecot/dovecot.conf for $1"
-[[ ! -f /etc/dovecot/dovecot.conf.orig ]] && mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
-sed -e "s;_VHOST;$VHOST;" \
+[[ ! -f /etc/dovecot/dovecot.conf.orig ]] && $SUDO mv -f /etc/dovecot/dovecot.conf /etc/dovecot/dovecot.conf.orig
+$SUDO sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_dovecot_dovecot.conf \
     > /etc/dovecot/dovecot.conf
 
@@ -130,14 +130,14 @@ fi
 if [[ $1 == sqlite ]]; then
     if [[ ! -f /etc/dovecot/user-sqlite.conf ]]; then
         echo "!!! Create /etc/dovecot/user-sqlite.conf"
-        sed -e "s;_DTYPE;$1;" -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DTYPE;$1;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > /etc/dovecot/user-sqlite.conf
     fi
 elif [[ $1 == mysql ]]; then
     if [[ ! -f /etc/dovecot/user-mysql.conf ]]; then
         echo "!!! Create /etc/dovecot/user-mysql.conf"
-        sed -e "s/_DTYPE/$1/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DTYPE/$1/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > /etc/dovecot/user-mysql.conf
@@ -146,26 +146,26 @@ fi
 
 if [[ ! -d /etc/dovecot/sieve ]]; then
     echo "!!! Create /etc/dovecot/sieve/spamprobe symlink"
-    mkdir /etc/dovecot/sieve
-    cd /etc/dovecot/sieve
-    ln -s /usr/bin/spamprobe
+    $SUDO mkdir /etc/dovecot/sieve
+    $SUDO cd /etc/dovecot/sieve
+    $SUDO ln -s /usr/bin/spamprobe
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "!!! Create /etc/apt/sources.list"
-    mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
+    $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    $SUDO cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
 fi
 
 if [[ ! -f /etc/nginx/common.conf ]]; then
     echo "!!! Create /etc/nginx/common.conf"
-    cp ~/.sh/etc/_etc_nginx_common.conf /etc/nginx/common.conf
+    $SUDO cp ~/.sh/etc/_etc_nginx_common.conf /etc/nginx/common.conf
 fi
 
 if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
     echo "!!! Create /etc/nginx/nginx.conf"
-    mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
-    cp ~/.sh/etc/_etc_nginx_nginx.conf /etc/nginx/nginx.conf
+    $SUDO mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+    $SUDO cp ~/.sh/etc/_etc_nginx_nginx.conf /etc/nginx/nginx.conf
 fi
 
 if [[ -h /etc/nginx/sites-enabled/default ]]; then
@@ -180,25 +180,25 @@ fi
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
     echo "!!! Create /etc/opendkim.conf"
     mv /etc/opendkim.conf /etc/opendkim.conf.orig
-    cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
+    $SUDO cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
 fi
 
 if [[ ! -f /etc/php/7.0/fpm/common.conf ]]; then
     echo "!!! Create /etc/php/7.0/fpm/common.conf"
-    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf /etc/php/7.0/fpm/common.conf
+    $SUDO cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf /etc/php/7.0/fpm/common.conf
 fi
 
 if [[ ! -f /etc/postfix/master.cf.orig ]]; then
     echo "!!! Create /etc/postfix/master.cf"
-    mv /etc/postfix/master.cf /etc/postfix/master.cf.orig
-    cp ~/.sh/etc/_etc_postfix_master.cf /etc/postfix/master.cf
+    $SUDO mv /etc/postfix/master.cf /etc/postfix/master.cf.orig
+    $SUDO cp ~/.sh/etc/_etc_postfix_master.cf /etc/postfix/master.cf
 fi
 
 # TODO switch between mysql/sqlite
 if [[ ! -f /etc/powerdns/pdns.conf.orig ]]; then
     echo "!!! Create /etc/powerdns/pdns.conf"
-    mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
-    cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
+    $SUDO mv /etc/powerdns/pdns.conf /etc/powerdns/pdns.conf.orig
+    $SUDO cp ~/.sh/etc/_etc_powerdns_pdns.conf /etc/powerdns/pdns.conf
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
@@ -208,30 +208,43 @@ fi
 
 if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     echo "!!! Create /etc/systemd/system/opendkim.service"
-    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
-    systemctl daemon-reload
-    systemctl restart opendkim
+    $SUDO cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+    $SUDO systemctl daemon-reload
+    $SUDO systemctl restart opendkim
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    echo "!!! Setup SSH Port 9"
-    sed -i 's/^#Port 22/Port 9/' /etc/ssh/sshd_config
-    echo "!!! Setup SSH restricted ssh/sftp logins"
-    sed -i 's/^Subsystem/#Subsystem/' /etc/ssh/sshd_config
-    cat << EOS | tee -a /etc/ssh/sshd_config > /dev/null
-
+    echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
+    $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+    echo ">>> Create new /etc/ssh/sshd_config"
+    cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
+Port 9
+MaxAuthTries 1
+MaxSessions 3
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding yes
+PrintMotd no
+MaxStartups 1
+AcceptEnv LANG LC_*
 Subsystem sftp internal-sftp -u 0027
 Match User u*
   ChrootDirectory %h
   X11Forwarding no
   AllowTcpForwarding no
 EOS
-    systemctl restart ssh
+    $SUDO systemctl restart ssh
 fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "!!! Create dhparams.pem"
+
+# This takes too long on a small instance, so let's cheat
+# TODO figure out why to handle this gracefully
+
+#    echo "!!! Create dhparams.pem, patience..."
+#    openssl dhparam -out $C_SSL/dhparams.pem 2048 > /dev/null
+
     cat << EOS | $SUDO tee $C_SSL/dhparams.pem > /dev/null
 -----BEGIN DH PARAMETERS-----
 MIIBCAKCAQEAlXqSyZSb0tcCiLynuqkIfPPwMBW4Ig1jam0ZSakNYDQz65hqqf4e
@@ -242,22 +255,18 @@ Bnrz5uKT5hLsEn1TDiLqUR49NTqjBNbY0GJm8brC79Mlo0rRGxJbteiruF9mVdXe
 iBmX5rBIfwXIYnWhWcMEyMs1IFI294TdkwIBAg==
 -----END DH PARAMETERS-----
 EOS
-
-# This takes too long on a small instance, let's cheat
-#    echo "!!! Create dhparams.pem, patience..."
-#    openssl dhparam -out $C_SSL/dhparams.pem 2048 > /dev/null
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then
     echo "!!! Create temporary self-signed certificate for $VHOST"
-    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    [[ ! -d $C_SSL/$VHOST ]] && $SUDO mkdir $C_SSL/$VHOST
+    $SUDO openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
         -keyout /etc/ssl/$VHOST/privkey.pem \
         -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-        cat << EOS > $C_WEB/sites-enabled/$VHOST.selfsigned
+        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
     listen                      $IP4_0:443 ssl http2;
     server_name                 $VHOST;

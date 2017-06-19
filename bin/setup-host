@@ -67,7 +67,7 @@ fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
-    $SUDO cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+    $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     echo ">>> Create new /etc/ssh/sshd_config"
     cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
 Port 9
