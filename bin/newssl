@@ -24,6 +24,9 @@ C_WEB="/etc/nginx"
     chmod +x $LECFG/dehydrated && \
     ln -s $C_SSL $LECFG/certs
 
+[[ ! -f $LECFG/accounts/*/account_key.pem ]] && \
+    $LECFG/dehydrated --register --accept-terms
+
 if [[ ! -d $WACME ]]; then
     mkdir -p $WACME
     chown $(stat -c "%u:%g" $WPATH) -R $WPATH/.well-known
