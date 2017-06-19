@@ -169,12 +169,9 @@ if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
 fi
 
 if [[ -h /etc/nginx/sites-enabled/default ]]; then
-    rm /etc/nginx/sites-enabled/default
     echo "!!! Create /etc/nginx/sites-enabled/default"
-    cat << 'EOS' | tee /etc/nginx/sites-enabled/default > /dev/null
-server { listen 80; server_name ~^www\.(?<domain>.+)$; location / { return 301 http://$domain$request_uri; } }
-server { listen 80; server_name ~^(?<domain>.+)$; include /etc/nginx/common.conf; }
-EOS
+    $SUDO rm /etc/nginx/sites-enabled/default
+    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled_default /etc/nginx/sites-enabled/default
 fi
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
@@ -214,9 +211,8 @@ if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo ">>> Backup sshd_config to /etc/ssh/sshd_config.orig"
+    echo "!!! Create new /etc/ssh/sshd_config"
     $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    echo ">>> Create new /etc/ssh/sshd_config"
     cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
 Port 9
 MaxAuthTries 1
@@ -280,6 +276,24 @@ server {
 EOS
     fi
 fi
+
+if [[ -d /etc/NetworkManager ]]; then
+    echo "!!! Create desktop iptables save/restore"
+    $SUDO cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+        /etc/NetworkManager/dispatcher.d/99iptables
+    $SUDO chmod +x /etc/NetworkManager/dispatcher.d/99iptables
+else
+    echo "!!! Create server iptables save/restore"
+    $SUDO cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
+        /etc/network/if-post-down.d/iptsave
+    $SUDO chmod +x /etc/network/if-post-down.d/iptsave
+
+    $SUDO cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+        /etc/network/if-pre-up.d/iptrestore
+    $SUDO chmod +x /etc/network/if-pre-up.d/iptrestore
+fi
+
+ssheriff
 
 serva restart web
 serva restart mail

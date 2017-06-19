@@ -1,0 +1,3 @@
+#!/bin/sh
+iptables-restore -c < /etc/iptables.rules
+exit 0

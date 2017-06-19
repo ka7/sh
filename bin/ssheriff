@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# .sh/bin/sheriff 20170618 - 20170619
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Note: IPv4 only atm
+
+[[ $1 =~ "-h" ]] && echo "Usage: ssheriff [clear|icmp IP] [ssh port] [eth0]" && exit 1
+
+IO_IP=${1:-''}
+DPORT=${2:-'9'}
+INDEV=${3:-'eth0'}
+
+if [[ $1 == clear ]]; then
+    echo "!!! Clear all iptables rules"
+    $SUDO /sbin/iptables -P INPUT ACCEPT
+    $SUDO /sbin/iptables -P FORWARD ACCEPT
+    $SUDO /sbin/iptables -P OUTPUT ACCEPT
+    $SUDO /sbin/iptables -t nat -F
+    $SUDO /sbin/iptables -t mangle -F
+    $SUDO /sbin/iptables -F
+    $SUDO /sbin/iptables -X
+    exit 0
+fi
+
+$SUDO /sbin/iptables -N SSH
+$SUDO /sbin/iptables -A SSH -j LOG --log-prefix "Possible SSH attack! " --log-level 7
+$SUDO /sbin/iptables -A SSH -j DROP
+
+$SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --set
+$SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --update --seconds 120 --hitcount 4 -j SSH
+
+if [[ -n $IO_IP ]]; then
+    $SUDO /sbin/iptables -A INPUT -d $IO_IP -p ICMP --icmp-type 8 -j ACCEPT
+    $SUDO /sbin/iptables -A OUTPUT -s $IO_IP -p ICMP --icmp-type 0 -j ACCEPT
+    $SUDO /sbin/iptables -A INPUT -p ICMP --icmp-type 8 -j DROP
+fi

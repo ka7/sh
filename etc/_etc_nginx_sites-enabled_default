@@ -1,0 +1,2 @@
+server { listen 80; server_name ~^www\.(?<domain>.+)$; location / { return 301 http://$domain$request_uri; } }
+server { listen 80; server_name ~^(?<domain>.+)$; include /etc/nginx/common.conf; }
