@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # .sh/bin/sheriff 20170618 - 20170619
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+#
+# ssheriff                Limit SSH access to 4 attemtps per 2 mins
+# ssheriff clear          Will clear ALL iptables rules and tables
+# ssheriff 12.34.56.667   Limit ICMP (ping) to 12.34.56.78
+# ssheriff [IP] 22 ens0   Limit ICMP and SSH to port and interface
 
 # Note: IPv4 only atm
 
@@ -12,25 +17,34 @@ INDEV=${3:-'eth0'}
 
 if [[ $1 == clear ]]; then
     echo "!!! Clear all iptables rules"
-    $SUDO /sbin/iptables -P INPUT ACCEPT
-    $SUDO /sbin/iptables -P FORWARD ACCEPT
-    $SUDO /sbin/iptables -P OUTPUT ACCEPT
     $SUDO /sbin/iptables -t nat -F
     $SUDO /sbin/iptables -t mangle -F
     $SUDO /sbin/iptables -F
     $SUDO /sbin/iptables -X
+    $SUDO /sbin/iptables -P INPUT ACCEPT
+    $SUDO /sbin/iptables -P FORWARD ACCEPT
+    $SUDO /sbin/iptables -P OUTPUT ACCEPT
+    [[ -f /etc/iptables.rules ]] && $SUDO rm /etc/iptables.rules
     exit 0
 fi
 
-$SUDO /sbin/iptables -N SSH
-$SUDO /sbin/iptables -A SSH -j LOG --log-prefix "Possible SSH attack! " --log-level 7
-$SUDO /sbin/iptables -A SSH -j DROP
-
-$SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --set
-$SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --update --seconds 120 --hitcount 4 -j SSH
-
 if [[ -n $IO_IP ]]; then
+    echo "!!! Only allow ICMP access to $IO_IP"
     $SUDO /sbin/iptables -A INPUT -d $IO_IP -p ICMP --icmp-type 8 -j ACCEPT
     $SUDO /sbin/iptables -A OUTPUT -s $IO_IP -p ICMP --icmp-type 0 -j ACCEPT
     $SUDO /sbin/iptables -A INPUT -p ICMP --icmp-type 8 -j DROP
+fi
+
+$SUDO /sbin/iptables -C SSHERIFF -j DROP > /dev/null 2>&1
+if [[ $? -gt 0 ]]; then
+    $SUDO /sbin/iptables -N SSHERIFF
+    $SUDO /sbin/iptables -A SSHERIFF -j LOG --log-prefix "Possible SSH attack! " --log-level 7
+    $SUDO /sbin/iptables -A SSHERIFF -j DROP
+
+    $SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --set
+    $SUDO /sbin/iptables -A INPUT -i $INDEV -p tcp -m state --dport $DPORT --state NEW -m recent --update --seconds 120 --hitcount 4 -j SSHERIFF
+    echo "!!! Create /etc/iptables.rules"
+    $SUDO /sbin/iptables-save -c | $SUDO tee /etc/iptables.rules > /dev/null
+else
+    echo "!!! SSHERIFF iptables chain already exists"
 fi

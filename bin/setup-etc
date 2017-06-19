@@ -148,7 +148,7 @@ if [[ ! -d /etc/dovecot/sieve ]]; then
     echo "!!! Create /etc/dovecot/sieve/spamprobe symlink"
     $SUDO mkdir /etc/dovecot/sieve
     $SUDO cd /etc/dovecot/sieve
-    $SUDO ln -s /usr/bin/spamprobe
+    $SUDO ln -s /usr/bin/spamprobe /etc/dovecot/sieve/spamprobe
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
@@ -276,24 +276,6 @@ server {
 EOS
     fi
 fi
-
-if [[ -d /etc/NetworkManager ]]; then
-    echo "!!! Create desktop iptables save/restore"
-    $SUDO cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
-        /etc/NetworkManager/dispatcher.d/99iptables
-    $SUDO chmod +x /etc/NetworkManager/dispatcher.d/99iptables
-else
-    echo "!!! Create server iptables save/restore"
-    $SUDO cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
-        /etc/network/if-post-down.d/iptsave
-    $SUDO chmod +x /etc/network/if-post-down.d/iptsave
-
-    $SUDO cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
-        /etc/network/if-pre-up.d/iptrestore
-    $SUDO chmod +x /etc/network/if-pre-up.d/iptrestore
-fi
-
-ssheriff
 
 serva restart web
 serva restart mail

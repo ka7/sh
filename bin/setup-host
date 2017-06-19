@@ -55,14 +55,14 @@ fi
 
 [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
     && echo ">>> Updating package list, patience please..." \
-    && $SUDO apt-get -qq -y update > /dev/null 2>&1 \
-    && $SUDO apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
+    && $SUDO apt-get -qq -y update \
+    && $SUDO apt-get -qq -y -u dist-upgrade
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo ">>> Installing default package set, more patience..."
     DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq \
-        --no-install-recommends install $HLIST > /dev/null 2>&1
+        --no-install-recommends install $HLIST
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
@@ -111,6 +111,24 @@ Host *
 EOS
     chmod 600 ~/.ssh/*
 fi
+
+if [[ -d /etc/NetworkManager ]]; then
+    echo "!!! Create desktop iptables save/restore"
+    $SUDO cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+        /etc/NetworkManager/dispatcher.d/99iptables
+    $SUDO chmod +x /etc/NetworkManager/dispatcher.d/99iptables
+else
+    echo "!!! Create server iptables save/restore"
+    $SUDO cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
+        /etc/network/if-post-down.d/iptsave
+    $SUDO chmod +x /etc/network/if-post-down.d/iptsave
+
+    $SUDO cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+        /etc/network/if-pre-up.d/iptrestore
+    $SUDO chmod +x /etc/network/if-pre-up.d/iptrestore
+fi
+
+[[ ! -f /etc/iptables.rules ]] && ssheriff
 
 ifconfig eth0 > /dev/null 2>&1
 [[ $? -gt 0 ]] && echo "\
