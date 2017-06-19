@@ -1,32 +1,35 @@
 #!/usr/bin/env bash
-# .sh/bin/serva 20170417 - 20170506
+# .sh/bin/serva 20170417 - 20170619
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 ]] && echo "Usage: serva start|stop|restart|reload all|dns|mail|php|web" && exit 1
 
 source ~/.sh/lib/defaults || exit 2
 
+# TODO perhaps this should be added to ~/.sh/_myrc as $_SUDO ?
+[[ $(id -u) -gt 0 ]] && SUDO='sudo ' || SUDO=
+
 serva_web()
 {
-    [[ $(/usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && systemctl $1 nginx
+    [[ $($SUDO /usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 nginx
 }
 
 serva_php()
 {
 
-    [[ $(/usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && systemctl $1 php$V_PHP-fpm
+    [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 php$V_PHP-fpm
 }
 
 serva_mail()
 {
-    [[ $(/usr/sbin/postfix check) -eq 0 ]] && systemctl $1 postfix
-    [[ $(/usr/bin/doveconf check) -eq 0 ]] && systemctl $1 dovecot
+    [[ $($SUDO /usr/sbin/postfix check) -eq 0 ]] && $SUDO systemctl $1 postfix
+    [[ $($SUDO /usr/bin/doveconf check) -eq 0 ]] && $SUDO systemctl $1 dovecot
 }
 
 serva_dns()
 {
-    systemctl $1 pdns
-    systemctl $1 pdns-recursor
+    $SUDO systemctl $1 pdns
+    $SUDO systemctl $1 pdns-recursor
 }
 
 if [[ $2 == all ]]; then
