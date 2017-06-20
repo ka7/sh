@@ -56,7 +56,7 @@ newautoconfig $VHOST
 
 chperms $VHOST > /dev/null 2>&1
 
-if [[ $IP4_0 == $(host -t a $VHOST|cut -d' ' -f4) ]] then
+if [[ $IP4_0 == $(host -t a $VHOST|cut -d' ' -f4) ]]; then
     newssl $VHOST
     echo "!!! Setup Netserva HCP -> https://$VHOST"
 else

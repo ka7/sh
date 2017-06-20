@@ -216,7 +216,7 @@ EOS
 # TODO test if these entires already exist first
 
 APASS_HASH=$(doveadm pw -s SHA512-CRYPT -p $UPASS | sed 's/\$/\\\$/g')
-UPASS_HASH=$(php -r "echo password_hash($APASS, PASSWORD_DEFAULT);" | sed 's/\$/\\\$/g')
+UPASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\$/\\\$/g')
 
 cat << EOS | $SQCMD
 INSERT INTO news VALUES

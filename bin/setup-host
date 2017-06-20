@@ -66,14 +66,14 @@ fi
 
 [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
     && echo "!!! Updating package list, patience please..." \
-    && $SUDO apt-get -qq -y update \
-    && $SUDO apt-get -qq -y -u dist-upgrade
+    && $SUDO apt-get -yqq update \
+    && $SUDO apt-get -yqq -u dist-upgrade > /dev/null
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Installing default package set, more patience..."
     DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq \
-        --no-install-recommends install $HLIST
+        --no-install-recommends install $HLIST > /dev/null
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
