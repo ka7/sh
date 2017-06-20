@@ -47,8 +47,8 @@ smtpd_sasl_security_options = noanonymous
 smtpd_sasl_type = dovecot
 smtpd_sender_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_non_fqdn_sender reject_unknown_sender_domain
-smtpd_tls_cert_file = /etc/ssl/$mydomain/fullchain.pem
-smtpd_tls_key_file = /etc/ssl/$mydomain/privkey.pem
+smtpd_tls_cert_file = /etc/ssl/_VHOST/fullchain.pem
+smtpd_tls_key_file = /etc/ssl/_VHOST/privkey.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtpd_use_tls = yes
 virtual_transport = lmtp:unix:private/dovecot-lmtp

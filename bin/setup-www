@@ -33,11 +33,7 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
 <head>
 <title>Error</title>
 <style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
+body { width: 35em; margin: 0 auto; font-family: sans-serif; }
 </style>
 </head>
 <body>
