@@ -87,6 +87,8 @@ MLIST="
   postfix-mysql
 "
 
+set -x
+
 export TERM=linux DEBIAN_FRONTEND=noninteractive
 
 # OpenVZ has some wierd settings

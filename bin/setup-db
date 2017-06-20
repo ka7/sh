@@ -29,6 +29,7 @@ password = $DPASS
 EOS
         $SUDO chmod 600 /root/.my.cnf
     fi
+    sleep 2
     cat << EOS | $SUDO mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 GRANT ALL ON $ADMIN . * TO '$ADMIN'@'localhost' IDENTIFIED BY '$DPASS';
