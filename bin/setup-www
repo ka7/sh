@@ -50,6 +50,8 @@ fi
 
 newautoconfig $VHOST
 
+echo $DPASS > $WPATH/lib/.ht_pw
+
 chperms $VHOST > /dev/null 2>&1
 
 if [[ $IP4_0 == $(host -t a $VHOST|cut -d' ' -f4) ]]; then

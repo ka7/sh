@@ -6,7 +6,8 @@
 
 source ~/.sh/lib/functions || exit 2
 
-sethost $1 $3 $4 $5
+[[ -n $3 ]] && sethost $1 $3 $4 $5
+
 setdb $2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
