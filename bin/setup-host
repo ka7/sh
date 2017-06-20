@@ -33,7 +33,7 @@ fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
+    if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
         echo "!!! Setup apt sources list for $OSREL DESKTOP"
         cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
@@ -139,6 +139,6 @@ else
     $SUDO chmod +x /etc/network/if-pre-up.d/iptrestore
 fi
 
-[[ ! -f /etc/iptables.rules ]] && ssheriff
+[[ ! -f /etc/iptables.rules ]] && ssheriff clear && ssheriff
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
