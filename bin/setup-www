@@ -60,8 +60,8 @@ R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 # DNS vhost IP
 D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
 
-set -x
 if [[ $R_IP4 == $D_IP4 ]]; then
+    sleep 2
     newssl $VHOST
     echo "!!! Setup Netserva HCP -> https://$VHOST"
 else
