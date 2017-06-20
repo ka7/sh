@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-vultr 20170620 - 20170620
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Get the current IP from default route
+IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
+
+# Rewrite a sane /etc/hosts
+sed -i 's/^127.0.1.1.*$/127.0.1.1    resolved/' /etc/hosts
+echo "$IP4 $HOSTNAME" >> /etc/hosts
+
+# Setup NetServa system
+setup-host
+sleep 1
+pwgen 12 -N 3 -s -B -C > /root/.pw
+sethost $HOSTNAME $(< /root/.pw)
+gethost > /root/.sh/lib/defaults
+sleep 1
+setup-all mysql
+
+# Make sure postfix has current host details
+cp /etc/hosts /var/spool/postfix/etc/
+cp /etc/resolv.conf /var/spool/postfix/etc/
+
+# Remove single quotes
+[[ -f /etc/mailname ]] && sed -i "s/'//g" /etc/mailname
+
+systemctl restart postfix
+systemctl restart dovecot
+
+cat /root/.pw /tmp/firstboot.log | mail -s "$IP4 $HOSTNAME" -r sysadm@$HOSTNAME markc@renta.net
