@@ -4,6 +4,7 @@
 
 # Basic host dependencies, adjust accordingly
 HLIST="
+  bind9-host
   bsd-mailx
   ca-certificates
   curl
@@ -16,7 +17,7 @@ HLIST="
 "
 
 if [[ ! -f ~/.sh/lib/functions ]]; then
-    echo ">>> Missing: ~/.sh, see https://github.com/netserva/sh"
+    echo "!!! Missing: ~/.sh, see https://github.com/netserva/sh"
     OSMIR="archive.ubuntu.com"
     OSREL="zesty"
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
@@ -26,48 +27,57 @@ fi
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
-    echo ">>> Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
     $SUDO sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo ">>> Setup apt sources list for $OSREL"
     $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
+    if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
+        echo "!!! Setup apt sources list for $OSREL DESKTOP"
+        cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe multiverse restricted
+deb http://$OSMIR/ubuntu $OSREL-updates main universe multiverse restricted
+deb http://$OSMIR/ubuntu $OSREL-backports main universe multiverse restricted
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse restricted
+# adobe-flashplugin
+deb http://archive.canonical.com/ubuntu $OSREL partner
+
+# neon-desktop
+#deb http://archive.ubuntu.com/ubuntu xenial main
+#deb http://archive.neon.kde.org/dev/stable xenial main
+EOS
+    else
+        echo "!!! Setup apt sources list for $OSREL SERVER"
+        cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
 
 deb http://$OSMIR/ubuntu $OSREL main universe
 deb http://$OSMIR/ubuntu $OSREL-updates main universe
+deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
-
-# Desktop packages
-#deb http://$OSMIR/ubuntu $OSREL main universe multiverse restricted
-#deb http://$OSMIR/ubuntu $OSREL-updates main universe multiverse restricted
-#deb http://$OSMIR/ubuntu $OSREL-backports main universe multiverse restricted
-#deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse restricted
-# adobe-flashplugin
-#deb http://archive.canonical.com/ubuntu zesty partner
-# neon-desktop
-#deb http://archive.ubuntu.com/ubuntu xenial main
-#deb http://archive.neon.kde.org/dev/stable xenial main
 EOS
+    fi
 fi
 
 [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
-    && echo ">>> Updating package list, patience please..." \
+    && echo "!!! Updating package list, patience please..." \
     && $SUDO apt-get -qq -y update \
     && $SUDO apt-get -qq -y -u dist-upgrade
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
-    echo ">>> Installing default package set, more patience..."
+    echo "!!! Installing default package set, more patience..."
     DEBIAN_FRONTEND=noninteractive $SUDO apt-get -yqq \
         --no-install-recommends install $HLIST
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo ">>> Create new /etc/ssh/sshd_config"
+    echo "!!! Create new /etc/ssh/sshd_config"
     $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
 Port 9
@@ -89,20 +99,20 @@ EOS
 fi
 
 if [[ ! -d ~/.ssh ]]; then
-    echo ">>> Create host ~/.ssh dir"
+    echo "!!! Create host ~/.ssh dir"
     mkdir ~/.ssh
     chmod 700 ~/.ssh
 fi
 
 if [[ ! -f ~/.ssh/id_rsa ]]; then
-    echo ">>> Create host ~/.ssh/id_rsa key"
+    echo "!!! Create host ~/.ssh/id_rsa key"
     ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/*
 fi
 
 if [[ ! -f ~/.ssh/config ]]; then
-    echo ">>> Create host ~/.ssh/config"
+    echo "!!! Create host ~/.ssh/config"
     cat << EOS | tee -a ~/.ssh/config > /dev/null
 Host *
   TCPKeepAlive yes
@@ -130,16 +140,5 @@ else
 fi
 
 [[ ! -f /etc/iptables.rules ]] && ssheriff
-
-ifconfig eth0 > /dev/null 2>&1
-[[ $? -gt 0 ]] && echo "\
->>> Hint: to change defalt Ubuntu eth-device back to eth0...
-
-    sudo nano /etc/default/grub
-    Change: GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
-    # Update iface references in /etc/network/interfaces (.d/)
-    sudo systemctl reboot
-"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

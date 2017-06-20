@@ -56,8 +56,13 @@ newautoconfig $VHOST
 
 chperms $VHOST > /dev/null 2>&1
 
-echo "!!! Setup Netserva HCP -> https://$VHOST"
-echo "!!! Note: if this container has outside net access with DNS pointing to it's"
-echo "!!! FQDN then use \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate."
+if [[ $IP4_0 == $(host -t a $VHOST|cut -d' ' -f4) ]] then
+    newssl $VHOST
+    echo "!!! Setup Netserva HCP -> https://$VHOST"
+else
+    echo "!!! Setup Netserva HCP -> http://$VHOST"
+    echo "!!! Note: if this container has outside net access with DNS pointing to it's"
+    echo "!!! FQDN then use \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate."
+fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
