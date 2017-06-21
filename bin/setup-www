@@ -62,7 +62,7 @@ D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
 
 if [[ $R_IP4 == $D_IP4 ]]; then
     sleep 2
-    newssl $VHOST
+    newssl $VHOST > /dev/null 2>&1
     echo "!!! Setup Netserva HCP -> https://$VHOST"
 else
     echo "!!! Setup Netserva HCP -> http://$VHOST"
