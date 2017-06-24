@@ -39,6 +39,10 @@ _chperms()
     chmod 02750 $UPATH/var/{run,tmp,www}
 
     find $UPATH/var/www -type d -exec chmod 02750 {} +
+
+    # WHMCS
+    [[ -f $UPATH/var/www/configuration.php ]] && chmod 400 $UPATH/var/www/configuration.php
+
     [[ -d $UPATH/var/www/lib/sh ]] && {
         chown 0:0 -R $UPATH/var/www/lib/sh/*
         chmod 700 -R $UPATH/var/www/lib/sh/*
