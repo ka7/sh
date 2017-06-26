@@ -6,12 +6,21 @@
 
 source ~/.sh/lib/functions || exit 2
 
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
+
 sethost $1
 setdb $2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
+DID=$(cat << EOS | $SQCMD
+ SELECT id FROM vhosts
+  WHERE domain = '$VHOST'
+EOS
+)
 
-BPATH="/home/backups"
+echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
+echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
+echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
+echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
