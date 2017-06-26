@@ -39,13 +39,16 @@ IS_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-IS_VHOST=$(cat << EOS | $SQCMD
- SELECT COUNT(*) FROM vhosts
-  WHERE domain = '$VHOST'
-EOS
-)
-
 [[ $IS_VHOST -gt 0 ]] && echo "!!! $VHOST already exists" && exit 4
+
+if [[ $(grepuser ":$VHOST:") ]]; then
+    echo "!!! Warning: $VUSER for $VHOST already exists"
+else
+    echo "!!! Create $VUSER user"
+    U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
+    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $VUSER
+    [[ -n $UPASS && $UPASS != $APASS ]] && { echo $VUSER:$UPASS | chpasswd; }
+fi
 
 DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
@@ -61,22 +64,22 @@ DO_VHOST=$(cat << EOS | $SQCMD
         uname,
         updated
 ) VALUES (
-        '1',
+        1,
         $V_ALIASES,
         '$V_CREATED',
         $V_DISKQUOTA,
         '$VHOST',
-        0,
+        $U_GID,
         $V_MAILBOXES,
         $V_MAILQUOTA,
-        0,
-        '',
+        $U_UID,
+        '$VUSER',
         '$V_CREATED'
 )
 EOS
 )
 
-ID_VHOST=$(cat << EOS | $SQCMD
+DID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
   WHERE domain = '$VHOST'
 EOS
@@ -93,9 +96,9 @@ DO_VMAIL=$(cat << EOS | $SQCMD
         updated,
         created
 ) VALUES (
-        $ID_VHOST,
-        0,
-        0,
+        $DID,
+        $U_UID,
+        $U_GID,
         'admin@$VHOST',
         '/home/u/$VHOST/home/admin',
         '',
@@ -113,7 +116,7 @@ DO_VALIAS=$(cat << EOS | $SQCMD
         updated,
         created
 ) VALUES (
-        $ID_VHOST,
+        $DID,
         '@$VHOST',
         'admin@$VHOST',
         '$V_UPDATED',
@@ -130,7 +133,7 @@ DO_VHOSTLOG=$(cat << EOS | $SQCMD
         name,
         month
 ) VALUES (
-        $ID_VHOST,
+        $DID,
         '$VHOST',
         '$YM'
 )
@@ -143,21 +146,12 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
         name,
         month
 ) VALUES (
-        $ID_VHOST,
+        $DID,
         'admin@$VHOST',
         '$YM'
 )
 EOS
 )
-
-if [[ $(grepuser ":$VHOST:") ]]; then
-    echo "!!! Warning: $VUSER for $VHOST already exists"
-else
-    echo "!!! Create $VUSER user"
-    U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
-    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $VUSER
-    [[ -n $UPASS && $UPASS != $APASS ]] && { echo $VUSER:$UPASS | chpasswd; }
-fi
 
 if [[ -d $C_WEB && -d $C_FPM ]]; then
     if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
@@ -343,31 +337,6 @@ else
 fi
 
 chperms $VHOST
-
-DID=$(cat << EOS | $SQCMD
- SELECT id FROM vhosts
-  WHERE domain = '$VHOST' LIMIT 1
-EOS
-)
-
-if [[ -n $DID ]]; then
-    cat << EOS | $SQCMD
- UPDATE vhosts SET
-        uname = '$VUSER',
-        uid = $U_UID,
-        gid = $U_GID
-  WHERE id = $DID
-EOS
-    cat << EOS | $SQCMD
- UPDATE vmails SET
-        uid = $U_UID,
-        gid = $U_GID
-  WHERE did = $DID
-EOS
-else
-    echo "!!! ERROR: Vhost ID ($DID) does not exist in $SQCMD"
-fi
-
 logging $VHOST $DTYPE update
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
