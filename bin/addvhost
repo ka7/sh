@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/addvhost 20170217 - 20170528
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
 set -x
 
 [[ -z $2 ]] && echo "Usage: addvhost user@domain|domain mysql|sqlite [plan] [user_pw] [mysql_pw] [shell_pw]" && exit 1
@@ -9,8 +10,7 @@ source ~/.sh/lib/functions || exit 2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
-[[ -n $3 ]] && sethost $1 $4 $5 $6
-
+sethost $1 $4 $5 $6
 setdb $2
 
 if [[ $3 == business ]]; then
@@ -33,13 +33,21 @@ fi
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 V_UPDATED=$V_CREATED
 
-IS_VHOST=$(echo "
+IS_VHOST=$(cat << EOS | $SQCMD
  SELECT COUNT(*) FROM vhosts
-  WHERE domain = '$VHOST'" | $SQCMD)
+  WHERE domain = '$VHOST'
+EOS
+)
+
+IS_VHOST=$(cat << EOS | $SQCMD
+ SELECT COUNT(*) FROM vhosts
+  WHERE domain = '$VHOST'
+EOS
+)
 
 [[ $IS_VHOST -gt 0 ]] && echo "!!! $VHOST already exists" && exit 4
 
-DO_VHOST=$(echo "
+DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
         active,
         aliases,
@@ -64,14 +72,18 @@ DO_VHOST=$(echo "
         0,
         '',
         '$V_CREATED'
-)" | $SQCMD)
+)
+EOS
+)
 
-ID_VHOST=$(echo "
+ID_VHOST=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
-  WHERE `domain` = '$VHOST'" | $SQCMD)
+  WHERE domain = '$VHOST'
+EOS
+)
 
-DO_VMAIL=$(echo "
- INSERT INTO `vmails` (
+DO_VMAIL=$(cat << EOS | $SQCMD
+ INSERT INTO vmails (
         did,
         uid,
         gid,
@@ -89,9 +101,11 @@ DO_VMAIL=$(echo "
         '',
         '$V_CREATED',
         '$V_UPDATED'
-)" | $SQCMD)
+)
+EOS
+)
 
-DO_VALIAS=$(echo "
+DO_VALIAS=$(cat << EOS | $SQCMD
  INSERT INTO valias (
         did,
         source,
@@ -104,11 +118,13 @@ DO_VALIAS=$(echo "
         'admin@$VHOST',
         '$V_UPDATED',
         '$V_CREATED'
-)" | $SQCMD)
+)
+EOS
+)
 
 YM=$(date +"%Y%m")
 
-DO_VHOSTLOG=$(echo "
+DO_VHOSTLOG=$(cat << EOS | $SQCMD
  INSERT INTO logging (
         did,
         name,
@@ -117,9 +133,11 @@ DO_VHOSTLOG=$(echo "
         $ID_VHOST,
         '$VHOST',
         '$YM'
-)" | $SQCMD)
+)
+EOS
+)
 
-DO_VMAILLOG=$(echo "
+DO_VMAILLOG=$(cat << EOS | $SQCMD
  INSERT INTO logging (
         did,
         name,
@@ -128,7 +146,9 @@ DO_VMAILLOG=$(echo "
         $ID_VHOST,
         'admin@$VHOST',
         '$YM'
-)" | $SQCMD)
+)
+EOS
+)
 
 if [[ $(grepuser ":$VHOST:") ]]; then
     echo "!!! Warning: $VUSER for $VHOST already exists"
@@ -324,21 +344,26 @@ fi
 
 chperms $VHOST
 
-DID=$(echo "SELECT id FROM vhosts WHERE domain='$VHOST' LIMIT 1" | $SQCMD)
+DID=$(cat << EOS | $SQCMD
+ SELECT id FROM vhosts
+  WHERE domain = '$VHOST' LIMIT 1
+EOS
+)
 
 if [[ -n $DID ]]; then
-    echo "
+    cat << EOS | $SQCMD
  UPDATE vhosts SET
         uname = '$VUSER',
         uid = $U_UID,
         gid = $U_GID
-  WHERE id = $DID" | $SQCMD
-
-    echo "
+  WHERE id = $DID
+EOS
+    cat << EOS | $SQCMD
  UPDATE vmails SET
         uid = $U_UID,
         gid = $U_GID
-  WHERE did = $DID" | $SQCMD
+  WHERE did = $DID
+EOS
 else
     echo "!!! ERROR: Vhost ID ($DID) does not exist in $SQCMD"
 fi
