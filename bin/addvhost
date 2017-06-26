@@ -2,8 +2,6 @@
 # .sh/bin/addvhost 20170217 - 20170528
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-set -x
-
 [[ -z $2 ]] && echo "Usage: addvhost user@domain|domain mysql|sqlite [plan] [user_pw] [mysql_pw] [shell_pw]" && exit 1
 
 source ~/.sh/lib/functions || exit 2
@@ -85,6 +83,8 @@ DID=$(cat << EOS | $SQCMD
 EOS
 )
 
+PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
+
 DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
         did,
@@ -101,7 +101,7 @@ DO_VMAIL=$(cat << EOS | $SQCMD
         $U_GID,
         'admin@$VHOST',
         '/home/u/$VHOST/home/admin',
-        '',
+        '$PW',
         '$V_CREATED',
         '$V_UPDATED'
 )
