@@ -42,6 +42,8 @@ _chperms()
 
     # WHMCS
     [[ -f $UPATH/var/www/configuration.php ]] && chmod 400 $UPATH/var/www/configuration.php
+    [[ -f $UPATH/var/www/whmcs/configuration.php ]] && chmod 400 $UPATH/var/www/whmcs/configuration.php
+    [[ -f $UPATH/var/www/billing/configuration.php ]] && chmod 400 $UPATH/var/www/billing/configuration.php
 
     [[ -d $UPATH/var/www/lib/sh ]] && {
         chown 0:0 -R $UPATH/var/www/lib/sh/*
