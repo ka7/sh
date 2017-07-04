@@ -4,7 +4,9 @@
 
 [[ -z $1 ]] && echo "Usage: shmail user@domain" && exit 1
 
-MPATH=$(mysql -BNe "SELECT home FROM $ADMIN.vmails WHERE uid='$1'")
+source ~/.sh/lib/defaults
+
+MPATH=$(echo 'SELECT home FROM '$ADMIN'.vmails WHERE user="$1"' | $SQLDB)
 
 if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
     cd $MPATH/Maildir
