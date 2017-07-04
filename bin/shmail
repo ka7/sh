@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# shmail 20150529 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
-#set -x
+# .sh/bin/shmail 20150529 - 20170704
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: shmail user@domain" && exit 1
 
-MPATH=$(mysql -BNe "SELECT mpath FROM $ADMIN.courier WHERE uid='$1'")
+MPATH=$(mysql -BNe "SELECT home FROM $ADMIN.vmails WHERE uid='$1'")
 
 if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
     cd $MPATH/Maildir
