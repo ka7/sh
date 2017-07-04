@@ -6,7 +6,7 @@
 
 source ~/.sh/lib/defaults
 
-MPATH=$(echo 'SELECT home FROM '$ADMIN'.vmails WHERE user="$1"' | $SQCMD)
+MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
 
 if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
     cd $MPATH/Maildir
