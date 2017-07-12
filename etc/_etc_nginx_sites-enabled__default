@@ -1,0 +1,27 @@
+server {
+    listen                      80;
+    server_name                 ~^cdn\.(?<domain>.+)$;
+    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    / { return 301 https://cdn.$domain$request_uri; }
+}
+server {
+    listen                      80;
+    server_name                 ~^adm\.(?<domain>.+)$;
+    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    / { return 301 https://$domain$request_uri; }
+}
+server {
+    listen                      80;
+    server_name                 ~^www\.(?<domain>.+)$;
+    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    / { return 301 https://$domain$request_uri; }
+}
+server {
+    listen                      80;
+    server_name                 ~^(?<domain>.+);
+    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    / { return 301 https://$domain$request_uri; }
+}
+
+#server { listen 80; server_name ~^www\.(?<domain>.+)$; location / { return 301 http://$domain$request_uri; } }
+#server { listen 80; server_name ~^(?<domain>.+)$; include /etc/nginx/common.conf; }
