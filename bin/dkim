@@ -54,7 +54,8 @@ list)
     done
     ;;
 show)
-    [[ -f /etc/opendkim/dnstxt/*$2* ]] && cat /etc/opendkim/dnstxt/*$2*
+    /bin/ls /etc/opendkim/dnstxt/*$2* > /dev/null 2>&1
+    [[ $? -eq 0 ]] && cat /etc/opendkim/dnstxt/*$2* || echo "No match for '$2'"
     ;;
 esac
 
