@@ -54,7 +54,7 @@ list)
     done
     ;;
 show)
-    [[ -f /etc/opendkim/dnstxt/*_$2 ]] && cat /etc/opendkim/dnstxt/*_$2
+    [[ -f /etc/opendkim/dnstxt/*$2* ]] && cat /etc/opendkim/dnstxt/*$2*
     ;;
 esac
 
