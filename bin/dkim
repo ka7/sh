@@ -3,7 +3,7 @@
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $EUID -ne 0 ]] && echo "Please run as root" && exit 1
-[[ ${#@} -lt 1 ]] && echo "Usage: $0 add|del|list" && exit 1
+[[ ${#@} -lt 1 ]] && echo "Usage: $0 add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
 
 # Usage: ~/.sh/www/dkim add dkim example.org 1024
 
@@ -52,6 +52,9 @@ list)
     for list in $(ls "/etc/opendkim/dnstxt/" 2> /dev/null); do
         echo "Domain '$(echo $list | cut -d '_' -f 2)' with selector '$(echo $list | cut -d '_' -f 1)'"
     done
+    ;;
+show)
+    [[ -f /etc/opendkim/dnstxt/*_$2 ]] && cat /etc/opendkim/dnstxt/*_$2
     ;;
 esac
 
