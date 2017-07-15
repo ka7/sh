@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20170528
+# .sh/bin/newssl 20160121 - 20170715
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
 
-[[ -z $1 ]] && echo "Usage: newssl domain [IP] [--force] (ie; 0.0.0.0 --force)" && exit 1
+[[ -z $1 ]] && echo "Usage: newssl domain [subd subd...[--force]]" && exit 1
 
 VHOST=$1
-IP4_0=${2:-'0.0.0.0'}
-FORCE=${3:-''}
+shift
+IP4_0=$(hostname -i)
+
+for SUB in "$@"; do
+    [[ $SUB = '--force' ]] && SUBDS="$SUBDS --force" && continue
+    SUBDS="$SUBDS -d $SUB.$VHOST"
+done
 
 WPATH="/home/u/$VHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
@@ -35,8 +40,7 @@ fi
 cd $LECFG
 echo "WELLKNOWN=$WACME" > config
 
-./dehydrated -c -d $VHOST -d www.$VHOST $FORCE
-#./dehydrated -c -d $VHOST $FORCE
+./dehydrated -c -d $VHOST$SUBDS
 
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then

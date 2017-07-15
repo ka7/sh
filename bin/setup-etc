@@ -171,9 +171,9 @@ if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
 fi
 
 if [[ -h /etc/nginx/sites-enabled/default ]]; then
-    echo "!!! Create /etc/nginx/sites-enabled/default"
+    echo "!!! Create /etc/nginx/sites-enabled/_default"
     $SUDO rm /etc/nginx/sites-enabled/default
-    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled_default /etc/nginx/sites-enabled/default
+    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled__default /etc/nginx/sites-enabled/_default
 fi
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
