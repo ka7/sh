@@ -58,7 +58,7 @@ server {
     ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
 EOS
-        if [[ $SUBDS =~ "www.$VHOST" ]]; then
+        if [[ $SUBDS =~ www.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      $IP4_0:443 ssl http2;
@@ -69,7 +69,7 @@ server {
 }
 EOS
         fi
-        if [[ $SUBDS =~ "adm.$VHOST" ]]; then
+        if [[ $SUBDS =~ adm.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      $IP4_0:443 ssl http2;
@@ -82,7 +82,7 @@ server {
 }
 EOS
         fi
-        if [[ $SUBDS =~ "cdn.$VHOST" ]]; then
+        if [[ $SUBDS =~ cdn.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      $IP4_0:443 ssl http2;
