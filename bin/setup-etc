@@ -164,6 +164,11 @@ if [[ ! -f /etc/nginx/common.conf ]]; then
     $SUDO cp ~/.sh/etc/_etc_nginx_common.conf /etc/nginx/common.conf
 fi
 
+if [[ ! -f /etc/nginx/common-auth.conf ]]; then
+    echo "!!! Create /etc/nginx/common-auth.conf"
+    $SUDO cp ~/.sh/etc/_etc_nginx_common-auth.conf /etc/nginx/common-auth.conf
+fi
+
 if [[ ! -f /etc/nginx/nginx.conf.orig ]]; then
     echo "!!! Create /etc/nginx/nginx.conf"
     $SUDO mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
@@ -174,6 +179,11 @@ if [[ -h /etc/nginx/sites-enabled/default ]]; then
     echo "!!! Create /etc/nginx/sites-enabled/_default"
     $SUDO rm /etc/nginx/sites-enabled/default
     $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled__default /etc/nginx/sites-enabled/_default
+fi
+
+if [[ ! -f /etc/nginx/sites-enabled/_localhost ]]; then
+    echo "!!! Create /etc/nginx/sites-enabled/_localhost"
+    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost /etc/nginx/sites-enabled/_localhost
 fi
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
