@@ -3,11 +3,11 @@
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ -d ~/.sh ]]; then
-    echo ">>> Update local SH scripts"
+    echo ">>> Update NetServa SH scripts"
     ~/.sh/bin/shm pull > /dev/null
     source ~/.shrc
 else
-    echo ">>> Setup local SH scripts"
+    echo ">>> Setup NetServa SH scripts"
     cd
     git clone -q https://github.com/netserva/sh .sh > /dev/null
     ~/.sh/bin/shm install > /dev/null

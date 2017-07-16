@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-www 20170519 - 20170716
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $2 ]] && echo "Usage: setup-www domain mysql|sqlite" && exit 1
 
 VHOST=$1
