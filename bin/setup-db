@@ -8,7 +8,7 @@ source ~/.sh/lib/defaults || exit 2
 
 if [[ $1 == sqlite ]]; then
     if [[ ! -f $DBSQL ]]; then
-        echo "!!! Create $DBSQL"
+        echo "||| Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
         chown postfix:postfix $DBSQL/postfix
@@ -19,7 +19,7 @@ if [[ $1 == sqlite ]]; then
     SQCMD="sqlite3 $DPATH"
 elif [[ $1 == mysql ]]; then
     if [[ ! -f ~/.my.cnf ]]; then
-        echo "!!! Create /root/.my.cnf"
+        echo "||| Create /root/.my.cnf"
         cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
 [client]
 host = $DHOST
@@ -233,7 +233,7 @@ INSERT INTO vmails VALUES
 EOS
 
 if [[ $1 == sqlite ]]; then
-    echo "!!! Create hardlinks for dovecot/postfix"
+    echo "||| Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
     chmod 644 $DPATH
@@ -241,6 +241,6 @@ if [[ $1 == sqlite ]]; then
     ln $ADMIN/$(basename $DPATH) postfix
 fi
 
-echo "!!! Create '$1' database"
+echo "||| Create '$1' database"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
