@@ -14,6 +14,13 @@ O="NetServa"
 OU="IT Department"
 IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
+if [[ -d $VPATH ]]; then
+    echo "^^^ $VPATH already exists"
+else
+    echo "^^^ Create $VPATH"
+    mkdir $VPATH
+fi
+
 if [[ -f /root/.pw ]]; then
     echo "^^^ /root/.pw already exists"
 else
