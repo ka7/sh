@@ -1,57 +1,78 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20170529
+# .sh/bin/setup-www 20170519 - 20170716
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-[[ -z $2 ]] && echo "Usage: setup-www user@domain|domain mysql|sqlite [user_pw] [mysql_pw] [shell_pw]" && exit 1
+set -x
+[[ -z $2 ]] && echo "Usage: setup-www domain mysql|sqlite" && exit 1
 
 source ~/.sh/lib/defaults || exit 2
 
 [[ ! -d $VPATH ]] && mkdir -p $VPATH
 
-addvhost $*
+# First, setup the adm subdomain with NetServa HCP
+
+addvhost $ADMIN@adm.$VHOST $2 $(< /root/.pw)
 
 cd $UPATH/var
 
-[[ -d www ]] && mv www www_old
+[[ -d www && ! -d www_old ]] && mv www www_old
 
-echo "!!! Clone Netserva HCP to $WPATH"
-git clone https://github.com/netserva/www > /dev/null 2>&1
-
-[[ -d www_old/public ]] && mv www_old/public www
-[[ -d www_old/private ]] && mv www_old/private www
-
-if [[ -f ~/.ssh/authorized_keys ]]; then
-    echo "!!! Create .ssh/authorized_keys"
-    cp ~/.ssh/authorized_keys $UPATH/.ssh
+if [[ -d $WPATH/.git ]]; then
+    echo "*** $WPATH/.git (HCP) already exists"
+else
+    echo "*** Clone Netserva HCP to $WPATH"
+    git clone https://github.com/netserva/www > /dev/null 2>&1
 fi
 
-if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
-    echo "!!! Create /usr/share/nginx/html/50x.html"
-    cat << EOS | $SUDO tee /usr/share/nginx/html/50x.html > /dev/null
-<!DOCTYPE html>
-<html>
-<head>
-<title>Error</title>
-<style>
-body { width: 35em; margin: 0 auto; font-family: sans-serif; }
-</style>
-</head>
-<body>
-<h1>An error occurred.</h1>
-<p>Sorry, the page you are looking for is currently unavailable.<br/>
-Please try again later.</p>
-<p>If you are the system administrator of this resource then you should check
-the <a href="http://nginx.org/r/error_log">error log</a> for details.</p>
-<p><em>Faithfully yours, nginx.</em></p>
-</body>
-</html>
-EOS
+if [[ -d $WPATH/phpmyadmin ]]; then
+    echo "*** $WPATH/phpmyadmin already exists"
+else
+    echo "*** Setup phpmyadmin to $WPATH/phpmyadmin"
+    wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
+    tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
+    mv phpMyAdmin-*/ www/phpmyadmin
+    mv www/phpmyadmin/config.sample.inc.php www/phpmyadmin/config.inc.php
+    ENCPW=$(newpw 4 | tr ' ' _)
+    sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/phpmyadmin/config.inc.php
+    rm phpMyAdmin-latest-english.tar.gz
 fi
 
-newautoconfig $VHOST
+if [[ -d $WPATH/webmail ]]; then
+    echo "*** $WPATH/webmail already exists"
+else
+    echo "*** Setup phpmyadmin to $WPATH/webmail"
+    mkdir www/webmail
+    cd www/webmail
+    wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
+    unzip rainloop-latest.zip > /dev/null 2>&1
+    rm rainloop-latest.zip
+fi
+
+if [[ -f $UPATH/.ssh/authorized_keys ]]; then
+    echo "*** $UPATH/.ssh/authorized_keys already exists"
+else
+    if [[ -f ~/.ssh/id_rsa.pub ]]; then
+        echo "*** Create $UPATH/.ssh/authorized_keys"
+        cp ~/.ssh/id_rsa.pub $UPATH/.ssh/authorized_keys
+    fi
+fi
+
+if [[ -f $WPATH/.htpasswd ]]; then
+    echo "*** $WPATH/.htpasswd already exists"
+else
+    PIN=$RANDOM
+    echo "*** Create $WPATH/.htpasswd sysadm/$PIN"
+    htpasswd -b -c $WPATH/.htpasswd sysadm $PIN
+fi
 
 echo $DPASS > $WPATH/lib/.ht_pw
+chperms adm.$VHOST > /dev/null 2>&1
 
+# Now set up the main VHOST
+
+addvhost $VHOST $2 $(< /root/.pw)
+newautoconfig $VHOST
+[[ -d www_old/public ]] && mv www_old/public www
+[[ -d www_old/private ]] && mv www_old/private www
 chperms $VHOST > /dev/null 2>&1
 
 # Default route IP
@@ -61,13 +82,15 @@ R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
 
 if [[ $R_IP4 == $D_IP4 ]]; then
-    sleep 2
-    newssl $VHOST > /dev/null 2>&1
-    echo "!!! Setup Netserva HCP -> https://$VHOST"
+    sleep 1
+    newssl $VHOST adm cdn www > /dev/null 2>&1
+    echo "*** Setup Netserva HCP -> https://adm.$VHOST"
 else
-    echo "!!! Setup Netserva HCP -> http://$VHOST"
-    echo "!!! Note: if this container has outside net access with DNS pointing to it's"
-    echo "!!! FQDN then use \"newssl $VHOST\" to provide a LetsEncrypt SSL certificate."
+    echo "*** Setup Netserva HCP -> http://adm.$VHOST"
+    echo "*** Note: if this server has outside net access"
+    echo "***  with DNS pointing to it's FQDN then use"
+    echo "*** \"newssl $VHOST adm cdn www\""
+    echo "*** to provide a LetsEncrypt SSL certificate."
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

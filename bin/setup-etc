@@ -14,6 +14,15 @@ O="NetServa"
 OU="IT Department"
 IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
+if [[ ! -f /root/.pw ]]; then
+    if [[ $APASS == changeme_N0W ]]; then
+        newpw 3 > /root/.pw
+    else
+        echo "$APASS $DPASS $UPASS" > /root/.pw
+    fi
+    chmod 600 /root/.pw
+fi
+
 if [[ $1 == sqlite ]]; then
     SQCMD=$EXSQL
     [[ ! -d $DBSQL ]] && setup-db sqlite
@@ -287,6 +296,30 @@ server {
 }
 EOS
     fi
+fi
+
+# Missing from Ubuntu nginx installation
+if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
+    echo "!!! Create /usr/share/nginx/html/50x.html"
+    cat << EOS | $SUDO tee /usr/share/nginx/html/50x.html > /dev/null
+<!DOCTYPE html>
+<html>
+<head>
+<title>Error</title>
+<style>
+body { width: 35em; margin: 0 auto; font-family: sans-serif; }
+</style>
+</head>
+<body>
+<h1>An error occurred.</h1>
+<p>Sorry, the page you are looking for is currently unavailable.<br/>
+Please try again later.</p>
+<p>If you are the system administrator of this resource then you should check
+the <a href="http://nginx.org/r/error_log">error log</a> for details.</p>
+<p><em>Faithfully yours, nginx.</em></p>
+</body>
+</html>
+EOS
 fi
 
 serva restart web
