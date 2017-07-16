@@ -45,16 +45,21 @@ else
     echo "ERROR: unknown argument '$1'" && exit 2
 fi
 
-if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
-    echo "^^^ Create $ADMIN @ $VHOST"
-    if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
-        $SUDO groupmod -n $ADMIN ubuntu
-        $SUDO usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
-    else
-        $SUDO groupadd -g $A_GID $ADMIN
-        $SUDO useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
-    fi
+if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
+    echo "^^^ Remove default ubuntu user"
+    userdel -rf ubuntu
 fi
+
+#if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
+#    echo "^^^ Create $ADMIN @ $VHOST"
+#    if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
+#        $SUDO groupmod -n $ADMIN ubuntu
+#        $SUDO usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
+#    else
+#        $SUDO groupadd -g $A_GID $ADMIN
+#        $SUDO useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
+#    fi
+#fi
 
 echo "^^^ Create /etc/postfix/main.cf for $1"
 [[ ! -f /etc/postfix/main.cf.orig ]] && mv /etc/postfix/main.cf /etc/postfix/main.cf.orig
