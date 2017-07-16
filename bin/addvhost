@@ -6,10 +6,10 @@
 
 source ~/.sh/lib/functions || exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
-
 sethost $1 $4 $5 $6
 setdb $2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 if [[ $3 == business ]]; then
     V_ALIASES="100"

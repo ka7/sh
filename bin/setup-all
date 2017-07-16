@@ -8,6 +8,6 @@ source ~/.sh/lib/functions || exit 2
 
 setup-deb $1
 setup-etc $1
-setup-www $ADMIN@$VHOST $1
+setup-www $VHOST $1
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

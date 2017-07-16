@@ -4,8 +4,10 @@
 set -x
 [[ -z $2 ]] && echo "Usage: setup-www domain mysql|sqlite" && exit 1
 
-VPATH=/home/u
 VHOST=$1
+VPATH=/home/u
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 # First, setup the adm subdomain with NetServa HCP
 

@@ -24,6 +24,7 @@ DLIST="
   nano
   net-tools
   openssh-server
+  pwgen
   rsync
   sqlite3
   ssmtp
