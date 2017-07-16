@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-ssh 20170521 - 20170521
+# .sh/bin/setup-ssh 20170521 - 20170717
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkey]" && exit 1
@@ -36,7 +36,9 @@ Host $VHOST
   User $SUSER
   Port $SPORT
   Hostname $THOST
-  IdentityFile ~/.ssh/$S_KEY" >> ~/.ssh/config
+  IdentityFile ~/.ssh/$S_KEY" > ~/.ssh/config.tmp
+    cat ~/.ssh/config >> ~/.ssh/config.tmp
+    mv ~/.ssh/config.tmp ~/.ssh/config
     chmod 600 ~/.ssh/config
 fi
 
