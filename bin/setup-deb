@@ -56,6 +56,7 @@ RLIST="
 
 # Basic SQLite packages
 SLIST="
+  apache2-utils
   dovecot-imapd
   dovecot-lmtpd
   dovecot-managesieved
@@ -97,7 +98,7 @@ export TERM=linux DEBIAN_FRONTEND=noninteractive
 [[ -f /proc/vz/veinfo ]] && $SUDO mv /etc/sysctl.d /etc/sysctl.d.orig
 
 if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
-    echo "!!! Create /etc/apt/apt.conf.d/20local"
+    echo "<<< Create /etc/apt/apt.conf.d/20local"
     cat << EOS | $SUDO tee /etc/apt/apt.conf.d/20local > /dev/null
 APT::Install-Recommends "false";
 Dpkg::Options {
@@ -110,7 +111,7 @@ EOS
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "!!! Setup apt sources list for $OSREL"
+    echo "<<< Setup apt sources list for $OSREL"
     $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
     cat << EOS | $SUDO tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
@@ -125,23 +126,23 @@ fi
 
 # this can sometimes prevent an update on a fresh install
 #chktime /var/cache/apt/pkgcache.bin 3600 && \
-     echo "!!! Updating packages, patience please..." && \
+     echo "<<< Updating packages, patience please..." && \
      $EXDEB update && \
      $EXDEB -u dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
-    echo "!!! Installing default package set, more patience..."
+    echo "<<< Installing default package set, more patience..."
     $EXDEB install $DLIST > /dev/null 2>&1
 fi
 
 if [[ -n $RLIST ]]; then
-    echo "!!! Remove python and all related packages"
+    echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null 2>&1
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
-    echo "!!! Installing default applicaton set, yet more patience..."
+    echo "<<< Installing default applicaton set, yet more patience..."
     cat << EOS | $SUDO debconf-set-selections
 postfix postfix/destinations string 'localhost'
 postfix postfix/mailname string '$VHOST'
@@ -169,14 +170,14 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 EOS
-    echo "!!! Create MariaDB root user (cat ~/.my.cnf for password)"
+    echo "<<< Create MariaDB root user (cat ~/.my.cnf for password)"
     $SUDO systemctl restart mysql
 fi
 
-echo "!!! Disable pdns until actually needed"
+echo "<<< Disable pdns until actually needed"
 $SUDO systemctl stop pdns > /dev/null 2>&1
 $SUDO systemctl disable pdns > /dev/null 2>&1
 
-echo "!!! Installed Debian packages"
+echo "<<< Installed Debian packages"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

@@ -47,7 +47,7 @@ fi
 
 if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     echo "^^^ Remove default ubuntu user"
-    userdel -rf ubuntu
+    userdel -rf ubuntu > /dev/null 2>&1
 fi
 
 #if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
