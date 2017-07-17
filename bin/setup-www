@@ -32,20 +32,6 @@ else
     git clone https://github.com/netserva/www > /dev/null 2>&1
 fi
 
-if [[ -d $WPATH/phpmyadmin ]]; then
-    echo "*** $WPATH/phpmyadmin already exists"
-else
-    echo "*** Setup phpmyadmin to $WPATH/phpmyadmin"
-    cd $UPATH/var
-    wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
-    tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
-    mv phpMyAdmin-*/ www/phpmyadmin
-    mv www/phpmyadmin/config.sample.inc.php www/phpmyadmin/config.inc.php
-    ENCPW=$(newpw 4 | tr ' ' _)
-    sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/phpmyadmin/config.inc.php
-    rm phpMyAdmin-latest-english.tar.gz
-fi
-
 if [[ -d $WPATH/webmail ]]; then
     echo "*** $WPATH/webmail already exists"
 else
@@ -78,7 +64,29 @@ else
     echo "# HTTP auth for https://adm.$VHOST -> sysadm / $PIN" >> ~/.my.cnf
 fi
 
+# Even if SQLite is the default this is so switching to MySQL has a chance
+# of working when index.php db=>type is manally changed to "mysql".
+if [[ -f $WPATH/lib/.ht_pw ]]; then
+    echo "*** $WPATH/lib/.ht_pw already exists"
+else
+    echo "*** Create $WPATH/lib/.ht_pw"
+    echo $DPASS > $WPATH/lib/.ht_pw
+fi
+
 if [[ $2 == mysql ]]
+    if [[ -d $WPATH/phpmyadmin ]]; then
+        echo "*** $WPATH/phpmyadmin already exists"
+    else
+        echo "*** Setup phpmyadmin to $WPATH/phpmyadmin"
+        cd $UPATH/var
+        wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
+        tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
+        mv phpMyAdmin-*/ www/phpmyadmin
+        mv www/phpmyadmin/config.sample.inc.php www/phpmyadmin/config.inc.php
+        ENCPW=$(newpw 4 | tr ' ' _)
+        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/phpmyadmin/config.inc.php
+        rm phpMyAdmin-latest-english.tar.gz
+    fi
     if [[ -f $WPATH/lib/.ht_conf.php ]]; then
         echo "*** $WPATH/lib/.ht_conf.php already exists"
     else
@@ -92,14 +100,6 @@ return [
     fi
 fi
 
-# Even if SQLite is the default this is so switching to MySQL has a chance
-# of working when index.php db=>type is manally changed to "mysql".
-if [[ -f $WPATH/lib/.ht_pw ]]; then
-    echo "*** $WPATH/lib/.ht_pw already exists"
-else
-    echo "*** Create $WPATH/lib/.ht_pw"
-    echo $DPASS > $WPATH/lib/.ht_pw
-fi
 
 chperms adm.$VHOST > /dev/null 2>&1
 
