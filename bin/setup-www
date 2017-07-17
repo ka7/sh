@@ -7,6 +7,9 @@
 VHOST=$1
 VPATH=/home/u
 
+sethost $VHOST $(< /root/.pw)
+setdb $2
+
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 # First, setup the adm subdomain with NetServa HCP
@@ -75,6 +78,22 @@ else
     echo "# HTTP auth for https://adm.$VHOST -> sysadm / $PIN" >> ~/.my.cnf
 fi
 
+if [[ $2 == mysql ]]
+    if [[ -f $WPATH/lib/.ht_conf.php ]]; then
+        echo "*** $WPATH/lib/.ht_conf.php already exists"
+    else
+        echo "*** Create $WPATH/lib/.ht_conf.php (edit to modify/extend)"
+        echo "<?php
+return [
+    'cfg' => ['email' => '$ADMIN@$VHOST'],
+    'db' => ['type' => 'mysql', 'pass' => '$DPASS'],
+];
+" > $WPATH/lib/.ht_conf.php
+    fi
+fi
+
+# Even if SQLite is the default this is so switching to MySQL has a chance
+# of working when index.php db=>type is manally changed to "mysql".
 if [[ -f $WPATH/lib/.ht_pw ]]; then
     echo "*** $WPATH/lib/.ht_pw already exists"
 else
