@@ -92,7 +92,7 @@ else
     echo $DPASS > $WPATH/lib/.ht_pw
 fi
 
-if [[ $2 == mysql ]]
+if [[ $2 == mysql ]]; then
     if [[ -d $WPATH/phpmyadmin ]]; then
         echo "*** $WPATH/phpmyadmin already exists"
     else
