@@ -4,10 +4,9 @@
 
 [[ -z $2 ]] && echo "Usage: setup-www domain mysql|sqlite" && exit 1
 
-VHOST=$1
-VPATH=/home/u
+source ~/.sh/lib/functions
 
-sethost $VHOST $(< /root/.pw)
+sethost $1 $(< /root/.pw)
 setdb $2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
@@ -42,6 +41,26 @@ else
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip
+    NEWPW=$(awk '{print $3}' /root/.pw)
+    sed -i "/admin_password/ s/12345/$NEWPW/" www/webmail/data/_data_/_default_/configs/application.ini
+    cat << EOS | $SUDO tee www/webmail/data/_data_/_default_/domains/$VHOST.ini
+imap_host = "$VHOST"
+imap_port = 993
+imap_secure = "SSL"
+imap_short_login = Off
+sieve_use = Off
+sieve_allow_raw = Off
+sieve_host = ""
+sieve_port = 4190
+sieve_secure = "None"
+smtp_host = "$VHOST"
+smtp_port = 465
+smtp_secure = "SSL"
+smtp_short_login = Off
+smtp_auth = On
+smtp_php_mail = Off
+white_list = ""
+EOS
 fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
