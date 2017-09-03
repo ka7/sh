@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# newmaster 20160816 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: newmaster domain [passwd] [email] [path]" && exit 1
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'newservice' first" && exit 2
+[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
+
+APASS=${2:-$APASS}
+EMAIL=${3:-"webmaster@$VHOST"}
+FPATH=${4:-''}
+WPATH="$VPATH/$VHOST/var/www"
+VUSER=$(stat -c "%U" $WPATH)
+
+[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
+
+if [[ $FPATH ]]; then
+    WPURL=$SCHEME$VHOST/$FPATH
+    FPATH=$WPATH/$FPATH
+else
+    WPURL=$SCHEME$VHOST
+    FPATH=$WPATH
+fi
+
+if [ ! -f "$FPATH/wp-config.php" ]; then
+    echo "ERROR: This is not a Wordpress folder, run 'newwp' first" && exit 4
+fi
+
+if [[ ! -x /usr/local/bin/wp ]]; then
+    echo "!!! Install wp-cli as /usr/local/bin/wp"
+    curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+fi
+
+su - $VUSER -c "
+cd $FPATH
+wp user create webmaster $EMAIL \
+ --user_pass=$APASS \
+ --first_name=Hosting \
+ --last_name=Administrator \
+ --role=administrator \
+ --send-email"
+
+echo
+echo "Added $EMAIL / $APASS to $WPURL/wp-admin/"
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
