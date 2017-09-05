@@ -40,7 +40,7 @@ log_upath()
         log_setup $1 $2
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
     else
-        printf "%-48s %10s %10s %10s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+        printf "%-50s %8s %8s %8s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
 }
 
@@ -49,7 +49,7 @@ log_mpath()
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
-    [[ $UPD ]] || printf "\n%-40s %12s %12s %12s\n" "Mailbox" "Mail" "Spam" "Home"
+    [[ $UPD ]] || printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
     for MBOX in $MBOXS; do
         local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
 
@@ -66,7 +66,7 @@ log_mpath()
             log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         else
-            printf "%-48s %10s %10s %10s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+            printf "%-50s %8s %8s %8s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
 }
