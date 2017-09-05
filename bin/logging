@@ -68,6 +68,7 @@ log_mpath()
         else
             printf "%-50s %8s %8s %8s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
+        echo
     done
 }
 
@@ -82,11 +83,12 @@ log_all()
     fi
 }
 
-[[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "Vhost" "Mail" "Web" "Disk"
-
 if [[ $1 == all ]]; then
     VHOSTS=$(find /home/u -mindepth 1 -maxdepth 1 -type d \! -type l | sed 's#/home/u/##' | sort)
-    for VHOST in $VHOSTS; do log_all $VHOST; done
+    for VHOST in $VHOSTS; do
+        [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "Vhost" "Mail" "Web" "Disk"
+        log_all $VHOST
+    done
 else
     log_all $1
 fi
