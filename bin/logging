@@ -10,7 +10,7 @@ setdb $2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
 
-[[ -n $3 && $3 == update ]] && UPD=1 || UPD=0
+[[ -n $3 && $3 == update ]] && UPD=1 || UPD=
 
 DU="/usr/bin/du -sb"
 FIND="/usr/bin/find"
