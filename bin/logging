@@ -60,7 +60,7 @@ log_mpath()
         [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         if [[ $UPD ]]; then
             local VUSER="$(basename $MBOX)@$1"
-            log_setup $1 $2
+            log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         fi
     done
