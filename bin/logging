@@ -19,7 +19,10 @@ MONTH=$(date +%Y%m)
 log_setup()
 {
     local IS_ENTRY=$(echo "SELECT 1 FROM logging WHERE name='$1' AND month=$MONTH LIMIT 1" | $SQCMD)
-    [[ $IS_ENTRY ]] || echo "INSERT INTO logging (did, name, month) VALUES ($2, '$1', $MONTH)" | $SQCMD
+    if [[ -z $IS_ENTRY ]]; then
+        echo "!!! Adding $1 to database"
+        echo "INSERT INTO logging (did, name, month) VALUES ($2, '$1', $MONTH)" | $SQCMD
+    fi
 }
 
 log_upath()
@@ -33,10 +36,11 @@ log_upath()
     [[ -d $MPATH ]] && MDU=$($DU $MPATH | cut -f1)
     [[ -d $WPATH ]] && WDU=$($DU $WPATH | cut -f1)
 
-    [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     if [[ $UPD ]]; then
         log_setup $1 $2
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
+    else
+        printf "%-48s %10s %10s %10s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
 }
 
@@ -57,11 +61,12 @@ log_mpath()
         [[ -d $MBOX/Maildir/cur ]] && INUM=$($FIND $MBOX/Maildir/cur -name "[0-9][0-9]*" | wc -l)
         [[ -d $MBOX/Maildir/.Spam/cur ]] && SNUM=$($FIND $MBOX/Maildir/.Spam/cur -name "[0-9][0-9]*" | wc -l)
 
-        [[ $UPD ]] || printf "%-40s %12s %12s %12s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         if [[ $UPD ]]; then
             local VUSER="$(basename $MBOX)@$1"
             log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
+        else
+            printf "%-48s %10s %10s %10s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
 }
