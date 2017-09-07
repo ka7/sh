@@ -1,0 +1,12 @@
+# .sh/etc/_etc_cron.d_netserva 20170614 - 20170907
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+MAILTO=admin@renta.net
+
+1 */4 * * * root /root/.sh/bin/logging all mysql update
+
+10 * * * * root /usr/bin/find /home/u/*/var/tmp -name 'sess_*' -type f -cmin "+240" -delete
+
+15 0 * * * root /usr/bin/doveadm expunge -A mailbox Spam savedbefore 6d
+
+25 0 * * * root /usr/bin/doveadm expunge -A mailbox Trash savedbefore 6d
