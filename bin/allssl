@@ -20,7 +20,7 @@ git pull
 ALL=$(/bin/ls -1 $C_SSL/*/fullchain.pem)
 
 for i in $ALL; do
-    ALTCN=$(openssl x509 -noout -text -in $i | awk -F' DNS:' '/DNS:/ {print $2$3}')
+    ALTCN=$(openssl x509 -noout -text -in $i | awk -F' DNS:' '/DNS:/ {print $2$3$4$5$6}')
     VHOST=$(basename $(dirname $i))
     WPATH=/home/u/$VHOST/var/www
     VACME=$WPATH/.well-known/acme-challenge
