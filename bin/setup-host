@@ -46,9 +46,8 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse r
 # adobe-flashplugin
 deb http://archive.canonical.com/ubuntu $OSREL partner
 
-# neon-desktop
-#deb http://archive.ubuntu.com/ubuntu xenial main
-#deb http://archive.neon.kde.org/dev/stable xenial main
+# rolling release KDE packages (possibly unstable at times)
+#deb http://ppa.launchpad.net/kubuntu-ci/stable/ubuntu $OSREL main
 EOS
     else
         echo "!!! Setup apt sources list for $OSREL SERVER"
