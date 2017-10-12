@@ -8,11 +8,12 @@
 
 VHOST=$1
 _ARGS="$2 $3 $4 $5 $6 $7 $8 $9"
-IP4_0=$(hostname -i)
+#IP4_0=$(hostname -i)
 IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+IPARG=
 
 for SUB in $_ARGS; do
-    [[ $SUB =~ $IPREG ]] && IP4_0=$SUB && continue
+    [[ $SUB =~ $IPREG ]] && IPARG="$SUB:" && continue
     [[ $SUB == '--force' ]] && SUBDS="$SUBDS --force" && continue
     SUBDS="$SUBDS -d $SUB.$VHOST"
 done
@@ -50,7 +51,7 @@ if [[ $? -eq 0 ]]; then
             && rm $C_WEB/sites-enabled/$VHOST.selfsigned
         cat << EOS > $C_WEB/sites-enabled/$VHOST
 server {
-    listen                      $IP4_0:443 ssl http2;
+    listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     $C_WEB/common.conf;
@@ -62,7 +63,7 @@ EOS
         if [[ $SUBDS =~ www.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
-    listen                      $IP4_0:443 ssl http2;
+    listen                      ${IPARG}443 ssl http2;
     server_name                 www.$VHOST;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
@@ -73,7 +74,7 @@ EOS
         if [[ $SUBDS =~ adm.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
-    listen                      $IP4_0:443 ssl http2;
+    listen                      ${IPARG}443 ssl http2;
     server_name                 adm.$VHOST;
     set                         \$domain adm.$VHOST;
     include                     $C_WEB/common-auth.conf;
@@ -86,13 +87,13 @@ EOS
         if [[ $SUBDS =~ cdn.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
-    listen                      $IP4_0:443 ssl http2;
+    listen                      ${IPARG}443 ssl http2;
     server_name                 cdn.$VHOST;
     ssl_certificate             /etc/ssl/$VHOST/fullchain.pem;
     ssl_certificate_key         /etc/ssl/$VHOST/privkey.pem;
     root                        /home/u/$VHOST/var/www/;
     fastcgi_hide_header         Set-Cookie;
-    location                    ~* \.(?:ico|css|js|jpg|jpeg|png|gif|woff|eot|ttf|svg|txt|pdf|zip|tgz|bz2|mp3|mp4|md)$ {
+    location                    ~* \.(?:ico|css|js|jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg|txt|pdf|zip|tgz|bz2|mp3|mp4|md)$ {
         access_log              off;
         expires                 365d;
         add_header              Pragma public;
