@@ -340,6 +340,7 @@ EOS
 fi
 
 serva restart web
+serva restart php
 serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
