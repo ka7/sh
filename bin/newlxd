@@ -42,23 +42,24 @@ lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
 echo "--- Setup '$_HOST' hostname as $VHOST"
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 
+echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
+lxc exec $_HOST -- "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=eth*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
+
 echo "--- Wait for network to become available..."
 lxc exec $_HOST -- systemctl restart systemd-networkd
+
 sleep 5
 
 echo "--- Update $OSREL package list"
-#lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
-lxc exec $_HOST -- apt-get -qq update
+lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
 
 echo "--- Upgrade current packages"
-#lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
-lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade
+lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 
 echo "--- Make sure basic packages are available"
 lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
-    ca-certificates curl git nano net-tools openssh-server rsync
-#    ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
-set -x
+    ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
+
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
     echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
