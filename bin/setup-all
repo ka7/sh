@@ -5,7 +5,7 @@
 [[ -z $1 ]] && echo "Usage: setup-all mysql|sqlite" && exit 1
 
 source ~/.sh/lib/defaults || exit 2
-set -x
+
 setup-deb $1
 setup-etc $1
 setup-www $VHOST $1
