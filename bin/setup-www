@@ -4,7 +4,7 @@
 
 [[ -z $2 ]] && echo "Usage: setup-www domain mysql|sqlite" && exit 1
 
-source ~/.sh/lib/functions
+source ~/.sh/lib/functions || exit 2
 
 sethost $1 $(< /root/.pw)
 setdb $2
@@ -22,47 +22,6 @@ fi
 UPATH=$VPATH/adm.$VHOST
 WPATH=$UPATH/var/www
 
-if [[ -d $WPATH/.git ]]; then
-    echo "*** $WPATH/.git (HCP) already exists"
-else
-    echo "*** Clone Netserva HCP to $WPATH"
-    cd $UPATH/var
-    [[ -d www && ! -d www_old ]] && mv www www_old
-    git clone https://github.com/netserva/www > /dev/null 2>&1
-fi
-
-if [[ -d $WPATH/webmail ]]; then
-    echo "*** $WPATH/webmail already exists"
-else
-    echo "*** Setup phpmyadmin to $WPATH/webmail"
-    cd $UPATH/var
-    mkdir www/webmail
-    cd www/webmail
-    wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
-    unzip rainloop-latest.zip > /dev/null 2>&1
-    rm rainloop-latest.zip
-    NEWPW=$(awk '{print $3}' /root/.pw)
-    sed -i "/admin_password/ s/12345/$NEWPW/" www/webmail/data/_data_/_default_/configs/application.ini
-    cat << EOS | $SUDO tee www/webmail/data/_data_/_default_/domains/$VHOST.ini
-imap_host = "$VHOST"
-imap_port = 993
-imap_secure = "SSL"
-imap_short_login = Off
-sieve_use = Off
-sieve_allow_raw = Off
-sieve_host = ""
-sieve_port = 4190
-sieve_secure = "None"
-smtp_host = "$VHOST"
-smtp_port = 465
-smtp_secure = "SSL"
-smtp_short_login = Off
-smtp_auth = On
-smtp_php_mail = Off
-white_list = ""
-EOS
-fi
-
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
     echo "*** $UPATH/.ssh/authorized_keys already exists"
 else
@@ -72,6 +31,15 @@ else
         echo "*** Create $UPATH/.ssh/authorized_keys"
         cp /root/.ssh/id_rsa.pub $UPATH/.ssh/authorized_keys
     fi
+fi
+
+if [[ -d $WPATH/.git ]]; then
+    echo "*** $WPATH/.git (HCP) already exists"
+else
+    echo "*** Clone Netserva HCP to $WPATH"
+    cd $UPATH/var
+    [[ -d www && ! -d www_old ]] && mv www www_old
+    git clone https://github.com/netserva/www > /dev/null 2>&1
 fi
 
 if [[ -f $WPATH/.htpasswd ]]; then
@@ -90,6 +58,38 @@ if [[ -f $WPATH/lib/.ht_pw ]]; then
 else
     echo "*** Create $WPATH/lib/.ht_pw"
     echo $DPASS > $WPATH/lib/.ht_pw
+fi
+
+if [[ -d $WPATH/webmail ]]; then
+    echo "*** $WPATH/webmail already exists"
+else
+    echo "*** Setup rainloop in $WPATH/webmail"
+    cd $UPATH/var
+    mkdir $WPATH/webmail
+    cd $WPATH/webmail
+    wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
+    unzip rainloop-latest.zip > /dev/null 2>&1
+    rm rainloop-latest.zip
+    NEWPW=$(awk '{print $3}' /root/.pw)
+    sed -i "/admin_password/ s/12345/$NEWPW/" $WPATH/webmail/data/_data_/_default_/configs/application.ini
+    cat << EOS | $SUDO tee $WPATH/webmail/data/_data_/_default_/domains/$VHOST.ini > /dev/null 2>&1
+imap_host = "$VHOST"
+imap_port = 993
+imap_secure = "SSL"
+imap_short_login = Off
+sieve_use = Off
+sieve_allow_raw = Off
+sieve_host = ""
+sieve_port = 4190
+sieve_secure = "None"
+smtp_host = "$VHOST"
+smtp_port = 465
+smtp_secure = "SSL"
+smtp_short_login = Off
+smtp_auth = On
+smtp_php_mail = Off
+white_list = ""
+EOS
 fi
 
 if [[ $2 == mysql ]]; then
@@ -118,7 +118,6 @@ return [
 " > $WPATH/lib/.ht_conf.php
     fi
 fi
-
 
 chperms adm.$VHOST > /dev/null 2>&1
 
