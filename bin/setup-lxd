@@ -2,103 +2,35 @@
 # .sh/bin/setup-lxd 20170519 - 20170529
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (50)]" && exit 1
+[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (25)] [passwd] [IP]" && exit 1
 
-# Change these profile "plans" to suit
-if [[ $2 == large ]]; then
-    PNAME=large
-    PSIZE=10GB
-    P_MEM=1024MB
-    P_CPU=3
-elif [[ $2 == medium ]]; then
-    PNAME=medium
-    PSIZE=5GB
-    P_MEM=512MB
-    P_CPU=2
-else
-    PNAME=small
-    PSIZE=1GB
-    P_MEM=256MB
-    P_CPU=1
-fi
+source ~/.sh/lib/defaults
 
-if [[ ! -f ~/.sh/lib/functions ]]; then
-    echo "--- Warning: using custom settings"
-    # Change the 3 vars below to what you need
-    APASS="changeme_N0W"        # Admin password for lxd remote access
-    OSREL="zesty"               # Ubuntu host distro (xenial/zesty/etc)
-    IP4_0=$(hostname -i)        # Current host IP
-    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
-else
-    source ~/.sh/lib/functions
-fi
-
-VHOST=$1
-_HOST=${VHOST%%.*}
-SPOOL=${3:-'50'}
+_PLAN=${2:-'small'}
+PSIZE=${3:-'25'}
+APASS=${4:-$APASS}
+IP4_0=${4:-$IP4_0}
 
 if [[ ! -d /var/lib/lxd ]]; then
-    grep -q "ubuntu-lxc" /etc/apt/sources.list
-    if [[ $? -ne 0 ]]; then
-        echo "--- Add latest stable LXD PPA for $OSREL"
-        cat << EOS | $SUDO tee -a /etc/apt/sources.list
-deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu $OSREL main
-EOS
-        $SUDO apt-key adv --recv-keys --keyserver keyserver.ubuntu.com D5495F657635B973
-    fi
-    if [[ ! -e /usr/bin/lxd ]]; then
-        echo "--- Install latest stable LXD from PPA"
-        [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
-            && $SUDO apt-get -qq update > /dev/null 2>&1
-        DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends \
-            lxd lxd-client zfsutils-linux > /dev/null 2>&1
-    fi
-    lxd init --auto \
+    echo "--- Install packages for lxd lxd-client zfsutils-linux"
+
+    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
+        && $SUDO apt-get -qq update > /dev/null 2>&1
+
+    DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends \
+        lxd lxd-client zfsutils-linux > /dev/null 2>&1
+
+    echo "--- Install lxd with $PSIZE GB zfs pool"
+    # switch group to lxd
+    sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
       --storage-backend zfs \
-      --storage-create-loop $SPOOL \
+      --storage-create-loop $PSIZE \
       --storage-pool lxd-pool \
-      --trust-password $APASS
+      --trust-password $APASS"
 fi
 
-if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
-    lxc profile create $PNAME
-    lxc profile set $PNAME limits.memory $P_MEM
-    lxc profile set $PNAME limits.cpu $P_CPU
-    lxc network attach-profile lxdbr0 $PNAME eth0
-    lxc profile device add $PNAME root disk path=/ pool="lxd-pool"
-    lxc profile device set $PNAME root size $PSIZE
-fi
-
-lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
-
-echo "--- Entering '$_HOST' using '$PNAME' profile"
-lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
-
-echo "--- Wait for network to become available..."
-lxc exec $_HOST -- systemctl restart networking
-
-echo "--- Update $OSREL package list"
-lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
-
-echo "--- Upgrade current packages"
-lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
-
-echo "--- Make sure basic packages are available"
-lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
-    ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
-
-# Continue container setup if the host is using the netserva/sh repo
-if [[ -d ~/.sh ]]; then
-    echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
-    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
-    lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
-    [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
-    lxc exec $_HOST -- bash -lc "setup-all sqlite"
-    LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d ' ' -f -1")
-    echo "--- setup-ssh $VHOST $LXDIP"
-fi
+sg lxd -c "newlxd $1 $_PLAN"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
