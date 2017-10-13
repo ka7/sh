@@ -4,10 +4,12 @@
 
 [[ -z $1 ]] && echo "Usage: newlxd FQDN [small|medium|large]" && exit 1
 
+source ~/.sh/lib/defaults || exit 2
+
 VHOST=$1
 _HOST=${VHOST%%.*}
 
-# Change these profile "plans" to suit
+# Modify these profile "plans" to suit your needs
 if [[ $2 == large ]]; then
     PNAME=large
     PSIZE=10GB
@@ -26,7 +28,7 @@ else
 fi
 
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
-    echo "--- Setup $PNAME container with $P_MEM mem, $P_CPU cpu, $PSIZE size"
+    echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
     lxc profile create $PNAME
     lxc profile set $PNAME limits.memory $P_MEM
     lxc profile set $PNAME limits.cpu $P_CPU
@@ -37,12 +39,12 @@ fi
 
 lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
 
-echo "--- Entering '$_HOST' using '$PNAME' profile"
+echo "--- Setup '$_HOST' hostname as $VHOST"
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 
 echo "--- Wait for network to become available..."
 lxc exec $_HOST -- systemctl restart systemd-networkd
-sleep 10
+sleep 5
 
 echo "--- Update $OSREL package list"
 #lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
@@ -60,12 +62,18 @@ set -x
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
     echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
-    lxc exec $_HOST -- bash -c 'curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash'
+    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+
     [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
-    lxc exec $_HOST -- bash -lc '[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh'
+
+    lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
+
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
-    lxc exec $_HOST -- bash -lc 'setup-all sqlite'
+
+    lxc exec $_HOST -- bash -lc "setup-all $DTYPE"
+
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
+
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
 
