@@ -63,8 +63,10 @@ EOS
     fi
 fi
 
-[[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
-    && echo "!!! Updating package list, patience please..." \
+#[[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
+#    && echo "!!! Updating package list, patience please..." \
+
+    echo "!!! Updating package list, patience please..." \
     && $SUDO apt-get -yqq update \
     && $SUDO apt-get -yqq -u dist-upgrade > /dev/null
 
