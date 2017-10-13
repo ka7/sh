@@ -4,8 +4,8 @@
 
 [[ -z $1 ]] && echo "Usage: setup-deb mysql|sqlite" && exit 1
 
-source ~/.sh/lib/functions || exit 2
-set -x
+source ~/.sh/lib/defaults || exit 2
+
 EXDEB="$SUDO apt-get -yqq"
 
 # Default list of packages
@@ -128,14 +128,12 @@ fi
 #chktime /var/cache/apt/pkgcache.bin 3600 &&
      echo "<<< Updating packages, patience please..." && \
      $EXDEB update && \
-     $EXDEB -u dist-upgrade
-#     $EXDEB -u dist-upgrade > /dev/null 2>&1
+     $EXDEB -u dist-upgrade > /dev/null 2>&1
 
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "<<< Installing default package set, more patience..."
-    $EXDEB install $DLIST
-#    $EXDEB install $DLIST > /dev/null 2>&1
+    $EXDEB install $DLIST > /dev/null 2>&1
 fi
 
 if [[ -n $RLIST ]]; then
@@ -154,8 +152,7 @@ EOS
 fi
 
 if [[ $1 == mysql ]] && [[ ! -e /usr/sbin/mysqld ]]; then
-    $EXDEB install $MLIST
-#    $EXDEB install $MLIST > /dev/null 2>&1
+    $EXDEB install $MLIST > /dev/null 2>&1
 
     # Change to utf8 otherwise pdns tables will not install
     $SUDO sed -i \
