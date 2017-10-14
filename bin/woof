@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# .sh/bin/woof 20160121 - 20171014
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: woof user@domain [folder]" && exit 1
+[[ ! -d /home/u ]] && echo "ERROR: /home/u does not exist" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 3
+
+M_LHS=$(echo $1|cut -d@ -f1)
+M_RHS=$(echo $1|cut -d@ -f2)
+
+if [[ ! -f ~/.muttrc ]]; then
+    cat << EOS | tee ~/.muttrc  > /dev/null
+#set from="System Admin <admin@example.com>"
+folder-hook . 'set sort=reverse-date'
+set auto_tag=yes
+set folder="~/.maildir"
+EOS
+    chmod 600 ~/.muttrc
+fi
+
+MPATH=/home/u/$M_RHS/home/$M_LHS
+
+if [[ -d $MPATH ]]; then
+    [[ -n $2 ]] && FOLDER=/.$2 || FOLDER=
+    if [[ -d ${MPATH}/Maildir/${FOLDER} ]]; then
+        mutt -m Maildir -f "${MPATH}/Maildir/${FOLDER}"
+    else
+        echo "ERROR: mailbox folder does not exist: $FOLDER"
+    fi
+else
+    echo "ERROR: mailbox does not exist: $MPATH"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
