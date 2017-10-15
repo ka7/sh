@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: chshpw user|domain|path [newpw]" && exit 1
 
-UPASS=${2:-$(newpw 1)}
+UPASS=${2:-$(echo $(/usr/bin/pwgen 12 -sB 1))}
 
 USERS=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep -c $1)
 
