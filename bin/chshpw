@@ -18,7 +18,7 @@ elif [[ $USERS -eq 1 ]]; then
     UUSER=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
     VUSER=$(echo $UUSER|cut -d':' -f1)
     VHOST=$(echo $UUSER|cut -d':' -f5)
-    echo "$VUSER:$UPASS" | chpasswd
+    echo -n "$VUSER:$UPASS" | chpasswd
     echo "
 SFTP
 ========
