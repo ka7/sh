@@ -6,7 +6,7 @@ variables to help make it easier to manage your Bash shell from an upstream
 shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
 which also provides a foundation for the [NetServa HCP] PHP web interface.
 
-Note: mid-2017 both projects are in an early WIP alpha stage.
+**Note: server management scripts updated to use Ubuntu Artful 17.10.**
 
 ## Usage
 
@@ -112,7 +112,7 @@ A_UID='1000'
 CIMAP='/etc/dovecot'
 CSMTP='/etc/postfix'
 C_DNS='/etc/powerdns'
-C_FPM='/etc/php/7.0/fpm'
+C_FPM='/etc/php/7.1/fpm'
 C_SQL='/etc/mysql'
 C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
@@ -129,7 +129,7 @@ EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 MPATH='/home/u/mbox.goldcoast.org/home'
 OSMIR='archive.ubuntu.com'
-OSREL='zesty'
+OSREL='artful'
 SQCMD='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 TAREA='Australia'
 TCITY='Sydney'
@@ -141,7 +141,7 @@ U_UID='1001'
 VHOST='mbox.goldcoast.org'
 VPATH='/home/u'
 VUSER='u1001'
-V_PHP='7.0'
+V_PHP='7.1'
 WPATH='/home/u/mbox.goldcoast.org/var/www'
 ```
 You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to

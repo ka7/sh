@@ -42,16 +42,16 @@ lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
 echo "--- Setup '$_HOST' hostname as $VHOST"
 lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 
-echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
-lxc exec $_HOST -- "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=eth*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
+#echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
+#lxc exec $_HOST -- "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=eth*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 
-echo "--- Wait for network to become available..."
-lxc exec $_HOST -- systemctl restart systemd-networkd
+#echo "--- Wait for network to become available..."
+#lxc exec $_HOST -- systemctl restart systemd-networkd
 
-sleep 5
+#sleep 5
 
 echo "--- Update $OSREL package list"
-lxc exec $_HOST -- apt-get -qq update > /dev/null 2>&1
+lxc exec $_HOST -- apt-get -qq update
 
 echo "--- Upgrade current packages"
 lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
@@ -65,10 +65,9 @@ if [[ -d ~/.sh ]]; then
     echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
 
-    [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
+#    [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
 
     lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
-
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
 
     lxc exec $_HOST -- bash -lc "setup-all $DTYPE"
