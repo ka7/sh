@@ -2,21 +2,35 @@
 # .sh/bin/chshpw 20171015 - 20171015
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: chshpw u**** [newpw]" && exit 1
+[[ -z $1 ]] && echo "Usage: chshpw user|domain|path [newpw]" && exit 1
 
-VUSER=$1
 UPASS=${2:-$(newpw 1)}
 
-UUSER=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}' | grep $1)
+USERS=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep -c $1)
 
-echo $UUSER
-
-#exit
-#echo $VUSER:$UPASS | chpasswd
-
-echo "\
+if [[ $USERS -eq 0 ]]; then
+    echo "No matching user, try again"
+elif [[ $USERS -gt 1 ]]; then
+    echo "Chose a more specific part of user, domain or path"
+    echo "--------------------------------------------------"
+    getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
+elif [[ $USERS -eq 1 ]]; then
+    UUSER=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
+    VUSER=$(echo $UUSER|cut -d':' -f1)
+    VHOST=$(echo $UUSER|cut -d':' -f5)
+    echo "$VUSER:$UPASS" | chpasswd
+    echo "
 SFTP
 ========
 
-Server:
+Server: $VHOST
+Username: $VUSER
+Password: $UPASS
+Port: 9 (not port 22)
+Path: /var/www
+
+sftp://$VUSER:$UPASS@$VHOST:9/var/www
 "
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
