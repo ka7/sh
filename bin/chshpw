@@ -6,19 +6,20 @@
 
 UPASS=${2:-$(echo $(/usr/bin/pwgen 12 -sB 1))}
 
-USERS=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep -c $1)
+USERS=$(getent passwd | grep -E "^u[0-9]" | grep -c $1)
 
 if [[ $USERS -eq 0 ]]; then
     echo "No matching user, try again"
 elif [[ $USERS -gt 1 ]]; then
     echo "Chose a more specific part of user, domain or path"
     echo "--------------------------------------------------"
-    getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
+    getent passwd | grep -E "^u[0-9]" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
 elif [[ $USERS -eq 1 ]]; then
-    UUSER=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
+    UUSER=$(getent passwd | grep -E "^u[0-9]" | grep $1)
     VUSER=$(echo $UUSER|cut -d':' -f1)
     VHOST=$(echo $UUSER|cut -d':' -f5)
-    echo -n "$VUSER:$UPASS" | chpasswd
+    [[ $(id -u) -gt 0 ]] && SUDO='sudo -i' || SUDO=
+    echo -n "$VUSER:$UPASS" | $SUDO chpasswd
     echo "
 SFTP
 ========
