@@ -10,4 +10,4 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
 export EDITOR=nano
 
-# NOTE: vhost variables are now in ~/.sh/lib/defaults
+# NOTE: vhost variables are now in ~/.defaults
