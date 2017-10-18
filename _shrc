@@ -10,4 +10,6 @@
 [ -f ~/.myrc ] && source ~/.myrc
 
 # So ~/.sh/bin scripts and PHP can easily parse the SH defaults
+
+if [[ ! -f ~/.defaults ]];
 gethost > ~/.sh/lib/defaults

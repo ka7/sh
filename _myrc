@@ -3,55 +3,11 @@
 # Add your custom aliases and env variables here. This file is not managed or
 # removed by the shm script other than the 'es' alias to edit and reload it.
 
-export VHOST=$(hostname -f)             # Default FQDN
-export _HOST=${VHOST%%.*}               # Default Host
-
 COLOR=31
-LABEL=$(id -un)@$_HOST
+LABEL=$(id -un)@$(hostname -f|cut -d. -f1)
 
 export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
 export EDITOR=nano
 
-export VPATH=/home/u                    # Default Path
-
-export ADMIN=sysadm                     # Admin ID/DB
-export AMAIL=admin@$VHOST               # Admin Email
-export ANAME='System Administrator'     # Admin Full Name
-export APASS=changeme_N0W               # Admin Password
-export A_GID=1000                       # Admin GID
-export A_UID=1000                       # Admin UID
-export BPATH=/home/backups              # Backup path
-export CIMAP=/etc/dovecot               # Dovecot Config
-export CSMTP=/etc/postfix               # Postfix Config
-export C_DNS=/etc/powerdns              # DNS Config
-export C_FPM=/etc/php/7.1/fpm           # FPM Config
-export C_SQL=/etc/mysql                 # MySQL Config
-export C_SSL=/etc/ssl                   # SSL Config
-export C_WEB=/etc/nginx                 # Web Config
-export DBMYS=/var/lib/mysql             # MySQL Directory
-export DBSQL=/var/lib/sqlite            # SQLite Directory
-export DHOST=localhost                  # MySQL Host
-export DNAME=${VHOST//[.-]/_}           # MySQL Database
-export DPASS=$APASS                     # MySQL Password
-export DPATH=$DBSQL/$ADMIN/$ADMIN.db    # SQLite DB Path
-export DPORT=3306                       # MySQL Port
-export DTYPE=sqlite                     # Database Type
-export DUSER=$ADMIN                     # MySQL User
-export EXMYS="mysql -BN $ADMIN"         # Exec MySQL
-export EXSQL="sqlite3 $DPATH"           # Exec SQLite
-export IP4_0=$(hostname -i|cut -d ' ' -f -1) # Host IP
-export MPATH=$VPATH/$VHOST/home         # Maildir Path
-export OSMIR=archive.ubuntu.com         # OS MIRror
-export OSREL=artful                     # OS RELease
-export SQCMD=$EXSQL                     # SQL Command
-export TAREA=Australia                  # Timezone Area
-export TCITY=Sydney                     # Timezone City
-export UPASS=$APASS                     # User Password
-export UPATH=$VPATH/$VHOST              # User/Domain Path
-export U_GID=1001                       # VUSER GID
-export U_SHL=/bin/sh                    # VUSER Shell
-export U_UID=1001                       # VUSER UID
-export VUSER=u1001                      # Default User
-export V_PHP=7.1                        # PHP Version
-export WPATH=$VPATH/$VHOST/var/www      # Webroot Path
+# NOTE: vhost variables are now in ~/.sh/lib/defaults

@@ -5,14 +5,17 @@
 #wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$APASS --admin_email=$AMAIL
 
 [[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'newservice' first" && exit 2
-[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+
+# only needed if $1 is plain hostname (not FQDN)
+#[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
 
 APASS=${2:-$APASS}
 DPASS=${3:-$APASS}
 FPATH=${4:-''}
-sethost $VHOST $APASS $DPASS
-gethost
+sethost $1 $APASS $DPASS
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
+gethost > $UPATH/etc/defaults
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 
 [[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
@@ -24,6 +27,9 @@ else
     WPURL=$SCHEME$VHOST
     FPATH=$WPATH
 fi
+
+[[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
+[[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
 
 if [[ ! -x /usr/local/bin/wp ]]; then
     echo "!!! Install wp-cli as /usr/local/bin/wp"
@@ -64,8 +70,18 @@ wp plugin install --quiet contact-form-7 --activate
 wp plugin install --quiet smart-wp-login --activate
 wp plugin install --quiet user-switching --activate"
 
-    echo
-    echo "Wordpress: $WPURL/wp-admin/  ( $AMAIL / $APASS )"
+    cd $FPATH/wp-content/themes
+    git clone https://github.com/markc/twentyseventeen-child
+    chperms $VHOST
+    su - $VUSER -c "wp theme activate twentyseventeen-child"
+    echo "
+Web
+========
+
+Wordpress: $WPURL/wp-admin/
+Username: $AMAIL
+Password: $APASS
+"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

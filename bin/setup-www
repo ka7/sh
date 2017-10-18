@@ -16,8 +16,6 @@ if [[ -d $VPATH/$VHOST ]]; then
 else
     addvhost $VHOST $2 $(< /root/.pw)
     newautoconfig $VHOST
-    [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
-    [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
     chperms $VHOST > /dev/null 2>&1
 fi
 

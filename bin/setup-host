@@ -2,13 +2,37 @@
 # .sh/bin/setup-host 20170524 - 20170529
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+[[ -z $1 ]] && echo "Usage: setup-host sqlite|mysql" && exit 1
+[[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 3
+
+source ~/.sh/lib/functions
+setdb ${2:-'sqlite'}
+sethost $(hostname -f) $(newpw 4)
+gethost > ~/.defaults
+chmod 600 ~/.defaults
+
+if [[ $DTYPE == mysql ]]; then
+    cat << EOS | tee /root/.my.cnf > /dev/null
+[client]
+host = $DHOST
+port = $DPORT
+user = root
+password = $DPASS
+EOS
+    chmod 600 /root/.my.cnf
+fi
+
+exit
 # Basic host dependencies, adjust accordingly
 HLIST="
+  bc
   bind9-host
   bsd-mailx
   ca-certificates
   curl
   git
+  mutt
   nano
   openssh-server
   pwgen
@@ -16,14 +40,17 @@ HLIST="
   ssmtp
 "
 
+[[ ! -d /home/u ]] && mkdir /home/u
+
 if [[ ! -f ~/.sh/lib/functions ]]; then
     echo "!!! Missing: ~/.sh, see https://github.com/netserva/sh"
     OSMIR="archive.ubuntu.com"
-    OSREL="zesty"
+    OSREL="artful"
     [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 else
     source ~/.sh/lib/functions
 fi
+
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
@@ -79,7 +106,7 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
 Port 9
-MaxAuthTries 1
+MaxAuthTries 3
 MaxSessions 3
 ChallengeResponseAuthentication no
 UsePAM yes

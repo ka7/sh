@@ -37,6 +37,7 @@ DPATH='$DPATH'
 DPORT='$DPORT'
 DTYPE='$DTYPE'
 DUSER='$DUSER'
+EPASS='$EPASS'
 EXMYS='$EXMYS'
 EXSQL='$EXSQL'
 IP4_0='$IP4_0'
@@ -55,6 +56,7 @@ VHOST='$VHOST'
 VPATH='$VPATH'
 VUSER='$VUSER'
 V_PHP='$V_PHP'
+WPASS='$WPASS'
 WPATH='$WPATH'"
 }
 getusers ()
@@ -120,7 +122,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [user_pw] [mysql_pw] [shell_pw]"
+        echo "Usage: sethost user@domain|domain [admin_pw] [mysql_pw] [email_pw] [wordpress_pw] [shell_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
@@ -139,7 +141,9 @@ sethost ()
     export AMAIL='admin@'$VHOST;
     export APASS=${2:-$APASS};
     export DPASS=${3:-$APASS};
-    export UPASS=${4:-$APASS};
+    export EPASS=${4:-$APASS};
+    export WPASS=${5:-$APASS};
+    export UPASS=${6:-$APASS};
     export DUSER=$VUSER;
     export MPATH=$VPATH/$VHOST/home;
     export UPATH=$VPATH/$VHOST;

@@ -22,6 +22,7 @@ DLIST="
   git
   iptables
   mtr-tiny
+  mutt
   nano
   net-tools
   openssh-server
