@@ -1,7 +1,7 @@
 # .sh/lib/functions 20151231 - 20170517
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -f ~/.sh/lib/defaults ]] && source ~/.sh/lib/defaults
+[[ -f ~/.defaults ]] && source ~/.defaults
 
 chktime ()
 {
@@ -13,6 +13,7 @@ f ()
 }
 gethost ()
 {
+    source ~/.defaults
     echo "\
 ADMIN='$ADMIN'
 AMAIL='$AMAIL'
@@ -94,20 +95,6 @@ getdb ()
 {
      echo $SQCMD
 }
-setdb ()
-{
-    if [[ -z $1 ]]; then
-        echo "Usage: setdb mysql|sqlite"
-        return 1
-    elif [[ $1 == sqlite ]]; then
-        DTYPE=sqlite
-        SQCMD=$EXSQL
-    elif [[ $1 == mysql ]]; then
-        DTYPE=mysql
-        SQCMD=$EXMYS
-    fi
-    export DTYPE SQCMD
-}
 setuser ()
 {
     local UUSER=$(grepuser "$1");
@@ -122,7 +109,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
+        echo "Usage: sethost user@domain|domain [mysql|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
@@ -138,17 +125,60 @@ sethost ()
     export U_GID=$U_UID;
 
     [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
-    export AMAIL='admin@'$VHOST;
+
+    if [[ -f /root/.my.cnf ]]; then
+        export DTYPE='mysql';
+        export SQCMD=$EXMYS;
+    else
+        if [[ $2 == sqlite ]]; then
+            export DTYPE=sqlite;
+            export SQCMD=$EXSQL;
+        elif [[ $2 == mysql ]]; then
+            export DTYPE=mysql;
+            export SQCMD=$EXMYS;
+        fi
+    fi
+
+    export APASS='changeme_N0W';
+    export VPATH='/home/u';
+    export V_PHP='7.1';
+
     export APASS=${2:-$APASS};
+    export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${3:-$APASS};
-    export EPASS=${4:-$APASS};
-    export UPASS=${5:-$APASS};
-    export WPASS=${6:-$APASS};
     export DUSER=$VUSER;
+    export EPASS=${4:-$APASS};
+    export IP4_0=$(hostname -i|cut -d ' ' -f -1);
     export MPATH=$VPATH/$VHOST/home;
+    export UPASS=${5:-$APASS};
     export UPATH=$VPATH/$VHOST;
+    export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
+    export WPASS=${6:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
-    export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh")
+
+    export ADMIN='sysadm';
+    export AMAIL='admin@'$VHOST;
+    export ANAME='System Administrator';
+    export A_GID='1000';
+    export A_UID='1000';
+    export BPATH='/home/backups';
+    export CIMAP='/etc/dovecot';
+    export CSMTP='/etc/postfix';
+    export C_DNS='/etc/powerdns';
+    export C_SQL='/etc/mysql';
+    export C_SSL='/etc/ssl';
+    export C_WEB='/etc/nginx';
+    export DBMYS='/var/lib/mysql';
+    export DBSQL='/var/lib/sqlite';
+    export DHOST='localhost';
+    export DPATH='/var/lib/sqlite/sysadm/sysadm.db';
+    export DPORT='3306';
+    export EXMYS='mysql -BN sysadm';
+    export EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db';
+    export OSMIR='archive.ubuntu.com';
+    export OSREL='artful';
+    export TAREA='Australia';
+    export TCITY='Sydney';
 }
 
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
