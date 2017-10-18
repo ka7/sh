@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-host 20170524 - 20170529
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-[[ -z $1 ]] && echo "Usage: setup-host sqlite|mysql" && exit 1
+set -x
+[[ -z $1 ]] && echo "Usage: setup-host mysql|sqlite" && exit 1
 [[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 2
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 3
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i setup-host)" && exit 3
+[[ $2 != mysql && $2 != sqlite ]] && "ERROR: 2ng arg must be 'mysql' or 'sqlite'" && exit 4
 
 source ~/.sh/lib/functions
-setdb ${2:-'sqlite'}
+setdb $2
 sethost $(hostname -f) $(newpw 4)
 gethost > ~/.defaults
 chmod 600 ~/.defaults
