@@ -31,7 +31,7 @@ sh_install ()
         fi
     done
     source ~/.sh/lib/functions
-    gethost > ~/.sh/lib/defaults
+    gethost > ~/.defaults
     sh_perms
     sed -i 's/^mesg/#mesg/' ~/.profile
     touch ~/.hushlogin
@@ -63,8 +63,7 @@ sh_remove_all ()
     cd
     rm -rf $REPO
     echo "
-### To reinstall this repo use:
-
+### To reinstall this repo use...
 cd
 git clone https://github.com/netserva/sh .sh
 .sh/bin/shm install

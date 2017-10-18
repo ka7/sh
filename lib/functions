@@ -122,7 +122,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [admin_pw] [mysql_pw] [email_pw] [wordpress_pw] [shell_pw]"
+        echo "Usage: sethost user@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
@@ -142,8 +142,8 @@ sethost ()
     export APASS=${2:-$APASS};
     export DPASS=${3:-$APASS};
     export EPASS=${4:-$APASS};
-    export WPASS=${5:-$APASS};
-    export UPASS=${6:-$APASS};
+    export UPASS=${5:-$APASS};
+    export WPASS=${6:-$APASS};
     export DUSER=$VUSER;
     export MPATH=$VPATH/$VHOST/home;
     export UPATH=$VPATH/$VHOST;
