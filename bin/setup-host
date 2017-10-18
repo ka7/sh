@@ -11,8 +11,7 @@ source ~/.sh/lib/functions
 if [[ -f ~/.defaults ]]; then
     source ~/.defaults
 else
-    setdb $1
-    sethost $(hostname -f) $(newpw 5)
+    sethost $(hostname -f) $1 $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
 fi
