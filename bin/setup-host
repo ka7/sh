@@ -8,6 +8,7 @@
 [[ $1 != mysql && $1 != sqlite ]] && echo "ERROR: first arg must be 'mysql' or 'sqlite'" && exit 4
 
 source ~/.sh/lib/functions
+
 if [[ -f ~/.defaults ]]; then
     source ~/.defaults
 else
@@ -17,14 +18,18 @@ else
 fi
 
 if [[ $DTYPE == mysql ]]; then
-    cat << EOS | tee /root/.my.cnf > /dev/null
+    if [[ -f ~/.my.cnf ]]; then
+        echo "!!! WARNING: ~/.my.cnf already exists, you may need to manually update ~/.defaults"
+    else
+        cat << EOS | tee /root/.my.cnf > /dev/null
 [client]
 host = $DHOST
 port = $DPORT
 user = root
 password = $DPASS
 EOS
-    chmod 600 /root/.my.cnf
+        chmod 600 /root/.my.cnf
+    fi
 fi
 
 exit

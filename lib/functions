@@ -108,7 +108,6 @@ setuser ()
 }
 sethost ()
 {
-set -x
     if [[ -z $1 ]]; then
         echo "Usage: sethost user@domain|domain [mysql|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
@@ -127,8 +126,9 @@ set -x
 
     [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
-    export EXMYS='mysql -BN $ADMIN';
-    export EXSQL='sqlite3 /var/lib/sqlite/$ADMIN/$ADMIN.db';
+    export DPATH="/var/lib/sqlite/$ADMIN/$ADMIN.db";
+    export EXMYS="mysql -BN $ADMIN";
+    export EXSQL="sqlite3 $DPATH";
 
     if [[ -f /root/.my.cnf ]]; then
         export DTYPE='mysql';
@@ -175,7 +175,6 @@ set -x
     export DBMYS='/var/lib/mysql';
     export DBSQL='/var/lib/sqlite';
     export DHOST='localhost';
-    export DPATH='/var/lib/sqlite/sysadm/sysadm.db';
     export DPORT='3306';
     export OSMIR='archive.ubuntu.com';
     export OSREL='artful';
