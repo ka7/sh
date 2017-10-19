@@ -108,6 +108,7 @@ setuser ()
 }
 sethost ()
 {
+set -x
     if [[ -z $1 ]]; then
         echo "Usage: sethost user@domain|domain [mysql|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
@@ -126,6 +127,9 @@ sethost ()
 
     [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
+    export EXMYS='mysql -BN $ADMIN';
+    export EXSQL='sqlite3 /var/lib/sqlite/$ADMIN/$ADMIN.db';
+
     if [[ -f /root/.my.cnf ]]; then
         export DTYPE='mysql';
         export SQCMD=$EXMYS;
@@ -143,17 +147,17 @@ sethost ()
     export VPATH='/home/u';
     export V_PHP='7.1';
 
-    export APASS=${2:-$APASS};
+    export APASS=${3:-$APASS};
     export C_FPM="/etc/php/$V_PHP/fpm";
-    export DPASS=${3:-$APASS};
+    export DPASS=${4:-$APASS};
     export DUSER=$VUSER;
-    export EPASS=${4:-$APASS};
+    export EPASS=${5:-$APASS};
     export IP4_0=$(hostname -i|cut -d ' ' -f -1);
     export MPATH=$VPATH/$VHOST/home;
-    export UPASS=${5:-$APASS};
+    export UPASS=${6:-$APASS};
     export UPATH=$VPATH/$VHOST;
     export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
-    export WPASS=${6:-$APASS};
+    export WPASS=${7:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
 
     export ADMIN='sysadm';
@@ -173,8 +177,6 @@ sethost ()
     export DHOST='localhost';
     export DPATH='/var/lib/sqlite/sysadm/sysadm.db';
     export DPORT='3306';
-    export EXMYS='mysql -BN sysadm';
-    export EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db';
     export OSMIR='archive.ubuntu.com';
     export OSREL='artful';
     export TAREA='Australia';
