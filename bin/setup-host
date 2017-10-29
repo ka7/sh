@@ -2,12 +2,16 @@
 # .sh/bin/setup-host 20170524 - 20171029
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
-[[ -z $1 ]] && echo "Usage: setup-host mysql|sqlite" && exit 1
+[[ $1 -eq '-h' || $1 -eq '--help' ]] && echo "Usage: setup-host [-h|mysql|sqlite]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 [[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
 [[ $1 != mysql && $1 != sqlite ]] && echo "ERROR: first arg must be 'mysql' or 'sqlite'" && exit 4
 
-# Basic host dependencies, adjust accordingly
+DTYPE=${1:-'sqlite'}
+
+source ~/.sh/lib/functions
+exit
+# Basic host dependency list, adjust accordingly
 HLIST="
   bc
   bind9-host
@@ -34,14 +38,13 @@ fi
 if [[ -f ~/.defaults ]]; then
     source ~/.defaults
 else
-    sethost $ADMIN@adm.$(hostname -f) $1 $(newpw 5)
+    sethost $ADMIN@$(hostname -f) $1 $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
 fi
 
-[[ ! -d $VPATH ]] && mkdir $VPATH
+[[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
-exit
 if [[ $DTYPE == mysql ]]; then
     if [[ -f ~/.my.cnf ]]; then
         echo "!!! WARNING: ~/.my.cnf already exists, you may need to manually update ~/.defaults"
@@ -98,17 +101,9 @@ deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
     fi
-fi
-
-echo "!!! Updating package list, patience please..."
-apt-get -yqq update > /dev/null
-DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
-
-# Unique trigger to know if $DLIST packages are already installed
-if [[ ! -e /usr/bin/bsd-mailx ]]; then
-    echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq \
-        --no-install-recommends install $HLIST > /dev/null
+    echo "!!! Updating package list again for $OSREL, yet more patience please..."
+    apt-get -yqq update > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then

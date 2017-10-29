@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: setup-etc mysql|sqlite" && exit 1
 
-source ~/.sh/lib/defaults || exit 2
+source ~/.defaults || exit 2
 
 # Temporary self-signed SSL certificate defaults
 C="AU"
@@ -26,7 +26,7 @@ if [[ -f /root/.pw ]]; then
 else
     echo "^^^ Create /root/.pw"
     if [[ $APASS == changeme_N0W ]]; then
-        newpw 3 > /root/.pw
+        newpw 5 > /root/.pw
     else
         echo "$APASS $DPASS $UPASS" > /root/.pw
     fi
