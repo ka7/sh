@@ -28,10 +28,10 @@ HLIST="
 
 if [[ ! -e /usr/bin/pwgen ]]; then
     echo "!!! Initial package update, patience please..."
-    apt-get -yqq update > /dev/null
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
+    apt-get -yqq update
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST
 fi
 
 if [[ -f ~/.defaults ]]; then
@@ -103,7 +103,7 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
     fi
     echo "!!! Updating package list for '$OSREL', patience please..."
-    apt-get -yqq update > /dev/null
+    apt-get -yqq update
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade
 fi
 
