@@ -2,14 +2,14 @@
 # .sh/bin/setup-host 20170524 - 20171029
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
-[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite (default)]" && exit 1
+[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite(default)]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 [[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
 
 DTYPE=${1:-'sqlite'}
 
 source ~/.sh/lib/functions
-exit
+
 # Basic host dependency list, adjust accordingly
 HLIST="
   bc
