@@ -1,38 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20170529
+# .sh/bin/setup-host 20170524 - 20171029
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 #set -x
 [[ -z $1 ]] && echo "Usage: setup-host mysql|sqlite" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 [[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
 [[ $1 != mysql && $1 != sqlite ]] && echo "ERROR: first arg must be 'mysql' or 'sqlite'" && exit 4
-
-source ~/.sh/lib/functions || exit 4
-
-if [[ -f ~/.defaults ]]; then
-    source ~/.defaults
-else
-    sethost $ADMIN@adm.$(hostname -f) $1 $(newpw 5)
-    gethost > ~/.defaults
-    chmod 600 ~/.defaults
-fi
-
-[[ ! -d $VPATH ]] && mkdir $VPATH
-
-if [[ $DTYPE == mysql ]]; then
-    if [[ -f ~/.my.cnf ]]; then
-        echo "!!! WARNING: ~/.my.cnf already exists, you may need to manually update ~/.defaults"
-    else
-        cat << EOS | tee ~/.my.cnf > /dev/null
-[client]
-host = $DHOST
-port = $DPORT
-user = root
-password = $DPASS
-EOS
-        chmod 600 ~/.my.cnf
-    fi
-fi
 
 # Basic host dependencies, adjust accordingly
 HLIST="
@@ -49,6 +22,40 @@ HLIST="
   rsync
   ssmtp
 "
+
+if [[ ! -e /usr/bin/pwgen ]]; then
+    echo "!!! Initial package update, patience please..."
+    apt-get -yqq update > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
+    echo "!!! Installing default package set, more patience..."
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
+fi
+
+if [[ -f ~/.defaults ]]; then
+    source ~/.defaults
+else
+    sethost $ADMIN@adm.$(hostname -f) $1 $(newpw 5)
+    gethost > ~/.defaults
+    chmod 600 ~/.defaults
+fi
+
+[[ ! -d $VPATH ]] && mkdir $VPATH
+
+exit
+if [[ $DTYPE == mysql ]]; then
+    if [[ -f ~/.my.cnf ]]; then
+        echo "!!! WARNING: ~/.my.cnf already exists, you may need to manually update ~/.defaults"
+    else
+        cat << EOS | tee ~/.my.cnf > /dev/null
+[client]
+host = $DHOST
+port = $DPORT
+user = root
+password = $DPASS
+EOS
+        chmod 600 ~/.my.cnf
+    fi
+fi
 
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
