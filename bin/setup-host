@@ -35,6 +35,7 @@ if [[ ! -e /usr/bin/pwgen ]]; then
 fi
 
 if [[ -f ~/.defaults ]]; then
+    echo "!!! Source ~/.defaults"
     source ~/.defaults
 else
     echo "!!! Create initial host defaults"
@@ -69,7 +70,7 @@ fi
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
-        echo "!!! Setup apt sources list for $OSREL DESKTOP"
+        echo "!!! Setup apt sources list for '$OSREL' DESKTOP"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
@@ -90,7 +91,7 @@ deb http://archive.canonical.com/ubuntu $OSREL partner
 #deb http://ppa.launchpad.net/mozillateam/thunderbird-next/ubuntu artful main
 EOS
     else
-        echo "!!! Setup apt sources list for $OSREL SERVER"
+        echo "!!! Setup apt sources list for '$OSREL' SERVER"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
@@ -101,9 +102,9 @@ deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
     fi
-    echo "!!! Updating package list again for $OSREL, yet more patience please..."
+    echo "!!! Updating package list for '$OSREL', patience please..."
     apt-get -yqq update > /dev/null
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
