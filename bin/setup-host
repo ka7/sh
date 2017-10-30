@@ -4,12 +4,12 @@
 
 [[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite(default)] [admin(sysadm)]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-[[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
+[[ ! -d /root/.sh ]] && echo "ERROR: missing /root/.sh, see https://github.com/netserva/sh" && exit 3
 
 DTYPE=${1:-'sqlite'}
 ADMIN=${2:-'sysadm'}
 
-source ~/.sh/lib/functions
+source /root/.sh/lib/functions
 
 # Basic host dependency list, adjust accordingly
 HLIST="
@@ -35,30 +35,31 @@ if [[ ! -e /usr/bin/pwgen ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST
 fi
 
-if [[ -f ~/.defaults ]]; then
-    echo "!!! Source ~/.defaults"
-    source ~/.defaults
+if [[ -f /root/.defaults ]]; then
+    echo "!!! Source /root/.defaults"
+    source /root/.defaults
 else
     echo "!!! Create initial host defaults"
     sethost $ADMIN@$(hostname -f) $1 $(newpw 5)
-    gethost > ~/.defaults
-    chmod 600 ~/.defaults
+    gethost > /root/.defaults
+    chmod 600 /root/.defaults
 fi
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
 if [[ $DTYPE == mysql ]]; then
-    if [[ -f ~/.my.cnf ]]; then
-        echo "!!! WARNING: ~/.my.cnf already exists, you may need to manually update ~/.defaults"
+    if [[ -f /root/.my.cnf ]]; then
+        echo "!!! WARNING: /root/.my.cnf already exists"
+        echo "!!! You may need to manually update DPASS in /root/.defaults"
     else
-        cat << EOS | tee ~/.my.cnf > /dev/null
+        cat << EOS | tee /root/.my.cnf > /dev/null
 [client]
 host = $DHOST
 port = $DPORT
 user = root
 password = $DPASS
 EOS
-        chmod 600 ~/.my.cnf
+        chmod 600 /root/.my.cnf
     fi
 fi
 
@@ -130,45 +131,45 @@ EOS
     systemctl restart ssh
 fi
 
-if [[ ! -d ~/.ssh ]]; then
-    echo "!!! Create host ~/.ssh dir"
-    mkdir ~/.ssh
-    chmod 700 ~/.ssh
+if [[ ! -d /root/.ssh ]]; then
+    echo "!!! Create host /root/.ssh dir"
+    mkdir /root/.ssh
+    chmod 700 /root/.ssh
 fi
 
-if [[ ! -f ~/.ssh/id_rsa ]]; then
-    echo "!!! Create host ~/.ssh/id_rsa key"
-    ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-    chmod 600 ~/.ssh/*
+if [[ ! -f /root/.ssh/id_rsa ]]; then
+    echo "!!! Create host /root/.ssh/id_rsa key"
+    ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
+    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+    chmod 600 /root/.ssh/*
 fi
 
-if [[ ! -f ~/.ssh/config ]]; then
-    echo "!!! Create host ~/.ssh/config"
-    cat << EOS | tee -a ~/.ssh/config > /dev/null
+if [[ ! -f /root/.ssh/config ]]; then
+    echo "!!! Create host /root/.ssh/config"
+    cat << EOS | tee -a /root/.ssh/config > /dev/null
 Host *
   TCPKeepAlive yes
   ServerAliveInterval 30
-  IdentityFile ~/.ssh/id_rsa
+  IdentityFile /root/.ssh/id_rsa
 EOS
-    chmod 600 ~/.ssh/*
+    chmod 600 /root/.ssh/*
 fi
 
 if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
     if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
         echo "!!! Create desktop iptables save/restore"
-        cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
             /etc/NetworkManager/dispatcher.d/99iptables
         chmod +x /etc/NetworkManager/dispatcher.d/99iptables
     fi
 else
     if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
         echo "!!! Create server iptables save/restore (update for systemd-networkd)"
-        cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
+        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
             /etc/network/if-post-down.d/iptsave
         chmod +x /etc/network/if-post-down.d/iptsave
 
-        cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
             /etc/network/if-pre-up.d/iptrestore
         chmod +x /etc/network/if-pre-up.d/iptrestore
     fi

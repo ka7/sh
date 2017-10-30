@@ -107,7 +107,6 @@ setuser ()
 }
 sethost ()
 {
-set -x
     if [[ -z $1 ]]; then
         echo "Usage: sethost user@domain|domain [mysql|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
@@ -126,7 +125,7 @@ set -x
         export VUSER="u$U_UID";
     fi;
     export U_GID=$U_UID;
-set +x
+
     [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
     export DPATH="/var/lib/sqlite/$ADMIN/$ADMIN.db";

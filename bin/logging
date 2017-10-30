@@ -39,7 +39,7 @@ log_upath()
         log_setup $1 $2
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
     else
-        printf "%-50s %8s %8s %8s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+        printf "%-44s %10s %10s %10s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
 }
 
@@ -48,7 +48,7 @@ log_mpath()
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
-    [[ -z $UPD && -n $MBOXS ]] && printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
+#    [[ -z $UPD && -n $MBOXS ]] && printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
     for MBOX in $MBOXS; do
         local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
 
@@ -65,7 +65,7 @@ log_mpath()
             log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         else
-            printf "%-50s %8s %8s %8s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+            printf "  %-42s %10s %10s %10s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
     [[ $UPD ]] || echo
@@ -82,10 +82,12 @@ log_all()
     fi
 }
 
+[[ $UPD ]] || printf "%-44s %10s %10s %10s\n" "Vhost / Maibox" "Mail/Box" "Web/Spam" "Disk/Home"
+
 if [[ $1 == all ]]; then
     VHOSTS=$(find /home/u -mindepth 1 -maxdepth 1 -type d \! -type l | sed 's#/home/u/##' | sort)
     for VHOST in $VHOSTS; do
-        [[ $UPD ]] || printf "%-50s %8s %8s %8s\n" "Vhost" "Mail" "Web" "Disk"
+#        [[ $UPD ]] || printf "%-50s %8s %8s %8s\n" "Vhost" "Mail" "Web" "Disk"
         log_all $VHOST
     done
 else
