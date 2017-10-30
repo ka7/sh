@@ -114,7 +114,12 @@ set -x
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
         export VHOST=${1#*@};
-        [[ $VUSER == u* ]] && export U_UID=${VUSER#*u} || export U_UID=$A_UID;
+        if [[ $VUSER == u* ]]; then
+            U_UID=${VUSER#*u}
+        else
+            [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000
+        fi
+        export U_UID
     else
         export VHOST=$1;
         export U_UID=$(newuid);
