@@ -40,7 +40,7 @@ if [[ -f /root/.defaults ]]; then
     source /root/.defaults
 else
     echo "!!! Create initial host defaults"
-    sethost $ADMIN@$(hostname -f) $1 $(newpw 5)
+    sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
     gethost > /root/.defaults
     chmod 600 /root/.defaults
 fi
