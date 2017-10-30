@@ -126,7 +126,7 @@ sethost ()
     fi;
     export U_GID=$U_UID;
 
-    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN; || export DNAME=${VHOST//[.-]/_};
+    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
     export DBSQL='/var/lib/sqlite';
 
