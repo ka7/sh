@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20171029
+# .sh/bin/setup-host 20170524 - 20171030
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite(default)]" && exit 1
+[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite(default)] [admin(sysadm)]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 [[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
 
 DTYPE=${1:-'sqlite'}
+ADMIN=${2:-'sysadm'}
 
 source ~/.sh/lib/functions
 
@@ -39,7 +40,7 @@ if [[ -f ~/.defaults ]]; then
     source ~/.defaults
 else
     echo "!!! Create initial host defaults"
-    sethost sysadm@$(hostname -f) $1 $(newpw 5)
+    sethost $ADMIN@$(hostname -f) $1 $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
 fi
