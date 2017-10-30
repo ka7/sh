@@ -108,7 +108,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [mysql|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
+        echo "Usage: sethost user@domain|domain [mysql|sqlite(default)] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
@@ -117,8 +117,8 @@ sethost ()
             U_UID=${VUSER#*u}
         else
             [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000
-        fi
-        export U_UID
+        fi;
+        export U_UID;
     else
         export VHOST=$1;
         export U_UID=$(newuid);
@@ -126,24 +126,21 @@ sethost ()
     fi;
     export U_GID=$U_UID;
 
-    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
+    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN; || export DNAME=${VHOST//[.-]/_};
 
-    export DPATH="/var/lib/sqlite/$ADMIN/$ADMIN.db";
+    export DBSQL='/var/lib/sqlite';
+
+    export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
     export EXMYS="mysql -BN $ADMIN";
     export EXSQL="sqlite3 $DPATH";
 
-    if [[ -f /root/.my.cnf ]]; then
-        export DTYPE='mysql';
+    if [[ $2 == mysql ]]; then
+        export DTYPE=mysql;
         export SQCMD=$EXMYS;
     else
-        if [[ $2 == sqlite ]]; then
-            export DTYPE=sqlite;
-            export SQCMD=$EXSQL;
-        elif [[ $2 == mysql ]]; then
-            export DTYPE=mysql;
-            export SQCMD=$EXMYS;
-        fi
-    fi
+        export DTYPE=sqlite;
+        export SQCMD=$EXSQL;
+    fi;
 
     export APASS='changeme_N0W';
     export VPATH='/home/u';
@@ -175,7 +172,6 @@ sethost ()
     export C_SSL='/etc/ssl';
     export C_WEB='/etc/nginx';
     export DBMYS='/var/lib/mysql';
-    export DBSQL='/var/lib/sqlite';
     export DHOST='localhost';
     export DPORT='3306';
     export OSMIR='archive.ubuntu.com';
