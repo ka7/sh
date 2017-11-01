@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (25)] [passwd] [IP]" && exit 1
 
-source ~/.sh/lib/defaults
+source ~/.defaults || exit 2
 
 _PLAN=${2:-'small'}
 PSIZE=${3:-'25'}

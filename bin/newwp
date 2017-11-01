@@ -5,7 +5,8 @@
 #wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$APASS --admin_email=$AMAIL
 
 [[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+source ~/.defaults || exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 3
 
 # only needed if $1 is plain hostname (not FQDN)
 #[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)

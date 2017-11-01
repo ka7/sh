@@ -4,10 +4,9 @@
 
 [[ -z $1 ]] && echo "Usage: wpreport domain|all [path]" && exit 1
 
-source ~/.sh/lib/functions || exit 2
-sethost $1
+source ~/.defaults || exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 3
 
 if [[ $1 == all ]];then
     WPS=$(find $VPATH -type d -name "wp-admin")

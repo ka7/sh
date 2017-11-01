@@ -5,6 +5,7 @@
 # Depends on nginx and DNS already resolving to requested (sub)domains
 
 [[ -z $1 ]] && echo "Usage: newssl domain [subd subd...[--force][0.0.0.0]]" && exit 1
+source ~/.defaults || exit 2
 
 VHOST=$1
 _ARGS="$2 $3 $4 $5 $6 $7 $8 $9"
@@ -18,7 +19,7 @@ for SUB in $_ARGS; do
     SUBDS="$SUBDS -d $SUB.$VHOST"
 done
 
-WPATH="/home/u/$VHOST/var/www"
+WPATH="$VPATH/$VHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
 LECFG="/etc/dehydrated"

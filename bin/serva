@@ -4,7 +4,7 @@
 
 [[ -z $2 ]] && echo "Usage: serva start|stop|restart|reload all|dns|mail|php|web" && exit 1
 
-source ~/.sh/lib/defaults || exit 2
+source ~/.defaults || exit 2
 
 # TODO perhaps this should be added to ~/.sh/_myrc as $_SUDO ?
 [[ $(id -u) -gt 0 ]] && SUDO='sudo ' || SUDO=

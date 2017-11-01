@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: shhost domain|uid|homedir|all" && exit 1
 
-source ~/.sh/lib/defaults || exit 2
+source ~/.defaults || exit 2
 
 if [[ $1 == all ]]; then
     getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'

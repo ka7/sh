@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# newmaster 20160816 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newmaster 20160816 - 20171101
+# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: newmaster domain [passwd] [email] [path]" && exit 1
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'newservice' first" && exit 2
+source ~/.defaults || exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'newservice' first" && exit 3
 [[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
 
 APASS=${2:-$APASS}

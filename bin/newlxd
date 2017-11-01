@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: newlxd FQDN [small|medium|large]" && exit 1
 
-source ~/.sh/lib/defaults || exit 2
+source ~/.defaults || exit 2
 
 VHOST=$1
 _HOST=${VHOST%%.*}

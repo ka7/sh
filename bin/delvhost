@@ -8,8 +8,7 @@ source ~/.sh/lib/functions || exit 2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 2
 
-sethost $1
-setdb $2
+sethost $1 $2
 
 DID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts

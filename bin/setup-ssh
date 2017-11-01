@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkey]" && exit 1
 
-source ~/.sh/lib/functions || exit 2
+source ~/.defaults || exit 2
 
 VHOST=$1
 THOST=${2:-$VHOST}

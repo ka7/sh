@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vultr 20170620 - 20170620
+# .sh/bin/setup-vultr 20170620 - 20171101
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Howto use: signup for an account at https://vultr.com and add the below
@@ -42,7 +42,7 @@ setup-host
 sleep 1
 pwgen 12 -N 3 -s -B -C > /root/.pw
 sethost $HOSTNAME $(< /root/.pw)
-gethost > /root/.sh/lib/defaults
+gethost > /root/.defaults
 sleep 1
 setup-all mysql
 

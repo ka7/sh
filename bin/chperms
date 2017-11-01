@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: chperms vhost|all" && exit 1
 
-source ~/.sh/lib/defaults || exit 2
+source ~/.defaults || exit 2
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 2
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (or use sudo)" && exit 3

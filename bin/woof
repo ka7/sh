@@ -3,8 +3,9 @@
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: woof user@domain [folder]" && exit 1
-[[ ! -d /home/u ]] && echo "ERROR: /home/u does not exist" && exit 2
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 3
+source ~/.defaults || exit 2
+[[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 3
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 4
 
 M_LHS=$(echo $1|cut -d@ -f1)
 M_RHS=$(echo $1|cut -d@ -f2)
@@ -19,7 +20,7 @@ EOS
     chmod 600 ~/.muttrc
 fi
 
-MPATH=/home/u/$M_RHS/home/$M_LHS
+MPATH=$VPATH/$M_RHS/home/$M_LHS
 
 if [[ -d $MPATH ]]; then
     [[ -n $2 ]] && FOLDER=/.$2 || FOLDER=

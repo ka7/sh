@@ -4,7 +4,7 @@
 
 [[ -z $1 ]] && echo "Usage: shmail user@domain" && exit 1
 
-source ~/.sh/lib/defaults
+source ~/.defaults || exit 2
 
 MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
 
