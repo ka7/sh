@@ -2,7 +2,7 @@
 # .sh/bin/newwp 20160231 - 20170528
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-#wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$APASS --admin_email=$AMAIL
+#wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$WPASS --admin_email=$AMAIL
 
 [[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
 source ~/.defaults || exit 2
@@ -11,10 +11,10 @@ source ~/.defaults || exit 2
 # only needed if $1 is plain hostname (not FQDN)
 #[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
 
-APASS=${2:-$APASS}
-DPASS=${3:-$APASS}
+WPASS=${2:-$WPASS}
+DPASS=${3:-$DPASS}
 FPATH=${4:-''}
-sethost $1 $APASS $DPASS
+sethost $1 $WPASS $DPASS
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
 gethost > $UPATH/etc/defaults
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
@@ -66,7 +66,7 @@ if [ ! -f "$FPATH/wp-config.php" ]; then
     su - $VUSER -c "
 cd $FPATH
 wp core config --quiet --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user=admin --admin_password='$APASS' --admin_email='$AMAIL'
+wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user=admin --admin_password='$WPASS' --admin_email='$AMAIL'
 wp plugin install --quiet contact-form-7 --activate
 wp plugin install --quiet smart-wp-login --activate
 wp plugin install --quiet user-switching --activate"
@@ -81,7 +81,7 @@ Web
 
 Wordpress: $WPURL/wp-admin/
 Username: $AMAIL
-Password: $APASS
+Password: $WPASS
 "
 fi
 
