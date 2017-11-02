@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20171013
+# .sh/bin/newlxd 20171013 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: newlxd FQDN [small|medium|large]" && exit 1
+# No need to be run as root so we need OSREL and DTYPE
 
-source ~/.defaults || exit 2
+[[ -z $1 ]] && echo "Usage: newlxd FQDN [small|medium|large] [distro(artful)] [(sqlite)|mysql]" && exit 1
 
 VHOST=$1
 _HOST=${VHOST%%.*}
@@ -26,6 +26,9 @@ else
     P_MEM=256MB
     P_CPU=1
 fi
+
+OSREL=${3:-'artful'}
+DTYPE=${4:-'sqlite'}
 
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
     echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"

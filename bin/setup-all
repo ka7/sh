@@ -6,11 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 
-# Maybe set this up here first thing then only use lib/defaults
-#source ~/.sh/lib/functions || exit 2
-#sethost $1 $(< /root/.pw)
-#setdb $2
-
+$SUDO setup-host $1
 $SUDO setup-deb $1
 $SUDO setup-etc $1
 $SUDO setup-www $VHOST $1

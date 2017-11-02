@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20170529
+# .sh/bin/setup-etc 20151231 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-etc mysql|sqlite" && exit 1
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source ~/.defaults || exit 2
 

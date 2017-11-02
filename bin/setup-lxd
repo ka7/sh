@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20170529
+# .sh/bin/setup-lxd 20170519 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (25)] [passwd] [IP]" && exit 1
@@ -9,10 +9,10 @@ source ~/.defaults || exit 2
 _PLAN=${2:-'small'}
 PSIZE=${3:-'25'}
 APASS=${4:-$APASS}
-IP4_0=${4:-$IP4_0}
+IP4_0=${5:-$IP4_0}
 
 if [[ ! -d /var/lib/lxd ]]; then
-    echo "--- Install packages for lxd lxd-client zfsutils-linux"
+    echo "--- Install packages for lxd lxd-client zfsutils-linux bridge-utils"
 
     [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
         && $SUDO apt-get -qq update > /dev/null 2>&1
