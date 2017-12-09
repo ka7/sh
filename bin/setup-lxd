@@ -2,25 +2,34 @@
 # .sh/bin/setup-lxd 20170519 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: setup-lxd FQDN [small|medium|large] [pool size (25)] [passwd] [IP]" && exit 1
+[[ $1 == '-h' || $1 == '--help' ]] &&\
+    echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
 
-source ~/.defaults || exit 2
+PSIZE=${1:-'25'}
+APASS=${2:-$(newpw 1)}
+IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 
-_PLAN=${2:-'small'}
-PSIZE=${3:-'25'}
-APASS=${4:-$APASS}
-IP4_0=${5:-$IP4_0}
-
-if [[ ! -d /var/lib/lxd ]]; then
+if [[ -d /var/lib/lxd ]]; then
+    echo "--- Warning: lxd already installed"
+else
     echo "--- Install packages for lxd lxd-client zfsutils-linux bridge-utils"
 
-    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
-        && $SUDO apt-get -qq update > /dev/null 2>&1
+    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 
-    DEBIAN_FRONTEND=noninteractive $SUDO apt install -yqq --no-install-recommends \
-        lxd lxd-client zfsutils-linux > /dev/null 2>&1
+    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] &&\
+        $SUDO apt-get -qq update > /dev/null
 
-    echo "--- Install lxd with $PSIZE GB zfs pool"
+    DEBIAN_FRONTEND=noninteractive \
+        $SUDO apt-get -yqq install --no-install-recommends \
+        lxd lxd-client zfsutils-linux bridge-utils > /dev/null
+fi
+
+lxc storage list | grep lxd-pool > /dev/null
+
+if [[ $? -eq 0 ]]; then
+    echo "--- Warning: lxd-pool already installed"
+else
+    echo "--- Install lxd with $PSIZE GB lxd-pool at $IP4_0 with pw $APASS"
     # switch group to lxd
     sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \
@@ -30,7 +39,5 @@ if [[ ! -d /var/lib/lxd ]]; then
       --storage-pool lxd-pool \
       --trust-password $APASS"
 fi
-
-sg lxd -c "newlxd $1 $_PLAN"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

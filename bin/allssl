@@ -32,9 +32,9 @@ for i in $ALL; do
 
     echo "WELLKNOWN=$VACME" > config
 
-    D=""; for A in ${ALTCN//,/ }; do D="$D -d $A"; done
+    D=""; for A in ${ALTCN//,/ }; do [[ $A != $VHOST ]] && D="$D -d $A"; done
 
-    ./dehydrated -c $D $FORCE
+    ./dehydrated -c -d $VHOST $D $FORCE
 
     cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
         > $C_SSL/$VHOST/mailserver.pem

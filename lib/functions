@@ -1,5 +1,7 @@
-# .sh/lib/functions 20151231 - 20170517
+# .sh/lib/functions 20151231 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
 
 [[ -f ~/.defaults ]] && source ~/.defaults
 
