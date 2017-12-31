@@ -14,7 +14,7 @@ if [[ -d wp-content/themes/b4st ]]; then
     cd wp-content/themes/b4st
     git pull
 else
-    git clone https://github.com/SimonPadbury/b4st.git wp-content/themes/b4st
+    git clone --depth=1 https://github.com/SimonPadbury/b4st.git wp-content/themes/b4st
     mkdir -p wp-content/themes/b4st-child/css
     cat << EOS > wp-content/themes/b4st-child/style.css
 /*
