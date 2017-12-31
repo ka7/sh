@@ -13,6 +13,7 @@ WPATH=$VPATH/$1/var/www
 if [[ -d wp-content/themes/b4st ]]; then
     cd wp-content/themes/b4st
     git pull
+    cd -
 else
     git clone --depth=1 https://github.com/SimonPadbury/b4st.git wp-content/themes/b4st
     mkdir -p wp-content/themes/b4st-child/css
@@ -34,9 +35,9 @@ add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css', false, null);
 }, 101);
 EOS
-    echo "B4ST Child installed, please chown -R permissions"
+    echo "!!! b4st and b4st-child WordPress themes installed"
 fi
 
-chperms $1
+chown -R $(stat -c "%U:%G" $WPATH) wp-content/themes/b4st*
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
