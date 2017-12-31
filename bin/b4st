@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# .sh/bin/b4st 20171231 - 20171231
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: b4st vhost" && exit 1
+
+source ~/.defaults
+
+WPATH=$VPATH/$1/var/www
+
+[[ -d $WPATH ]] && cd $WPATH || { echo "$WPATH does not exist"; exit 2; }
+
+if [[ -d wp-content/themes/b4st ]]; then
+    cd wp-content/themes/b4st
+    git pull
+else
+    git clone https://github.com/SimonPadbury/b4st.git wp-content/themes/b4st
+    mkdir -p wp-content/themes/b4st-child/css
+    cat << EOS > wp-content/themes/b4st-child/style.css
+/*
+Theme Name:   Bootstrap4 Starter Theme Child
+Template:     b4st
+Version:      1.0
+Text Domain:  b4st-child
+*/
+EOS
+    cat << EOS > wp-content/themes/b4st-child/funtions.php
+<?php
+remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
+add_action('admin_head', function() {
+    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
+});
+add_action('wp_enqueue_scripts', function() {
+    wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css', false, null);
+}, 101);
+EOS
+    echo "B4ST Child installed, please chown -R permissions"
+fi
+
+chperms $1
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

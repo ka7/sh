@@ -16,7 +16,7 @@ DPASS=${3:-$DPASS}
 FPATH=${4:-''}
 sethost $1 $WPASS $DPASS
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
-gethost > $UPATH/etc/defaults
+#gethost > $UPATH/etc/defaults
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 
 [[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
@@ -52,7 +52,7 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     echo "!!! Download Wordpress"
     cd $UPATH/var
     if [[ ! -f latest.tar.gz ]]; then
-        wget -q --no-check-certificate https://wordpress.org/latest.tar.gz
+        wget --no-check-certificate https://wordpress.org/latest.tar.gz
     fi
     tar xf latest.tar.gz
     rm latest.tar.gz
