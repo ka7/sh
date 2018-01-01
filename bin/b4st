@@ -13,9 +13,6 @@ else
     echo "'$1' needs to be a dom.ain or /full/path" && exit 3
 fi
 
-echo $WPATH
-exit
-
 [[ -d $WPATH ]] && cd $WPATH || { echo "$WPATH does not exist"; exit 2; }
 
 if [[ -d wp-content/themes/b4st ]]; then
