@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/b4st 20171231 - 20171231
+# .sh/bin/b4st 20171231 - 20180101
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: b4st vhost" && exit 1
+[[ -z $1 ]] && echo "Usage: b4st vhost|path (to base of Wordpress)" && exit 1
 
-source ~/.defaults
+if [[ $1 =~ / ]]; then
+    WPATH=$1
+elif [[ $1 =~ \. ]]; then
+    source ~/.defaults
+    WPATH=$VPATH/$1/var/www
+else
+    echo "'$1' needs to be a dom.ain or /full/path" && exit 3
+fi
 
-WPATH=$VPATH/$1/var/www
+echo $WPATH
+exit
 
 [[ -d $WPATH ]] && cd $WPATH || { echo "$WPATH does not exist"; exit 2; }
 
