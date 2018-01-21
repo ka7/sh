@@ -21,6 +21,10 @@ _chperms()
     chmod 755 $UPATH/var
     chmod 700 $UPATH/.ssh
     chmod 600 $UPATH/.ssh/*
+    if [[ -d $UPATH/.gnupg ]]; then
+        find $UPATH/.gnupg -type d -exec chmod 00700 {} +
+        find $UPATH/.gnupg -type f -exec chmod 00600 {} +
+    fi
     chmod 750 $UPATH/bin/busybox
     [[ -f $UPATH/bin/nano ]] && chmod 750 $UPATH/bin/nano
     [[ -f $UPATH/bin/rsync ]] && chmod 750 $UPATH/bin/rsync
