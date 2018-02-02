@@ -28,6 +28,7 @@ else
     FPATH=$WPATH
 fi
 
+# On a fresh install
 [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
 [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
 
@@ -55,7 +56,10 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     fi
     tar xf latest.tar.gz
     rm latest.tar.gz
-    [[ -d $FPATH ]] && mv $FPATH ${FPATH}_old
+    if [[ -d $FPATH ]]; then
+        [[ -d ${FPATH}_old ]] && rm -rf ${FPATH}_old
+        mv $FPATH ${FPATH}_old
+    fi
     mv wordpress $FPATH
     chown $U_UID:www-data -R $FPATH
 fi
