@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newwp 20160231 - 20180202
+# .sh/bin/newwp 20160231 - 20180203
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
@@ -11,6 +11,7 @@ source ~/.defaults || exit 2
 WPASS=${2:-$WPASS}
 DPASS=${3:-$DPASS}
 FPATH=${4:-''}
+WUSER=$(pwgen 6 -s -B -C -N 1 -A -0) # unique 6 char Wordpress login ID
 
 sethost $1 $WPASS $DPASS
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
@@ -65,7 +66,7 @@ if [ ! -f "$FPATH/wp-config.php" ]; then
     su - $VUSER -c "
 cd $FPATH
 wp core config --quiet --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user=admin --admin_password='$WPASS' --admin_email='$AMAIL'
+wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user='$WUSER' --admin_password='$WPASS' --admin_email='$AMAIL'
 wp theme install --quiet astra --activate
 wp plugin install --quiet astra-sites --activate
 wp plugin install --quiet elementor --activate
