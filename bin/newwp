@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
-# .sh/bin/newwp 20160231 - 20170528
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-#wp core install --quiet --url=$VHOST --title='$TITLE' --admin_user=admin --admin_password=$WPASS --admin_email=$AMAIL
+# .sh/bin/newwp 20160231 - 20180202
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
-source ~/.defaults || exit 2
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 3
 
-# only needed if $1 is plain hostname (not FQDN)
-#[[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
+source ~/.defaults || exit 2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 3
 
 WPASS=${2:-$WPASS}
 DPASS=${3:-$DPASS}
 FPATH=${4:-''}
+
 sethost $1 $WPASS $DPASS
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
-#gethost > $UPATH/etc/defaults
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
+
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
 
 [[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
 
@@ -63,18 +61,30 @@ fi
 
 if [ ! -f "$FPATH/wp-config.php" ]; then
     echo "!!! Setting up Wordpress"
+    rm -rf $FPATH/wp-content/{themes/*,plugins/*}
     su - $VUSER -c "
 cd $FPATH
 wp core config --quiet --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
 wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user=admin --admin_password='$WPASS' --admin_email='$AMAIL'
+wp theme install --quiet astra --activate
+wp plugin install --quiet astra-sites --activate
+wp plugin install --quiet elementor --activate
+wp plugin install --quiet header-footer-elementor --activate
 wp plugin install --quiet contact-form-7 --activate
-wp plugin install --quiet smart-wp-login --activate
-wp plugin install --quiet user-switching --activate"
+wp plugin install --quiet force-email-login --activate
+wp plugin install --quiet user-switching --activate
+wp plugin install --quiet woocommerce
+wp plugin install --quiet autoptimize
+wp plugin install --quiet wp-super-cache
+wp plugin install --quiet google-analytics-dashboard-for-wp
+wp plugin install --quiet mainwp-child
+wp plugin uninstall --quiet hello-dolly
+"
 
-    cd $FPATH/wp-content/themes
-    git clone https://github.com/markc/twentyseventeen-child
+#    cd $FPATH/wp-content/themes
+#    git clone https://github.com/markc/astra-child
     chperms $VHOST
-    su - $VUSER -c "wp theme activate twentyseventeen-child"
+#    su - $VUSER -c "wp theme activate astra-child"
     echo "
 Web
 ========

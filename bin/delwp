@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# .sh/bin/delwp 20180202 - 20180202
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: delwp domain [path]" && exit 1
+
+source ~/.defaults || exit 2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 3
+
+VHOST=$1
+FPATH=${2:-''}
+WPATH=$VPATH/$VHOST/var/www
+
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
+
+DNAME=${VHOST//[.-]/_}
+VUSER=$(stat -c "%U" $WPATH)
+
+if [[ $FPATH ]]; then
+    FPATH=$WPATH/$FPATH
+else
+    FPATH=$WPATH
+fi
+
+if [[ -d $UPATH/var/www_old ]]; then
+    echo "!!! Move public/private folders to $UPATH/var/www_old"
+    [[ -d $WPATH/public ]] && mv $WPATH/public $UPATH/var/www_old
+    [[ -d $WPATH/private ]] && mv $WPATH/private $UPATH/var/www_old
+fi
+
+if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
+    echo "!!! Remove $DNAME database"
+    mysql -e "REVOKE ALL PRIVILEGES, GRANT OPTION FROM '$VUSER'@'localhost'"
+    mysql -e "DROP USER '$VUSER'@'localhost'"
+    mysql -e "FLUSH PRIVILEGES"
+    mysql -e "DROP DATABASE IF EXISTS '$DNAME'"
+else
+    echo "!!! '$DNAME' database does not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
