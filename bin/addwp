@@ -77,7 +77,6 @@ wp plugin install astra-sites --activate 2> /dev/null
 wp plugin install elementor --activate 2> /dev/null
 wp plugin install header-footer-elementor --activate 2> /dev/null
 wp plugin install contact-form-7 --activate 2> /dev/null
-wp plugin install force-email-login --activate 2> /dev/null
 wp plugin install user-switching --activate 2> /dev/null
 wp plugin install woocommerce 2> /dev/null
 wp plugin install autoptimize 2> /dev/null
@@ -85,13 +84,17 @@ wp plugin install wp-super-cache 2> /dev/null
 wp plugin install google-analytics-dashboard-for-wp 2> /dev/null
 wp plugin install mainwp-child 2> /dev/null
 "
+if [[ $FPATH != $WPATH ]]; then
+    echo "!!! Update siteurl to $WPURL/$4"
+    su - $VUSER -c "cd $FPATH; wp option update siteurl $WPURL/$4"
+fi
     chperms $VHOST
     echo "
 Web
 ========
 
 Wordpress: $WPURL/wp-admin/
-Username: $AMAIL
+Username: $WUSER or $AMAIL
 Password: $WPASS
 "
 fi
