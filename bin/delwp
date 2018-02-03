@@ -40,8 +40,8 @@ fi
 if [[ -f $FPATH/wp-config.php ]]; then
     echo "!!! Remove $FPATH"
     rm -rf $FPATH
-    echo "!!! Create $FPATH"
     mkdir $FPATH
+    echo "!!! Create $FPATH/index.html"
     echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $FPATH/index.html
     chperms $VHOST
 else
