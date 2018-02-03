@@ -23,11 +23,9 @@ else
     FPATH=$WPATH
 fi
 
-if [[ -d $UPATH/var/www_old ]]; then
-    echo "!!! Move public/private folders to $UPATH/var/www_old"
-    [[ -d $WPATH/public ]] && mv $WPATH/public $UPATH/var/www_old
-    [[ -d $WPATH/private ]] && mv $WPATH/private $UPATH/var/www_old
-fi
+# Preserve non-Wordpress download folders
+[[ -d $WPATH/public ]] && mv $WPATH/public $UPATH/var
+[[ -d $WPATH/private ]] && mv $WPATH/private $UPATH/var
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
     echo "!!! Remove $DNAME database"
