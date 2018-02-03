@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/newwp 20160231 - 20180203
+# .sh/bin/addwp 20160231 - 20180203
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: newwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
+[[ -z $1 ]] && echo "Usage: addwp user@domain|domain [wp_passwd] [db_passwd] [path]" && exit 1
 
 source ~/.defaults || exit 2
 
@@ -28,9 +28,8 @@ else
     FPATH=$WPATH
 fi
 
-# On a fresh install
-[[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
-[[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
+[[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
+[[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
 
 if [[ ! -x /usr/local/bin/wp ]]; then
     echo "!!! Install wp-cli as /usr/local/bin/wp"
@@ -64,32 +63,29 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     chown $U_UID:www-data -R $FPATH
 fi
 
+# Add 2> /dev/null to remove wp-cli permission warnings
 if [ ! -f "$FPATH/wp-config.php" ]; then
     echo "!!! Setting up Wordpress"
     rm -rf $FPATH/wp-content/{themes/*,plugins/*}
     su - $VUSER -c "
 cd $FPATH
-wp core config --quiet --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core install --quiet --url='$WPURL' --title='$TITLE' --admin_user='$WUSER' --admin_password='$WPASS' --admin_email='$AMAIL'
-wp theme install --quiet astra --activate
-wp plugin install --quiet astra-sites --activate
-wp plugin install --quiet elementor --activate
-wp plugin install --quiet header-footer-elementor --activate
-wp plugin install --quiet contact-form-7 --activate
-wp plugin install --quiet force-email-login --activate
-wp plugin install --quiet user-switching --activate
-wp plugin install --quiet woocommerce
-wp plugin install --quiet autoptimize
-wp plugin install --quiet wp-super-cache
-wp plugin install --quiet google-analytics-dashboard-for-wp
-wp plugin install --quiet mainwp-child
-wp plugin uninstall --quiet hello-dolly
+wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
+wp core install --url='$WPURL' --title='$TITLE' --admin_user='$WUSER' --admin_password='$WPASS' --admin_email='$AMAIL'
+wp theme install astra --activate 2> /dev/null
+wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
+wp plugin install astra-sites --activate 2> /dev/null
+wp plugin install elementor --activate 2> /dev/null
+wp plugin install header-footer-elementor --activate 2> /dev/null
+wp plugin install contact-form-7 --activate 2> /dev/null
+wp plugin install force-email-login --activate 2> /dev/null
+wp plugin install user-switching --activate 2> /dev/null
+wp plugin install woocommerce 2> /dev/null
+wp plugin install autoptimize 2> /dev/null
+wp plugin install wp-super-cache 2> /dev/null
+wp plugin install google-analytics-dashboard-for-wp 2> /dev/null
+wp plugin install mainwp-child 2> /dev/null
 "
-
-#    cd $FPATH/wp-content/themes
-#    git clone https://github.com/markc/astra-child
     chperms $VHOST
-#    su - $VUSER -c "wp theme activate astra-child"
     echo "
 Web
 ========
