@@ -18,7 +18,7 @@ WPATH=$VPATH/$VHOST/var/www
 VUSER=$(stat -c "%U" $WPATH)
 [[ $FPATH ]] && FPATH=$WPATH/$FPATH || FPATH=$WPATH
 
-if [[ -f $FPATH/wp-config.php ]]; then
+if [[ -f $FPATH/wp-includes/version.php ]]; then
     echo "!!! Remove $FPATH"
     rm -rf $FPATH
     mkdir $FPATH

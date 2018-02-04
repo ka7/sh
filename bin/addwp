@@ -51,7 +51,7 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     echo "!!! Download Wordpress"
     cd $UPATH/var
     if [[ ! -f latest.tar.gz ]]; then
-        wget --no-check-certificate https://wordpress.org/latest.tar.gz
+        wget -nv --no-check-certificate https://wordpress.org/latest.tar.gz
     fi
     tar xf latest.tar.gz
     rm latest.tar.gz
@@ -63,15 +63,9 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     chown $U_UID:www-data -R $FPATH
 fi
 
-#wp menu create "Primary Menu"
-#wp menu item add-post primary-menu 3 #this is the post id
-#wp menu item add-post primary-menu 4 --title="About Us"
-#wp menu location assign primary-menu primary
-
 # Add 2> /dev/null to remove wp-cli permission warnings
-if [ ! -f "$FPATH/wp-config.php" ]; then
+if [[ -f $FPATH/wp-includes/version.php ]]; then
     echo "!!! Setting up Wordpress"
-    rm -rf $FPATH/wp-content/{themes/*,plugins/*}
     su - $VUSER -c "
 cd $FPATH
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
@@ -81,34 +75,82 @@ wp core install \
   --admin_user='$WUSER' \
   --admin_password='$WPASS' \
   --admin_email='$AMAIL'
+
 wp user update '$WUSER' \
   --first_name='${ANAME% *}' \
   --last_name='${ANAME#* }' \
   --display_name='$ANAME' \
   --user_url='$WPURL'
+
 wp option update timezone_string '$TAREA/$TCITY'
 wp option update thumbnail_size_w '300'
 wp option update permalink_structure '/%postname%/'
+wp option set default_comment_status closed
+"
 
-wp post create --post_type=page --post_title='Home' --post_status=publish 
-wp post create --post_type=page --post_title='News' --post_status=publish 
-wp post create --post_type=page --post_title='About' --post_status=publish
-wp post create --post_type=page --post_title='Contact' --post_status=publish 
+export PLUGINS=$(echo $(su $VUSER -c "wp plugin list --field=name --path=$FPATH"))
+export PAGES=$(su $VUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
+export POSTS=$(su $VUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
 
-wp option update permalink_structure '/%postname%/'
+#export THEMES=$(echo $(su $VUSER -c "wp theme list --field=name --path=$FPATH"))
+#export WIDGETS=$(su $VUSER -c "wp widget list sidebar-1 --format=ids --path=$FPATH")
+#wp widget delete $WIDGETS
 
-wp theme install astra --activate 2> /dev/null
+    su - $VUSER -c "
+cd $FPATH
+wp theme delete twentyfifteen twentysixteen
+wp plugin delete $PLUGINS
+wp post delete $POSTS
+wp post delete $PAGES
+
+echo 'Install astra theme'
+wp theme --quiet install astra 2> /dev/null
+echo 'Install astra-child theme'
 wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
-wp plugin install astra-sites --activate 2> /dev/null
-wp plugin install elementor --activate 2> /dev/null
-wp plugin install header-footer-elementor --activate 2> /dev/null
-wp plugin install contact-form-7 --activate 2> /dev/null
-wp plugin install user-switching --activate 2> /dev/null
-wp plugin install woocommerce 2> /dev/null
-wp plugin install autoptimize 2> /dev/null
-wp plugin install wp-super-cache 2> /dev/null
-wp plugin install google-analytics-dashboard-for-wp 2> /dev/null
-wp plugin install mainwp-child 2> /dev/null
+wp theme delete twentyseventeen
+echo 'Install astra-sites plugin'
+wp plugin --quiet install astra-sites --activate 2> /dev/null
+echo 'Install elementor plugin'
+wp plugin --quiet install elementor --activate 2> /dev/null
+echo 'Install header-footer-elementor plugin'
+wp plugin --quiet install header-footer-elementor --activate 2> /dev/null
+echo 'Install contact-form-7 plugin'
+wp plugin --quiet install contact-form-7 --activate 2> /dev/null
+echo 'Install user-switching plugin'
+wp plugin --quiet install user-switching --activate 2> /dev/null
+echo 'Install woocommerce plugin'
+wp plugin --quiet install woocommerce 2> /dev/null
+echo 'Install autoptimize plugin'
+wp plugin --quiet install autoptimize 2> /dev/null
+echo 'Install wp-super-cache plugin'
+wp plugin --quiet install wp-super-cache 2> /dev/null
+echo 'Install google-analytics-dashboard-for-wp plugin'
+wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
+echo 'Install mainwp-child plugin'
+wp plugin --quiet install mainwp-child 2> /dev/null
+
+wp post create --post_type=page --post_title='Home' --post_status=publish
+wp post create --post_type=page --post_title='News' --post_status=publish
+wp post create --post_type=page --post_title='About' --post_status=publish
+wp post create --post_type=page --post_title='Contact' --post_status=publish
+"
+
+export HOMEPAGE=$(su $VUSER -c "wp post list --post_type=page --name=home --format=ids --path=$FPATH")
+export NEWSPAGE=$(su $VUSER -c "wp post list --post_type=page --name=news --format=ids --path=$FPATH")
+export ABOUTPAGE=$(su $VUSER -c "wp post list --post_type=page --name=about --format=ids --path=$FPATH")
+export CONTACTPAGE=$(su $VUSER -c "wp post list --post_type=page --name=contact --format=ids --path=$FPATH")
+
+    su - $VUSER -c "
+cd $FPATH
+wp menu create 'Primary Menu'
+wp menu item add-post primary-menu $NEWSPAGE
+wp menu item add-post primary-menu $ABOUTPAGE
+wp menu item add-post primary-menu $CONTACTPAGE
+wp menu location assign primary-menu primary
+
+wp option update page_on_front $HOMEPAGE
+wp option update page_for_posts $NEWSPAGE
+wp option update show_on_front page
 "
     cat << EOS >> $FPATH/wp-content/themes/astra-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
