@@ -63,6 +63,11 @@ if [ ! -f "$FPATH/wp-config-sample.php" ]; then
     chown $U_UID:www-data -R $FPATH
 fi
 
+#wp menu create "Primary Menu"
+#wp menu item add-post primary-menu 3 #this is the post id
+#wp menu item add-post primary-menu 4 --title="About Us"
+#wp menu location assign primary-menu primary
+
 # Add 2> /dev/null to remove wp-cli permission warnings
 if [ ! -f "$FPATH/wp-config.php" ]; then
     echo "!!! Setting up Wordpress"
@@ -70,7 +75,28 @@ if [ ! -f "$FPATH/wp-config.php" ]; then
     su - $VUSER -c "
 cd $FPATH
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core install --url='$WPURL' --title='$TITLE' --admin_user='$WUSER' --admin_password='$WPASS' --admin_email='$AMAIL'
+wp core install \
+  --url='$WPURL' \
+  --title='$TITLE' \
+  --admin_user='$WUSER' \
+  --admin_password='$WPASS' \
+  --admin_email='$AMAIL'
+wp user update '$WUSER' \
+  --first_name='${ANAME% *}' \
+  --last_name='${ANAME#* }' \
+  --display_name='$ANAME' \
+  --user_url='$WPURL'
+wp option update timezone_string '$TAREA/$TCITY'
+wp option update thumbnail_size_w '300'
+wp option update permalink_structure '/%postname%/'
+
+wp post create --post_type=page --post_title='Home' --post_status=publish 
+wp post create --post_type=page --post_title='News' --post_status=publish 
+wp post create --post_type=page --post_title='About' --post_status=publish
+wp post create --post_type=page --post_title='Contact' --post_status=publish 
+
+wp option update permalink_structure '/%postname%/'
+
 wp theme install astra --activate 2> /dev/null
 wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
 wp plugin install astra-sites --activate 2> /dev/null
@@ -84,10 +110,12 @@ wp plugin install wp-super-cache 2> /dev/null
 wp plugin install google-analytics-dashboard-for-wp 2> /dev/null
 wp plugin install mainwp-child 2> /dev/null
 "
-if [[ $FPATH != $WPATH ]]; then
-    echo "!!! Update siteurl to $WPURL/$4"
-    su - $VUSER -c "cd $FPATH; wp option update siteurl $WPURL/$4"
-fi
+    cat << EOS >> $FPATH/wp-content/themes/astra-child/functions.php
+remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
+add_action('admin_head', function() {
+    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
+});
+EOS
     chperms $VHOST
     echo "
 Web

@@ -6,21 +6,28 @@
 
 source ~/.defaults || exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 3
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
 
 VHOST=$1
 FPATH=${2:-''}
+DNAME=${VHOST//[.-]/_}
 WPATH=$VPATH/$VHOST/var/www
 
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 2
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
 
-DNAME=${VHOST//[.-]/_}
 VUSER=$(stat -c "%U" $WPATH)
+[[ $FPATH ]] && FPATH=$WPATH/$FPATH || FPATH=$WPATH
 
-if [[ $FPATH ]]; then
-    FPATH=$WPATH/$FPATH
+if [[ -f $FPATH/wp-config.php ]]; then
+    echo "!!! Remove $FPATH"
+    rm -rf $FPATH
+    mkdir $FPATH
+    echo "!!! Create $FPATH/index.html"
+    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $FPATH/index.html
+    chperms $VHOST
 else
-    FPATH=$WPATH
+    echo "!!! ERROR: does not look like a Wordpress installation"
+    exit 4
 fi
 
 # Preserve non-Wordpress download folders
@@ -35,17 +42,6 @@ if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
     mysql -e "DROP DATABASE IF EXISTS $DNAME"
 else
     echo "!!! '$DNAME' database does not exist"
-fi
-
-if [[ -f $FPATH/wp-config.php ]]; then
-    echo "!!! Remove $FPATH"
-    rm -rf $FPATH
-    mkdir $FPATH
-    echo "!!! Create $FPATH/index.html"
-    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $FPATH/index.html
-    chperms $VHOST
-else
-    echo "!!! ERROR: does not look like a Wordpress installation"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
