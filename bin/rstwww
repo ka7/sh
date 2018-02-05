@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# .sh/bin/rstwww 20180205 - 20180205
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
+
+source ~/.defaults || exit 2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+
+VHOST=$1
+DNAME=${2:-${VHOST//[.-]/_}}
+VFILE=${3:-$VHOST}
+DFILE=${VFILE//[.-]/_}
+UPATH=$VPATH/$VHOST
+WPATH=$UPATH/var/www
+
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
+
+cd $UPATH/var
+
+if [[ -f $VFILE.tgz ]]; then
+    if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
+        [[ -f $DFILE.sql ]] && echo "!!! Warning: removing old $DFILE.sql" && rm $DFILE.sql
+        echo "!!! Backup old $DNAME database"
+        mysqldump $DNAME > $DNAME.sql
+        chown $(stat -c "%u:%g" www) $DNAME.sql
+        chmod 640 $DNAME.sql
+        echo "!!! Delete old $DNAME database"
+        mysql -e "DROP DATABASE $DNAME"
+    fi
+    [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
+    tar czf $(date +'%Y%m%d')-$VHOST.tgz $TARUP
+    [[ -f $DNAME.sql ]] && rm $DNAME.sql
+    chown $(stat -c "%u:%g" www) $VHOST.tgz
+    chmod 640 $VHOST.tgz
+    echo "!!! Created $(du -bh $(date +'%Y%m%d')-$VHOST.tgz)"
+
+    tar xf $VFILE.tgz
+
+    if [[ -f $DFILE.sql ]]; then
+        echo "!!! Create new empty $DNAME database"
+        mysql -e "CREATE DATABASE $DNAME"
+        echo "!!! Restore database from $DNAME.sql"
+        cat $DFILE.sql | mysql $DNAME
+        rm $DFILE.sql
+     else
+        echo "!!! Warning: $DFILE.sql backup file does not exist"
+     fi
+     chperms $VHOST
+     echo "!!! Restored $VHOST - $(du -sbh www)"
+else
+    echo "!!! ERROR: $VHOST.tgz backup file does not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
