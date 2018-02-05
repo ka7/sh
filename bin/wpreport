@@ -24,10 +24,10 @@ else
     echo -n "$VUSER $WPATH v"
     su - $VUSER -c "
 cd $WPATH
-wp core version
-wp theme list
-wp plugin list
-wp user list
+wp core version 2> /dev/null
+wp theme list 2> /dev/null
+wp plugin list 2> /dev/null
+wp user list 2> /dev/null
 "
 fi
 
