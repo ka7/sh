@@ -67,6 +67,14 @@ if [[ -f $VFILE.tgz ]]; then
         wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --path=www --allow-root 2> /dev/null
         wp plugin deactivate autoptimize --path=www --allow-root 2> /dev/null
         wp plugin deactivate wp-super-cache --path=www --allow-root 2> /dev/null
+        wp plugin deactivate wordpress-social-login --path=www --allow-root 2> /dev/null
+        wp plugin deactivate jgc-google-recaptcha --path=www --allow-root 2> /dev/null
+        wp plugin deactivate google-analytics-dashboard-for-wp --path=www --allow-root 2> /dev/null
+        # Just in case these were installed
+        wp plugin deactivate elementor-pro --path=www --allow-root 2> /dev/null
+        wp plugin deactivate astra-pro --path=www --allow-root 2> /dev/null
+        wp plugin deactivate astra-pro-sites --path=www --allow-root 2> /dev/null
+
         echo "
 New login details
 
