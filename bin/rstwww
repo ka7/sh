@@ -14,7 +14,7 @@ VFILE=${3:-$VHOST}
 DFILE=${VFILE//[.-]/_}
 UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
-VUSER=$(stat -c "%U" $WPATH)
+VUSER=$(stat -c "%U" $UPATH/var)
 
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
 
@@ -42,7 +42,7 @@ if [[ -f $VFILE.tgz ]]; then
     if [[ -f $DFILE.sql ]]; then
         echo "!!! Create new empty $DNAME database"
         mysql -e "CREATE DATABASE $DNAME"
-        echo "!!! Restore database from $DNAME.sql"
+        echo "!!! Restore database from $DFILE.sql"
         cat $DFILE.sql | mysql $DNAME
         rm $DFILE.sql
     else
@@ -64,7 +64,7 @@ if [[ -f $VFILE.tgz ]]; then
           --user_pass=$WPASS \
           --role=administrator \
           --path=www --allow-root 2> /dev/null
-        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --path=www --allow-root 2> /dev/null
+        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --report-changed-only --path=www --allow-root 2> /dev/null
         wp plugin deactivate autoptimize --path=www --allow-root 2> /dev/null
         wp plugin deactivate wp-super-cache --path=www --allow-root 2> /dev/null
         wp plugin deactivate wordpress-social-login --path=www --allow-root 2> /dev/null
