@@ -30,7 +30,7 @@ fi
 
 [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
 
-tar czf $VHOST.tgz $TARUP
+tar czf $VHOST.tgz $TARUP --exclude=www/{private,public}
 
 [[ -f $DNAME.sql ]] && rm $DNAME.sql
 
