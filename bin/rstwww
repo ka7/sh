@@ -14,6 +14,7 @@ VFILE=${3:-$VHOST}
 DFILE=${VFILE//[.-]/_}
 UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
+VUSER=$(stat -c "%U" $WPATH)
 
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
 
@@ -32,8 +33,8 @@ if [[ -f $VFILE.tgz ]]; then
     [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
     tar czf $(date +'%Y%m%d')-$VHOST.tgz $TARUP
     [[ -f $DNAME.sql ]] && rm $DNAME.sql
-    chown $(stat -c "%u:%g" www) $VHOST.tgz
-    chmod 640 $VHOST.tgz
+    chown $(stat -c "%u:%g" www) $(date +'%Y%m%d')-$VHOST.tgz
+    chmod 640 $(date +'%Y%m%d')-$VHOST.tgz
     echo "!!! Created $(du -bh $(date +'%Y%m%d')-$VHOST.tgz)"
 
     tar xf $VFILE.tgz
@@ -44,8 +45,33 @@ if [[ -f $VFILE.tgz ]]; then
         echo "!!! Restore database from $DNAME.sql"
         cat $DFILE.sql | mysql $DNAME
         rm $DFILE.sql
-     else
+    else
         echo "!!! Warning: $DFILE.sql backup file does not exist"
+    fi
+    if [[ $VFILE != $VHOST ]]; then
+        WUSER=$(pwgen 6 -s -B -C -N 1 -A -0)
+        WPASS=$(newpw 1)
+        AMAIL=admin@$VHOST
+
+        mysql -e "SET PASSWORD FOR '$VUSER'@'localhost' = PASSWORD('$WPASS')"
+        mysql -e "flush privileges"
+
+        sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/wp-config.php
+        sed -i "/DB_USER/s/'[^']*'/'$WUSER'/2" www/wp-config.php
+        sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
+
+        wp user create $WUSER $AMAIL \
+          --user_pass=$WPASS \
+          --role=administrator \
+          --path=www --allow-root
+
+        wp search-replace '$VFILE' '$VHOST' --skip-columns=guid --path=www --allow-root
+
+        echo "
+New login details for $VHOST
+Username: $WUSER or $AMAIL
+Password: $WPASS
+"
      fi
      chperms $VHOST
      echo "!!! Restored $VHOST - $(du -sbh www)"
