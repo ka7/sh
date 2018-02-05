@@ -5,7 +5,7 @@
 [[ -z $1 ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
 
 source ~/.defaults || exit 2
-set -x
+
 [[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
 
 VHOST=$1
