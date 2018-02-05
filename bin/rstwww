@@ -54,21 +54,23 @@ if [[ -f $VFILE.tgz ]]; then
         AMAIL=admin@$VHOST
 
         mysql -e "SET PASSWORD FOR '$VUSER'@'localhost' = PASSWORD('$WPASS')"
-        mysql -e "flush privileges"
+        mysql -e "FLUSH PRIVILEGES"
 
         sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/wp-config.php
-        sed -i "/DB_USER/s/'[^']*'/'$WUSER'/2" www/wp-config.php
+        sed -i "/DB_USER/s/'[^']*'/'$VUSER'/2" www/wp-config.php
         sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
 
         wp user create $WUSER $AMAIL \
           --user_pass=$WPASS \
           --role=administrator \
-          --path=www --allow-root
-
-        wp search-replace '$VFILE' '$VHOST' --skip-columns=guid --path=www --allow-root
-
+          --path=www --allow-root 2> /dev/null
+        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --path=www --allow-root 2> /dev/null
+        wp plugin deactivate autoptimize --path=www --allow-root 2> /dev/null
+        wp plugin deactivate wp-super-cache --path=www --allow-root 2> /dev/null
         echo "
-New login details for $VHOST
+New login details
+
+Wordpress: https://$VHOST/wp-admin
 Username: $WUSER or $AMAIL
 Password: $WPASS
 "
