@@ -146,7 +146,7 @@ sethost ()
 
     export APASS='changeme_N0W';
     export VPATH='/home/u';
-    export V_PHP='7.1';
+    export V_PHP='7.2';
 
     export APASS=${3:-$APASS};
     export C_FPM="/etc/php/$V_PHP/fpm";
@@ -177,7 +177,7 @@ sethost ()
     export DHOST='localhost';
     export DPORT='3306';
     export OSMIR='archive.ubuntu.com';
-    export OSREL='artful';
+    export OSREL='bionic';
     export TAREA='Australia';
     export TCITY='Sydney';
 }
