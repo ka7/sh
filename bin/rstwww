@@ -14,6 +14,7 @@ VFILE=${3:-$VHOST}
 DFILE=${VFILE//[.-]/_}
 UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
+VUSER=$(stat -c "%U" $UPATH/var)
 
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
 
@@ -32,8 +33,8 @@ if [[ -f $VFILE.tgz ]]; then
     [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
     tar czf $(date +'%Y%m%d')-$VHOST.tgz $TARUP
     [[ -f $DNAME.sql ]] && rm $DNAME.sql
-    chown $(stat -c "%u:%g" www) $VHOST.tgz
-    chmod 640 $VHOST.tgz
+    chown $(stat -c "%u:%g" www) $(date +'%Y%m%d')-$VHOST.tgz
+    chmod 640 $(date +'%Y%m%d')-$VHOST.tgz
     echo "!!! Created $(du -bh $(date +'%Y%m%d')-$VHOST.tgz)"
 
     tar xf $VFILE.tgz
@@ -41,11 +42,46 @@ if [[ -f $VFILE.tgz ]]; then
     if [[ -f $DFILE.sql ]]; then
         echo "!!! Create new empty $DNAME database"
         mysql -e "CREATE DATABASE $DNAME"
-        echo "!!! Restore database from $DNAME.sql"
+        echo "!!! Restore database from $DFILE.sql"
         cat $DFILE.sql | mysql $DNAME
         rm $DFILE.sql
-     else
+    else
         echo "!!! Warning: $DFILE.sql backup file does not exist"
+    fi
+    if [[ $VFILE != $VHOST ]]; then
+        WUSER=$(pwgen 6 -s -B -C -N 1 -A -0)
+        WPASS=$(newpw 1)
+        AMAIL=admin@$VHOST
+
+        mysql -e "SET PASSWORD FOR '$VUSER'@'localhost' = PASSWORD('$WPASS')"
+        mysql -e "FLUSH PRIVILEGES"
+
+        sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/wp-config.php
+        sed -i "/DB_USER/s/'[^']*'/'$VUSER'/2" www/wp-config.php
+        sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
+
+        wp user create $WUSER $AMAIL \
+          --user_pass=$WPASS \
+          --role=administrator \
+          --path=www --allow-root 2> /dev/null
+        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --report-changed-only --path=www --allow-root 2> /dev/null
+        wp plugin deactivate autoptimize --path=www --allow-root 2> /dev/null
+        wp plugin deactivate wp-super-cache --path=www --allow-root 2> /dev/null
+        wp plugin deactivate wordpress-social-login --path=www --allow-root 2> /dev/null
+        wp plugin deactivate jgc-google-recaptcha --path=www --allow-root 2> /dev/null
+        wp plugin deactivate google-analytics-dashboard-for-wp --path=www --allow-root 2> /dev/null
+        # Just in case these were installed
+        wp plugin deactivate elementor-pro --path=www --allow-root 2> /dev/null
+        wp plugin deactivate astra-pro --path=www --allow-root 2> /dev/null
+        wp plugin deactivate astra-pro-sites --path=www --allow-root 2> /dev/null
+
+        echo "
+New login details
+
+Wordpress: https://$VHOST/wp-admin
+Username: $WUSER or $AMAIL
+Password: $WPASS
+"
      fi
      chperms $VHOST
      echo "!!! Restored $VHOST - $(du -sbh www)"

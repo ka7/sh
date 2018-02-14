@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20170704
+# .sh/bin/shmail 20150529 - 20180207
 # Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: shmail user@domain" && exit 1
@@ -28,7 +28,7 @@ if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
             N1=0
             N2=0
         done
-
+        [[ -z $STOTAL ]] && STOTAL=0
         echo "----------------------------------------------------"
         printf "%-36s %4s %'9.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
     )

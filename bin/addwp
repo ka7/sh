@@ -129,6 +129,14 @@ wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
 echo 'Install mainwp-child plugin'
 wp plugin --quiet install mainwp-child 2> /dev/null
 
+# These may not be needed, but just in case
+echo 'Install wordpress-social-login plugin'
+wp plugin --quiet install wordpress-social-login 2> /dev/null
+echo 'Install jgc-google-recaptcha plugin'
+wp plugin --quiet install jgc-google-recaptcha 2> /dev/null
+echo 'Install google-analytics-dashboard-for-wp plugin'
+wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
+
 wp post create --post_type=page --post_title='Home' --post_status=publish
 wp post create --post_type=page --post_title='News' --post_status=publish
 wp post create --post_type=page --post_title='About' --post_status=publish

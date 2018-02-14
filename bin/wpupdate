@@ -6,6 +6,8 @@
 source ~/.defaults || exit 2
 [[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist, run 'setup-host' first" && exit 3
 
+export WP_CLI_CACHE_DIR="/var/tmp"
+
 wpupdate() {
     [[ ! -d $1/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
     VUSER=$(stat -c "%U" $1)
