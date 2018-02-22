@@ -43,6 +43,7 @@ if [[ ! -f /root/.defaults ]]; then
     sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
     gethost > /root/.defaults
     chmod 600 /root/.defaults
+    [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
 fi
 
 echo "!!! Source /root/.defaults"
