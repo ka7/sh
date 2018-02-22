@@ -12,8 +12,12 @@ source ~/.sh/lib/functions || exit 4
 
 # Set new host variables
 sethost ${1:-$VHOST} ${2:-$DTYPE} $(newpw 5)
+[[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
+gethost > ~/.vhosts/$VHOST
 
-gethost
+echo $WPATH
+#source ~/.vhosts/$VHOST
+
 exit
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
