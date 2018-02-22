@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20171030
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/logging 20170417 - 20180223
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: logging domain|all [update]" && exit 1
+[[ $1 == '-h' || $1 == '--help' ]] && \
+    echo "Usage: logging [domain|all] [update]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i setup-host)" && exit 4
 
 source ~/.defaults || exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
-[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i setup-host)" && exit 4
-
-[[ $3 == update ]] && UPD=1 || UPD=
+VHOST=${1:-$VHOST}
+[[ $2 == update ]] && UPD=1 || UPD=
 
 DU="/usr/bin/du -sb"
 FIND="/usr/bin/find"
