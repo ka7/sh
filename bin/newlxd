@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20171102
+# .sh/bin/newlxd 20171013 - 20180222
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root so we need OSREL and DTYPE
 
-[[ -z $1 ]] && echo "Usage: newlxd FQDN [small|medium|large] [distro(artful)] [(sqlite)|mysql]" && exit 1
+[[ -z $1 ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [distro(bionic)] [(mysql)|sqlite]" && exit 1
 
 VHOST=$1
 _HOST=${VHOST%%.*}
@@ -27,9 +27,9 @@ else
     P_CPU=1
 fi
 
-OSREL=${3:-'artful'}
-DTYPE=${4:-'sqlite'}
-
+OSREL=${3:-'bionic'}
+DTYPE=${4:-'mysql'}
+set -x
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
     echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
     lxc profile create $PNAME
@@ -48,10 +48,10 @@ lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
 #echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
 #lxc exec $_HOST -- "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=eth*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 
-#echo "--- Wait for network to become available..."
-#lxc exec $_HOST -- systemctl restart systemd-networkd
+echo "--- Wait for network to become available..."
+lxc exec $_HOST -- systemctl restart systemd-networkd
 
-#sleep 5
+sleep 5
 
 echo "--- Update $OSREL package list"
 lxc exec $_HOST -- apt-get -qq update
@@ -59,7 +59,7 @@ lxc exec $_HOST -- apt-get -qq update
 echo "--- Upgrade current packages"
 lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 
-echo "--- Make sure basic packages are available"
+echo "--- Make sure basic essential packages are available"
 lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
     ca-certificates curl git nano net-tools openssh-server rsync > /dev/null 2>&1
 

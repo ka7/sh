@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20171030
+# .sh/bin/setup-host 20170524 - 20180222
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql|sqlite(default)] [admin(sysadm)]" && exit 1
+[[ $1 == '-h' || $1 == '--help' ]] && echo "Usage: setup-host [-h|--help|mysql(default)|sqlite] [admin(sysadm)]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 [[ ! -d /root/.sh ]] && echo "ERROR: missing /root/.sh, see https://github.com/netserva/sh" && exit 3
 
-DTYPE=${1:-'sqlite'}
+DTYPE=${1:-'mysql'}
 ADMIN=${2:-'sysadm'}
 
 source /root/.sh/lib/functions
@@ -23,7 +23,7 @@ HLIST="
   nano
   openssh-server
   pwgen
-  rsync
+  rsyncset -x
   ssmtp
 "
 
@@ -35,15 +35,15 @@ if [[ ! -e /usr/bin/pwgen ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST
 fi
 
-if [[ -f /root/.defaults ]]; then
-    echo "!!! Source /root/.defaults"
-    source /root/.defaults
-else
+if [[ ! -f /root/.defaults ]]; then
     echo "!!! Create initial host defaults"
     sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
     gethost > /root/.defaults
     chmod 600 /root/.defaults
 fi
+
+echo "!!! Source /root/.defaults"
+source /root/.defaults
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
