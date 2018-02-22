@@ -75,15 +75,15 @@ SLIST="
   opendkim-tools
   pdns-backend-sqlite3
   pflogsumm
-  php7.1
-  php7.1-curl
-  php7.1-fpm
-  php7.1-gd
-  php7.1-imap
-  php7.1-intl
-  php7.1-mbstring
-  php7.1-sqlite3
-  php7.1-xml
+  php$V_PHP
+  php$V_PHP-curl
+  php$V_PHP-fpm
+  php$V_PHP-gd
+  php$V_PHP-imap
+  php$V_PHP-intl
+  php$V_PHP-mbstring
+  php$V_PHP-sqlite3
+  php$V_PHP-xml
   postfix-policyd-spf-perl
   postfix-sqlite
   spamprobe

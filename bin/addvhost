@@ -14,7 +14,7 @@ source ~/.sh/lib/functions || exit 4
 sethost ${1:-$VHOST} ${2:-$DTYPE} $(newpw 5)
 gethost > ~/.vhosts/$VHOST
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 5
 
 if [[ $3 == enterprise ]]; then
     V_ALIASES="200"
@@ -47,7 +47,7 @@ IS_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ $IS_VHOST -gt 0 ]] && echo "!!! $VHOST already exists" && exit 4
+[[ $IS_VHOST -gt 0 ]] && echo "!!! $VHOST already exists" && exit 6
 
 if [[ $(grepuser ":$VHOST:") ]]; then
     echo "!!! Warning: $VUSER for $VHOST already exists"
