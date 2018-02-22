@@ -95,7 +95,7 @@ MLIST="
   mariadb-client
   mariadb-server
   pdns-backend-mysql
-  php7.1-mysql
+  php$V_PHP-mysql
   postfix-mysql
 "
 

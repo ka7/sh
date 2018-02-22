@@ -9,6 +9,8 @@
 
 source ~/.defaults || exit 3
 
+DTYPE=${1:-$DTYPE}
+
 # Temporary self-signed SSL certificate defaults
 C="AU"
 ST="QLD"
@@ -24,28 +26,16 @@ else
     mkdir $VPATH
 fi
 
-if [[ -f /root/.pw ]]; then
-    echo "^^^ /root/.pw already exists"
-else
-    echo "^^^ Create /root/.pw"
-    if [[ $APASS == changeme_N0W ]]; then
-        newpw 5 > /root/.pw
-    else
-        echo "$APASS $DPASS $UPASS" > /root/.pw
-    fi
-    chmod 600 /root/.pw
-fi
-
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     echo "^^^ Setup using SQLite"
     SQCMD=$EXSQL
     [[ ! -d $DBSQL ]] && setup-db sqlite
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     echo "^^^ Setup using MySQL"
     SQCMD=$EXMYS
     [[ ! -f ~/.my.cnf ]] && setup-db mysql
 else
-    echo "ERROR: unknown argument '$1'" && exit 2
+    echo "ERROR: unknown argument '$DTYPE'" && exit 2
 fi
 
 if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
@@ -53,31 +43,20 @@ if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     userdel -rf ubuntu > /dev/null 2>&1
 fi
 
-#if [[ -z $(grep ^$ADMIN /etc/passwd) ]]; then
-#    echo "^^^ Create $ADMIN @ $VHOST"
-#    if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
-#        $SUDO groupmod -n $ADMIN ubuntu
-#        $SUDO usermod -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -l $ADMIN ubuntu
-#    else
-#        $SUDO groupadd -g $A_GID $ADMIN
-#        $SUDO useradd -d "$UPATH" -G sudo,adm -c "$VHOST" -s /bin/bash -M -u $A_UID -g $A_GID $ADMIN
-#    fi
-#fi
-
-echo "^^^ Create $CSMTP/main.cf for $1"
+echo "^^^ Create $CSMTP/main.cf for $DTYPE"
 [[ ! -f $CSMTP/main.cf.orig ]] && mv $CSMTP/main.cf $CSMTP/main.cf.orig
 $SUDO sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_postfix_main.cf \
     > $CSMTP/main.cf
 
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
 fi
 $SUDO chmod 644 $CSMTP/main.cf
 
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-alias-maps.cf"
         $SUDO sed -e "s;_DPATH;$DPATH;" \
@@ -108,7 +87,7 @@ if [[ $1 == sqlite ]]; then
             ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
             > $CSMTP/sqlite-uid-maps.cf
     fi
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-alias-maps.cf"
         $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
@@ -146,29 +125,29 @@ elif [[ $1 == mysql ]]; then
      fi
 fi
 
-echo "^^^ Create $CIMAP/dovecot.conf for $1"
+echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
 [[ ! -f $CIMAP/dovecot.conf.orig ]] && $SUDO mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
 $SUDO sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_dovecot_dovecot.conf \
     > $CIMAP/dovecot.conf
 
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
 fi
 
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "^^^ Create $CIMAP/user-sqlite.conf"
-        $SUDO sed -e "s;_DTYPE;$1;" -e "s;_DPATH;$DPATH;" \
+        $SUDO sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > $CIMAP/user-sqlite.conf
     fi
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     if [[ ! -f $CIMAP/user-mysql.conf ]]; then
         echo "^^^ Create $CIMAP/user-mysql.conf"
-        $SUDO sed -e "s/_DTYPE/$1/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        $SUDO sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > $CIMAP/user-mysql.conf
