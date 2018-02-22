@@ -14,7 +14,7 @@ source ~/.defaults || exit 3
 if [[ -d $VPATH/$VHOST ]]; then
     echo "*** $VPATH/$VHOST already exists"
 else
-    addvhost $VHOST $DTYPE $(< /root/.pw)
+    addvhost
     newautoconfig $VHOST
     chperms $VHOST > /dev/null 2>&1
 fi

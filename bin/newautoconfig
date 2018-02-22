@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
-# newautoconfig 20170201 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newautoconfig 20170201 - 20180222
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: newautoconfig domain [smtpdomain] [imapdomain]" && exit 1
-source ~/.defaults || exit 2
+[[ $1 == '-h' || $1 == '--help' ]] && \
+    echo "Usage: newautoconfig [domain] [smtpdomain] [imapdomain]" && exit 1
 
-VHOST=$1
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
+
+source ~/.defaults || exit 3
+
+VHOST=${1:-$VHOST}
 VSMTP=${2:-$VHOST}
 VIMAP=${3:-$VHOST}
+
+[[ ! -d $VPATH/$VHOST ]] && echo "Error: $VPATH/$VHOST does not exist" && exit 4
 
 XPATH="$VPATH/$VHOST/var/www/.well-known/autoconfig/mail"
 XFILE="config-v1.1.xml"
 
-[[ ! -d $VPATH/$VHOST ]] && echo "Error: $VPATH/$VHOST does not exist" && exit 1
-
 [[ ! -d $XPATH ]] && mkdir -p $XPATH
-
 [[ -f $XPATH/$XFILE ]] && echo "Warning: $XPATH/$XFILE exists"
 
 echo "!!! Create $XPATH/$XFILE"
-
 cat << EOS > $XPATH/$XFILE
 <?xml version="1.0" encoding="UTF-8"?>
 <clientConfig version="1.1">
