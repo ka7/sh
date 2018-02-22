@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20171014
+# .sh/bin/setup-deb 20170519 - 20180222
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: setup-deb mysql|sqlite" && exit 1
@@ -127,7 +127,7 @@ deb http://$OSMIR/ubuntu $OSREL-updates main universe
 deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
-    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] \
+    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] && \
         echo "<<< Updating new package list for $OSREL, patience please..." && \
         $EXDEB update && \
         $EXDEB -u dist-upgrade > /dev/null 2>&1
