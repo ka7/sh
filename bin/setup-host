@@ -19,11 +19,12 @@ HLIST="
   ca-certificates
   curl
   git
+  iptables
   mutt
   nano
   openssh-server
   pwgen
-  rsyncset -x
+  rsync
   ssmtp
 "
 
@@ -164,14 +165,14 @@ if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
     fi
 else
     if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
-        echo "!!! Create server iptables save/restore (update for systemd-networkd)"
-        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
-            /etc/network/if-post-down.d/iptsave
-        chmod +x /etc/network/if-post-down.d/iptsave
+        echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
+#        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
+#            /etc/network/if-post-down.d/iptsave
+#        chmod +x /etc/network/if-post-down.d/iptsave
 
-        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
-            /etc/network/if-pre-up.d/iptrestore
-        chmod +x /etc/network/if-pre-up.d/iptrestore
+#        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+#            /etc/network/if-pre-up.d/iptrestore
+#        chmod +x /etc/network/if-pre-up.d/iptrestore
     fi
 fi
 
