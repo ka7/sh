@@ -3,13 +3,13 @@
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: setup-db mysql|sqlite" && exit 1
+    echo "Usage: setup-db [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
 source ~/.defaults || exit 3
 
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $DBSQL ]]; then
         echo "||| Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
@@ -20,7 +20,7 @@ if [[ $1 == sqlite ]]; then
     fi
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
     SQCMD="sqlite3 $DPATH"
-elif [[ $1 == mysql ]]; then
+elif [[ $DTYPE == mysql ]]; then
     if [[ ! -f ~/.my.cnf ]]; then
         echo "||| Create /root/.my.cnf"
         cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
@@ -41,7 +41,7 @@ EOS
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
     SQCMD="mysql -BN $ADMIN"
 else
-    echo "ERROR: unknown argument '$1'" && exit 2
+    echo "ERROR: unknown argument '$DTYPE'" && exit 2
 fi
 
 cat << EOS | $SQCMD
@@ -229,15 +229,7 @@ INSERT INTO accounts VALUES
 (null,1,0,1,'admin@$VHOST','System','Administrator','',0,'','','$UPASS_HASH','2017-01-01 00:00:01','2017-01-01 00:00:01');
 EOS
 
-# add later in addvhost
-#INSERT INTO valias VALUES
-#(null,1,1,1,'@$VHOST','admin@$VHOST','2017-01-01 00:00:01','2017-01-01 00:00:01');
-#INSERT INTO vhosts VALUES
-#(null,1,'$VHOST','$ADMIN',$A_UID,$A_GID,10,2,1073741824,2147483648,1,'2017-01-01 00:00:01','2017-01-01 00:00:01');
-#INSERT INTO vmails VALUES
-#(null,1,1,$A_UID,$A_GID,1,1073741824,'admin@$VHOST','/home/u/$VHOST/home/admin','$APASS_HASH','2017-01-01 00:00:01','2017-01-01 00:00:01');
-
-if [[ $1 == sqlite ]]; then
+if [[ $DTYPE == sqlite ]]; then
     echo "||| Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
@@ -246,6 +238,6 @@ if [[ $1 == sqlite ]]; then
     ln $ADMIN/$(basename $DPATH) postfix
 fi
 
-echo "||| Create '$1' database"
+echo "||| Create '$DTYPE' database"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

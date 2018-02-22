@@ -21,7 +21,7 @@ if [[ $3 == enterprise ]]; then
     V_DISKQUOTA="204800000"
     V_MAILBOXES="20"
     V_MAILQUOTA="102400000"
-if [[ $3 == business ]]; then
+elif [[ $3 == business ]]; then
     V_ALIASES="100"
     V_DISKQUOTA="102400000"
     V_MAILBOXES="10"
