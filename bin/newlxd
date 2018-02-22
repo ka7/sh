@@ -29,7 +29,7 @@ fi
 
 OSREL=${3:-'bionic'}
 DTYPE=${4:-'mysql'}
-set -x
+
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
     echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
     lxc profile create $PNAME

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20171102
+# .sh/bin/setup-lxd 20170519 - 20180222
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] &&\
+[[ $1 == '-h' || $1 == '--help' ]] && \
     echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 PSIZE=${1:-'25'}
 APASS=${2:-$(newpw 1)}
