@@ -158,10 +158,10 @@ EOS
     $EXDEB install $SLIST > /dev/null 2>&1
 fi
 
-if [[ $1 == mysql ]] && [[ ! -e /usr/sbin/mysqld ]]; then
+if [[ $DTYPE == mysql ]] && [[ ! -e /usr/sbin/mysqld ]]; then
     $EXDEB install $MLIST > /dev/null 2>&1
 
-    # Change to utf8 otherwise pdns tables will not install
+    # Change to utf8 otherwise pdns tables will not install (is this still needed with pdns 4.1?)
     sed -i \
         -e "/^character-set-server/ s/utf8mb4/utf8/" \
         -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
