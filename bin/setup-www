@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20180222
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-www 20170519 - 20180223
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 == '-h' || $1 == '--help' ]] && \
     echo "Usage: setup-www [domain] [mysql(default)|sqlite]" && exit 1
@@ -35,5 +35,4 @@ else
     echo "*** to provide a LetsEncrypt SSL certificate."
 fi
 
-if [
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

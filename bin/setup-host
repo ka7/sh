@@ -6,12 +6,14 @@
     echo "Usage: setup-host [-h|--help|mysql(default)|sqlite] [admin(sysadm)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-[[ ! -d /root/.sh ]] && echo "ERROR: missing /root/.sh, see https://github.com/netserva/sh" && exit 3
+[[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
 
 DTYPE=${1:-'mysql'}
 ADMIN=${2:-'sysadm'}
 
-source /root/.sh/lib/functions
+[[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
+
+source ~/.sh/lib/functions
 
 # Basic host dependency list, adjust accordingly
 HLIST="
@@ -38,32 +40,31 @@ if [[ ! -e /usr/bin/pwgen ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST
 fi
 
-if [[ ! -f /root/.defaults ]]; then
+if [[ ! -f ~/.defaults ]]; then
     echo "!!! Create initial host defaults"
     sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
-    gethost > /root/.defaults
-    chmod 600 /root/.defaults
-    [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
+    gethost > ~/.defaults
+    chmod 600 ~/.defaults
 fi
 
-echo "!!! Source /root/.defaults"
-source /root/.defaults
+echo "!!! Source ~/.defaults"
+source ~/.defaults
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
 if [[ $DTYPE == mysql ]]; then
-    if [[ -f /root/.my.cnf ]]; then
-        echo "!!! WARNING: /root/.my.cnf already exists"
-        echo "!!! You may need to manually update DPASS in /root/.defaults"
+    if [[ -f ~/.my.cnf ]]; then
+        echo "!!! WARNING: ~/.my.cnf already exists"
+        echo "!!! You may need to manually update DPASS in ~/.defaults"
     else
-        cat << EOS | tee /root/.my.cnf > /dev/null
+        cat << EOS | tee ~/.my.cnf > /dev/null
 [client]
 host = $DHOST
 port = $DPORT
 user = root
 password = $DPASS
 EOS
-        chmod 600 /root/.my.cnf
+        chmod 600 ~/.my.cnf
     fi
 fi
 
@@ -135,45 +136,45 @@ EOS
     systemctl restart ssh
 fi
 
-if [[ ! -d /root/.ssh ]]; then
-    echo "!!! Create host /root/.ssh dir"
-    mkdir /root/.ssh
-    chmod 700 /root/.ssh
+if [[ ! -d ~/.ssh ]]; then
+    echo "!!! Create host ~/.ssh dir"
+    mkdir ~/.ssh
+    chmod 700 ~/.ssh
 fi
 
-if [[ ! -f /root/.ssh/id_rsa ]]; then
-    echo "!!! Create host /root/.ssh/id_rsa key"
-    ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
-    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-    chmod 600 /root/.ssh/*
+if [[ ! -f ~/.ssh/id_rsa ]]; then
+    echo "!!! Create host ~/.ssh/id_rsa key"
+    ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/*
 fi
 
-if [[ ! -f /root/.ssh/config ]]; then
-    echo "!!! Create host /root/.ssh/config"
-    cat << EOS | tee -a /root/.ssh/config > /dev/null
+if [[ ! -f ~/.ssh/config ]]; then
+    echo "!!! Create host ~/.ssh/config"
+    cat << EOS | tee -a ~/.ssh/config > /dev/null
 Host *
   TCPKeepAlive yes
   ServerAliveInterval 30
-  IdentityFile /root/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_rsa
 EOS
-    chmod 600 /root/.ssh/*
+    chmod 600 ~/.ssh/*
 fi
 
 if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
     if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
         echo "!!! Create desktop iptables save/restore"
-        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+        cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
             /etc/NetworkManager/dispatcher.d/99iptables
         chmod +x /etc/NetworkManager/dispatcher.d/99iptables
     fi
 else
     if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
         echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
-#        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
+#        cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
 #            /etc/network/if-post-down.d/iptsave
 #        chmod +x /etc/network/if-post-down.d/iptsave
 
-#        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+#        cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
 #            /etc/network/if-pre-up.d/iptrestore
 #        chmod +x /etc/network/if-pre-up.d/iptrestore
     fi

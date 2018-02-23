@@ -188,6 +188,6 @@ sethost ()
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 
 if [[ ! -f ~/.defaults ]]; then
-    sethost sysadm@$(hostname -f) mysql $(newpw 5)
+    sethost sysadm@$(hostname -f) mysql $(pwgen 12 -s -B -C -N 5)
     gethost > ~/.defaults
 fi
