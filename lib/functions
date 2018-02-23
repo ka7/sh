@@ -1,9 +1,9 @@
 # .sh/lib/functions 20151231 - 20171102
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
+CURRENT_PHP_VERSION=7.2
 
-[[ -f ~/.defaults ]] && source ~/.defaults
+[ -f ~/.defaults ] && source ~/.defaults
 
 chktime ()
 {
@@ -110,7 +110,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [mysql|sqlite(default)] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
+        echo "Usage: sethost user@domain|domain [mysql(default)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export VUSER=${1%@*};
@@ -136,17 +136,19 @@ sethost ()
     export EXMYS="mysql -BN $ADMIN";
     export EXSQL="sqlite3 $DPATH";
 
-    if [[ $2 == mysql ]]; then
-        export DTYPE=mysql;
+    export DTYPE=${2:-'mysql'}
+
+    if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
-    else
-        export DTYPE=sqlite;
+    elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
+    else
+        echo "!!! ERROR: unknown database type '$DTYPE'"
     fi;
 
     export APASS='changeme_N0W';
     export VPATH='/home/u';
-    export V_PHP='7.2';
+    export V_PHP=${V_PHP:-$CURRENT_PHP_VERSION};
 
     export APASS=${3:-$APASS};
     export C_FPM="/etc/php/$V_PHP/fpm";
@@ -183,3 +185,8 @@ sethost ()
 }
 
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
+
+if [[ ! -f ~/.defaults ]]; then
+    sethost sysadm@$(hostname -f) mysql $(newpw 5)
+    gethost > ~/.defaults
+fi

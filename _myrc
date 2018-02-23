@@ -1,5 +1,5 @@
-# ~/.sh/_myrc 20130218 - 20170524
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# ~/.sh/_myrc 20130218 - 20180223
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 # Add your custom aliases and env variables here. This file is not managed or
 # removed by the shm script other than the 'es' alias to edit and reload it.
 
@@ -10,4 +10,4 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
 export EDITOR=nano
 
-# NOTE: vhost variables are now in ~/.defaults
+# NOTE: edit default vhost variables in ~/.defaults
