@@ -1,7 +1,8 @@
-# .sh/lib/functions 20151231 - 20171102
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/functions 20151231 - 20180223
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 CURRENT_PHP_VERSION=7.2
+CURRENT_APT_RELEASE=bionic
 
 [ -f ~/.defaults ] && source ~/.defaults
 
@@ -179,7 +180,7 @@ sethost ()
     export DHOST='localhost';
     export DPORT='3306';
     export OSMIR='archive.ubuntu.com';
-    export OSREL='bionic';
+    export OSREL=${OSREL:-$CURRENT_APT_RELEASE};
     export TAREA='Australia';
     export TCITY='Sydney';
 }
