@@ -75,7 +75,7 @@ DO_VALIAS=$(cat << EOS | $SQCMD
 EOS
 )
 
-if [[ ! -d $MPATH ]]; then
+if [[ ! -d $MPATH/Maildir ]]; then
     echo "*** Create $MPATH/{Maildir,sieve}"
     mkdir -p $MPATH/{Maildir,sieve}
 fi
