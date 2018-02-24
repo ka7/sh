@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# .sh/bin/shuser 20160130 - 20170506
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shuser 20160130 - 20180224
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: shuser uid*|all" && exit 1
+[[ -z $1 || $1 == '-h' || $1 == '--help' ]] && \
+    echo "Usage: shuser uid*|all" && exit 1
 
 PWTBL=vmails
-source ~/.sh/lib/functions || exit 2
-sethost $1
+source ~/.defaults || exit 2
+
+if [[ $DTYPE == sqlite ]]; then
+    echo "Sorry, this script does not work with sqlite yet"
+    exit 3
+fi
 
 [[ $1 == all ]] && QRY="%" || QRY="%$1%"
 
