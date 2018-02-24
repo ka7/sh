@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180222
+# .sh/bin/addvhost 20170217 - 20180224
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 == '-h' || $1 == '--help' ]] && \
@@ -280,72 +280,7 @@ guest:$apr1$OH0WIbVa$21Bj05X1rO5zale7bv1971
 EOS
 fi
 
-if [[ -d $MPATH/admin/Maildir ]]; then
-    echo "!!! $MPATH/admin/Maildir already exists"
-else
-    echo "!!! Create $MPATH/admin/Maildir"
-    mkdir -p $MPATH/admin/{Maildir,sieve}
-fi
-
-if [[ -f $MPATH/admin/sieve/retrain-as-good.sieve ]]; then
-    echo "!!! $MPATH/admin/sieve/retrain-as-good.sieve already exists"
-else
-    echo "!!! Create $MPATH/admin/sieve/retrain-as-good.sieve"
-    cat << 'EOS' > $MPATH/admin/sieve/retrain-as-good.sieve
-require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
-if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
-execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
-EOS
-fi
-
-if [[ -f $MPATH/admin/sieve/retrain-as-spam.sieve ]]; then
-    echo "!!! $MPATH/admin/sieve/retrain-as-spam.sieve already exists"
-else
-    echo "!!! Create $MPATH/admin/sieve/retrain-as-spam.sieve"
-    cat << 'EOS' > $MPATH/admin/sieve/retrain-as-spam.sieve
-require ["vnd.dovecot.execute"];
-execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
-EOS
-fi
-
-if [[ -f $MPATH/admin/sieve/spamprobe.sieve ]]; then
-    echo "!!! $MPATH/admin/sieve/spamprobe.sieve already exists"
-else
-    echo "!!! Create $MPATH/admin/sieve/spamprobe.sieve"
-    cat << 'EOS' > $MPATH/admin/sieve/spamprobe.sieve
-require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
-if header :contains "from" ["root@", "daemon@", "postmaster@"] { fileinto "Trash";
-} elsif header :contains "to" ["root@", "daemon@", "postmaster@"] { fileinto "Trash"; }
-if envelope :localpart :matches "to" "*" { set "lhs" "${1}"; }
-if envelope :domain :matches "to" "*" { set "rhs" "${1}"; }
-execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lhs}/.spamprobe", "receive"];
-addheader :last "X-Spam" "${SCORE}";
-if header :matches "X-Spam" "SPAM*" { fileinto "Spam"; }
-EOS
-fi
-
-if [[ -L $MPATH/admin/.dovecot.sieve ]]; then
-    echo "!!! $MPATH/admin/.dovecot.sieve symlink already exists"
-else
-    echo "!!! Create $MPATH/admin/.dovecot.sieve symlink to sieve/spamprobe.sieve"
-    cd $MPATH/admin
-    ln -s sieve/spamprobe.sieve .dovecot.sieve
-fi
-
-if [[ -d $MPATH/admin/.spamprobe ]]; then
-    echo "!!! $MPATH/admin/.spamprobe already exists"
-else
-    if [[ ! -d /etc/spamprobe ]]; then
-        echo "!!! Fetch https://renta.net/public/_etc_spamprobe.tgz"
-        cd /etc
-        wget -q https://renta.net/public/_etc_spamprobe.tgz > /dev/null 2>&1
-        tar xf _etc_spamprobe.tgz > /dev/null 2>&1
-    fi
-    echo "!!! Create $MPATH/admin/.spamprobe"
-    mkdir $MPATH/admin/.spamprobe
-    cp -a /etc/spamprobe/* $MPATH/admin/.spamprobe
-fi
-
+addvmail admin@$VHOST
 chperms $VHOST
 logging $VHOST $DTYPE update
 
