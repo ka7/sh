@@ -7,18 +7,13 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
-# default VUSER needs to become UUSER
-VUSER=${1%@*} # $VUSER @ domain
 VHOST=${1#*@} # userid @ $VHOST
-
 source ~/.vhosts/$VHOST || exit 3
-
+VUSER=${1%@*} # $VUSER @ domain
 MPATH="/home/u/$VHOST/home"
-
-[[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 4
-
 HPATH="$MPATH/$VUSER"
 
+[[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 4
 [[ -d $HPATH ]] && echo "*** ERROR: $HPATH already exists" && exit 5
 
 DID=$(cat << EOS | $SQCMD

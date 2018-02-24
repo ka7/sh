@@ -52,6 +52,7 @@ TAREA='$TAREA'
 TCITY='$TCITY'
 UPASS='$UPASS'
 UPATH='$UPATH'
+UUSER='$UUSER'
 U_GID='$U_GID'
 U_SHL='$U_SHL'
 U_UID='$U_UID'
@@ -69,7 +70,7 @@ getusers ()
 getuser ()
 {
     echo "\
-VUSER=$VUSER
+UUSER=$UUSER
 U_UID=$U_UID
 U_GID=$U_GID
 VHOST=$VHOST
@@ -99,9 +100,9 @@ getdb ()
 }
 setuser ()
 {
-    local UUSER=$(grepuser "$1");
-    [[ $UUSER && (( $(grep -c . <<<"$UUSER") != 1 )) ]] && echo "Ambiguous result for '$1'" && return 10;
-    export VUSER=$(echo $UUSER | cut -d: -f1);
+    local U_TMP=$(grepuser "$1");
+    [[ $U_TMP && (( $(grep -c . <<<"$U_TMP") != 1 )) ]] && echo "Ambiguous result for '$1'" && return 10;
+    export UUSER=$(echo $U_TMP | cut -d: -f1);
     export U_UID=$(echo $UUSER | cut -d: -f3);
     export U_GID=$(echo $UUSER | cut -d: -f4);
     export VHOST=$(echo $UUSER | cut -d: -f5);
@@ -111,13 +112,13 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 ]]; then
-        echo "Usage: sethost user@domain|domain [mysql(default)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
+        echo "Usage: sethost uuser@domain|domain [mysql(default)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
-        export VUSER=${1%@*};
+        export UUSER=${1%@*};
         export VHOST=${1#*@};
-        if [[ $VUSER == u* ]]; then
-            U_UID=${VUSER#*u}
+        if [[ $UUSER == u* ]]; then
+            U_UID=${UUSER#*u}
         else
             [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000
         fi;
@@ -125,11 +126,11 @@ sethost ()
     else
         export VHOST=$1;
         export U_UID=$(newuid);
-        export VUSER="u$U_UID";
+        export UUSER="u$U_UID";
     fi;
     export U_GID=$U_UID;
 
-    [[ $VUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
+    [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
     export DBSQL='/var/lib/sqlite';
 
@@ -154,18 +155,19 @@ sethost ()
     export APASS=${3:-$APASS};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${4:-$APASS};
-    export DUSER=$VUSER;
+    export DUSER=$UUSER;
     export EPASS=${5:-$APASS};
     export IP4_0=$(hostname -i|cut -d ' ' -f -1);
     export MPATH=$VPATH/$VHOST/home;
     export UPASS=${6:-$APASS};
     export UPATH=$VPATH/$VHOST;
     export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
+    export VUSER='admin';
     export WPASS=${7:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
+    export AMAIL="$VUSER@$VHOST";
 
     export ADMIN='sysadm';
-    export AMAIL='admin@'$VHOST;
     export ANAME='System Administrator';
     export A_GID='1000';
     export A_UID='1000';
