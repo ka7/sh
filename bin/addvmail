@@ -31,7 +31,7 @@ EOS
 )
 
 if [[ -n $USRID ]]; then
-    echo "*** ERROR: '$1' already exists" && exit 5
+    echo "*** Warning: '$1' already exists"
 else
     echo "*** Create $ADMIN.vmails entry ($DTYPE)"
     PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
