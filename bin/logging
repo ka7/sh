@@ -48,8 +48,7 @@ log_mpath()
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
-#    [[ -z $UPD && -n $MBOXS VHOST=${1:-$VHOST}
-7
+
     for MBOX in $MBOXS; do
         local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
 
