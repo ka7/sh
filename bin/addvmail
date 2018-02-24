@@ -7,17 +7,17 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
-# not needed?
-#M_LHS=${1%@*} # $M_LHS @ domain
-#M_RHS=${1#*@} # userid @ $M_RHS
+# default VUSER needs to become UUSER
+VUSER=${1%@*} # $VUSER @ domain
+VHOST=${1#*@} # userid @ $VHOST
 
-source ~/.vhosts/${1#*@} || exit 3
+source ~/.vhosts/$VHOST || exit 3
 
 MPATH="/home/u/$VHOST/home"
 
 [[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 4
 
-HPATH="$MPATH/$VHOST"
+HPATH="$MPATH/$VUSER"
 
 [[ -d $HPATH ]] && echo "*** ERROR: $HPATH already exists" && exit 5
 
