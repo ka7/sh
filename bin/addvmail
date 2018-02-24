@@ -30,11 +30,12 @@ USRID=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ -n $USRID ]] && echo "*** ERROR: '$1' already exists" && exit 5
-
-echo "*** Create $ADMIN.vmails entry ($DTYPE)"
-PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
-DO_VMAIL=$(cat << EOS | $SQCMD
+if [[ -n $USRID ]]; then
+    echo "*** ERROR: '$1' already exists" && exit 5
+else
+    echo "*** Create $ADMIN.vmails entry ($DTYPE)"
+    PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
+    DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
         did,
         uid,
@@ -57,8 +58,8 @@ DO_VMAIL=$(cat << EOS | $SQCMD
 EOS
 )
 
-echo "*** Create $ADMIN.valias entry ($DTYPE)"
-DO_VALIAS=$(cat << EOS | $SQCMD
+    echo "*** Create $ADMIN.valias entry ($DTYPE)"
+    DO_VALIAS=$(cat << EOS | $SQCMD
  INSERT INTO valias (
         did,
         source,
@@ -74,6 +75,7 @@ DO_VALIAS=$(cat << EOS | $SQCMD
 )
 EOS
 )
+fi
 
 if [[ ! -d $MPATH/Maildir ]]; then
     echo "*** Create $MPATH/{Maildir,sieve}"
