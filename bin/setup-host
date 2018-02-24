@@ -37,18 +37,18 @@ if [[ ! -e /usr/bin/pwgen ]]; then
     apt-get -yqq update
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade
     echo "!!! Installing default package set, more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 fi
 
-if [[ ! -f ~/.defaults ]]; then
-    echo "!!! Create initial host defaults"
+if [[ -f ~/.defaults ]]; then
+    echo "!!! Source ~/.defaults"
+    source ~/.defaults
+else
+    echo "!!! Create initial host ~/.defaults"
     sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
 fi
-
-echo "!!! Source ~/.defaults"
-source ~/.defaults
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
@@ -57,6 +57,7 @@ if [[ $DTYPE == mysql ]]; then
         echo "!!! WARNING: ~/.my.cnf already exists"
         echo "!!! You may need to manually update DPASS in ~/.defaults"
     else
+        echo "<<< Create MariaDB root user (cat ~/.my.cnf for password)"
         cat << EOS | tee ~/.my.cnf > /dev/null
 [client]
 host = $DHOST

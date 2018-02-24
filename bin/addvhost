@@ -12,7 +12,7 @@ source ~/.sh/lib/functions || exit 4
 
 # Set new host variables
 sethost ${1:-$VHOST} ${2:-$DTYPE} $(newpw 5)
-gethost > ~/.vhosts/$VHOST
+gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 5
 
