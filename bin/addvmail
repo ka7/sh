@@ -14,7 +14,7 @@ HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER"
 
 [[ ! -d $HPATH ]] && echo "*** ERROR: $HPATH does not exist" && exit 4
-[[ -d $MPATH ]] && echo "*** ERROR: $MPATH already exists" && exit 5
+[[ -d $MPATH/Maildir ]] && echo "*** ERROR: $MPATH/Maildir already exists" && exit 5
 
 DID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
