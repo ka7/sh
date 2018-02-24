@@ -142,6 +142,4 @@ fi
 
 chown $(stat -c "%u:%g" $MPATH) -R $HPATH
 
-echo "*** Added mailbox for $1"
-
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

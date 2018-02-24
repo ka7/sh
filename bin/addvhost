@@ -47,7 +47,7 @@ IS_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ $IS_VHOST -gt 0 ]] && echo "!!! $VHOST already exists" && exit 6
+[[ $IS_VHOST -gt 0 ]] && echo "!!! ERROR: $VHOST already exists" && exit 6
 
 if [[ $(grepuser ":$VHOST:") ]]; then
     echo "!!! Warning: $VUSER for $VHOST already exists"
@@ -58,6 +58,7 @@ else
     [[ -n $UPASS && $UPASS != $APASS ]] && { echo $VUSER:$UPASS | chpasswd; }
 fi
 
+echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
 DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
         active,
@@ -95,6 +96,7 @@ EOS
 
 YM=$(date +"%Y%m")
 
+echo "!!! Create $VHOST entry in $ADMIN.logging ($DTYPE)"
 DO_VHOSTLOG=$(cat << EOS | $SQCMD
  INSERT INTO logging (
         did,
@@ -108,6 +110,7 @@ DO_VHOSTLOG=$(cat << EOS | $SQCMD
 EOS
 )
 
+echo "!!! Create admin@$VHOST entry in $ADMIN.logging ($DTYPE)"
 DO_VMAILLOG=$(cat << EOS | $SQCMD
  INSERT INTO logging (
         did,
@@ -143,7 +146,7 @@ if [[ -d $UPATH ]]; then
     echo "!!! Warning: $UPATH already exists"
 else
     echo "!!! Create $UPATH"
-    mkdir -p $UPATH/{.ssh,.nano,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
+    mkdir -p $UPATH/{.ssh,.nano,.wp-cli,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
 fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
