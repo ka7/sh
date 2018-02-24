@@ -45,7 +45,8 @@ fi
 
 echo "^^^ Create $CSMTP/main.cf for $DTYPE"
 [[ ! -f $CSMTP/main.cf.orig ]] && mv $CSMTP/main.cf $CSMTP/main.cf.orig
-$SUDO sed -e "s;_VHOST;$VHOST;" \
+set -x
+sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_postfix_main.cf \
     > $CSMTP/main.cf
 
@@ -54,80 +55,80 @@ if [[ $DTYPE == sqlite ]]; then
 elif [[ $DTYPE == mysql ]]; then
     cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
 fi
-$SUDO chmod 644 $CSMTP/main.cf
+chmod 644 $CSMTP/main.cf
 
 if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-alias-maps.cf"
-        $SUDO sed -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
             > $CSMTP/sqlite-alias-maps.cf
     fi
     if [[ ! -f $CSMTP/sqlite-gid-maps.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-gid-maps.cf"
-        $SUDO sed -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
             > $CSMTP/sqlite-gid-maps.cf
     fi
     if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-mailbox-domains.cf"
-        $SUDO sed -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
             > $CSMTP/sqlite-mailbox-domains.cf
     fi
     if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-mailbox-maps.cf"
-        $SUDO sed -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
             > $CSMTP/sqlite-mailbox-maps.cf
     fi
     if [[ ! -f $CSMTP/sqlite-uid-maps.cf ]]; then
         echo "^^^ Create $CSMTP/sqlite-uid-maps.cf"
-        $SUDO sed -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
             > $CSMTP/sqlite-uid-maps.cf
     fi
 elif [[ $DTYPE == mysql ]]; then
     if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-alias-maps.cf"
-        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
             > $CSMTP/mysql-alias-maps.cf
     fi
     if [[ ! -f $CSMTP/mysql-gid-maps.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-gid-maps.cf"
-        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
             > $CSMTP/mysql-gid-maps.cf
     fi
     if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-mailbox-domains.cf"
-        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
             > $CSMTP/mysql-mailbox-domains.cf
     fi
     if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-mailbox-maps.cf"
-        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
             > $CSMTP/mysql-mailbox-maps.cf
      fi
      if [[ ! -f $CSMTP/mysql-uid-maps.cf ]]; then
         echo "^^^ Create $CSMTP/mysql-uid-maps.cf"
-        $SUDO sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
             > $CSMTP/mysql-uid-maps.cf
      fi
 fi
-
+set +x
 echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
-[[ ! -f $CIMAP/dovecot.conf.orig ]] && $SUDO mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
-$SUDO sed -e "s;_VHOST;$VHOST;" \
+[[ ! -f $CIMAP/dovecot.conf.orig ]] && mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
+sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_dovecot_dovecot.conf \
     > $CIMAP/dovecot.conf
 
@@ -140,14 +141,14 @@ fi
 if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "^^^ Create $CIMAP/user-sqlite.conf"
-        $SUDO sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
+        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > $CIMAP/user-sqlite.conf
     fi
 elif [[ $DTYPE == mysql ]]; then
     if [[ ! -f $CIMAP/user-mysql.conf ]]; then
         echo "^^^ Create $CIMAP/user-mysql.conf"
-        $SUDO sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > $CIMAP/user-mysql.conf
@@ -156,66 +157,66 @@ fi
 
 if [[ ! -d $CIMAP/sieve ]]; then
     echo "^^^ Create $CIMAP/sieve/spamprobe symlink"
-    $SUDO mkdir $CIMAP/sieve
-    $SUDO cd $CIMAP/sieve
-    $SUDO ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
+    mkdir $CIMAP/sieve
+    cd $CIMAP/sieve
+    ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "^^^ Create /etc/apt/sources.list"
-    $SUDO mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    $SUDO cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
+    mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
 fi
 
 if [[ ! -f $C_WEB/common.conf ]]; then
     echo "^^^ Create $C_WEB/common.conf"
-    $SUDO cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
+    cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
 fi
 
 if [[ ! -f $C_WEB/common-auth.conf ]]; then
     echo "^^^ Create $C_WEB/common-auth.conf"
-    $SUDO cp ~/.sh/etc/_etc_nginx_common-auth.conf $C_WEB/common-auth.conf
+    cp ~/.sh/etc/_etc_nginx_common-auth.conf $C_WEB/common-auth.conf
 fi
 
 if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     echo "^^^ Create $C_WEB/nginx.conf"
-    $SUDO mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
-    $SUDO cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
+    mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
+    cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
 fi
 
 if [[ -h $C_WEB/sites-enabled/default ]]; then
     echo "^^^ Create $C_WEB/sites-enabled/_default"
-    $SUDO rm $C_WEB/sites-enabled/default
-    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
+    rm $C_WEB/sites-enabled/default
+    cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
     echo "^^^ Create $C_WEB/sites-enabled/_localhost"
-    $SUDO cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
+    cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
 fi
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
     echo "^^^ Create /etc/opendkim.conf"
     mv /etc/opendkim.conf /etc/opendkim.conf.orig
-    $SUDO cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
+    cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
 fi
 
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "^^^ Create $C_FPM/common.conf"
-    $SUDO cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
+    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
 if [[ ! -f $CSMTP/master.cf.orig ]]; then
     echo "^^^ Create $CSMTP/master.cf"
-    $SUDO mv $CSMTP/master.cf $CSMTP/master.cf.orig
-    $SUDO cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
+    mv $CSMTP/master.cf $CSMTP/master.cf.orig
+    cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
 fi
 
 # TODO switch between mysql/sqlite
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "^^^ Create $C_DNS/pdns.conf"
-    $SUDO mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
-    $SUDO cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
+    mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
+    cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
@@ -225,15 +226,15 @@ fi
 
 if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendkim.service"
-    $SUDO cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
-    $SUDO systemctl daemon-reload
-    $SUDO systemctl restart opendkim
+    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+    systemctl daemon-reload
+    systemctl restart opendkim
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "^^^ Create new /etc/ssh/sshd_config"
-    $SUDO mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cat << EOS | $SUDO tee /etc/ssh/sshd_config > /dev/null
+    mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+    cat << EOS | tee /etc/ssh/sshd_config > /dev/null
 Port 9
 MaxAuthTries 3
 MaxSessions 3
@@ -249,7 +250,7 @@ Match User u*
   X11Forwarding no
   AllowTcpForwarding no
 EOS
-    $SUDO systemctl restart ssh
+    systemctl restart ssh
 fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
@@ -259,14 +260,14 @@ fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then
     echo "^^^ Create temporary self-signed certificate for $VHOST"
-    [[ ! -d $C_SSL/$VHOST ]] && $SUDO mkdir $C_SSL/$VHOST
-    $SUDO openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
         -keyout /etc/ssl/$VHOST/privkey.pem \
         -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
     listen                      443 ssl http2;
     server_name                 $VHOST;
@@ -284,7 +285,7 @@ fi
 # Missing from Ubuntu nginx installation
 if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     echo "^^^ Create /usr/share/nginx/html/50x.html"
-    cat << EOS | $SUDO tee /usr/share/nginx/html/50x.html > /dev/null
+    cat << EOS | tee /usr/share/nginx/html/50x.html > /dev/null
 <!DOCTYPE html>
 <html>
 <head>

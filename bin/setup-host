@@ -57,7 +57,7 @@ if [[ $DTYPE == mysql ]]; then
         echo "!!! WARNING: ~/.my.cnf already exists"
         echo "!!! You may need to manually update DPASS in ~/.defaults"
     else
-        echo "<<< Create MariaDB root user (cat ~/.my.cnf for password)"
+        echo "!!! Create MariaDB root user (cat ~/.my.cnf for password)"
         cat << EOS | tee ~/.my.cnf > /dev/null
 [client]
 host = $DHOST
