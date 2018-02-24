@@ -142,7 +142,11 @@ if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "<<< Installing default package set, more patience..."
     $EXDEB install $DLIST > /dev/null 2>&1
 fi
-set +x
+
+# tmp debug
+echo "<<< /bin/busybox"
+/bin/ls -l /bin/busybox
+
 if [[ -e /usr/bin/python && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null 2>&1
