@@ -115,7 +115,7 @@ EOS
     dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 fi
 
-echo "<<< Updating current packages, patience please..."
+echo "<<< Updating CURRENT packages, patience please..."
 $EXDEB update > /dev/null 2>&1
 $EXDEB -u dist-upgrade > /dev/null 2>&1
 
@@ -131,12 +131,11 @@ deb http://$OSMIR/ubuntu $OSREL-updates main universe
 deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
-    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] && \
-        echo "<<< Updating new package list for $OSREL, patience please..." && \
-        $EXDEB update && \
-        $EXDEB -u dist-upgrade > /dev/null 2>&1
+    echo "<<< Updating NEW packages for $OSREL, patience please..."
+    $EXDEB update > /dev/null 2>&1
+    $EXDEB -u dist-upgrade > /dev/null 2>&1
 fi
-set -x
+
 # Unique trigger to know if $DLIST packages are already installed
 if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "<<< Installing default package set, more patience..."
