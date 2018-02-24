@@ -192,7 +192,7 @@ export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 if [[ ! -f ~/.defaults ]]; then
     PWS=""
     for i in {1..5}; do
-        PWS="$PWS $(cat /dev/urandom| tr -dc '0-9a-zA-Z'|head -c 12)"
+        PWS="$PWS $(cat /dev/urandom|tr -dc '0-9a-zA-Z'|head -c 16)"
     done
     sethost sysadm@$(hostname -f) mysql $PWS
     gethost > ~/.defaults

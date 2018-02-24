@@ -9,6 +9,8 @@
 
 source ~/.defaults || exit 3
 
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+
 DTYPE=${1:-$DTYPE}
 
 # Temporary self-signed SSL certificate defaults
@@ -19,24 +21,16 @@ O="NetServa"
 OU="IT Department"
 IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
-if [[ -d $VPATH ]]; then
-    echo "^^^ $VPATH already exists"
+if [[ $DTYPE == sqlite ]]; then
+    SQCMD=$EXSQL
+elif [[ $DTYPE == mysql ]]; then
+    SQCMD=$EXMYS
 else
-    echo "^^^ Create $VPATH"
-    mkdir $VPATH
+    echo "ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
 fi
 
-if [[ $DTYPE == sqlite ]]; then
-    echo "^^^ Setup using SQLite"
-    SQCMD=$EXSQL
-    [[ ! -d $DBSQL ]] && setup-db sqlite
-elif [[ $DTYPE == mysql ]]; then
-    echo "^^^ Setup using MySQL"
-    SQCMD=$EXMYS
-    [[ ! -f ~/.my.cnf ]] && setup-db mysql
-else
-    echo "ERROR: unknown argument '$DTYPE'" && exit 2
-fi
+echo "^^^ Setup using $DTYPE"
+setup-db $DTYPE
 
 if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     echo "^^^ Remove default ubuntu user"
@@ -45,7 +39,7 @@ fi
 
 echo "^^^ Create $CSMTP/main.cf for $DTYPE"
 [[ ! -f $CSMTP/main.cf.orig ]] && mv $CSMTP/main.cf $CSMTP/main.cf.orig
-set -x
+
 sed -e "s;_VHOST;$VHOST;" \
     ~/.sh/etc/_etc_postfix_main.cf \
     > $CSMTP/main.cf
@@ -125,7 +119,7 @@ elif [[ $DTYPE == mysql ]]; then
             > $CSMTP/mysql-uid-maps.cf
      fi
 fi
-set +x
+
 echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
 [[ ! -f $CIMAP/dovecot.conf.orig ]] && mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
 sed -e "s;_VHOST;$VHOST;" \
