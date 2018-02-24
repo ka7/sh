@@ -53,7 +53,7 @@ DO_VMAIL=$(cat << EOS | $SQCMD
         $DID,
         $U_UID,
         $U_GID,
-        'admin@$VHOST',
+        '$VUSER@$VHOST',
         '/home/u/$VHOST/home/admin',
         '$PW',
         '$V_CREATED',
@@ -73,7 +73,7 @@ DO_VALIAS=$(cat << EOS | $SQCMD
 ) VALUES (
         $DID,
         '@$VHOST',
-        'admin@$VHOST',
+        '$VHOST@$VHOST',
         '$V_UPDATED',
         '$V_CREATED'
 )
