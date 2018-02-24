@@ -194,9 +194,7 @@ if [[ ! -f ~/.defaults ]]; then
     for i in {1..5}; do
         PWS="$PWS $(cat /dev/urandom|tr -dc '0-9a-zA-Z'|head -c 16)"
     done
-set -x
     sethost sysadm@$(hostname -f) mysql $PWS
     gethost > ~/.defaults
     chmod 600 ~/.defaults
-set +x
 fi

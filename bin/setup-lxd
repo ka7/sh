@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-lxd 20170519 - 20180222
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 == '-h' || $1 == '--help' ]] && \
     echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
