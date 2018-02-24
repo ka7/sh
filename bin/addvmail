@@ -10,11 +10,11 @@
 VHOST=${1#*@} # userid @ $VHOST
 source ~/.vhosts/$VHOST || exit 3
 VUSER=${1%@*} # $VUSER @ domain
-MPATH="/home/u/$VHOST/home"
-HPATH="$MPATH/$VUSER"
+HPATH="$VPATH/$VHOST/home"
+MPATH="$HPATH/$VUSER"
 
-[[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 4
-[[ -d $HPATH ]] && echo "*** ERROR: $HPATH already exists" && exit 5
+[[ ! -d $HPATH ]] && echo "*** ERROR: $HPATH does not exist" && exit 4
+[[ -d $MPATH ]] && echo "*** ERROR: $MPATH already exists" && exit 5
 
 DID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
@@ -68,44 +68,44 @@ DO_VALIAS=$(cat << EOS | $SQCMD
 ) VALUES (
         $DID,
         '@$VHOST',
-        '$VHOST@$VHOST',
+        '$VUSER@$VHOST',
         '$V_UPDATED',
         '$V_CREATED'
 )
 EOS
 )
 
-if [[ ! -d $HPATH ]]; then
-    echo "*** Create $HPATH/{Maildir,sieve}"
-    mkdir -p $HPATH/{Maildir,sieve}
+if [[ ! -d $MPATH ]]; then
+    echo "*** Create $MPATH/{Maildir,sieve}"
+    mkdir -p $MPATH/{Maildir,sieve}
 fi
 
-if [[ -f $HPATH/sieve/retrain-as-good.sieve ]]; then
-    echo "*** $HPATH/sieve/retrain-as-good.sieve already exists"
+if [[ -f $MPATH/sieve/retrain-as-good.sieve ]]; then
+    echo "*** $MPATH/sieve/retrain-as-good.sieve already exists"
 else
-    echo "*** Create $HPATH/sieve/retrain-as-good.sieve"
-    cat << 'EOS' > $HPATH/sieve/retrain-as-good.sieve
+    echo "*** Create $MPATH/sieve/retrain-as-good.sieve"
+    cat << 'EOS' > $MPATH/sieve/retrain-as-good.sieve
 require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
 if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
 EOS
 fi
 
-if [[ -f $HPATH/sieve/retrain-as-spam.sieve ]]; then
-    echo "*** $HPATH/sieve/retrain-as-spam.sieve already exists"
+if [[ -f $MPATH/sieve/retrain-as-spam.sieve ]]; then
+    echo "*** $MPATH/sieve/retrain-as-spam.sieve already exists"
 else
-    echo "*** Create $HPATH/sieve/retrain-as-spam.sieve"
-    cat << 'EOS' > $HPATH/sieve/retrain-as-spam.sieve
+    echo "*** Create $MPATH/sieve/retrain-as-spam.sieve"
+    cat << 'EOS' > $MPATH/sieve/retrain-as-spam.sieve
 require ["vnd.dovecot.execute"];
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
 EOS
 fi
 
-if [[ -f $HPATH/sieve/spamprobe.sieve ]]; then
-    echo "*** $HPATH/sieve/spamprobe.sieve already exists"
+if [[ -f $MPATH/sieve/spamprobe.sieve ]]; then
+    echo "*** $MPATH/sieve/spamprobe.sieve already exists"
 else
-    echo "*** Create $HPATH/sieve/spamprobe.sieve"
-    cat << 'EOS' > $HPATH/sieve/spamprobe.sieve
+    echo "*** Create $MPATH/sieve/spamprobe.sieve"
+    cat << 'EOS' > $MPATH/sieve/spamprobe.sieve
 require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
 if header :contains "from" ["root@", "daemon@", "postmaster@"] { fileinto "Trash";
 } elsif header :contains "to" ["root@", "daemon@", "postmaster@"] { fileinto "Trash"; }
@@ -117,15 +117,15 @@ if header :matches "X-Spam" "SPAM*" { fileinto "Spam"; }
 EOS
 fi
 
-if [[ -f $HPATH/.dovecot.sieve ]]; then
-    echo "*** $HPATH/.dovecot.sieve already exists"
+if [[ -f $MPATH/.dovecot.sieve ]]; then
+    echo "*** $MPATH/.dovecot.sieve already exists"
 else
-    echo "*** Create $HPATH/.dovecot.sieve"
-    cd $HPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
+    echo "*** Create $MPATH/.dovecot.sieve"
+    cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
 fi
 
-if [[ -d $HPATH/.spamprobe ]]; then
-    echo "*** $HPATH/.spamprobe already exists"
+if [[ -d $MPATH/.spamprobe ]]; then
+    echo "*** $MPATH/.spamprobe already exists"
 else
     if [[ ! -d /etc/spamprobe ]]; then
         echo "*** Fetch https://renta.net/public/_etc_spamprobe.tgz"
@@ -133,11 +133,11 @@ else
         wget -q https://renta.net/public/_etc_spamprobe.tgz
         tar xf _etc_spamprobe.tgz > /dev/null 2>&1
     fi
-    echo "*** Create $HPATH/.spamprobe"
-    mkdir $HPATH/.spamprobe
-    cp -a /etc/spamprobe/* $HPATH/.spamprobe
+    echo "*** Create $MPATH/.spamprobe"
+    mkdir $MPATH/.spamprobe
+    cp -a /etc/spamprobe/* $MPATH/.spamprobe
 fi
 
-chown $(stat -c "%u:%g" $MPATH) -R $HPATH
+chown $(stat -c "%u:%g" $HPATH) -R $MPATH
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
