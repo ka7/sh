@@ -34,8 +34,8 @@ HLIST="
 
 if [[ ! -e /usr/bin/pwgen ]]; then
     echo "!!! Initial package update, patience please..."
-    apt-get -yqq update
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade
+    apt-get -yqq update > /dev/null 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null 2>&1
     echo "!!! Installing default package set, more patience..."
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 fi

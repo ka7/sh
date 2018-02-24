@@ -23,7 +23,7 @@
 #.sh/bin/shm install > /dev/null
 #source .shrc
 #shm perms
-#sleep 5
+#sleep 15
 #setup-vultr
 #------------------------------------------------
 
