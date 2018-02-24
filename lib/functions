@@ -190,8 +190,11 @@ sethost ()
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 
 if [[ ! -f ~/.defaults ]]; then
-    sethost sysadm@$(hostname -f) mysql $(openssl rand -base64 12) \
-        $(openssl rand -base64 12) $(openssl rand -base64 12) \
-        $(openssl rand -base64 12) $(openssl rand -base64 12)
+    PWS=""
+    for i in {1..5}; do
+        PWS="$PWS $(cat /dev/urandom| tr -dc '0-9a-zA-Z'|head -c 12)"
+    done
+    sethost sysadm@$(hostname -f) mysql $PWS
     gethost > ~/.defaults
+    chmod 600 ~/.defaults
 fi
