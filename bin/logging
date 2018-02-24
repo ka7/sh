@@ -50,7 +50,6 @@ log_mpath()
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
 #    [[ -z $UPD && -n $MBOXS VHOST=${1:-$VHOST}
 
-]] && printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
     for MBOX in $MBOXS; do
         local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
 
@@ -70,7 +69,7 @@ log_mpath()
             printf "  %-42s %10s %10s %10s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
-    [[ $UPD ]] || echo
+    [[ $UPD ]] || echo]] && printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
 }
 
 log_all()

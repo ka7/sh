@@ -37,7 +37,6 @@ EOS
 
 [[ -n $USRID ]] && echo "*** ERROR: '$1' already exists" && exit 5
 
-exit
 echo "*** Create $DTYPE.vmails entry"
 PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
 DO_VMAIL=$(cat << EOS | $SQCMD
