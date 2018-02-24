@@ -45,9 +45,11 @@ if [[ -f ~/.defaults ]]; then
     source ~/.defaults
 else
     echo "!!! Create initial host ~/.defaults"
+set -x
     sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
+set +x
 fi
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
