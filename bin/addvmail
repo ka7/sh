@@ -37,7 +37,7 @@ EOS
 
 [[ -n $USRID ]] && echo "*** ERROR: '$1' already exists" && exit 5
 
-echo "*** Create $DTYPE.vmails entry"
+echo "*** Create $ADMIN.vmails entry ($DTYPE)"
 PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
 DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
@@ -62,6 +62,7 @@ DO_VMAIL=$(cat << EOS | $SQCMD
 EOS
 )
 
+echo "*** Create $ADMIN.valias entry ($DTYPE)"
 DO_VALIAS=$(cat << EOS | $SQCMD
  INSERT INTO valias (
         did,
@@ -79,7 +80,10 @@ DO_VALIAS=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ ! -d $HPATH ]] && mkdir -p $HPATH/{Maildir,sieve}
+if [[ ! -d $HPATH ]]; then
+    echo "*** Create $HPATH/{Maildir,sieve}"
+    mkdir -p $HPATH/{Maildir,sieve}
+fi
 
 if [[ -f $HPATH/sieve/retrain-as-good.sieve ]]; then
     echo "*** $HPATH/sieve/retrain-as-good.sieve already exists"
