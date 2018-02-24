@@ -37,10 +37,6 @@ sed -i 's/^127.0.1.1.*$/127.0.1.1    resolved/' /etc/hosts
 echo "$R_IP4 $HOSTNAME" >> /etc/hosts
 hostname $HOSTNAME # Just in case
 
-echo "--- Setup ~/.defaults"
-sethost sysadm@$HOSTNAME mysql $(newpw 5)
-gethost > ~/.defaults && chmod 600 ~/.defaults
-
 setup-all
 
 echo "--- Make sure postfix has current host details"

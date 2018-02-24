@@ -149,11 +149,12 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'"
     fi;
 
-    export APASS='changeme_N0W';
     export VPATH='/home/u';
-    export V_PHP=${V_PHP:-$CURRENT_PHP_VERSION};
 
-    export APASS=${3:-$APASS};
+#    export V_PHP=${V_PHP:-$CURRENT_PHP_VERSION};
+#    export OSREL=${OSREL:-$CURRENT_APT_RELEASE};
+
+    export APASS=${3:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${4:-$APASS};
     export DUSER=$UUSER;
@@ -182,7 +183,6 @@ sethost ()
     export DHOST='localhost';
     export DPORT='3306';
     export OSMIR='archive.ubuntu.com';
-    export OSREL=${OSREL:-$CURRENT_APT_RELEASE};
     export TAREA='Australia';
     export TCITY='Sydney';
 }
@@ -192,8 +192,10 @@ export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 if [[ ! -f ~/.defaults ]]; then
     PWS=""
     for i in {1..5}; do
-        PWS="$PWS $(cat /dev/urandom|tr -dc '0-9a-zA-Z'|head -c 16)"
+        PWS="$PWS $(date|md5sum|cut -b -16)"
     done
+    export V_PHP=$CURRENT_PHP_VERSION
+    export OSREL=$CURRENT_APT_RELEASE
     sethost sysadm@$(hostname -f) mysql $PWS
     gethost > ~/.defaults
     chmod 600 ~/.defaults
