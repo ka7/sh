@@ -1,20 +1,84 @@
 #!/usr/bin/env bash
 # .sh/bin/addvmail 20170418 - 20180224
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 == '-h' || $1 == '--help' ]] && \
     echo "Usage: addvmail user@domain" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
-source ~/.defaults || exit 3
+# not needed?
+#M_LHS=${1%@*} # $M_LHS @ domain
+#M_RHS=${1#*@} # userid @ $M_RHS
 
-M_LHS=${1%@*} # $M_LHS @ domain
-M_RHS=${1#*@} # userid @ $M_RHS
-MPATH="/home/u/$M_RHS/home"
-HPATH="$MPATH/$M_LHS"
+source ~/.vhosts/${1#*@} || exit 3
+
+MPATH="/home/u/$VHOST/home"
 
 [[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 4
+
+HPATH="$MPATH/$VHOST"
+
+[[ -d $HPATH ]] && echo "*** ERROR: $HPATH already exists" && exit 5
+
+DID=$(cat << EOS | $SQCMD
+ SELECT id FROM vhosts
+  WHERE domain = '$VHOST'
+EOS
+)
+
+[[ -z $DID ]] && echo "*** ERROR: $VHOST does not exist" && exit 5
+
+USRID=$(cat << EOS | $SQCMD
+ SELECT id FROM vmails
+  WHERE user = '$1'
+EOS
+)
+
+[[ -n $USRID ]] && echo "*** ERROR: '$1' already exists" && exit 5
+
+exit
+echo "*** Create $DTYPE.vmails entry"
+PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
+DO_VMAIL=$(cat << EOS | $SQCMD
+ INSERT INTO vmails (
+        did,
+        uid,
+        gid,
+        user,
+        home,
+        password,
+        updated,
+        created
+) VALUES (
+        $DID,
+        $U_UID,
+        $U_GID,
+        'admin@$VHOST',
+        '/home/u/$VHOST/home/admin',
+        '$PW',
+        '$V_CREATED',
+        '$V_UPDATED'
+)
+EOS
+)
+
+DO_VALIAS=$(cat << EOS | $SQCMD
+ INSERT INTO valias (
+        did,
+        source,
+        target,
+        updated,
+        created
+) VALUES (
+        $DID,
+        '@$VHOST',
+        'admin@$VHOST',
+        '$V_UPDATED',
+        '$V_CREATED'
+)
+EOS
+)
 
 [[ ! -d $HPATH ]] && mkdir -p $HPATH/{Maildir,sieve}
 

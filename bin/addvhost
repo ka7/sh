@@ -93,48 +93,6 @@ DID=$(cat << EOS | $SQCMD
 EOS
 )
 
-PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
-
-DO_VMAIL=$(cat << EOS | $SQCMD
- INSERT INTO vmails (
-        did,
-        uid,
-        gid,
-        user,
-        home,
-        password,
-        updated,
-        created
-) VALUES (
-        $DID,
-        $U_UID,
-        $U_GID,
-        'admin@$VHOST',
-        '/home/u/$VHOST/home/admin',
-        '$PW',
-        '$V_CREATED',
-        '$V_UPDATED'
-)
-EOS
-)
-
-DO_VALIAS=$(cat << EOS | $SQCMD
- INSERT INTO valias (
-        did,
-        source,
-        target,
-        updated,
-        created
-) VALUES (
-        $DID,
-        '@$VHOST',
-        'admin@$VHOST',
-        '$V_UPDATED',
-        '$V_CREATED'
-)
-EOS
-)
-
 YM=$(date +"%Y%m")
 
 DO_VHOSTLOG=$(cat << EOS | $SQCMD
