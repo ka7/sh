@@ -29,6 +29,8 @@
 
 MAILTO="markc@renta.net"
 
+cd
+
 R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 echo "--- Get the default route IP: $R_IP4"
 
@@ -47,9 +49,13 @@ echo "--- Make sure basic essential packages are available"
 apt-get -qq -y install --no-install-recommends \
     ca-certificates curl git nano net-tools openssh-server rsync wget > /dev/null 2>&1
 
-curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
+echo "--- Setup NetServa SH scripts"
+git clone -q https://github.com/netserva/sh .sh > /dev/null
+~/.sh/bin/shm install > /dev/null
+~/.sh/bin/shm perms
 
-sethost $HOSTNAME mysql $(newpw 5)
+echo "--- Setup ~/.defaults"
+sethost sysadm@$HOSTNAME mysql $(newpw 5)
 gethost > ~/.defaults && chmod 600 ~/.defaults
 
 setup-all
