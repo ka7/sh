@@ -249,7 +249,7 @@ fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "^^^ Create dhparams.pem"
-    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 2048 > /dev/null
+    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 2048 > /dev/null 2>&1
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then

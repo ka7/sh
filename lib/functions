@@ -129,6 +129,7 @@ sethost ()
         export UUSER="u$U_UID";
     fi;
     export U_GID=$U_UID;
+    export ADMIN=${ADMIN:-'sysadm'};
 
     [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
@@ -167,7 +168,6 @@ sethost ()
     export WPATH=$VPATH/$VHOST/var/www;
     export AMAIL="$VUSER@$VHOST";
 
-    export ADMIN='sysadm';
     export ANAME='System Administrator';
     export A_GID='1000';
     export A_UID='1000';

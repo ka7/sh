@@ -8,7 +8,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
 source ~/.defaults || exit 3
-set -x
+
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
 if [[ $DTYPE == sqlite ]]; then

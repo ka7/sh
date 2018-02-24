@@ -160,10 +160,10 @@ if [[ $DTYPE == mysql ]]; then
     $EXDEB install $MLIST > /dev/null 2>&1
 
     # Change to utf8 otherwise pdns tables will not install (is this still needed with pdns 4.1?)
-#    sed -i \
-#        -e "/^character-set-server/ s/utf8mb4/utf8/" \
-#        -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
-#        $C_SQL/mariadb.conf.d/50-server.cnf
+    sed -i \
+        -e "/^character-set-server/ s/utf8mb4/utf8/" \
+        -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
+        $C_SQL/mariadb.conf.d/50-server.cnf
 
     # Give up on preseeding, just make the changes directly
     cat << EOS | mysql
