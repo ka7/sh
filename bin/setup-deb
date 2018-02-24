@@ -137,15 +137,8 @@ EOS
     $EXDEB -u dist-upgrade > /dev/null 2>&1
 fi
 
-# Unique trigger to know if $DLIST packages are already installed
-if [[ ! -e /usr/bin/bsd-mailx ]]; then
-    echo "<<< Installing default package set, more patience..."
-    $EXDEB install $DLIST > /dev/null 2>&1
-fi
-
-# tmp debug
-echo "<<< /bin/busybox"
-/bin/ls -l /bin/busybox
+echo "<<< Installing default package set, more patience..."
+$EXDEB install $DLIST > /dev/null 2>&1
 
 if [[ -e /usr/bin/python && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
