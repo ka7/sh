@@ -102,7 +102,7 @@ EOS
         echo "!!! Setup apt sources list for '$OSREL' SERVER"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
-# apt-get install --no-install-recommends packages
+# apt-get isenstall --no-install-recommends packages
 
 deb http://$OSMIR/ubuntu $OSREL main universe
 deb http://$OSMIR/ubuntu $OSREL-updates main universe
@@ -118,22 +118,7 @@ fi
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "!!! Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cat << EOS | tee /etc/ssh/sshd_config > /dev/null
-Port 9
-MaxAuthTries 3
-MaxSessions 3
-ChallengeResponseAuthentication no
-UsePAM yes
-X11Forwarding yes
-PrintMotd no
-MaxStartups 1
-AcceptEnv LANG LC_*
-Subsystem sftp internal-sftp -u 0027
-Match User u*
-  ChrootDirectory %h
-  X11Forwarding no
-  AllowTcpForwarding no
-EOS
+    cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart ssh
 fi
 

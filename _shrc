@@ -1,8 +1,6 @@
 # .sh/_shrc 20130315 - 20180223
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
-
 [ -f ~/.myrc ] && source ~/.myrc
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions

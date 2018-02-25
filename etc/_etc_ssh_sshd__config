@@ -1,0 +1,17 @@
+# .sh/etc/_etc_ssh_sshd__config 20180225 - 20180225
+# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+Port 9
+MaxAuthTries 3
+MaxSessions 20
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding yes
+PrintMotd no
+MaxStartups 1
+AcceptEnv LANG LC_*
+Subsystem sftp internal-sftp -u 0027
+Match User u*
+  ChrootDirectory %h
+  X11Forwarding no
+  AllowTcpForwarding no
