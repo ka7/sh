@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/sheriff 20170618 - 20170619
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/sheriff 20170618 - 20180225
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 #
 # ssheriff                Limit SSH access to 4 attemtps per 2 mins
 # ssheriff clear          Will clear ALL iptables rules and tables
@@ -10,6 +10,8 @@
 # Note: IPv4 only atm
 
 [[ $1 =~ "-h" ]] && echo "Usage: ssheriff [clear|icmp IP] [ssh port] [eth0]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && SUDO='sudo ' || SUDO=
 
 IO_IP=${1:-''}
 DPORT=${2:-'9'}

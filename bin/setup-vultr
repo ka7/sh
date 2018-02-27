@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vultr 20170620 - 20171101
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-vultr 20170620 - 20180225
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Howto use: signup for an account at https://vultr.com and add the below
 # snippet between the dashes (and remove the initial #) as a Startup Script
@@ -8,26 +8,23 @@
 # hostname (ie; hostname + domainname). When the first activation email
 # arrives in your mailbox then add the IP to whatever is your DNS system to
 # resolve the FQDN hostname you supplied and wait at least another 5 minutes
-# for the NetServa setup email to arrive (change MAILTO= below). The first
-# line is the Web password followed by the MySQL database password then the
-# admin@ email password. If DNS resolves to the server then you should be
-# able to gain access via...
+# for the NetServa setup email to arrive (change MAILTO= below). If DNS
+# resolves to the server then you should be able to gain access via...
 
-# ssh -p9 -i ~/.ssh/YOUR_SSHKEY root@YOUR_HOSTNAME_OR_IP
+# ssh -p9 -i ~/.ssh/YOUR_SSHKEY root@YOUR_NEW_FQDN_HOSTNAME (or IP)
 
 #------------------------------------------------
 ##!/bin/bash
 #export HOME=/root
+#sleep 15
 #cd
 #git clone -q https://github.com/netserva/sh .sh
 #.sh/bin/shm install > /dev/null
 #source .shrc
 #shm perms
-#sleep 15
+#export MAILTO=YOUR_NOTIFICATION_EMAIL_ADDRESS
 #setup-vultr
 #------------------------------------------------
-
-MAILTO="markc@renta.net"
 
 R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 echo "--- Get the default route IP: $R_IP4"
