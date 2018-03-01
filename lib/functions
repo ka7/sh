@@ -189,12 +189,11 @@ sethost ()
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 
 if [[ ! -f ~/.defaults ]]; then
+    export VHOST="adm.$(hostname -f)"
     export V_PHP=$CURRENT_PHP_VERSION
     export OSREL=$CURRENT_APT_RELEASE
-    sethost sysadm@$(hostname -f) mysql $(newpw 5)
-    gethost > ~/.defaults
-    chmod 600 ~/.defaults
+    sethost sysadm@$VHOST mysql $(newpw 5)
+    gethost > ~/.defaults && chmod 600 ~/.defaults
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    gethost > ~/.vhosts/$(hostname -f)
-    chmod 600 ~/.vhosts/$(hostname -f)
+    cp ~/.defaults ~/.vhosts/$VHOSTS
 fi
