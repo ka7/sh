@@ -2,7 +2,7 @@
 # .sh/bin/addvhost 20170217 - 20180224
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: addvhost [user@domain|domain] [mysql(default)|sqlite] [plan]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
