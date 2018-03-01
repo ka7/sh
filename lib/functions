@@ -61,7 +61,8 @@ VPATH='$VPATH'
 VUSER='$VUSER'
 V_PHP='$V_PHP'
 WPASS='$WPASS'
-WPATH='$WPATH'"
+WPATH='$WPATH'
+WPUSR='$WPUSR'"
 }
 getusers ()
 {
@@ -151,9 +152,6 @@ sethost ()
 
     export VPATH='/home/u';
 
-#    export V_PHP=${V_PHP:-$CURRENT_PHP_VERSION};
-#    export OSREL=${OSREL:-$CURRENT_APT_RELEASE};
-
     export APASS=${3:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${4:-$APASS};
@@ -167,6 +165,7 @@ sethost ()
     export VUSER='admin';
     export WPASS=${7:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
+    export WPUSR=$(newpw 1 6 lower)
     export AMAIL="$VUSER@$VHOST";
 
     export ANAME='System Administrator';
@@ -190,13 +189,12 @@ sethost ()
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
 
 if [[ ! -f ~/.defaults ]]; then
-    PWS=""
-    for i in {1..5}; do
-        PWS="$PWS $(date|md5sum|cut -b -16)"
-    done
     export V_PHP=$CURRENT_PHP_VERSION
     export OSREL=$CURRENT_APT_RELEASE
-    sethost sysadm@$(hostname -f) mysql $PWS
+    sethost sysadm@$(hostname -f) mysql $(newpw 5)
     gethost > ~/.defaults
     chmod 600 ~/.defaults
+    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
+    gethost > ~/.vhosts/$(hostname -f)
+    chmod 600 ~/.vhosts/$(hostname -f)
 fi
