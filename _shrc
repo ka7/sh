@@ -1,8 +1,12 @@
 # .sh/_shrc 20130315 - 20180302
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
+export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
 export VHOST=$(hostname -f)
 export MAILTO=admin@$VHOST
+export EDITOR=nano
+
 COLOR=31
 LABEL=$(id -un)@${VHOST/%\.*/}
 
@@ -30,16 +34,15 @@ export TCITY='Sydney'
 export VPATH='/home/u'
 export V_PHP='7.2'
 
+# Import managed aliases
+[ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
+
 # Local custom aliases and env var overrides
 [ -f ~/.myrc ] && source ~/.myrc
 
 export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
-export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
-export EDITOR=nano
 
-# Import managed aliases and shell functions
-[ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
+# Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
 # Check and create default adm.domain vhost config
