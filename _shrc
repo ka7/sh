@@ -1,7 +1,10 @@
 # .sh/_shrc 20130315 - 20180302
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 export VHOST=$(hostname -f)
+export MAILTO=admin@$VHOST
+COLOR=31
+LABEL=$(id -un)@${VHOST/%\.*/}
 
 # Global static shell variables
 export ADMIN='sysadm'
@@ -27,18 +30,21 @@ export TCITY='Sydney'
 export VPATH='/home/u'
 export V_PHP='7.2'
 
+# Local custom aliases and env var overrides
+[ -f ~/.myrc ] && source ~/.myrc
+
+export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
 export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
+export EDITOR=nano
 
 # Import managed aliases and shell functions
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
-# Local custom aliases and env var overrides
-[ -f ~/.myrc ] && source ~/.myrc
-
 # Check and create default adm.domain vhost config
 if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
     sethost sysadm@adm.$VHOST $(newpw 5)
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    gethost > ~/.vhosts/adm.$VHOST && chmod 600 ~/.vhosts/adm.$VHOST
+    gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
 fi
