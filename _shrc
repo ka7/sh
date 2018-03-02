@@ -40,5 +40,5 @@ export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
 if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
     sethost sysadm@adm.$VHOST $(newpw 5)
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    gethost > ~/.vhosts/adm.$VHOSTS && chmod 600 ~/.defaults
+    gethost > ~/.vhosts/adm.$VHOST && chmod 600 ~/.vhosts/adm.$VHOST
 fi
