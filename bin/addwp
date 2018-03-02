@@ -15,7 +15,7 @@ else
     echo "    chmod 600 ~/.vhosts/$1"
     exit 3
 fi
-
+set -x
 [[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 4
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 5
 
@@ -52,7 +52,9 @@ else
     mysql -e "FLUSH PRIVILEGES"
 fi
 
-if [ ! -f "$FPATH/wp-config-sample.php" ]; then
+if [ -f "$FPATH/wp-config.php" ]; then
+    echo "!!! Wordpress already installed"
+else
     echo "!!! Download Wordpress"
     cd $UPATH/var
     if [[ ! -f latest.tar.gz ]]; then

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180224
+# .sh/bin/addvhost 20170217 - 201800302
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && \
@@ -16,6 +16,7 @@ gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 5
 
+# This has to be moved into a database
 if [[ $3 == enterprise ]]; then
     V_ALIASES="200"
     V_DISKQUOTA="204800000"
