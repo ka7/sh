@@ -1,6 +1,6 @@
 # .sh/_shrc 20130315 - 20180302
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 export VHOST=$(hostname -f)
 export MAILTO=admin@$VHOST
 COLOR=31
