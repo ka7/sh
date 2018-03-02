@@ -1,10 +1,5 @@
-# .sh/lib/functions 20151231 - 20180223
+# .sh/lib/functions 20151231 - 20180302
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-CURRENT_PHP_VERSION=7.2
-CURRENT_APT_RELEASE=bionic
-
-[ -f ~/.defaults ] && source ~/.defaults
 
 chktime ()
 {
@@ -112,8 +107,8 @@ setuser ()
 }
 sethost ()
 {
-    if [[ -z $1 ]]; then
-        echo "Usage: sethost uuser@domain|domain [mysql(default)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
+    if [[ -z $1 || $1 =~ -h ]]; then
+        echo "Usage: sethost uuser@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         export UUSER=${1%@*};
@@ -130,17 +125,12 @@ sethost ()
         export UUSER="u$U_UID";
     fi;
     export U_GID=$U_UID;
-    export ADMIN=${ADMIN:-'sysadm'};
 
     [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
-
-    export DBSQL='/var/lib/sqlite';
 
     export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
     export EXMYS="mysql -BN $ADMIN";
     export EXSQL="sqlite3 $DPATH";
-
-    export DTYPE=${2:-'mysql'}
 
     if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
@@ -149,8 +139,6 @@ sethost ()
     else
         echo "!!! ERROR: unknown database type '$DTYPE'"
     fi;
-
-    export VPATH='/home/u';
 
     export APASS=${3:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
@@ -167,33 +155,6 @@ sethost ()
     export WPATH=$VPATH/$VHOST/var/www;
     export WPUSR=$(newpw 1 6 lower)
     export AMAIL="$VUSER@$VHOST";
-
-    export ANAME='System Administrator';
-    export A_GID='1000';
-    export A_UID='1000';
-    export BPATH='/home/backups';
-    export CIMAP='/etc/dovecot';
-    export CSMTP='/etc/postfix';
-    export C_DNS='/etc/powerdns';
-    export C_SQL='/etc/mysql';
-    export C_SSL='/etc/ssl';
-    export C_WEB='/etc/nginx';
-    export DBMYS='/var/lib/mysql';
-    export DHOST='localhost';
-    export DPORT='3306';
-    export OSMIR='archive.ubuntu.com';
-    export TAREA='Australia';
-    export TCITY='Sydney';
 }
 
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
-
-if [[ ! -f ~/.defaults ]]; then
-    export VHOST="adm.$(hostname -f)"
-    export V_PHP=$CURRENT_PHP_VERSION
-    export OSREL=$CURRENT_APT_RELEASE
-    sethost sysadm@$VHOST mysql $(newpw 5)
-    gethost > ~/.defaults && chmod 600 ~/.defaults
-    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    cp ~/.defaults ~/.vhosts/$VHOSTS
-fi

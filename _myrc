@@ -1,4 +1,4 @@
-# ~/.sh/_myrc 20130218 - 20180225
+# ~/.sh/_myrc 20130218 - 20180302
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 # Add your custom aliases and env variables here. This file is not managed or
 # removed by the shm script other than the 'es' alias to edit and reload it.
@@ -8,6 +8,7 @@ LABEL=$(id -un)@$(hostname -f|cut -d. -f1)
 
 export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
+export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
 export EDITOR=nano
 
 # Change this to your preferred email address for notifications

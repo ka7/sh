@@ -1,6 +1,44 @@
-# .sh/_shrc 20130315 - 20180223
+# .sh/_shrc 20130315 - 20180302
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[ -f ~/.myrc ] && source ~/.myrc
+export VHOST=$(hostname -f)
+
+# Global static shell variables
+export ADMIN='sysadm'
+export ANAME='System Administrator'
+export A_GID='1000'
+export A_UID='1000'
+export BPATH='/home/backups'
+export CIMAP='/etc/dovecot'
+export CSMTP='/etc/postfix'
+export C_DNS='/etc/powerdns'
+export C_SQL='/etc/mysql'
+export C_SSL='/etc/ssl'
+export C_WEB='/etc/nginx'
+export DBMYS='/var/lib/mysql'
+export DBSQL='/var/lib/sqlite'
+export DHOST='localhost'
+export DPORT='3306'
+export DTYPE='mysql'
+export OSMIR='archive.ubuntu.com'
+export OSREL='bionic'
+export TAREA='Australia'
+export TCITY='Sydney'
+export VPATH='/home/u'
+export V_PHP='7.2'
+
+export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
+
+# Import managed aliases and shell functions
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
+
+# Local custom aliases and env var overrides
+[ -f ~/.myrc ] && source ~/.myrc
+
+# Check and create default adm.domain vhost config
+if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
+    sethost sysadm@adm.$VHOST $(newpw 5)
+    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
+    gethost > ~/.vhosts/adm.$VHOSTS && chmod 600 ~/.defaults
+fi

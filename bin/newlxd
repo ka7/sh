@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20180222
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newlxd 20171013 - 20180302
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root so we need OSREL and DTYPE
 
-[[ -z $1 ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [distro(bionic)] [(mysql)|sqlite]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [distro(bionic)] [(mysql)|sqlite]" && exit 1
 
 VHOST=$1
 _HOST=${VHOST%%.*}
@@ -53,7 +53,7 @@ lxc exec $_HOST -- systemctl restart systemd-networkd
 
 sleep 5
 
-echo "--- Update $OSREL package list"
+echo "--- Update current package list"
 lxc exec $_HOST -- apt-get -qq update
 
 echo "--- Upgrade current packages"
@@ -67,18 +67,11 @@ lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
 if [[ -d ~/.sh ]]; then
     echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-
-#    [[ -f $C_SSL/dhparams.pem ]] && lxc file push $C_SSL/dhparams.pem $_HOST${C_SSL}/dhparams.pem
-
     lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
-
     lxc exec $_HOST -- bash -lc "setup-all $DTYPE"
-
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
-
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
-
