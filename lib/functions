@@ -3,11 +3,11 @@
 
 chktime ()
 {
-    [[ $(($(stat -c %X $1)+$2)) < $(date +%s) ]] && return 0 || return 1
+    [[ $(($(stat -c %X $1)+$2)) < $(date +%s) ]] && return 0 || return 1;
 }
 f ()
 {
-    find . -type f -iname '*'$*'*' -ls
+    find . -type f -iname '*'$*'*' -ls;
 }
 gethost ()
 {
@@ -57,11 +57,11 @@ VUSER='$VUSER'
 V_PHP='$V_PHP'
 WPASS='$WPASS'
 WPATH='$WPATH'
-WPUSR='$WPUSR'"
+WPUSR='$WPUSR'";
 }
 getusers ()
 {
-    getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}'
+    getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}';
 }
 getuser ()
 {
@@ -71,7 +71,7 @@ U_UID=$U_UID
 U_GID=$U_GID
 VHOST=$VHOST
 UPATH=$UPATH
-U_SHL=$U_SHL"
+U_SHL=$U_SHL";
 }
 go2 ()
 {
@@ -83,16 +83,16 @@ go2 ()
 }
 grepuser ()
 {
-    getusers | grep "$1"
+    getusers | grep "$1";
 }
 newuid ()
 {
-    local uid=$(( $(getusers | cut -d: -f3 | sort -n | tail -n1) + 1 ))
-    [[ $uid == 1 ]] && echo 1000 || echo $uid
+    local uid=$(( $(getusers | cut -d: -f3 | sort -n | tail -n1) + 1 ));
+    [[ $uid == 1 ]] && echo 1000 || echo $uid;
 }
 getdb ()
 {
-     echo $SQCMD
+     echo $SQCMD;
 }
 setuser ()
 {
@@ -103,20 +103,20 @@ setuser ()
     export U_GID=$(echo $UUSER | cut -d: -f4);
     export VHOST=$(echo $UUSER | cut -d: -f5);
     export UPATH=$(echo $UUSER | cut -d: -f6);
-    export U_SHL=$(echo $UUSER | cut -d: -f7)
+    export U_SHL=$(echo $UUSER | cut -d: -f7);
 }
 sethost ()
 {
     if [[ -z $1 || $1 =~ -h ]]; then
-        echo "Usage: sethost uuser@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]"
-        return 1
+        echo "Usage: sethost uuser@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]";
+        return 1;
     elif [[ $1 =~ "@" ]]; then
         export UUSER=${1%@*};
         export VHOST=${1#*@};
         if [[ $UUSER == u* ]]; then
             U_UID=${UUSER#*u}
         else
-            [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000
+            [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000;
         fi;
         export U_UID;
     else
@@ -137,7 +137,7 @@ sethost ()
     elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
     else
-        echo "!!! ERROR: unknown database type '$DTYPE'"
+        echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
     export APASS=${3:-'changeme_N0W'};
