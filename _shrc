@@ -2,7 +2,7 @@
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
-export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo')
+export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
 export VHOST=$(hostname -f)
 export MAILTO=admin@$VHOST
 export EDITOR=nano
