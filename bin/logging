@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180223
+# .sh/bin/logging 20170417 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
@@ -37,7 +37,7 @@ log_upath()
         log_setup $1 $2
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
     else
-        printf "%-44s %10s %10s %10s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
 }
 
@@ -63,10 +63,9 @@ log_mpath()
             log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         else
-            printf "  %-42s %10s %10s %10s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
-#    [[ $UPD ]] || printf "\n%-50s %8s %8s %8s\n" "Mailbox" "Mail" "Spam" "Home"
 }
 
 log_all()
@@ -80,14 +79,11 @@ log_all()
     fi
 }
 
-[[ $UPD ]] || printf "%-44s %10s %10s %10s\n" "Vhost / Maibox" "Mail/Box" "Web/Spam" "Disk/Home"
+[[ $UPD ]] || printf "%-48s %9s %9s %9s\n" "Vhost / Mailbox" "Mail/Box" "Web/Spam" "Disk/Home"
 
 if [[ $1 == all ]]; then
-    VHOSTS=$(find /home/u -mindepth 1 -maxdepth 1 -type d \! -type l | sed 's#/home/u/##' | sort)
-    for VHOST in $VHOSTS; do
-#        [[ $UPD ]] || printf "%-50s %8s %8s %8s\n" "Vhost" "Mail" "Web" "Disk"
-        log_all $VHOST
-    done
+    VHOSTS=$(find $VPATH -mindepth 1 -maxdepth 1 -type d \! -type l | sed "s#$VPATH/##" | sort)
+    for VHOST in $VHOSTS; do log_all $VHOST; done
 else
     log_all $1
 fi
