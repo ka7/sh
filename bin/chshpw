@@ -2,7 +2,7 @@
 # .sh/bin/chshpw 20171015 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $ =~ -h ]] && echo "Usage: chshpw user|domain|path [newpw]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: chshpw user|domain|path [newpw]" && exit 1
 
 UPASS=${2:-$(newpw 1)}
 

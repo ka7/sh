@@ -2,12 +2,10 @@
 # .sh/bin/newautoconfig 20170201 - 20180222
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ $1 == '-h' || $1 =~ -h ]] && \
     echo "Usage: newautoconfig [domain] [smtpdomain] [imapdomain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
-
-source ~/.defaults || exit 3
 
 VHOST=${1:-$VHOST}
 VSMTP=${2:-$VHOST}

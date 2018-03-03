@@ -2,10 +2,7 @@
 # .sh/bin/shmail 20150529 - 20180207
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: shmail user@domain" && exit 1
-
-source ~/.defaults || exit 2
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
 
 MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
 

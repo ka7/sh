@@ -2,13 +2,8 @@
 # .sh/bin/serva 20170417 - 20180224
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $2 || $1 == '-h' || $1 == '--help' ]] && \
+[[ -z $2 || $1 == '-h' ]] && \
     echo "Usage: serva start|stop|restart|reload all|dns|mail|php|web" && exit 1
-
-# ?
-#source ~/.defaults || exit 2
-
-[[ $(id -u) -gt 0 ]] && SUDO='sudo ' || SUDO=
 
 serva_web()
 {

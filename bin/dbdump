@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # .sh/bin/dbdump 20160111 - 20171101
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 ]] && echo "Usage: dbdump vhost|all" && exit 1
-source ~/.defaults || exit 2
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 3
 
 _dbdump()

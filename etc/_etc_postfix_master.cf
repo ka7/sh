@@ -1,3 +1,6 @@
+# .sh/etc/_etc_postfix_master.cf 20170101 - 20170507
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
 smtp       inet  n       -       y       -       1       postscreen
 smtpd      pass  -       -       y       -       -       smtpd
 dnsblog    unix  -       -       y       -       0       dnsblog

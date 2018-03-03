@@ -1,5 +1,5 @@
 # .sh/etc/_etc_dovecot_dovecot.conf-mysql 20170101 - 20170501
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 #dict {
 #  sqlquota = mysql:/etc/dovecot/dict-mysql.conf

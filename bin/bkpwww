@@ -2,11 +2,11 @@
 # .sh/bin/bkpwww 20180205 - 20180205
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: bkpwww domain [dbname]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: bkpwww domain [dbname]" && exit 1
 
-source ~/.defaults || exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist" && exit 3
 
 VHOST=$1
 DNAME=${2:-${VHOST//[.-]/_}}

@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # .sh/bin/wpupdate 20160817 - 20171101
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: wpupdate domain|all [path]" && exit 1
-source ~/.defaults || exit 2
-[[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist, run 'setup-host' first" && exit 3
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: wpupdate domain|all [path]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 3
 
 export WP_CLI_CACHE_DIR="/var/tmp"
 

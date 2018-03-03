@@ -1,3 +1,6 @@
+# .sh/etc/_etc_systemd_system_opendkim.service 20180225 - 20180225
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
 [Unit]
 Description=OpenDKIM DomainKeys Identified Mail (DKIM) Milter
 Documentation=man:opendkim(8) man:opendkim.conf(5) man:opendkim-genkey(8) man:opendkim-genzone(8) man:opendkim-testadsp(8) man:opendkim-testkey http://www.opendkim.org/docs.html

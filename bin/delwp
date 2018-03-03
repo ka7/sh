@@ -2,11 +2,9 @@
 # .sh/bin/delwp 20180202 - 20180203
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: delwp domain [path]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: delwp domain [path]" && exit 1
 
-source ~/.defaults || exit 2
-
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist" && exit 2
 
 VHOST=$1
 FPATH=${2:-''}

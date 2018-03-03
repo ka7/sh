@@ -2,10 +2,9 @@
 # .sh/bin/delvhost 20170216 - 20180223
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: delvhost [domain]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source ~/.vhosts/${1:-$VHOST} || exit 3
 

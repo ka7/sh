@@ -1,5 +1,5 @@
 # .sh/etc/_etc_cron.d_netserva 20170614 - 20170907
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 MAILTO=admin@renta.net
 

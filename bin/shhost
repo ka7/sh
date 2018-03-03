@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 # .sh/bin/shhost 20151216 - 20170506
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: shhost domain|uid|homedir|all" && exit 1
-
-source ~/.defaults || exit 2
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: shhost domain|uid|homedir|all" && exit 1
 
 if [[ $1 == all ]]; then
     getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'

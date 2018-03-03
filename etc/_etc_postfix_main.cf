@@ -1,5 +1,5 @@
 # .sh/etc/_etc_postfix_main.cf 20170101 - 20170507
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 alias_database = hash:/etc/aliases
 alias_maps = hash:/etc/aliases

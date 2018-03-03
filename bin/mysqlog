@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/mysqlog 20130331 - 20170529
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ -n $1 && $1 == on ]]; then
     mysql -e "SET GLOBAL general_log = 1;"

@@ -1,5 +1,5 @@
 # .sh/etc/_etc_apt_sources.list 20170101 - 20170614
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages

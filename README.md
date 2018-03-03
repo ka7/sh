@@ -6,7 +6,7 @@ variables to help make it easier to manage your Bash shell from an upstream
 shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
 which also provides a foundation for the [NetServa HCP] PHP web interface.
 
-**Note: server management scripts updated to use Ubuntu Artful 17.10.**
+**Note: server management scripts updated to use Ubuntu Bionic 18.04.**
 
 ## Usage
 
@@ -104,45 +104,51 @@ for each host. For example, the `gethost` shell function on my main
 workstation shows...
 ```
 ADMIN='sysadm'
-AMAIL='admin@mbox.goldcoast.org'
+AMAIL='admin@adm.mbox.lan'
 ANAME='System Administrator'
 APASS='changeme_N0W'
 A_GID='1000'
 A_UID='1000'
+BPATH='/home/backups'
 CIMAP='/etc/dovecot'
 CSMTP='/etc/postfix'
 C_DNS='/etc/powerdns'
-C_FPM='/etc/php/7.1/fpm'
+C_FPM='/etc/php/7.2/fpm'
 C_SQL='/etc/mysql'
 C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
 DBMYS='/var/lib/mysql'
 DBSQL='/var/lib/sqlite'
 DHOST='localhost'
-DNAME='mbox_goldcoast_org'
+DNAME='sysadm'
 DPASS='changeme_N0W'
 DPATH='/var/lib/sqlite/sysadm/sysadm.db'
 DPORT='3306'
-DTYPE='sqlite'
+DTYPE='mysql'
 DUSER='sysadm'
+EPASS='changeme_N0W'
 EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
-MPATH='/home/u/mbox.goldcoast.org/home'
+IP4_0='192.168.0.2'
+MPATH='/home/u/adm.mbox.lan/home'
 OSMIR='archive.ubuntu.com'
-OSREL='artful'
-SQCMD='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
+OSREL='bionic'
+SQCMD='mysql -BN sysadm'
 TAREA='Australia'
 TCITY='Sydney'
 UPASS='changeme_N0W'
-UPATH='/home/u/mbox.goldcoast.org'
-U_GID='1001'
-U_SHL='/bin/sh'
-U_UID='1001'
-VHOST='mbox.goldcoast.org'
+UPATH='/home/u/adm.mbox.lan'
+UUSER='sysadm'
+U_GID='1000'
+U_SHL='/bin/bash'
+U_UID='1000'
+VHOST='adm.mbox.lan'
 VPATH='/home/u'
-VUSER='u1001'
-V_PHP='7.1'
-WPATH='/home/u/mbox.goldcoast.org/var/www'
+VUSER='admin'
+V_PHP='7.2'
+WPASS='changeme_N0W'
+WPATH='/home/u/adm.mbox.lan/var/www'
+WPUSR='mrfavo'
 ```
 You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to
 dynamically change them when using the `~/.sh/bin` scripts to, for
@@ -157,7 +163,7 @@ standalone from the command line as well.
 
 There are also some semi-related posts on my [personal blog].
 
-_All scripts and documentation are Copyright (C) 1995-2017 Mark Constable and Licensed [AGPL-3.0]_
+_All scripts and documentation are Copyright (C) 1995-2018 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
 [NetServa HCP]: https://github.com/netserva/www
@@ -165,4 +171,4 @@ _All scripts and documentation are Copyright (C) 1995-2017 Mark Constable and Li
 [AGPL-3.0]: http://www.gnu.org/licenses/agpl-3.0.html
 [fork this project]: https://help.github.com/articles/fork-a-repo
 [pull requests]: https://help.github.com/articles/using-pull-requests
-[personal blog]: https://markc.blog/news/
+[personal blog]: https://markc.blog

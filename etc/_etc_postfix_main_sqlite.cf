@@ -1,5 +1,5 @@
 # .sh/etc/_etc_postfix_main_sqlite.cf 20170101 - 20170507
-# Copyright (C) 2015-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 virtual_alias_maps = sqlite:/etc/postfix/sqlite-alias-maps.cf
 virtual_gid_maps = sqlite:/etc/postfix/sqlite-gid-maps.cf

@@ -46,6 +46,6 @@ systemctl restart postfix
 systemctl restart dovecot
 
 echo "--- Send firstboot message to: $MAILTO"
-cat ~/.defaults /tmp/firstboot.log | mail -s "$R_IP4 $HOSTNAME" -r admin@$HOSTNAME $MAILTO
+cat ~/.vhosts/$VHOST /tmp/firstboot.log | mail -s "$R_IP4 $HOSTNAME" -r admin@$HOSTNAME $MAILTO
 
 echo "--- FINISHED NetServa setup"
