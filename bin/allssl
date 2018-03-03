@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/allssl 20170304 - 20170529
+# .sh/bin/allssl 20170304 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
 
 # TODO: add domain|all args and change to updatessl
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: allssl [--force]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: allssl [--force]" && exit 1
 
 LECFG=/etc/dehydrated
 C_SSL=/etc/ssl
