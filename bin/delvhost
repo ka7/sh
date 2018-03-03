@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180223
+# .sh/bin/delvhost 20170216 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -43,13 +43,13 @@ BFILE="$BPATH/$(date +'%Y-%m-%d')-$VHOST.tgz"
 echo "!!! Create $BFILE"
 tar czf $BFILE $UPATH > /dev/null 2>&1
 
-VUSER=$(getent passwd | awk -F: "/:$VHOST:/ {print \$1}")
+UUSER=$(getent passwd | awk -F: "/:$VHOST:/ {print \$1}")
 
-if [[ -z $VUSER ]]; then
-    echo "!!! Warning: $VUSER does not exist"
+if [[ -z $UUSER ]]; then
+    echo "!!! Warning: $UUSER does not exist"
 else
-    echo "!!! Remove $VUSER"
-    userdel -rf $VUSER > /dev/null 2>&1
+    echo "!!! Remove $UUSER"
+    userdel -rf $UUSER > /dev/null 2>&1
 fi
 
 if [[ -d $UPATH ]]; then

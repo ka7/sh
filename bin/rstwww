@@ -14,7 +14,7 @@ VFILE=${3:-$VHOST}
 DFILE=${VFILE//[.-]/_}
 UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
-VUSER=$(stat -c "%U" $UPATH/var)
+UUSER=$(stat -c "%U" $UPATH/var)
 
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 4
 
@@ -57,11 +57,11 @@ else
         WPASS=$(newpw 1)
         AMAIL=admin@$VHOST
 
-        mysql -e "SET PASSWORD FOR '$VUSER'@'localhost' = PASSWORD('$WPASS')"
+        mysql -e "SET PASSWORD FOR '$UUSER'@'localhost' = PASSWORD('$WPASS')"
         mysql -e "FLUSH PRIVILEGES"
 
         sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/wp-config.php
-        sed -i "/DB_USER/s/'[^']*'/'$VUSER'/2" www/wp-config.php
+        sed -i "/DB_USER/s/'[^']*'/'$UUSER'/2" www/wp-config.php
         sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
 
         wp user create $WPUSR $AMAIL \

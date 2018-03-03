@@ -14,7 +14,7 @@ APASS=${2:-$APASS}
 EMAIL=${3:-"webmaster@$VHOST"}
 FPATH=${4:-''}
 WPATH="$VPATH/$VHOST/var/www"
-VUSER=$(stat -c "%U" $WPATH)
+UUSER=$(stat -c "%U" $WPATH)
 
 [[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
 
@@ -37,7 +37,7 @@ if [[ ! -x /usr/local/bin/wp ]]; then
     mv wp-cli.phar /usr/local/bin/wp
 fi
 
-su - $VUSER -c "
+su - $UUSER -c "
 cd $FPATH
 wp user create webmaster $EMAIL \
  --user_pass=$APASS \

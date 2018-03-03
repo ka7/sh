@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/wpupdate 20160817 - 20171101
+# .sh/bin/wpupdate 20160817 - 20180303
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: wpupdate domain|all [path]" && exit 1
@@ -12,10 +12,10 @@ export WP_CLI_CACHE_DIR="/var/tmp"
 
 wpupdate() {
     [[ ! -d $1/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
-    VUSER=$(stat -c "%U" $1)
+    UUSER=$(stat -c "%U" $1)
     echo
-    echo -n "$VUSER $1 v"
-    su - $VUSER -c "
+    echo -n "$UUSER $1 v"
+    su - $UUSER -c "
 cd $1
 wp core version
 wp core update

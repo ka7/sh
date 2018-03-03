@@ -7,6 +7,10 @@ export VHOST=$(hostname -f)
 export MAILTO=admin@$VHOST
 export EDITOR=nano
 
+# Let's try these here, may not be needed
+export TERM=linux
+export DEBIAN_FRONTEND=readline
+
 COLOR=31
 LABEL=$(id -un)@${VHOST/%\.*/}
 

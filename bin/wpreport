@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/wpreport 20160817 - 20170529
+# .sh/bin/wpreport 20160817 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: wpreport domain|all [path]" && exit 1
@@ -12,17 +12,17 @@ if [[ $1 == all ]];then
     WPS=$(find $VPATH -type d -name "wp-admin")
     for WP in $WPS; do
         WPATH=$(dirname $WP)
-        VUSER=$(stat -c "%U" $WPATH)
-        echo -e "$VUSER\t$WPATH"
+        UUSER=$(stat -c "%U" $WPATH)
+        echo -e "$UUSER\t$WPATH"
     done
 else
     [[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
     WPATH=$VPATH/$VHOST/var/www
     [[ -n $2 ]] && WPATH=$WPATH/$2
     [[ ! -d $WPATH/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
-    VUSER=$(stat -c "%U" $WPATH)
-    echo -n "$VUSER $WPATH v"
-    su - $VUSER -c "
+    UUSER=$(stat -c "%U" $WPATH)
+    echo -n "$UUSER $WPATH v"
+    su - $UUSER -c "
 cd $WPATH
 wp core version 2> /dev/null
 wp theme list 2> /dev/null

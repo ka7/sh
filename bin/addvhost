@@ -50,12 +50,12 @@ EOS
 [[ $IS_VHOST -gt 0 ]] && echo "!!! ERROR: $VHOST already exists" && exit 6
 
 if [[ $(grepuser ":$VHOST:") ]]; then
-    echo "!!! Warning: $VUSER for $VHOST already exists"
+    echo "!!! Warning: $UUSER for $VHOST already exists"
 else
-    echo "!!! Create $VUSER user"
+    echo "!!! Create $UUSER user"
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
-    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $VUSER
-    [[ -n $UPASS && $UPASS != $APASS ]] && { echo $VUSER:$UPASS | chpasswd; }
+    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $UUSER
+    [[ -n $UPASS && $UPASS != $APASS ]] && { echo $UUSER:$UPASS | chpasswd; }
 fi
 
 echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
@@ -82,7 +82,7 @@ DO_VHOST=$(cat << EOS | $SQCMD
         $V_MAILBOXES,
         $V_MAILQUOTA,
         $U_UID,
-        '$VUSER',
+        '$UUSER',
         '$V_CREATED'
 )
 EOS
@@ -202,7 +202,7 @@ else
     cat << EOS > $UPATH/etc/passwd
 root:x:0:0:::
 $WWWUSER:x:33:33:::
-$VUSER:x:$U_UID:$U_GID:::
+$UUSER:x:$U_UID:$U_GID:::
 EOS
 fi
 
@@ -213,7 +213,7 @@ else
     cat << EOS > $UPATH/etc/group
 root:x:0:
 www-data:x:33:
-$VUSER:x:$U_GID:
+$UUSER:x:$U_GID:
 EOS
 fi
 
