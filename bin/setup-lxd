@@ -16,7 +16,7 @@ IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 if [[ -d /var/lib/lxd ]]; then
     echo "--- Warning: lxd already installed"
 else
-    echo "--- Install packages for lxd lxd-client zfsutils-linux bridge-utils"
+    echo "--- Install packages for lxd lxd-client bridge-utils btrfs-progs btrfs-tools zfsutils-linux"
 
     [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] &&\
         apt-get -qq update > /dev/null
