@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180222
+# .sh/bin/setup-etc 20151231 - 20180303
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ $1 =~ '-h' ]] && \
     echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.defaults || exit 3
-
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 DTYPE=${1:-$DTYPE}
 
@@ -19,7 +17,9 @@ ST="QLD"
 L="GoldCoast"
 O="NetServa"
 OU="IT Department"
-IP4_0=$(hostname -i|cut -d ' ' -f -1)
+
+# should already exist
+#IP4_0=$(hostname -i|cut -d ' ' -f -1)
 
 if [[ $DTYPE == sqlite ]]; then
     SQCMD=$EXSQL

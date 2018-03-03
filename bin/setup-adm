@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-adm 20170519 - 20180222
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-adm 20170519 - 20180303
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: setup-adm domain [mysql(default)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-adm [uuser@domain|domain]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
-
-source ~/.defaults || exit 3
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
-if [[ -d $VPATH/adm.$VHOST ]]; then
-    echo "*** $VPATH/adm.$VHOST already exists"
-else
-    addvhost $ADMIN@adm.$VHOST $2 $(< /root/.pw)
-fi
+VHOST=${1:-$VHOST}
 
-UPATH=$VPATH/adm.$VHOST
-WPATH=$UPATH/var/www
+if [[ ! -f ~/.vhosts/$VHOST ]]; then
+    echo "!!! ERROR: setup 'addvhost uuser@domain' first" && exit 5
+else
+    source ~/.vhosts/$VHOST
+fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
     echo "*** $UPATH/.ssh/authorized_keys already exists"

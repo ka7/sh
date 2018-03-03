@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-ssh 20170521 - 20180224
+# .sh/bin/setup-ssh 20170521 - 20180303
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 == '-h' || $1 == '--help' ]] && \
+[[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkey]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
-source ~/.defaults || exit 2
 
 VHOST=$1
 THOST=${2:-$VHOST}

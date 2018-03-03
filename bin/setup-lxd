@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20180222
+# .sh/bin/setup-lxd 20170519 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ $1 =~ '-h' ]] && \
     echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+_STOR=btrfs
 
 PSIZE=${1:-'25'}
 APASS=${2:-$(newpw 1)}
@@ -16,13 +18,11 @@ if [[ -d /var/lib/lxd ]]; then
 else
     echo "--- Install packages for lxd lxd-client zfsutils-linux bridge-utils"
 
-    [[ $(id -u) -gt 0 ]] && export SUDO='sudo ' || export SUDO=
-
     [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] &&\
-        $SUDO apt-get -qq update > /dev/null
+        apt-get -qq update > /dev/null
 
     DEBIAN_FRONTEND=noninteractive \
-        $SUDO apt-get -yqq install --no-install-recommends \
+        apt-get -yqq install --no-install-recommends \
         lxd lxd-client zfsutils-linux bridge-utils > /dev/null
 fi
 
@@ -36,7 +36,7 @@ else
     sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
-      --storage-backend zfs \
+      --storage-backend $_STOR \
       --storage-create-loop $PSIZE \
       --storage-pool lxd-pool \
       --trust-password $APASS"

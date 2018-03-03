@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180222
+# .sh/bin/setup-host 20170524 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: setup-host [-h|--help|mysql(default)|sqlite] [admin(sysadm)]" && exit 1
+[[ $1 =~ '-h' ]] && \
+    echo "Usage: setup-host [uuser@domain|domain] [mysql(default)|sqlite] [admin(sysadm)]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-[[ ! -d ~/.sh ]] && echo "ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 3
+[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-DTYPE=${1:-'mysql'}
-ADMIN=${2:-'sysadm'}
+[[ ! -d $VPATH ]] && echo "!!! ERROR: missing '$VPATH', setup server first" && exit 3
+
+[[ ! -d ~/.sh ]] && echo "!!! ERROR: missing ~/.sh, see https://github.com/netserva/sh" && exit 4
+
+VHOST=${1:-$VHOST}
+DTYPE=${2:-$DTYPE}
+ADMIN=${3:-$ADMIN}
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
-
-source ~/.sh/lib/functions
 
 # Basic host dependency list, adjust accordingly
 HLIST="
@@ -27,12 +29,11 @@ HLIST="
   mutt
   nano
   openssh-server
-  pwgen
   rsync
   ssmtp
 "
 
-if [[ ! -e /usr/bin/pwgen ]]; then
+if [[ ! -e /usr/bin/bsd-mailx ]]; then
     echo "!!! Initial package update, patience please..."
     apt-get -yqq update > /dev/null 2>&1
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null 2>&1
@@ -40,14 +41,13 @@ if [[ ! -e /usr/bin/pwgen ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 fi
 
-if [[ -f ~/.defaults ]]; then
-    echo "!!! Source ~/.defaults"
-    source ~/.defaults
+if [[ -f ~/.vhosts/$VHOST ]]; then
+    echo "!!! Source ~/.vhosts/$VHOST"
+    source ~/.vhosts/$VHOST
 else
-    echo "!!! Create initial host ~/.defaults"
-    sethost $ADMIN@$(hostname -f) $DTYPE $(newpw 5)
-    gethost > ~/.defaults
-    chmod 600 ~/.defaults
+    echo "!!! Create initial vhost config ~/.vhosts/$VHOST"
+    sethost $ADMIN@$VHOST $(newpw 5)
+    gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
 fi
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH

@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180222
+# .sh/bin/setup-deb 20170519 - 20180303
 # Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ $1 =~ '-h' ]] && \
     echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
-
-source ~/.defaults || exit 3
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 EXDEB="apt-get -yqq"
 export DEBIAN_FRONTEND=noninteractive
@@ -30,7 +28,6 @@ DLIST="
   nano
   net-tools
   openssh-server
-  pwgen
   rsync
   sqlite3
   ssmtp

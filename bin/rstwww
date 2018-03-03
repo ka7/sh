@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/rstwww 20180205 - 20180205
+# .sh/bin/rstwww 20180205 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
 
-source ~/.defaults || exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 2
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 VHOST=$1
 DNAME=${2:-${VHOST//[.-]/_}}
@@ -16,11 +16,13 @@ UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
 VUSER=$(stat -c "%U" $UPATH/var)
 
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
+[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 4
 
 cd $UPATH/var
 
-if [[ -f $VFILE.tgz ]]; then
+if [[ ! -f $VFILE.tgz ]]; then
+    echo "!!! ERROR: $VHOST.tgz backup file does not exist"
+else
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
         [[ -f $DFILE.sql ]] && echo "!!! Warning: removing old $DFILE.sql" && rm $DFILE.sql
         echo "!!! Backup old $DNAME database"
@@ -30,6 +32,7 @@ if [[ -f $VFILE.tgz ]]; then
         echo "!!! Delete old $DNAME database"
         mysql -e "DROP DATABASE $DNAME"
     fi
+
     [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
     tar czf $(date +'%Y%m%d')-$VHOST.tgz $TARUP
     [[ -f $DNAME.sql ]] && rm $DNAME.sql
@@ -48,8 +51,9 @@ if [[ -f $VFILE.tgz ]]; then
     else
         echo "!!! Warning: $DFILE.sql backup file does not exist"
     fi
+
     if [[ $VFILE != $VHOST ]]; then
-        WUSER=$(pwgen 6 -s -B -C -N 1 -A -0)
+        WPUSR=$(newpw 1 6 lower)
         WPASS=$(newpw 1)
         AMAIL=admin@$VHOST
 
@@ -60,7 +64,7 @@ if [[ -f $VFILE.tgz ]]; then
         sed -i "/DB_USER/s/'[^']*'/'$VUSER'/2" www/wp-config.php
         sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
 
-        wp user create $WUSER $AMAIL \
+        wp user create $WPUSR $AMAIL \
           --user_pass=$WPASS \
           --role=administrator \
           --path=www --allow-root 2> /dev/null
@@ -79,14 +83,12 @@ if [[ -f $VFILE.tgz ]]; then
 New login details
 
 Wordpress: https://$VHOST/wp-admin
-Username: $WUSER or $AMAIL
+Username: $WPUSR or $AMAIL
 Password: $WPASS
 "
      fi
      chperms $VHOST
      echo "!!! Restored $VHOST - $(du -sbh www)"
-else
-    echo "!!! ERROR: $VHOST.tgz backup file does not exist"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

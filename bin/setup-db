@@ -2,14 +2,12 @@
 # .sh/etc/setup-db.sh 20170319 - 20180224
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
+[[ $1 =~ '-h' ]] && \
     echo "Usage: setup-db [mysql(default)|sqlite]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.defaults || exit 3
-
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+DTYPE=${1:-$DTYPE}
 
 if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $DBSQL ]]; then

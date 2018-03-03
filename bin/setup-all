@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180224
+# .sh/bin/setup-all 20170519 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 == '--help' ]] && \
-    echo "Usage: setup-all [mysql(default)|sqlite]" && exit 1
-
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
-
-source ~/.defaults || exit 3
-
+setup-sh
 setup-host
 setup-deb
 setup-etc
-setup-www $VHOST
+setup-www
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
