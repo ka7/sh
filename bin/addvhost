@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/addvhost 20170217 - 201800303
-# Copyright (C) 1995-2017 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && \
     echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
