@@ -88,12 +88,12 @@ if [[ ! -d ~/.sh ]]; then
 fi
 
 # Setup default adm.vhost if not exists
-if [[ ! -f ~/.vhosts/adm.${VHOST#adm.*} ]]; then
-    echo "!!! Create initial vhost config ~/.vhosts/${VHOST#adm.*}"
+if [[ ! -f ~/.vhosts/$AHOST ]]; then
+    echo "!!! Create initial vhost config ~/.vhosts/$AHOST"
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
-    sethost $ADMIN@adm.$VHOST $(newpw 5)
-    gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
-    source ~/.vhosts/$VHOST
+    sethost $ADMIN@$VHOST $(newpw 5)
+    gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
+    source ~/.vhosts/$AHOST
 fi
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH

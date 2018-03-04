@@ -13,6 +13,7 @@ gethost ()
 {
     echo "\
 ADMIN='$ADMIN'
+AHOST='$AHOST'
 AMAIL='$AMAIL'
 ANAME='$ANAME'
 APASS='$APASS'
@@ -140,6 +141,7 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
+    export AHOST=adm.${VHOST#adm.*}
     export APASS=${3:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${4:-$APASS};
