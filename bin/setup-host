@@ -91,7 +91,7 @@ fi
 if [[ ! -f ~/.vhosts/$AHOST ]]; then
     echo "!!! Create initial vhost config ~/.vhosts/$AHOST"
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
-    sethost $ADMIN@$VHOST $(newpw 5)
+    sethost $ADMIN@$AHOST $(newpw 5)
     gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
     source ~/.vhosts/$AHOST
 fi

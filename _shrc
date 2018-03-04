@@ -49,13 +49,14 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
+# This may not be needed, move to setup-host instead
 # Check and create default adm.domain vhost config
-if [[ ! -f ~/.vhosts/$AHOST ]]; then
-    echo "!!! Create ~/.vhosts/$AHOST"
-    sethost sysadm@$AHOST $(newpw 5)
-    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
-# temp debug
-    source ~/.vhosts/$AHOST
-    gethost
-fi
+#if [[ ! -f ~/.vhosts/$AHOST ]]; then
+#    echo "!!! Create ~/.vhosts/$AHOST"
+#    sethost sysadm@$AHOST $(newpw 5)
+#    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
+#    gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
+## temp debug
+#    source ~/.vhosts/$AHOST
+#    gethost
+#fi
