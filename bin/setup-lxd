@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20180303
+# .sh/bin/setup-lxd 20170519 - 20180304
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,23 +7,21 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-_STOR=btrfs
+LSTOR=btrfs # or zfs, lvm
 
 PSIZE=${1:-'25'}
 APASS=${2:-$(newpw 1)}
 IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 
-if [[ -d /var/lib/lxd ]]; then
+if [[ -e /usr/bin/lxd ]]; then
     echo "--- Warning: lxd already installed"
 else
-    echo "--- Install packages for lxd lxd-client bridge-utils btrfs-progs btrfs-tools zfsutils-linux"
-
-    [[ $(($(stat -c %X /var/cache/apt/pkgcache.bin)+3600)) < $(date +%s) ]] &&\
-        apt-get -qq update > /dev/null
-
+    echo "--- Install packages for basic lxd, install criu manually if needed"
+    apt-get -qq update > /dev/null
+    # criu requires python so leave out until actually needed
     DEBIAN_FRONTEND=noninteractive \
         apt-get -yqq install --no-install-recommends \
-        lxd lxd-client zfsutils-linux bridge-utils > /dev/null
+        lxd lxd-client bridge-utils btrfs-progs btrfs-tools zfsutils-linux > /dev/null
 fi
 
 lxc storage list | grep lxd-pool > /dev/null
@@ -36,7 +34,7 @@ else
     sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
-      --storage-backend $_STOR \
+      --storage-backend $LSTOR \
       --storage-create-loop $PSIZE \
       --storage-pool lxd-pool \
       --trust-password $APASS"
