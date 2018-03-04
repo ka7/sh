@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 201800303
+# .sh/bin/addvhost 20170217 - 201800304
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && \
@@ -7,11 +7,23 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
+if [[ $1 ]]; then
+    if [[ $1 =~ "@" ]]; then
+        UUTMP=${1%@*}@ # $UUTMP @ domain
+        VHOST=${1#*@}  # userid @ $VHOST
+    else
+        UUTMP=""
+        VHOST=$1
+    fi
+fi
 
-# Set new host variables
-sethost ${1:-$VHOST} $(newpw 5)
-gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
+if [[ ! -f ~/vhosts/$VHOST ]]; then
+    echo "!!! Create ~/vhosts/$VHOST config file"
+    sethost $UUTMP$VHOST $(newpw 5)
+    gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
+fi
+
+source ~/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
