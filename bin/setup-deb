@@ -112,11 +112,6 @@ EOS
     dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 fi
 
-# Most likely not needed,
-#echo "<<< Updating CURRENT packages, patience please..."
-#$EXDEB update > /dev/null 2>&1
-#$EXDEB -u dist-upgrade > /dev/null 2>&1
-
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "<<< Setup apt sources list for $OSREL"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
@@ -129,13 +124,13 @@ deb http://$OSMIR/ubuntu $OSREL-updates main universe
 deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
-fi
 
-echo "<<< Updating packages for $OSREL, patience please..."
-$EXDEB update > /dev/null 2>&1
-$EXDEB -u dist-upgrade > /dev/null 2>&1
-echo "<<< Installing default package set, more patience..."
-$EXDEB install $DLIST > /dev/null 2>&1
+    echo "<<< Updating packages for $OSREL, patience please..."
+    $EXDEB update > /dev/null 2>&1
+    $EXDEB -u dist-upgrade > /dev/null 2>&1
+    echo "<<< Installing default package set, more patience..."
+    $EXDEB install $DLIST > /dev/null 2>&1
+fi
 
 if [[ -e /usr/bin/python && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
