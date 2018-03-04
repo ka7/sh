@@ -2,8 +2,8 @@
 # .sh/bin/setup-all 20170519 - 20180303
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-setup-sh
 setup-host
+setup-sh
 setup-deb
 setup-etc
 setup-www

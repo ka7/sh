@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20180302
+# .sh/_shrc 20130315 - 20180304
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
@@ -51,7 +51,11 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
 # Check and create default adm.domain vhost config
 if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
+    echo "!!! Create ~/.vhosts/adm.$VHOST ##########################"
     sethost sysadm@adm.$VHOST $(newpw 5)
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
     gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
+# temp debug
+    source ~/.vhosts/$VHOST
+    gethost
 fi

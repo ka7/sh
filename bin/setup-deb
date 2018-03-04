@@ -152,7 +152,7 @@ EOS
     $EXDEB install $SLIST > /dev/null 2>&1
 fi
 
-if [[ $DTYPE == mysql ]]; then
+if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
     echo "<<< Installing MySQL related packages"
     $EXDEB install $MLIST > /dev/null 2>&1
 
@@ -161,7 +161,10 @@ if [[ $DTYPE == mysql ]]; then
         -e "/^character-set-server/ s/utf8mb4/utf8/" \
         -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
         $C_SQL/mariadb.conf.d/50-server.cnf
+fi
 
+if [[ $DTYPE == mysql && ! -f ~/.my.cnf ]]; then
+    echo "<<< Create MySQL database defaults"
     # Give up on preseeding, just make the changes directly
     cat << EOS | mysql
 UPDATE mysql.user SET plugin='';
@@ -172,13 +175,23 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 EOS
+    if [[ ! -f ~/.my.cnf ]]; then
+        echo "<<< Create ~/.my.cnf"
+        cat << EOS | tee ~/.my.cnf > /dev/null
+# Autocreated by setup-deb
+[client]
+host = $DHOST
+port = $DPORT
+user = root
+password = $DPASS
+EOS
+        chmod 600 ~/.my.cnf
+    fi
     systemctl restart mysql
 fi
 
 echo "<<< Disable pdns until actually needed"
 systemctl stop pdns > /dev/null 2>&1
 systemctl disable pdns > /dev/null 2>&1
-
-echo "<<< Installed Debian packages"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

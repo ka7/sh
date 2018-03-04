@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180224
+# .sh/etc/setup-db.sh 20170319 - 20180304
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -10,6 +10,7 @@
 DTYPE=${1:-$DTYPE}
 
 if [[ $DTYPE == sqlite ]]; then
+
     if [[ ! -f $DBSQL ]]; then
         echo "||| Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
@@ -20,20 +21,22 @@ if [[ $DTYPE == sqlite ]]; then
     fi
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
     SQCMD="sqlite3 $DPATH"
+
 elif [[ $DTYPE == mysql ]]; then
+
     if [[ ! -f ~/.my.cnf ]]; then
-        echo "||| Create /root/.my.cnf"
-        cat << EOS | $SUDO tee /root/.my.cnf > /dev/null
+        echo "||| Create ~/.my.cnf"
+        cat << EOS | tee ~/.my.cnf > /dev/null
+# Autocreated by setup-db
 [client]
 host = $DHOST
 port = $DPORT
 user = root
 password = $DPASS
 EOS
-        $SUDO chmod 600 /root/.my.cnf
+        chmod 600 ~/.my.cnf
     fi
-    sleep 2
-    cat << EOS | $SUDO mysql
+    cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 GRANT ALL ON $ADMIN . * TO '$ADMIN'@'localhost' IDENTIFIED BY '$DPASS';
 FLUSH PRIVILEGES;

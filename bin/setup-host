@@ -39,14 +39,15 @@ if [[ ! -e /usr/bin/bsd-mailx ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 fi
 
-if [[ -f ~/.vhosts/$VHOST ]]; then
-    echo "!!! Source ~/.vhosts/$VHOST"
-    source ~/.vhosts/$VHOST
-else
+if [[ ! -f ~/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config ~/.vhosts/$VHOST"
     sethost $ADMIN@$VHOST $(newpw 5)
     gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
+    source ~/.vhosts/$VHOST
 fi
+
+echo "!!! Source ~/.vhosts/$VHOST ##########################"
+source ~/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
