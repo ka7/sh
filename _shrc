@@ -50,12 +50,12 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
 # Check and create default adm.domain vhost config
-if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
-    echo "!!! Create ~/.vhosts/adm.$VHOST ##########################"
-    sethost sysadm@adm.$VHOST $(newpw 5)
+if [[ ! -f ~/.vhosts/$AHOST ]]; then
+    echo "!!! Create ~/.vhosts/$AHOST"
+    sethost sysadm@$AHOST $(newpw 5)
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 0700 ~/.vhosts
-    gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
+    gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
 # temp debug
-    source ~/.vhosts/$VHOST
+    source ~/.vhosts/$AHOST
     gethost
 fi

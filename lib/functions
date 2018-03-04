@@ -156,7 +156,7 @@ sethost ()
     export WPASS=${7:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
     export WPUSR=$(newpw 1 6 lower)
-    export AMAIL="$VUSER@$VHOST";
+    export AMAIL="$VUSER@${VHOST#adm.*}";
 }
 
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
