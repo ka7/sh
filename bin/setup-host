@@ -88,8 +88,8 @@ if [[ ! -d ~/.sh ]]; then
 fi
 
 # Setup default adm.vhost if not exists
-if [[ ! -f ~/.vhosts/adm.$VHOST ]]; then
-    echo "!!! Create initial vhost config ~/.vhosts/$VHOST"
+if [[ ! -f ~/.vhosts/adm.${VHOST#adm.*} ]]; then
+    echo "!!! Create initial vhost config ~/.vhosts/${VHOST#adm.*}"
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
     sethost $ADMIN@adm.$VHOST $(newpw 5)
     gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
@@ -121,10 +121,15 @@ fi
 if [[ ! -f ~/.ssh/config ]]; then
     echo "!!! Create host ~/.ssh/config"
     cat << EOS | tee -a ~/.ssh/config > /dev/null
+# Host example.org
+#   Hostname example.org (or 12.34.56.78)
+
 Host *
   TCPKeepAlive yes
   ServerAliveInterval 30
   IdentityFile ~/.ssh/id_rsa
+  Port 9
+  User root
 EOS
     chmod 600 ~/.ssh/*
 fi
