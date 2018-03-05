@@ -19,13 +19,13 @@ ssmtp
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [uuser@domain|domain] [mysql(default)|sqlite] [admin(sysadm)]" && exit 1
+    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-AHOST=${1:-${AHOST:-$(hostname -f)}}
-DTYPE=${2:-${DTYPE:-'mysql'}}
-ADMIN=${3:-${ADMIN:-'sysadm'}}
+AHOST=${1:-"adm.$(hostname -d)"}
+DTYPE=${2:-'mysql'}
+UUSER=${3:-'sysadm'}
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
@@ -95,7 +95,7 @@ fi
 if [[ ! -f ~/.vhosts/$AHOST ]]; then
     echo "!!! Create initial vhost config ~/.vhosts/$AHOST"
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
-    sethost $ADMIN@$AHOST $(newpw 5)
+    sethost $UUSER@$AHOST $(newpw 5)
     gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
     source ~/.vhosts/$AHOST
 fi
