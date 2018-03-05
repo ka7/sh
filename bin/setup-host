@@ -23,7 +23,7 @@ ssmtp
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-${VHOST:-$(hostname -f)}}
+AHOST=${1:-${AHOST:-$(hostname -f)}}
 DTYPE=${2:-${DTYPE:-'mysql'}}
 ADMIN=${3:-${ADMIN:-'sysadm'}}
 
