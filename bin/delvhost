@@ -33,6 +33,12 @@ if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
     rm $C_FPM/pool.d/$VHOST.conf
 fi
 
+if [[ -f ~/.vhosts/$VHOST ]]; then
+    echo "!!! Remove ~/.vhosts/$VHOST"
+    cp ~/.vhosts/$VHOST $UPATH/etc
+    rm ~/.vhosts/$VHOST
+fi
+
 if [[ $DTYPE == mysql ]]; then
     echo "!!! Create MySQL backup"
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
