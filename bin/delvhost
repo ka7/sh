@@ -28,13 +28,20 @@ if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
 fi
 
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
-    echo "!!! markc.goldcoast.orgRemove $C_FPM/pool.d/$VHOST.conf"
+    echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
     cp $C_FPM/pool.d/$VHOST.conf $UPATH/etc
     rm $C_FPM/pool.d/$VHOST.conf
 fi
 
-# TODO: dump sql database and system entries to $UPATH/etc
-# TODO: maybe add BPATH (and BFILE) to defaults config?
+if [[ $DTYPE == mysql ]]; then
+    echo "!!! Create MySQL backup"
+    if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
+        mysqldump $DNAME > $UPATH/etc/$DNAME.sql
+        chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
+        chmod 640 $UPATH/etc/$DNAME.sql
+        mysql -BNe "DROP $DNAME'"
+    fi
+fi
 
 [[ ! -d $BPATH ]] && mkdir -p $BPATH
 BFILE="$BPATH/$(date +'%Y-%m-%d')-$VHOST.tgz"
