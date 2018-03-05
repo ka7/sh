@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.vhosts/${1:-$VHOST} # || exit 3
+source ~/.vhosts/${1:-$VHOST} || exit 3
 
 [[ ! -d $VPATH/$VHOST ]] && echo "!!! ERROR: '$VPATH/$VHOST' does not exist" && exit 4
 
@@ -21,14 +21,14 @@ echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
 echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
 echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
 
-if [[ -f $C_WEB/simarkc.goldcoast.orgtes-enabled/$VHOST ]]; then
+if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
     cp $C_WEB/sites-enabled/$VHOST $UPATH/etc
     rm $C_WEB/sites-enabled/$VHOST
 fi
 
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
-    echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
+    echo "!!! markc.goldcoast.orgRemove $C_FPM/pool.d/$VHOST.conf"
     cp $C_FPM/pool.d/$VHOST.conf $UPATH/etc
     rm $C_FPM/pool.d/$VHOST.conf
 fi
