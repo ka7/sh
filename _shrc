@@ -49,6 +49,7 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
-[[ -f ~/.vhosts/adm.$(hostname -f) ]] && \
-    source ~/.vhosts/adm.$(hostname -f) || \
+# Import default adm.vhost
+[[ -f ~/.vhosts/adm.$(hostname -d) ]] && \
+    source ~/.vhosts/adm.$(hostname -d) || \
     echo "!!! Warning: no adm.vhosts, please run setup-host"
