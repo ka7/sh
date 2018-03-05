@@ -34,6 +34,10 @@ if [[ $? -eq 0 ]]; then
     sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
+echo "!!! Updating CURRENT package list, patience please..."
+apt-get -yqq update > /dev/null 2>&1
+DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null 2>&1
+
 # Start desktop or server package installation
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
