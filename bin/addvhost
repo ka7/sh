@@ -7,23 +7,25 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+UUTMP=""
+
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
         UUTMP=${1%@*}@ # $UUTMP @ domain
         VHOST=${1#*@}  # userid @ $VHOST
     else
-        UUTMP=""
         VHOST=$1
     fi
 fi
 
-if [[ ! -f ~/vhosts/$VHOST ]]; then
+if [[ -f ~/vhosts/$VHOST ]]; then
+    echo "!!! Source ~/vhosts/$VHOST config file"
+    source ~/.vhosts/$VHOST
+else
     echo "!!! Create ~/vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $(newpw 5)
     gethost > ~/.vhosts/$VHOST && chmod 600 ~/.vhosts/$VHOST
 fi
-
-source ~/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
@@ -59,7 +61,7 @@ IS_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ $IS_VHOST -gt 0 ]] && echo "!!! ERROR: $VHOST already exists" && exit 6
+[[ $IS_VHOST -gt 0 ]] && echo "!!! ERROR: $VHOST already exists in database" && exit 6
 
 if [[ $(grepuser ":$VHOST:") ]]; then
     echo "!!! Warning: $UUSER for $VHOST already exists"
