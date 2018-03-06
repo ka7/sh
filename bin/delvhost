@@ -16,36 +16,49 @@ DID=$(cat << EOS | $SQCMD
 EOS
 )
 
-echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
+mysqldump sysadm vhosts vmails valias logging \
+  --where="id=$DID" --compact --no-create-info > $UPATH/$ADMIN.sql
+
 echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
 echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
 echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
+echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
-    cp $C_WEB/sites-enabled/$VHOST $UPATH/etc
+    cp $C_WEB/sites-enabled/$VHOST $UPATH/_etc_nginx_sites-enabled_$VHOST
     rm $C_WEB/sites-enabled/$VHOST
 fi
 
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
     echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
-    cp $C_FPM/pool.d/$VHOST.conf $UPATH/etc
+    cp $C_FPM/pool.d/$VHOST.conf $UPATH/_etc_php_${V_PHP}_pool.d_$VHOST.conf
     rm $C_FPM/pool.d/$VHOST.conf
 fi
 
-if [[ -f ~/.vhosts/$VHOST ]]; then
-    echo "!!! Remove ~/.vhosts/$VHOST"
-    cp ~/.vhosts/$VHOST $UPATH/etc
-    rm ~/.vhosts/$VHOST
+if [[ -f /root/.vhosts/$VHOST ]]; then
+    if [[ $VHOST == $(hostname -f) ]];then
+        echo "!!! Leaving /root/.vhosts/$VHOST"
+    else
+        echo "!!! Remove /root/.vhosts/$VHOST"
+        cp ~/.vhosts/$VHOST $UPATH/_root_.vhosts_$VHOST
+        rm ~/.vhosts/$VHOST
+    fi
 fi
 
 if [[ $DTYPE == mysql ]]; then
     echo "!!! Create MySQL backup"
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
-        mysqldump $DNAME > $UPATH/etc/$DNAME.sql
-        chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
-        chmod 640 $UPATH/etc/$DNAME.sql
-        mysql -BNe "DROP $DNAME'"
+        if [[ $DNAME == $ADMIN ]];then
+            echo "!!! Leaving '$DNAME' database"
+        else
+            echo "!!! Backup '$DNAME' database"
+            mysqldump $DNAME > $UPATH/etc/$DNAME.sql
+            chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
+            chmod 640 $UPATH/etc/$DNAME.sql
+            echo "!!! Remove '$DNAME' database"
+            mysql -BNe "DROP $DNAME'"
+        fi
     fi
 fi
 
