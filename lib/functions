@@ -157,7 +157,7 @@ sethost ()
     export WPATH=$VPATH/$VHOST/var/www;
     export WPUSR=$(newpw 1 6 lower);
 set -x
-    [[ $VHOST == $AHOST ]] && TEMPH=${XXX#*.} || TEMPH=$VHOST;
+    [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
 set +x
 }
