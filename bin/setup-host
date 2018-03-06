@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180304
+# .sh/bin/setup-host 20170524 - 20180306
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -19,13 +19,15 @@ ssmtp
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)]" && exit 1
+    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)] [OS mirror] [OS release]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-AHOST=${1:-"adm.$(hostname -d)"}
+AHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
 DTYPE=${2:-'mysql'}
 UUSER=${3:-'sysadm'}
+OSMIR=${4:-'archive.ubuntu.com'}
+OSREL=${5:-'bionic'}
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
@@ -81,7 +83,7 @@ EOS
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 fi
 
-# After essential host package update so we have git
+# After essential host package update so we definitely have git
 if [[ ! -d ~/.sh ]]; then
     echo "!!! Setup NetServa SH scripts"
     cd
@@ -91,7 +93,7 @@ if [[ ! -d ~/.sh ]]; then
     source ~/.shrc
 fi
 
-# Setup default adm.vhost if not exists
+# Setup default admin vhost if not exists
 if [[ ! -f ~/.vhosts/$AHOST ]]; then
     echo "!!! Create initial vhost config ~/.vhosts/$AHOST"
     [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts

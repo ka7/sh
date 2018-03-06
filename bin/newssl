@@ -18,6 +18,7 @@ for SUB in $_ARGS; do
     SUBDS="$SUBDS -d $SUB.$VHOST"
 done
 
+AHOST=$(hostname -f)
 WPATH="$VPATH/$VHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
@@ -49,12 +50,13 @@ if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
         [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] \
             && rm $C_WEB/sites-enabled/$VHOST.selfsigned
+        [[ $VHOST == $AHOST ]] && NCONF=common-auth.conf || NCONF=common.conf
         cat << EOS > $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
-    include                     $C_WEB/common.conf;
+    include                     $C_WEB/$NCONF;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
@@ -68,19 +70,6 @@ server {
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     return 301                  https://$VHOST\$request_uri;
-}
-EOS
-        fi
-        if [[ $SUBDS =~ adm.$VHOST ]]; then
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
-server {
-    listen                      ${IPARG}443 ssl http2;
-    server_name                 adm.$VHOST;
-    set                         \$domain adm.$VHOST;
-    include                     $C_WEB/common-auth.conf;
-    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
-    ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
 EOS
         fi

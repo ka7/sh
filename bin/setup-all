@@ -2,7 +2,7 @@
 # .sh/bin/setup-all 20170519 - 20180304
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-source ~/.vhosts/adm.$(hostname -f) || exit 1
+source ~/.vhosts/$(hostname -f) || exit 1
 
 echo "### Entering setup-host"
 setup-host

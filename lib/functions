@@ -141,7 +141,7 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
-    export AHOST=adm.${VHOST#adm.*}
+    export AHOST=$(hostname -f)
     export APASS=${3:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${4:-$APASS};
@@ -155,8 +155,9 @@ sethost ()
     export VUSER='admin';
     export WPASS=${7:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
-    export WPUSR=$(newpw 1 6 lower)
-    export AMAIL="$VUSER@${VHOST#adm.*}";
+    export WPUSR=$(newpw 1 6 lower);
+    [[ $VHOST == $AHOST ]] && TEMPH=${XXX#*.} || TEMPH=$VHOST;
+    export AMAIL="$VUSER@$TEMPH";
 }
 
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
