@@ -62,8 +62,7 @@ else
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip
-    NEWPW=$(awk '{print $3}' /root/.pw)
-    sed -i "/admin_password/ s/12345/$NEWPW/" $WPATH/webmail/data/_data_/_default_/configs/application.ini
+    sed -i "/admin_password/ s/12345/$APASS/" $WPATH/webmail/data/_data_/_default_/configs/application.ini
     cat << EOS | tee $WPATH/webmail/data/_data_/_default_/domains/$VHOST.ini > /dev/null 2>&1
 imap_host = "${VHOST#*.}"
 imap_port = 993
