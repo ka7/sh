@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180305
+# .sh/bin/delvhost 20170216 - 20180306
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -16,13 +16,20 @@ DID=$(cat << EOS | $SQCMD
 EOS
 )
 
-mysqldump sysadm vhosts vmails valias logging \
-  --where="id=$DID" --compact --no-create-info > $UPATH/$ADMIN.sql
+if [[ $DTYPE == mysql ]]; then
+    mysqldump sysadm vhosts vmails valias logging \
+      --where="id=$DID" --compact --no-create-info > $UPATH/mysql-$ADMIN.sql
+elif [[ $DTYPE == sqlite ]]; then
+    echo "SELECT * vhosts WHERE did = $DID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * vmails WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * valias WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * logging WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+fi
 
-echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
-echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
-echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
 echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
+echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
+echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
+echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
@@ -60,6 +67,8 @@ if [[ $DTYPE == mysql ]]; then
             mysql -BNe "DROP $DNAME'"
         fi
     fi
+else
+    echo "!!! TODO: Dump '$DNAME' from $DPATH"
 fi
 
 [[ ! -d $BPATH ]] && mkdir -p $BPATH

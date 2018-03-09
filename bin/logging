@@ -7,6 +7,8 @@
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
+source ~/.vhosts/$(hostname -f) || exit 3
+
 [[ $2 == update ]] && UPD=1 || UPD=
 
 DU="/usr/bin/du -sb"
