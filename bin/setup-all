@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180304
+# .sh/bin/setup-all 20170519 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-source ~/.vhosts/$(hostname -f) || exit 1
 
 echo "### Entering setup-host"
 setup-host

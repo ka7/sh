@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20180303
+# .sh/bin/setup-www 20170519 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+source ~/.vhosts/$(hostname -f) || exit 3
 
 if [[ -d $VPATH/$VHOST ]]; then
     echo "*** $VPATH/$VHOST already exists"
@@ -25,7 +25,7 @@ D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
 
 # If both IPs match then let's assume LetsEncrypt can reach us
 if [[ $R_IP4 == $D_IP4 ]]; then
-    newssl $VHOST adm cdn www > /dev/null 2>&1
+    newssl $VHOST cdn www > /dev/null 2>&1
 else
     echo "*** Note: if this server has outside net access"
     echo "*** with DNS pointing to it's FQDN then use"

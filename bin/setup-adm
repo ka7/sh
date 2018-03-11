@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-adm 20170519 - 20180306
+# .sh/bin/setup-adm 20170519 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-adm [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$(hostname -f)}
+source ~/.vhosts/$(hostname -f) || exit 3
 
-source ~/.vhosts/$VHOST || exit 3
-
-[[ ! -d $VPATH ]] && echo "*** ERROR: setup server first" && exit 4
+VHOST=${1:-$VHOST}
 
 [[ ! -d $VPATH/$VHOST ]] && addvhost $ADMIN@$VHOST
 
