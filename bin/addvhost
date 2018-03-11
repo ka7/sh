@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.vhosts/$(hostname -f) || exit 2
+source /root/.shrc || exit 3
 
 UUTMP=""
 
@@ -24,7 +24,6 @@ if [[ -f /root/vhosts/$VHOST ]]; then
     source /root/.vhosts/$VHOST
 else
     echo "!!! Create /root/vhosts/$VHOST config file"
-    source /root/.sh/lib/functions
     sethost $UUTMP$VHOST $(newpw 5)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
     source /root/.vhosts/$VHOST
@@ -141,7 +140,7 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
 EOS
 )
 
-if [[ -d $C_WEB && -d $C_FPM ]]; then
+if [[ -d $C_FPM ]]; then
     if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
         echo "!!! $C_FPM/pool.d/$VHOST.conf already exists"
     else

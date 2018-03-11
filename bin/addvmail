@@ -6,9 +6,11 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+source /root/.shrc || exit 3
+
 VHOST=${1#*@} # userid @ $VHOST
 
-source ~/.vhosts/$VHOST || exit 3
+source ~/.vhosts/$VHOST || exit 4
 
 VUSER=${1%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
