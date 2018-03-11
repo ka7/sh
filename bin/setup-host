@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-host 20170524 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 # Essential host package list, adjust accordingly
 HLIST="
 bc
@@ -41,22 +41,22 @@ echo "!!! Installing default package set, more patience..."
 DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 
 # After essential host package update so we definitely have git
-if [[ ! -d ~/.sh ]]; then
+if [[ ! -d /root/.sh ]]; then
     echo "!!! Setup NetServa SH scripts"
     cd
     git clone -q https://github.com/netserva/sh .sh > /dev/null
-    ~/.sh/bin/shm install > /dev/null
-    ~/.sh/bin/shm perms
-    source ~/.shrc
+    /root/.sh/bin/shm install > /dev/null
+    /root/.sh/bin/shm perms
 fi
 
 # Setup default admin vhost if not exists
-if [[ ! -f ~/.vhosts/$AHOST ]]; then
-    echo "!!! Create initial vhost config ~/.vhosts/$AHOST"
-    [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
+if [[ ! -f /root/.vhosts/$AHOST ]]; then
+    echo "!!! Create initial vhost config /root/.vhosts/$AHOST"
+    [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
+    source /root/.shrc
     sethost $UUSER@$AHOST $(newpw 5)
-    gethost > ~/.vhosts/$AHOST && chmod 600 ~/.vhosts/$AHOST
-    source ~/.vhosts/$AHOST
+    gethost > /root/.vhosts/$AHOST && chmod 600 /root/.vhosts/$AHOST
+    source /root/.vhosts/$AHOST
 fi
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
@@ -64,54 +64,54 @@ fi
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "!!! Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
+    cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart ssh
 fi
 
-if [[ ! -d ~/.ssh ]]; then
-    echo "!!! Create host ~/.ssh dir"
-    mkdir ~/.ssh
-    chmod 700 ~/.ssh
+if [[ ! -d /root/.ssh ]]; then
+    echo "!!! Create host /root/.ssh dir"
+    mkdir /root/.ssh
+    chmod 700 /root/.ssh
 fi
 
-if [[ ! -f ~/.ssh/id_rsa ]]; then
-    echo "!!! Create host ~/.ssh/id_rsa key"
-    ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' > /dev/null
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-    chmod 600 ~/.ssh/*
+if [[ ! -f /root/.ssh/id_rsa ]]; then
+    echo "!!! Create host /root/.ssh/id_rsa key"
+    ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
+    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+    chmod 600 /root/.ssh/*
 fi
 
-if [[ ! -f ~/.ssh/config ]]; then
-    echo "!!! Create host ~/.ssh/config"
-    cat << EOS | tee -a ~/.ssh/config > /dev/null
+if [[ ! -f /root/.ssh/config ]]; then
+    echo "!!! Create host /root/.ssh/config"
+    cat << EOS | tee -a /root/.ssh/config > /dev/null
 # Host example.org
 #   Hostname example.org (or 12.34.56.78)
 
 Host *
   TCPKeepAlive yes
   ServerAliveInterval 30
-  IdentityFile ~/.ssh/id_rsa
+  IdentityFile /root/.ssh/id_rsa
   Port 9
   User root
 EOS
-    chmod 600 ~/.ssh/*
+    chmod 600 /root/.ssh/*
 fi
 
 if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
     if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
         echo "!!! Create desktop iptables save/restore"
-        cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
             /etc/NetworkManager/dispatcher.d/99iptables
         chmod +x /etc/NetworkManager/dispatcher.d/99iptables
     fi
 else
     if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
         echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
-#        cp ~/.sh/etc/_etc_network_if-post-down.d_iptsave \
+#        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
 #            /etc/network/if-post-down.d/iptsave
 #        chmod +x /etc/network/if-post-down.d/iptsave
 
-#        cp ~/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
+#        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
 #            /etc/network/if-pre-up.d/iptrestore
 #        chmod +x /etc/network/if-pre-up.d/iptrestore
     fi
