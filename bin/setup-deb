@@ -131,9 +131,7 @@ EOS
     $EXDEB update > /dev/null 2>&1
     $EXDEB -u dist-upgrade > /dev/null 2>&1
     echo "<<< Installing default package set, more patience..."
-#    $EXDEB install $DLIST > /dev/null 2>&1
-    echo "<<< DLIST = $DLIST"
-    $EXDEB install $DLIST
+    $EXDEB install $DLIST > /dev/null 2>&1
 fi
 
 if [[ -f /usr/bin/python3 && -n $RLIST ]]; then
