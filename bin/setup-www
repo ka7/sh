@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
 
-source ~/.vhosts/$(hostname -f) || exit 3
+source /root/.shrc || exit 3
 
 if [[ -d $VPATH/$VHOST ]]; then
     echo "*** $VPATH/$VHOST already exists"

@@ -49,11 +49,12 @@ if [[ ! -d /root/.sh ]]; then
     /root/.sh/bin/shm perms
 fi
 
+source /root/.shrc
+
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$AHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$AHOST"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    source /root/.sh/lib/functions
     sethost $UUSER@$AHOST $(newpw 5)
     gethost > /root/.vhosts/$AHOST && chmod 600 /root/.vhosts/$AHOST
     source /root/.vhosts/$AHOST

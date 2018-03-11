@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.vhosts/$(hostname -f) || exit 3
+source /root/.shrc || exit 3
 
 EXDEB="apt-get -yqq"
 export DEBIAN_FRONTEND=noninteractive
