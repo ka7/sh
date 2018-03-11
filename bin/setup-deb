@@ -137,6 +137,21 @@ fi
 if [[ -f /usr/bin/python3 && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null 2>&1
+    # This action removes /sbin/netplan so replace it with systemd-networkd
+    [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
+    echo "<<< Create /etc/systemd/network/10-dhcp.network"
+    cat << EOS > /etc/systemd/network/10-dhcp.network
+[Match]
+Name=e*
+
+[Network]
+DHCP=ipv4
+
+[DHCP]
+UseMTU=true
+RouteMetric=100
+EOS
+    systemctrl enable systemd-networkd
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then

@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-ssh 20170521 - 20180303
+# .sh/bin/setup-ssh 20170521 - 20180311
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkey]" && exit 1
-
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=$1
 THOST=${2:-$VHOST}
@@ -32,12 +30,12 @@ fi
 grep -q -E "^Host $VHOST\$" ~/.ssh/config
 if [[ $? -eq 1 ]]; then
     echo ">>> Create SSH config entry"
-    echo "
-Host $VHOST
+    echo "Host $VHOST
   User $SUSER
   Port $SPORT
   Hostname $THOST
-  IdentityFile ~/.ssh/$S_KEY" > ~/.ssh/config.tmp
+  IdentityFile ~/.ssh/$S_KEY
+" > ~/.ssh/config.tmp
     cat ~/.ssh/config >> ~/.ssh/config.tmp
     mv ~/.ssh/config.tmp ~/.ssh/config
     chmod 600 ~/.ssh/config
