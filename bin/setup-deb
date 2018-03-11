@@ -136,7 +136,7 @@ EOS
     $EXDEB install $DLIST
 fi
 
-if [[ -e /usr/bin/python && -n $RLIST ]]; then
+if [[ -f /usr/bin/python && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null 2>&1
 fi

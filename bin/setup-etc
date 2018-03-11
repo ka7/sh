@@ -2,12 +2,9 @@
 # .sh/bin/setup-etc 20151231 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
 
 source ~/.vhosts/$(hostname -f) || exit 3
 
@@ -20,9 +17,6 @@ L="GoldCoast"
 O="NetServa"
 OU="IT Department"
 
-# should already exist
-#IP4_0=$(hostname -i|cut -d ' ' -f -1)
-
 if [[ $DTYPE == sqlite ]]; then
     SQCMD=$EXSQL
 elif [[ $DTYPE == mysql ]]; then
@@ -30,9 +24,6 @@ elif [[ $DTYPE == mysql ]]; then
 else
     echo "ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
 fi
-
-echo "^^^ Setup database using $DTYPE"
-setup-db $DTYPE
 
 if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     echo "^^^ Remove default ubuntu user"

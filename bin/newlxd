@@ -8,6 +8,8 @@
 
 VHOST=$1
 _HOST=${VHOST/%\.*/}
+OSREL=${3:-'bionic'}
+DTYPE=${4:-'mysql'}
 
 # Modify these profile "plans" to suit your needs
 if [[ $2 == large ]]; then
@@ -24,12 +26,8 @@ else
     PNAME=small
     PSIZE=1GB
     P_MEM=256MB
-    P_CPU=1    source ~/.shrc
-
+    P_CPU=1
 fi
-
-OSREL=${3:-'bionic'}
-DTYPE=${4:-'mysql'}
 
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
     echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
@@ -70,8 +68,7 @@ if [[ -d ~/.sh ]]; then
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
-    sleep 1
-    lxc exec $_HOST -- bash -lc "setup-all $DTYPE"
+    lxc exec $_HOST -- bash -lc "/root/.sh/bin/setup-all $DTYPE"
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
