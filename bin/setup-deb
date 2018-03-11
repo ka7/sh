@@ -156,7 +156,7 @@ if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
     echo "<<< Installing MySQL related packages"
     $EXDEB install $MLIST > /dev/null 2>&1
 
-    # Change to utf8 otherwise pdns tables will not install (is this still needed with pdns 4.1?)
+    # Change to utf8 otherwise pdns tables will not install
     sed -i \
         -e "/^character-set-server/ s/utf8mb4/utf8/" \
         -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/" \
@@ -164,8 +164,19 @@ if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
 fi
 
 if [[ $DTYPE == mysql && ! -f ~/.my.cnf ]]; then
-    echo "<<< Create MySQL database defaults"
+    echo "<<< Create ~/.my.cnf"
+    cat << EOS | tee ~/.my.cnf > /dev/null
+# Autocreated by setup-deb
+[client]
+host = $DHOST
+port = $DPORT
+user = root
+password = $DPASS
+EOS
+    chmod 600 ~/.my.cnf
+
     # Give up on preseeding, just make the changes directly
+    echo "<<< Create MySQL database defaults"
     cat << EOS | mysql
 UPDATE mysql.user SET plugin='';
 UPDATE mysql.user SET Password=PASSWORD('$DPASS') WHERE User='root';
@@ -175,18 +186,7 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 EOS
-    if [[ ! -f ~/.my.cnf ]]; then
-        echo "<<< Create ~/.my.cnf"
-        cat << EOS | tee ~/.my.cnf > /dev/null
-# Autocreated by setup-deb
-[client]
-host = $DHOST
-port = $DPORT
-user = root
-password = $DPASS
-EOS
-        chmod 600 ~/.my.cnf
-    fi
+
     systemctl restart mysql
 fi
 

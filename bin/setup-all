@@ -6,6 +6,8 @@ echo "### Entering setup-host"
 setup-host
 echo "### Entering setup-deb"
 setup-deb
+echo "### Entering setup-db"
+setup-db
 echo "### Entering setup-etc"
 setup-etc
 echo "### Entering setup-www"

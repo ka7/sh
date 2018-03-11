@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180304
+# .sh/etc/setup-db.sh 20170319 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,11 +7,13 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+source ~/.vhosts/$(hostname -f) || exit 3
+
 DTYPE=${1:-$DTYPE}
 
 if [[ $DTYPE == sqlite ]]; then
 
-    if [[ ! -f $DBSQL ]]; then
+    if [[ ! -d $DBSQL ]]; then
         echo "||| Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
@@ -36,13 +38,17 @@ password = $DPASS
 EOS
         chmod 600 ~/.my.cnf
     fi
-    cat << EOS | mysql
+    if [[ ! -d $DBMYS ]]; then
+        echo "||| Create MySQL privileges"
+        cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 GRANT ALL ON $ADMIN . * TO '$ADMIN'@'localhost' IDENTIFIED BY '$DPASS';
 FLUSH PRIVILEGES;
 EOS
+    fi
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
     SQCMD="mysql -BN $ADMIN"
+
 else
     echo "ERROR: unknown argument '$DTYPE'" && exit 2
 fi
@@ -240,7 +246,5 @@ if [[ $DTYPE == sqlite ]]; then
     ln $ADMIN/$(basename $DPATH) dovecot
     ln $ADMIN/$(basename $DPATH) postfix
 fi
-
-echo "||| Create '$DTYPE' database"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
