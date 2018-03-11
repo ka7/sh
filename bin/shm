@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shm 20130210 - 20180303
+# .sh/bin/shm 20130210 - 20180311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $REPO ]] && REPO=~/.sh
@@ -34,7 +34,6 @@ sh_install ()
     sed -i 's/^mesg/#mesg/' ~/.profile
     touch ~/.hushlogin
     echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bashrc
-    echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.profile
     echo
     echo ". ~/.shrc"
 }
@@ -44,7 +43,6 @@ sh_remove ()
     local F FF DF
     cd
     sed -i '/\.shrc/d' ~/.bashrc
-    sed -i '/\.shrc/d' ~/.profile
     for F in $(ls -1 $REPO/_*); do
         FF=$(basename $F)
         DF=".${FF#_}"
