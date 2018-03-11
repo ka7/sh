@@ -65,9 +65,12 @@ lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
 # Continue container setup if the host is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
     echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
-    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    lxc exec $_HOST -- bash -lc "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
+    lxc exec $_HOST -- bash -c "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
+    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+#    lxc exec $_HOST -- bash -c "git clone -q https://github.com/netserva/sh .sh"
+#    lxc exec $_HOST -- bash -c "/root/.sh/bin/shm install > /dev/null"
+#    lxc exec $_HOST -- bash -c "/root/.sh/bin/shm perms"
     lxc exec $_HOST -- bash -lc "/root/.sh/bin/setup-all $DTYPE"
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
     echo "--- setup-ssh $VHOST $LXDIP"
