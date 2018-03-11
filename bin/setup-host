@@ -96,7 +96,7 @@ EOS
     chmod 600 ~/.ssh/*
 fi
 
-if [[ -d /etc/NetworkManager/NetworkManager.conf ]]; then
+if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
     if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
         echo "!!! Create desktop iptables save/restore"
         cp ~/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \

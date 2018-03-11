@@ -158,12 +158,6 @@ if [[ ! -d $CIMAP/sieve ]]; then
     ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
 fi
 
-if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "^^^ Create /etc/apt/sources.list"
-    mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cp ~/.sh/etc/_etc_apt_sources.list /etc/apt/sources.list
-fi
-
 if [[ ! -f $C_WEB/common.conf ]]; then
     echo "^^^ Create $C_WEB/common.conf"
     cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
