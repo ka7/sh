@@ -240,27 +240,33 @@ if [[ ! -f $C_SSL/dhparams.pem ]]; then
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then
-    echo "^^^ Create temporary self-signed certificate for $VHOST"
-    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
-        -keyout /etc/ssl/$VHOST/privkey.pem \
-        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
-
-    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
-server {
-    listen                      443 ssl http2;
-    server_name                 $VHOST;
-    set                         \$domain $VHOST;
-    include                     $C_WEB/common.conf;
-    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
-    ssl_stapling                off;
-    ssl_stapling_verify         off;
-}
-EOS
+    if [[ ! -f $C_WEB/sites-enabled/_default.nossl ]]; then
+        echo "^^^ Create generic non-SSL Port 80 nginx config"
+        cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
     fi
+### No point creating a temporary self-signed certificate when Firefox >= 55
+### uses aggressive HSTS and will not surf to the resulting https URL anyway
+#    echo "^^^ Create temporary self-signed certificate for $VHOST"
+#    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+#    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
+#        -keyout /etc/ssl/$VHOST/privkey.pem \
+#        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+#
+#    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
+#        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+#server {
+#    listen                      443 ssl http2;
+#    server_name                 $VHOST;
+#    set                         \$domain $VHOST;
+#    include                     $C_WEB/common.conf;
+#    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+#    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+#    ssl_stapling                off;
+#    ssl_stapling_verify         off;
+#}
+#EOS
+#    fi
 fi
 
 # Missing from Ubuntu nginx installation
