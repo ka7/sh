@@ -12,7 +12,8 @@ source ~/.vhosts/$(hostname -f) || exit 3
 if [[ -d $VPATH/$VHOST ]]; then
     echo "*** $VPATH/$VHOST already exists"
 else
-    addvhost
+    echo "*** addvhost $VHOST"
+    addvhost $VHOST
     newautoconfig $VHOST
     chperms $VHOST > /dev/null 2>&1
 fi

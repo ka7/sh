@@ -53,7 +53,7 @@ fi
 if [[ ! -f /root/.vhosts/$AHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$AHOST"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    source /root/.shrc
+    source /root/.sh/lib/functions
     sethost $UUSER@$AHOST $(newpw 5)
     gethost > /root/.vhosts/$AHOST && chmod 600 /root/.vhosts/$AHOST
     source /root/.vhosts/$AHOST
