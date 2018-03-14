@@ -151,7 +151,7 @@ DHCP=ipv4
 UseMTU=true
 RouteMetric=100
 EOS
-    systemctrl enable systemd-networkd
+    systemctl enable systemd-networkd
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then

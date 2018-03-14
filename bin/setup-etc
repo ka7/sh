@@ -165,7 +165,8 @@ if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
 fi
 
-if [[ -h $C_WEB/sites-enabled/default ]]; then
+if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
+    if [[  ]]; then
     echo "^^^ Create $C_WEB/sites-enabled/_default"
     rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
