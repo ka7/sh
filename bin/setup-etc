@@ -165,13 +165,6 @@ if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
 fi
 
-if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
-    if [[  ]]; then
-    echo "^^^ Create $C_WEB/sites-enabled/_default"
-    rm $C_WEB/sites-enabled/default
-    cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
-fi
-
 if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
     echo "^^^ Create $C_WEB/sites-enabled/_localhost"
     cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
@@ -240,19 +233,28 @@ if [[ ! -f $C_SSL/dhparams.pem ]]; then
     openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 2048 > /dev/null 2>&1
 fi
 
+# Should be $AHOST ???
 if [[ ! -d $C_SSL/$VHOST ]]; then
-    if [[ ! -f $C_WEB/sites-enabled/_default.nossl ]]; then
-        echo "^^^ Create generic non-SSL Port 80 nginx config"
-        cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
-    fi
-### No point creating a temporary self-signed certificate when Firefox >= 55
-### uses aggressive HSTS and will not surf to the resulting https URL anyway
-#    echo "^^^ Create temporary self-signed certificate for $VHOST"
-#    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
-#    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-#        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
-#        -keyout /etc/ssl/$VHOST/privkey.pem \
-#        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+    echo "^^^ Create temporary self-signed certificate for $VHOST"
+    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
+        -keyout /etc/ssl/$VHOST/privkey.pem \
+        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+fi
+
+# TODO: work out which default (ssl or nossl) should be installed
+
+#if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
+#    echo "^^^ Create $C_WEB/sites-enabled/_default"
+#    rm $C_WEB/sites-enabled/default
+#    cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
+#fi
+#
+#if [[ ! -f $C_WEB/sites-enabled/_default.nossl ]]; then
+#    echo "^^^ Create generic non-SSL Port 80 nginx config"
+#    cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
+#fi
 #
 #    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
 #        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
@@ -268,7 +270,6 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
 #}
 #EOS
 #    fi
-fi
 
 # Missing from Ubuntu nginx installation
 if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
