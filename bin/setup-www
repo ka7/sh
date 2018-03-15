@@ -9,13 +9,8 @@
 
 source /root/.shrc || exit 3
 
-if [[ -d $VPATH/$VHOST ]]; then
-    echo "*** $VPATH/$VHOST already exists"
-else
-    echo "*** addvhost $VHOST"
-    addvhost $VHOST
-    newautoconfig $VHOST
-    chperms $VHOST > /dev/null 2>&1
-fi
+[[ -d $VPATH/$VHOST ]] && echo "*** $VPATH/$VHOST already exists" || addvhost $VHOST
+
+# TODO add setup-adm if $VHOST == $AHOST
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

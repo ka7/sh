@@ -258,6 +258,7 @@ EOS
 fi
 
 addvmail admin@$VHOST
+newautoconfig $VHOST
 chperms $VHOST
 logging $VHOST update
 
