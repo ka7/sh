@@ -64,7 +64,7 @@ if [[ $DTYPE == mysql ]]; then
             chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
             chmod 640 $UPATH/etc/$DNAME.sql
             echo "!!! Remove '$DNAME' database"
-            mysql -BNe "DROP '$DNAME'"
+            mysql -BNe "DROP DATABASE $DNAME"
         fi
     fi
 else
