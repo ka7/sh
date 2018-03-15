@@ -30,19 +30,27 @@ if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     userdel -rf ubuntu > /dev/null 2>&1
 fi
 
-echo "^^^ Create $CSMTP/main.cf for $DTYPE"
-[[ ! -f $CSMTP/main.cf.orig ]] && mv $CSMTP/main.cf $CSMTP/main.cf.orig
-
-sed -e "s;_VHOST;$VHOST;" \
-    ~/.sh/etc/_etc_postfix_main.cf \
-    > $CSMTP/main.cf
-
-if [[ $DTYPE == sqlite ]]; then
-    cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
-elif [[ $DTYPE == mysql ]]; then
-    cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
+if [[ ! -f $CSMTP/main.cf.orig ]]; then
+    echo "^^^ Create $CSMTP/main.cf for $DTYPE"
+    mv $CSMTP/main.cf $CSMTP/main.cf.orig
+    sed -e "s;_VHOST;$VHOST;" \
+        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+    if [[ $DTYPE == sqlite ]]; then
+        echo "^^^ Append SQLite details to $CSMTP/main.cf"
+        cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
+    elif [[ $DTYPE == mysql ]]; then
+        echo "^^^ Append MySQL details to $CSMTP/main.cf"
+        cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
+    fi
+    chmod 644 $CSMTP/main.cf
 fi
-chmod 644 $CSMTP/main.cf
+
+if [[ ! -f $CSMTP/master.cf.orig ]]; then
+    echo "^^^ Create $CSMTP/master.cf"
+    mv $CSMTP/master.cf $CSMTP/master.cf.orig
+    cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
+    chmod 644 $CSMTP/master.cf
+fi
 
 if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
@@ -113,16 +121,18 @@ elif [[ $DTYPE == mysql ]]; then
      fi
 fi
 
-echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
-[[ ! -f $CIMAP/dovecot.conf.orig ]] && mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
-sed -e "s;_VHOST;$VHOST;" \
-    ~/.sh/etc/_etc_dovecot_dovecot.conf \
-    > $CIMAP/dovecot.conf
-
-if [[ $DTYPE == sqlite ]]; then
-    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
-elif [[ $DTYPE == mysql ]]; then
-    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
+if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
+    echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
+    mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
+    sed -e "s;_VHOST;$VHOST;" \
+        ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
+    if [[ $DTYPE == sqlite ]]; then
+        echo "^^^ Append SQLite details to $CIMAP/dovecot.conf"
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
+    elif [[ $DTYPE == mysql ]]; then
+        echo "^^^ Append MySQL details to $CIMAP/dovecot.conf"
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
+    fi
 fi
 
 if [[ $DTYPE == sqlite ]]; then
@@ -181,12 +191,6 @@ if [[ ! -f $C_FPM/common.conf ]]; then
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
-if [[ ! -f $CSMTP/master.cf.orig ]]; then
-    echo "^^^ Create $CSMTP/master.cf"
-    mv $CSMTP/master.cf $CSMTP/master.cf.orig
-    cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
-fi
-
 # TODO switch between mysql/sqlite
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "^^^ Create $C_DNS/pdns.conf"
@@ -209,22 +213,7 @@ fi
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "^^^ Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cat << EOS | tee /etc/ssh/sshd_config > /dev/null
-Port 9
-MaxAuthTries 3
-MaxSessions 20
-ChallengeResponseAuthentication no
-UsePAM yes
-X11Forwarding yes
-PrintMotd no
-MaxStartups 1
-AcceptEnv LANG LC_*
-Subsystem sftp internal-sftp -u 0027
-Match User u*
-  ChrootDirectory %h
-  X11Forwarding no
-  AllowTcpForwarding no
-EOS
+    cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart ssh
 fi
 
@@ -233,7 +222,13 @@ if [[ ! -f $C_SSL/dhparams.pem ]]; then
     openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 2048 > /dev/null 2>&1
 fi
 
-# Should be $AHOST ???
+# Firefox no longer works with a self-signed cert so don't use one
+if [[ ! -f $C_WEB/sites-enabled/_default.nossl && ! -f $C_WEB/sites-enabled/_default ]]; then
+    echo "^^^ Create generic non-SSL Port 80 nginx config"
+    cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
+fi
+
+# This is still needed for postfix and dovecot
 if [[ ! -d $C_SSL/$VHOST ]]; then
     echo "^^^ Create temporary self-signed certificate for $VHOST"
     [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
@@ -243,56 +238,11 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
         -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 fi
 
-# TODO: work out which default (ssl or nossl) should be installed
-
-#if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
-#    echo "^^^ Create $C_WEB/sites-enabled/_default"
-#    rm $C_WEB/sites-enabled/default
-#    cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
-#fi
-#
-#if [[ ! -f $C_WEB/sites-enabled/_default.nossl ]]; then
-#    echo "^^^ Create generic non-SSL Port 80 nginx config"
-#    cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
-#fi
-#
-#    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-#        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
-#server {
-#    listen                      443 ssl http2;
-#    server_name                 $VHOST;
-#    set                         \$domain $VHOST;
-#    include                     $C_WEB/common.conf;
-#    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
-#    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
-#    ssl_stapling                off;
-#    ssl_stapling_verify         off;
-#}
-#EOS
-#    fi
-
 # Missing from Ubuntu nginx installation
 if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     echo "^^^ Create /usr/share/nginx/html/50x.html"
-    cat << EOS | tee /usr/share/nginx/html/50x.html > /dev/null
-<!DOCTYPE html>
-<html>
-<head>
-<title>Error</title>
-<style>
-body { width: 35em; margin: 0 auto; font-family: sans-serif; }
-</style>
-</head>
-<body>
-<h1>An error occurred.</h1>
-<p>Sorry, the page you are looking for is currently unavailable.<br/>
-Please try again later.</p>
-<p>If you are the system administrator of this resource then you should check
-the <a href="http://nginx.org/r/error_log">error log</a> for details.</p>
-<p><em>Faithfully yours, nginx.</em></p>
-</body>
-</html>
-EOS
+    [[ ! -d /usr/share/nginx/html ]] && mkdir -p /usr/share/nginx/html
+    cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
 fi
 
 serva restart web
