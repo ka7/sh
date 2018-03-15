@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20180311
+# .sh/bin/setup-www 20170519 - 20180315
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -16,22 +16,6 @@ else
     addvhost $VHOST
     newautoconfig $VHOST
     chperms $VHOST > /dev/null 2>&1
-fi
-
-# Default route IP
-R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
-
-# DNS vhost IP
-D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
-
-# If both IPs match then let's assume LetsEncrypt can reach us
-if [[ $R_IP4 == $D_IP4 ]]; then
-    newssl $VHOST cdn www > /dev/null 2>&1
-else
-    echo "*** Note: if this server has outside net access"
-    echo "*** with DNS pointing to it's FQDN then use"
-    echo "*** \"newssl $VHOST adm cdn www\""
-    echo "*** to provide a LetsEncrypt SSL certificate."
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
