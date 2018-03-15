@@ -226,6 +226,7 @@ fi
 if [[ ! -f $C_WEB/sites-enabled/_default.nossl && ! -f $C_WEB/sites-enabled/_default ]]; then
     echo "^^^ Create generic non-SSL Port 80 nginx config"
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
+    [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
 fi
 
 # This is still needed for postfix and dovecot
