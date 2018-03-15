@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180306
+# .sh/bin/delvhost 20170216 - 20180315
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -64,7 +64,7 @@ if [[ $DTYPE == mysql ]]; then
             chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
             chmod 640 $UPATH/etc/$DNAME.sql
             echo "!!! Remove '$DNAME' database"
-            mysql -BNe "DROP $DNAME'"
+            mysql -BNe "DROP '$DNAME'"
         fi
     fi
 else
