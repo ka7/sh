@@ -94,12 +94,19 @@ server {
 EOS
         fi
     fi
-    cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
-        > $C_SSL/$VHOST/mailserver.pem
-    chmod 644 $C_SSL/$VHOST/mailserver.pem
+
+# Only needed by the Courier mailserver
+#    cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
+#        > $C_SSL/$VHOST/mailserver.pem
+#    chmod 644 $C_SSL/$VHOST/mailserver.pem
+
     chmod 755 $C_SSL/$VHOST
-    sleep 1
-    nginx -t && { systemctl stop nginx; systemctl start nginx; }
+    if [[ ! -f $C_WEB/sites-enabled/_default.nossl ]]; then
+        echo "^^^ Replace generic non-SSL with SSL nginx config"
+        rm $C_WEB/sites-enabled/_default.nossl
+        cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
+    fi
+    serva restart nginx
     [[ -d /etc/postfix ]] && serva restart mail
 fi
 
