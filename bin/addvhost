@@ -261,4 +261,6 @@ addvmail admin@$VHOST
 chperms $VHOST
 logging $VHOST $DTYPE update
 
+serva restart web
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
