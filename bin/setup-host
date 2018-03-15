@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180311
+# .sh/bin/setup-host 20170524 - 20180315
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
 HLIST="
-bc
-bind9-host
-bsd-mailx
-ca-certificates
-curl
-git
-iptables
-mutt
-nano
-openssh-server
-rsync
-ssmtp
+  bc
+  bind9-host
+  bsd-mailx
+  ca-certificates
+  curl
+  git
+  iptables
+  mutt
+  nano
+  openssh-server
+  rsync
+  ssmtp
 "
 
 [[ $1 =~ '-h' ]] && \
@@ -40,7 +40,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgr
 echo "!!! Installing default package set, more patience..."
 DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
 
-# After essential host package update so we definitely have git
+# We now have git available so install the essential SH scripts
 if [[ ! -d /root/.sh ]]; then
     echo "!!! Setup NetServa SH scripts"
     cd
