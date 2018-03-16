@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-LSTOR=zfs # btrfs, zfs, lvm, dir
+LSTOR=btrfs # btrfs, zfs, lvm, dir
 
 PSIZE=${1:-'25'}
 APASS=${2:-$(newpw 1)}
