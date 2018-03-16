@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 201800304
+# .sh/bin/addvhost 20170217 - 201800316
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -279,6 +279,8 @@ fi
 if [[ -d $WPATH && $DTYPE == mysql ]]; then
     addwp $VHOST
 fi
+
+chshpw $UUSER $UPASS
 
 serva restart web
 
