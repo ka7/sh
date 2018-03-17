@@ -13,7 +13,7 @@ VHOST=${1:-$VHOST}
 source ~/.vhosts/$VHOST || exit 4
 echo "???????????????????????? DUSER=$DUSER DPASS=$DPASS"
 
-#[[ ! -d $VPATH/$VHOST ]] && addvhost $ADMIN@$VHOST
+addvhost
 
 if [[ -d $WPATH/adm ]]; then
     echo "@@@ $WPATH/adm (HCP) already exists"

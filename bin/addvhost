@@ -19,7 +19,7 @@ if [[ $1 ]]; then
     fi
 fi
 
-if [[ -f /root/vhosts/$VHOST ]]; then
+if [[ -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Source /root/vhosts/$VHOST config file"
     source /root/.vhosts/$VHOST
 echo "???????????????????????? DNAME=$DNAME DPASS=$DPASS"
