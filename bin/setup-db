@@ -8,7 +8,6 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-echo "???????????????????????? DUSER=$DUSER DPASS=$DPASS"
 
 DTYPE=${1:-$DTYPE}
 
@@ -42,7 +41,6 @@ EOS
 
     if [[ ! -d $DBMYS/$ADMIN ]]; then
         echo "||| Create MySQL privileges"
-echo "???????????????????????? DUSER=$DUSER DPASS=$DPASS"
         cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 GRANT ALL ON $ADMIN . * TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS';
