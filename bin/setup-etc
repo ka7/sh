@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180311
+# .sh/bin/setup-etc 20151231 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -191,6 +191,19 @@ if [[ ! -f $C_FPM/common.conf ]]; then
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
+if [[ ! -f $C_FPM/php.ini.orig ]]; then
+    echo "^^^ Modify $C_FPM/php.ini"
+    cp $C_FPM/php.ini $C_FPM/php.ini.orig
+    sed -i $C_FPM/php.ini \
+        -e 's/;opcache.enable=1/opcache.enable=1/' \
+        -e 's/;opcache.enable_cli=0/opcache.enable_cli=1/' \
+        -e 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=8/' \
+        -e 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/' \
+        -e 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/' \
+        -e 's/;opcache.save_comments=1/opcache.save_comments=1/' \
+        -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/'
+fi
+
 # TODO switch between mysql/sqlite
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "^^^ Create $C_DNS/pdns.conf"
@@ -247,7 +260,6 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
 fi
 
 serva restart web
-serva restart php
 serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
