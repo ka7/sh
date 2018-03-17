@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180311
+# .sh/bin/setup-deb 20170519 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -151,7 +151,7 @@ DHCP=ipv4
 UseMTU=true
 RouteMetric=100
 EOS
-    systemctl enable systemd-networkd
+    systemctl enable systemd-networkd > /dev/null 2>&1
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
