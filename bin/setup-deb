@@ -7,6 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
+echo "???????????????????????? DPASS=$DPASS"
 
 EXDEB="apt-get -yqq"
 export DEBIAN_FRONTEND=noninteractive
@@ -178,9 +179,10 @@ if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
         $C_SQL/mariadb.conf.d/50-server.cnf
 fi
 
-if [[ $DTYPE == mysql && ! -f ~/.my.cnf ]]; then
-    echo "<<< Create ~/.my.cnf"
-    cat << EOS | tee ~/.my.cnf > /dev/null
+if [[ $DTYPE == mysql ]]; then
+    if [[ ! -f ~/.my.cnf ]]; then
+        echo "<<< Create ~/.my.cnf ($DPASS)"
+        cat << EOS | tee ~/.my.cnf > /dev/null
 # Autocreated by setup-deb
 [client]
 host = $DHOST
@@ -188,7 +190,8 @@ port = $DPORT
 user = root
 password = $DPASS
 EOS
-    chmod 600 ~/.my.cnf
+        chmod 600 ~/.my.cnf
+    fi
 
     # Give up on preseeding, just make the changes directly
     echo "<<< Create MySQL database defaults"

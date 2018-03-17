@@ -8,6 +8,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
+echo "???????????????????????? DPASS=$DPASS"
 
 DTYPE=${1:-$DTYPE}
 
@@ -38,6 +39,7 @@ password = $DPASS
 EOS
         chmod 600 ~/.my.cnf
     fi
+
     if [[ ! -d $DBMYS/$ADMIN ]]; then
         echo "||| Create MySQL privileges"
         cat << EOS | mysql

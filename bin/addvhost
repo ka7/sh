@@ -22,6 +22,7 @@ fi
 if [[ -f /root/vhosts/$VHOST ]]; then
     echo "!!! Source /root/vhosts/$VHOST config file"
     source /root/.vhosts/$VHOST
+echo "???????????????????????? DPASS=$DPASS"
 else
     echo "!!! Create /root/vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $(newpw 5)

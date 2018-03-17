@@ -7,10 +7,11 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source ~/.shrc || exit 3
-set -x
+
 VHOST=${1:-$VHOST}
 
 source ~/.vhosts/$VHOST || exit 4
+echo "???????????????????????? DPASS=$DPASS"
 
 [[ ! -d $VPATH/$VHOST ]] && addvhost $ADMIN@$VHOST
 
