@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 201800316
+# .sh/bin/addvhost 20170217 - 201800317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -18,18 +18,18 @@ if [[ $1 ]]; then
         VHOST=$1
     fi
 fi
-
+set -x
 if [[ -f /root/vhosts/$VHOST ]]; then
     echo "!!! Source /root/vhosts/$VHOST config file"
     source /root/.vhosts/$VHOST
-echo "???????????????????????? DPASS=$DPASS"
+echo "???????????????????????? DNAME=$DNAME DPASS=$DPASS"
 else
     echo "!!! Create /root/vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $(newpw 5)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
     source /root/.vhosts/$VHOST
 fi
-
+set +x
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
 # This has to be moved into a database
