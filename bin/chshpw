@@ -6,16 +6,16 @@
 
 UPASS=${2:-$(newpw 1)}
 
-USERS=$(getent passwd | grep -E "^u[0-9]" | grep -c $1)
+USERS=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep -c $1)
 
 if [[ $USERS -eq 0 ]]; then
     echo "No matching user, try again"
 elif [[ $USERS -gt 1 ]]; then
     echo "Chose a more specific part of user, domain or path"
     echo "--------------------------------------------------"
-    getent passwd | grep -E "^u[0-9]" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
+    getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
 elif [[ $USERS -eq 1 ]]; then
-    GETPW=$(getent passwd | grep -E "^u[0-9]" | grep $1)
+    GETPW=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
     UUSER=$(echo $GETPW|cut -d':' -f1)
     VHOST=$(echo $GETPW|cut -d':' -f5)
     [[ $(id -u) -gt 0 ]] && SUDO='sudo -i' || SUDO=

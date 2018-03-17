@@ -266,10 +266,10 @@ LOCIP=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
 
 if [[ $DNSIP =~ 192.168 ]]; then
-    echo "*** Note: if this server has outside net access with"
-    echo "*** DNS pointing a public IP to it's FQDN then use"
-    echo "*** \"newssl $VHOST cdn www\""
-    echo "*** to provide a LetsEncrypt SSL certificate."
+    echo "*** Note: if this server has outside net access with DNS"
+    echo "***       pointing a public IP to it's FQDN then use"
+    echo "***           newssl $VHOST cdn www"
+    echo "***       to provide a LetsEncrypt SSL certificate."
 else
     # TODO this needs testing and more work
     [[ $LOCIP == $DNSIP ]] && TMPIP=$DNSIP || TMPIP=$LOCIP
@@ -280,8 +280,9 @@ if [[ -d $WPATH && $DTYPE == mysql ]]; then
     addwp $VHOST
 fi
 
+set -x
 chshpw $UUSER $UPASS
-
+set +x
 serva restart web
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

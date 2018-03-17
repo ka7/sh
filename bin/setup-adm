@@ -62,7 +62,7 @@ if [[ $DTYPE == mysql ]]; then
         wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
         tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
         mv phpMyAdmin-*/ www/adm/phpmyadmin
-        mv www/phpmyadmin/adm/config.sample.inc.php www/adm/phpmyadmin/config.inc.php
+        mv www/adm/phpmyadmin/config.sample.inc.php www/adm/phpmyadmin/config.inc.php
         ENCPW=$(newpw 4 | tr ' ' _)
         sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/adm/phpmyadmin/config.inc.php
         rm phpMyAdmin-latest-english.tar.gz
