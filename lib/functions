@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20180302
+# .sh/lib/functions 20151231 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -108,7 +108,6 @@ setuser ()
 }
 sethost ()
 {
-set -x
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: sethost uuser@domain|domain [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]";
         return 1;
@@ -128,7 +127,7 @@ set -x
     fi;
     export U_GID=$U_UID;
     [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
-set +x
+
     export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
     export EXMYS="mysql -BN $ADMIN";
     export EXSQL="sqlite3 $DPATH";

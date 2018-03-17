@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180311
+# .sh/bin/setup-all 20170519 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
+export PATH=/root/.sh/bin
 
 echo "### Entering setup-host"
 setup-host
@@ -12,7 +12,7 @@ echo "### Entering setup-db"
 setup-db
 echo "### Entering setup-etc"
 setup-etc
-echo "### Entering setup-www"
-setup-www
+echo "### Entering setup-adm"
+setup-adm
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

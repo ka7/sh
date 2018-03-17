@@ -1,42 +1,44 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-adm 20170519 - 20180311
+# .sh/bin/setup-adm 20170519 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-adm [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.vhosts/$(hostname -f) || exit 3
+source ~/.shrc || exit 3
 
 VHOST=${1:-$VHOST}
+
+source ~/.vhosts/$VHOST || exit 4
 
 [[ ! -d $VPATH/$VHOST ]] && addvhost $ADMIN@$VHOST
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
-    echo "*** $UPATH/.ssh/authorized_keys already exists"
+    echo "@@@ $UPATH/.ssh/authorized_keys already exists"
 else
     if [[ ! -f /root/.ssh/id_rsa.pub ]]; then
-        echo "*** Warning /root/.ssh/id_rsa.pub does not exist"
+        echo "@@@ Warning /root/.ssh/id_rsa.pub does not exist"
     else
-        echo "*** Create $UPATH/.ssh/authorized_keys"
+        echo "@@@ Create $UPATH/.ssh/authorized_keys"
         cp /root/.ssh/id_rsa.pub $UPATH/.ssh/authorized_keys
     fi
 fi
 
 if [[ -d $WPATH/.git ]]; then
-    echo "*** $WPATH/.git (HCP) already exists"
+    echo "@@@ $WPATH/.git (HCP) already exists"
 else
-    echo "*** Clone Netserva HCP to $WPATH"
+    echo "@@@ Clone Netserva HCP to $WPATH"
     cd $UPATH/var
     [[ -d www && ! -d www_old ]] && mv www www_old
     git clone https://github.com/netserva/www > /dev/null 2>&1
 fi
 
 if [[ -f $WPATH/.htpasswd ]]; then
-    echo "*** $WPATH/.htpasswd already exists"
+    echo "@@@ $WPATH/.htpasswd already exists"
 else
     PIN=$RANDOM
-    echo "*** Create $WPATH/.htpasswd $ADMIN/$PIN"
+    echo "@@@ Create $WPATH/.htpasswd $ADMIN/$PIN"
     htpasswd -b -c $WPATH/.htpasswd $ADMIN $PIN
     echo "# HTTP auth for https://$VHOST -> $ADMIN / $PIN" >> ~/.my.cnf
 fi
@@ -44,48 +46,49 @@ fi
 # Even if SQLite is the default this is so switching to MySQL has a chance
 # of working when index.php db=>type is manally changed to "mysql".
 if [[ -f $WPATH/lib/.ht_pw ]]; then
-    echo "*** $WPATH/lib/.ht_pw already exists"
+    echo "@@@ $WPATH/lib/.ht_pw already exists"
 else
-    echo "*** Create $WPATH/lib/.ht_pw"
+    echo "@@@ Create $WPATH/lib/.ht_pw"
     echo $DPASS > $WPATH/lib/.ht_pw
 fi
 
 if [[ -d $WPATH/webmail ]]; then
-    echo "*** $WPATH/webmail already exists"
+    echo "@@@ $WPATH/webmail already exists"
 else
-    echo "*** Setup rainloop in $WPATH/webmail"
+    echo "@@@ Setup rainloop in $WPATH/webmail"
     cd $UPATH/var
     mkdir $WPATH/webmail
     cd $WPATH/webmail
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip
-    sed -i "/admin_password/ s/12345/$APASS/" $WPATH/webmail/data/_data_/_default_/configs/application.ini
-    cat << EOS | tee $WPATH/webmail/data/_data_/_default_/domains/$VHOST.ini > /dev/null 2>&1
-imap_host = "${VHOST#*.}"
-imap_port = 993
-imap_secure = "SSL"
-imap_short_login = Off
-sieve_use = Off
-sieve_allow_raw = Off
-sieve_host = ""
-sieve_port = 4190
-sieve_secure = "None"
-smtp_host = "${VHOST#*.}"
-smtp_port = 465
-smtp_secure = "SSL"
-smtp_short_login = Off
-smtp_auth = On
-smtp_php_mail = Off
-white_list = ""
-EOS
+
+#    sed -i "/admin_password/ s/12345/$APASS/" $WPATH/webmail/data/_data_/_default_/configs/application.ini
+#    cat << EOS | tee $WPATH/webmail/data/_data_/_default_/domains/$VHOST.ini > /dev/null 2>&1
+#imap_host = "${VHOST#*.}"
+#imap_port = 993
+#imap_secure = "SSL"
+#imap_short_login = Off
+#sieve_use = Off
+#sieve_allow_raw = Off
+#sieve_host = ""
+#sieve_port = 4190
+#sieve_secure = "None"
+#smtp_host = "${VHOST#*.}"
+#smtp_port = 465
+#smtp_secure = "SSL"
+#smtp_short_login = Off
+#smtp_auth = On
+#smtp_php_mail = Off
+#white_list = ""
+#EOS
 fi
 
 if [[ $2 == mysql ]]; then
     if [[ -d $WPATH/phpmyadmin ]]; then
-        echo "*** $WPATH/phpmyadmin already exists"
+        echo "@@@ $WPATH/phpmyadmin already exists"
     else
-        echo "*** Setup phpmyadmin to $WPATH/phpmyadmin"
+        echo "@@@ Setup phpmyadmin to $WPATH/phpmyadmin"
         cd $UPATH/var
         wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
         tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
@@ -96,9 +99,9 @@ if [[ $2 == mysql ]]; then
         rm phpMyAdmin-latest-english.tar.gz
     fi
     if [[ -f $WPATH/lib/.ht_conf.php ]]; then
-        echo "*** $WPATH/lib/.ht_conf.php already exists"
+        echo "@@@ $WPATH/lib/.ht_conf.php already exists"
     else
-        echo "*** Create $WPATH/lib/.ht_conf.php (edit to modify/extend)"
+        echo "@@@ Create $WPATH/lib/.ht_conf.php (edit to modify/extend)"
         echo "<?php
 return [
     'cfg' => ['email' => '$ADMIN@$VHOST'],
@@ -109,23 +112,5 @@ return [
 fi
 
 chperms $VHOST > /dev/null 2>&1
-
-# Default route IP
-R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
-
-# DNS vhost IP
-D_IP4=$(host -t a $VHOST|cut -d' ' -f4)
-
-if [[ $R_IP4 == $D_IP4 ]]; then
-    sleep 1
-    newssl $VHOST adm cdn www > /dev/null 2>&1
-    echo "*** Setup Netserva HCP -> https://$VHOST"
-else
-    echo "*** Setup Netserva HCP -> http://$VHOST"
-    echo "*** Note: if this server has outside net access"
-    echo "***  with DNS pointing to it's FQDN then use"
-    echo "*** \"newssl $VHOST\""
-    echo "*** to provide a LetsEncrypt SSL certificate."
-fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
