@@ -29,7 +29,7 @@ lxc storage list | grep lxd-pool > /dev/null
 if [[ $? -eq 0 ]]; then
     echo "--- Warning: lxd-pool already installed"
 else
-    echo "--- Install lxd with $PSIZE GB lxd-pool at $IP4_0 with pw $APASS"
+    echo "--- Install lxd with $PSIZE GB $LSTOR lxd-pool at $IP4_0 with pw $APASS"
     # switch group to lxd
     sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \

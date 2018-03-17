@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180303
+# .sh/bin/addwp 20160231 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -22,7 +22,8 @@ fi
 FPATH=${2:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 
-[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
+#[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
+[[ $IP4_0 =~ 192.168 ]] && SCHEME="http://" || SCHEME="https://"
 
 if [[ $FPATH ]]; then
     WPURL=$SCHEME$VHOST/$FPATH
