@@ -23,7 +23,7 @@ HLIST="
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-AHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
+VHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
 DTYPE=${2:-'mysql'}
 UUSER=${3:-'sysadm'}
 
@@ -52,14 +52,14 @@ fi
 source /root/.shrc
 
 # Setup default admin vhost if not exists
-if [[ ! -f /root/.vhosts/$AHOST ]]; then
-    echo "!!! Create initial vhost config /root/.vhosts/$AHOST"
+if [[ ! -f /root/.vhosts/$VHOST ]]; then
+    echo "!!! Create initial vhost config /root/.vhosts/$VHOST"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    sethost $UUSER@$AHOST $(newpw 5)
-    gethost > /root/.vhosts/$AHOST && chmod 600 /root/.vhosts/$AHOST
+    sethost $UUSER@$VHOST $(newpw 5)
+    gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
 fi
 
-source /root/.vhosts/$AHOST
+source /root/.vhosts/$VHOST
 
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
 
