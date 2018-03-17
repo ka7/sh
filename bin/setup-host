@@ -68,9 +68,9 @@ if [[ ! -f /etc/hosts.orig ]]; then
     R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
     echo "!!! Get the default route IP: $R_IP4"
     echo "!!! Rewrite a sane /etc/hosts"
-    sed -i /etc/hosts
-        -e 's/^127.0.1.1.*$/127.0.1.1    resolved/'
-    echo "\n$R_IP4\t$VHOST" >> /etc/hosts
+    sed -i /etc/hosts \
+        -e "s/^127.0.1.1.*$/127.0.1.1\tresolved/" \
+        -e "/^127.0.1.1.*$/a $R_IP4\t$VHOST ${VHOST/%\.*/}"
     hostname $VHOST # Just in case
     echo $VHOST > /etc/hostname
     echo $VHOST > /etc/mailname
