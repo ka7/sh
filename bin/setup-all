@@ -2,7 +2,7 @@
 # .sh/bin/setup-all 20170519 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-export PATH=/root/.sh/bin
+export PATH=/bin:/usr/bin:/root/.sh/bin
 
 echo "### Entering setup-host"
 setup-host
