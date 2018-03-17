@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-www 20170519 - 20180315
+# .sh/bin/setup-www 20170519 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-www [domain] [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
-
+set -x
 source /root/.shrc || exit 3
 
-[[ -d $VPATH/$VHOST ]] && echo "*** $VPATH/$VHOST already exists" || addvhost $VHOST
-
-# TODO add setup-adm if $VHOST == $AHOST
-
+if [[ -d $VPATH/$VHOST ]];then
+    echo "*** $VPATH/$VHOST already exists"
+elif [[ $VHOST == $AHOST ]]; then
+    setup-adm $AHOST
+else
+    addvhost $VHOST
+fi
+set +x
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

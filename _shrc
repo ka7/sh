@@ -48,7 +48,7 @@ export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
-
+set -x
 # Import default vhost
 if [[ -f ~/.vhosts/$VHOST ]]; then
     source ~/.vhosts/$VHOST
@@ -57,3 +57,4 @@ else
         source ~/.vhosts/$(hostname -f) || \
         echo "!!! Warning: no ~/.vhosts/$(hostname -f), please run setup-host"
 fi
+set +x
