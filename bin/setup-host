@@ -72,6 +72,8 @@ if [[ ! -f /etc/hosts.orig ]]; then
         -e 's/^127.0.1.1.*$/127.0.1.1    resolved/'
     echo "\n$R_IP4\t$VHOST" >> /etc/hosts
     hostname $VHOST # Just in case
+    echo $VHOST > /etc/hostname
+    echo $VHOST > /etc/mailname
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then

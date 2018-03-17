@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vultr 20170620 - 20180225
+# .sh/bin/setup-vultr 20170620 - 20180317
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Howto use: signup for an account at https://vultr.com and add the below
