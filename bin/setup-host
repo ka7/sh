@@ -112,26 +112,27 @@ EOS
     chmod 600 /root/.ssh/*
 fi
 
-if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
-    if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
-        echo "!!! Create desktop iptables save/restore"
-        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
-            /etc/NetworkManager/dispatcher.d/99iptables
-        chmod +x /etc/NetworkManager/dispatcher.d/99iptables
-    fi
-else
-    if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
-        echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
+# TODO work this out properly
+#if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
+#    if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
+#        echo "!!! Create desktop iptables save/restore"
+#        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
+#            /etc/NetworkManager/dispatcher.d/99iptables
+#        chmod +x /etc/NetworkManager/dispatcher.d/99iptables
+#    fi
+#else
+#    if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
+#        echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
 #        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
 #            /etc/network/if-post-down.d/iptsave
 #        chmod +x /etc/network/if-post-down.d/iptsave
-
+#
 #        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
 #            /etc/network/if-pre-up.d/iptrestore
 #        chmod +x /etc/network/if-pre-up.d/iptrestore
-    fi
-fi
-
-[[ ! -f /etc/iptables.rules ]] && ssheriff clear && ssheriff
+#    fi
+#fi
+#
+#[[ ! -f /etc/iptables.rules ]] && ssheriff clear && ssheriff
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
