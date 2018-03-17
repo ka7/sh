@@ -25,31 +25,31 @@ else
     fi
 fi
 
-if [[ -d $WPATH/.git ]]; then
-    echo "@@@ $WPATH/.git (HCP) already exists"
+if [[ -d $WPATH/adm ]]; then
+    echo "@@@ $WPATH/adm (HCP) already exists"
 else
-    echo "@@@ Clone Netserva HCP to $WPATH"
+    echo "@@@ Clone Netserva HCP to $WPATH/adm"
     cd $UPATH/var
-    [[ -d www && ! -d www_old ]] && mv www www_old
-    git clone https://github.com/netserva/www > /dev/null 2>&1
+#    [[ -d www && ! -d www_old ]] && mv www www_old
+    git clone https://github.com/netserva/www $WPATH/adm > /dev/null 2>&1
 fi
 
-if [[ -f $WPATH/.htpasswd ]]; then
-    echo "@@@ $WPATH/.htpasswd already exists"
+if [[ -f $WPATH/adm/.htpasswd ]]; then
+    echo "@@@ $WPATH/adm/.htpasswd already exists"
 else
     PIN=$RANDOM
-    echo "@@@ Create $WPATH/.htpasswd $ADMIN/$PIN"
-    htpasswd -b -c $WPATH/.htpasswd $ADMIN $PIN
-    echo "# HTTP auth for https://$VHOST -> $ADMIN / $PIN" >> ~/.my.cnf
+    echo "@@@ Create $WPATH/adm/.htpasswd $ADMIN/$PIN"
+    htpasswd -b -c $WPATH/adm/.htpasswd $ADMIN $PIN
+    echo "# HTTP auth for https://$VHOST/adm -> $ADMIN / $PIN" >> ~/.my.cnf
 fi
 
 # Even if SQLite is the default this is so switching to MySQL has a chance
 # of working when index.php db=>type is manally changed to "mysql".
-if [[ -f $WPATH/lib/.ht_pw ]]; then
-    echo "@@@ $WPATH/lib/.ht_pw already exists"
+if [[ -f $WPATH/adm/lib/.ht_pw ]]; then
+    echo "@@@ $WPATH/adm/lib/.ht_pw already exists"
 else
-    echo "@@@ Create $WPATH/lib/.ht_pw"
-    echo $DPASS > $WPATH/lib/.ht_pw
+    echo "@@@ Create $WPATH/adm/lib/.ht_pw"
+    echo $DPASS > $WPATH/adm/lib/.ht_pw
 fi
 
 if [[ -d $WPATH/webmail ]]; then
@@ -84,7 +84,7 @@ else
 #EOS
 fi
 
-if [[ $2 == mysql ]]; then
+if [[ $DTYPE == mysql ]]; then
     if [[ -d $WPATH/phpmyadmin ]]; then
         echo "@@@ $WPATH/phpmyadmin already exists"
     else
@@ -98,16 +98,16 @@ if [[ $2 == mysql ]]; then
         sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/phpmyadmin/config.inc.php
         rm phpMyAdmin-latest-english.tar.gz
     fi
-    if [[ -f $WPATH/lib/.ht_conf.php ]]; then
-        echo "@@@ $WPATH/lib/.ht_conf.php already exists"
+    if [[ -f $WPATH/adm/lib/.ht_conf.php ]]; then
+        echo "@@@ $WPATH/adm/lib/.ht_conf.php already exists"
     else
-        echo "@@@ Create $WPATH/lib/.ht_conf.php (edit to modify/extend)"
+        echo "@@@ Create $WPATH/adm/lib/.ht_conf.php (edit to modify/extend)"
         echo "<?php
 return [
     'cfg' => ['email' => '$ADMIN@$VHOST'],
     'db' => ['type' => 'mysql', 'pass' => '$DPASS'],
 ];
-" > $WPATH/lib/.ht_conf.php
+" > $WPATH/adm/lib/.ht_conf.php
     fi
 fi
 
