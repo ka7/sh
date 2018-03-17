@@ -31,7 +31,6 @@ setup-all
 echo "--- Make sure postfix has current host details"
 cp /etc/hosts /var/spool/postfix/etc/
 cp /etc/resolv.conf /var/spool/postfix/etc/
-[[ -f /etc/mailname ]] && sed -i "s/'//g" /etc/mailname
 
 echo "--- Restart postfix and dovecot"
 systemctl restart postfix
