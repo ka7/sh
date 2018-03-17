@@ -257,6 +257,7 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     echo "^^^ Create /usr/share/nginx/html/50x.html"
     [[ ! -d /usr/share/nginx/html ]] && mkdir -p /usr/share/nginx/html
     cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
+    chmod 644 /usr/share/nginx/html/50x.html
 fi
 
 serva restart web
