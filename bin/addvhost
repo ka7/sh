@@ -280,9 +280,8 @@ if [[ -d $WPATH && $DTYPE == mysql ]]; then
     addwp $VHOST
 fi
 
-set -x
 chshpw $UUSER $UPASS
-set +x
+
 serva restart web
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
