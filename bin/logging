@@ -38,7 +38,8 @@ log_upath()
         log_setup $1 $2
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
     else
-        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+#        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
+        printf "%-48s %9s %9s %9s\n" $1 $(echo $MDU/1000000|bc -l) $(echo $WDU/1000000|bc -l) $(echo $UDU/1000000|bc -l)
     fi
 }
 
@@ -65,11 +66,11 @@ log_mpath()
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         else
 #            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
-            printf "  %-46s %9.1f %9.1f %9.1f\n" "$(basename $MBOX)@$1" $MDU $SDU $HDU
+            printf "  %-46s %9.1f %9.1f %9.1f\n" "$(basename $MBOX)@$1" $(echo $MDU/1000000|bc -l) $(echo $SDU/1000000|bc -l) $(echo $HDU/1000000|bc -l)
         fi
     done
 }
-
+$(echo $STOTAL/1000000|bc -l)
 log_all()
 {
     DID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
