@@ -64,7 +64,8 @@ log_mpath()
             log_setup $VUSER $2
             echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
         else
-            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+#            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
+            printf "  %-46s %9.1f %9.1f %9.1f\n" "$(basename $MBOX)@$1" $MDU $SDU $HDU
         fi
     done
 }
