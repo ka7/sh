@@ -70,7 +70,7 @@ log_mpath()
         fi
     done
 }
-$(echo $STOTAL/1000000|bc -l)
+
 log_all()
 {
     DID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
