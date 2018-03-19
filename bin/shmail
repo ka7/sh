@@ -19,13 +19,7 @@ if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
             cd "$dir"
             N1=$(du -sb|cut -f1)
             N2=$(find -type f|wc -l)
-# This is strictly accurate but does not take into account directory overhead
-#            for i in $(find -type f -printf "%s\n"); do
-#                N1=$(($N1+$i))
-#                ((N2++))
-#            done
             cd - >/dev/null
-#            STOTAL=$(($STOTAL+$N1))
             NTOTAL=$(($NTOTAL+$N2))
             [[ $N1 -eq 0 ]] && N1STR="" || N1STR=$(printf "%'10.1fM" $(echo $N1/1000000|bc -l))
             [[ $N2 -eq 0 ]] && N2=""
@@ -33,7 +27,6 @@ if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
             N1=0
             N2=0
         done
-#        [[ -z $STOTAL ]] && STOTAL=0
         STOTAL=$(du -sb $MPATH/Maildir|cut -f1)
         echo "-------------------------------------------------"
         printf "%-30s %6s %'10.1fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
