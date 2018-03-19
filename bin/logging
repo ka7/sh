@@ -39,7 +39,7 @@ log_upath()
         echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
     else
 #        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
-        printf "%-48s %9s %9s %9s\n" $1 $(echo $MDU/1000000|bc -l) $(echo $WDU/1000000|bc -l) $(echo $UDU/1000000|bc -l)
+        printf "%-48s %9.1f %9.1f %9.1f\n" $1 $(echo $MDU/1000000|bc -l) $(echo $WDU/1000000|bc -l) $(echo $UDU/1000000|bc -l)
     fi
 }
 
