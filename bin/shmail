@@ -4,6 +4,8 @@
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
 
+source ~/.shrc || exit 2
+
 MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
 
 if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
