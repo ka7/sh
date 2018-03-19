@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20180207
+# .sh/bin/shmail 20150529 - 20180319
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
 
-source ~/.shrc || exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+source ~/.shrc || exit 3
 
 MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
 
@@ -15,22 +17,25 @@ if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
         while read dir; do
             [[ -z $dir ]] && continue
             cd "$dir"
-            for i in $(find -type f -printf "%s\n"); do
-                N1=$(($N1+$i))
-                ((N2++))
-            done
+            N1=$(du -sb|cut -f1)
+            N2=$(find -type f|wc -l)
+# This is strictly accurate but does not take into account directory overhead
+#            for i in $(find -type f -printf "%s\n"); do
+#                N1=$(($N1+$i))
+#                ((N2++))
+#            done
             cd - >/dev/null
             STOTAL=$(($STOTAL+$N1))
             NTOTAL=$(($NTOTAL+$N2))
             [[ $N1 -eq 0 ]] && N1STR="" || N1STR=$(printf "%'9.2fM" $(echo $N1/1000000|bc -l))
             [[ $N2 -eq 0 ]] && N2=""
-            printf "%-36s %4s %10s\n" "$(echo $dir|cut -c 3-)" $N2 $N1STR
+            printf "%-48s %4s %10s\n" "$(echo $dir|cut -c 3-)" $N2 $N1STR
             N1=0
             N2=0
         done
         [[ -z $STOTAL ]] && STOTAL=0
-        echo "----------------------------------------------------"
-        printf "%-36s %4s %'9.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+        echo "--------------------------------------------------------------"
+        printf "%-48s %4s %'9.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
     )
 else
     echo "User '$1' does not exist"
