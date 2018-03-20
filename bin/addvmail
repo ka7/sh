@@ -38,7 +38,7 @@ if [[ -n $USRID ]]; then
     echo "*** Warning: '$1' already exists ($DTYPE)"
 else
     echo "*** Create $ADMIN.vmails entry ($DTYPE)"
-    PW=$(doveadm pw -s SHA512-CRYPT -p $UPASS)
+    PW=$(doveadm pw -s SHA512-CRYPT -p $EPASS)
     DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
         did,
@@ -152,7 +152,7 @@ echo "
 Mail
 ========
 
-Username: $AMAIL
+Username: $1
 Password: $EPASS
 "
 

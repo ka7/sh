@@ -20,10 +20,10 @@ if [[ $1 ]]; then
 fi
 
 if [[ -f /root/.vhosts/$VHOST ]]; then
-    echo "!!! Source /root/vhosts/$VHOST config file"
+    echo "!!! Source /root/.vhosts/$VHOST config file"
     source /root/.vhosts/$VHOST
 else
-    echo "!!! Create /root/vhosts/$VHOST config file"
+    echo "!!! Create /root/.vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $(newpw 5)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
     source /root/.vhosts/$VHOST
