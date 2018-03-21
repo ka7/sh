@@ -4,7 +4,7 @@
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
-[[ $EUID ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
+[[ $EUID -gt 0 ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1#*@} # userid @ $VHOST
 
