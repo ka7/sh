@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20180224
+# .sh/bin/delvmail 20170418 - 20180321
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+[[ $EUID ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1#*@} # userid @ $VHOST
 
@@ -49,6 +49,22 @@ else
     cat << EOS | $SQCMD
  DELETE FROM valias
   WHERE target = '$1'
+EOS
+fi
+
+USRID=$(cat << EOS | $SQCMD
+ SELECT id FROM logging
+  WHERE name = '$1'
+EOS
+)
+
+if [[ -z $USRID ]]; then
+    echo "*** Warning: '$1' does not exist in $ADMIN.logging"
+else
+    echo "*** Remove '$1' from $ADMIN.logging ($DTYPE)"
+    cat << EOS | $SQCMD
+ DELETE FROM logging
+  WHERE name = '$1'
 EOS
 fi
 
