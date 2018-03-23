@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20180321
+# .sh/bin/addvmail 20170418 - 20180323
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -13,6 +13,8 @@ VHOST=${1#*@} # userid @ $VHOST
 source ~/.vhosts/$VHOST || exit 4
 
 VUSER=${1%@*} # $VUSER @ domain
+SPAMF=${2:-"1"} # add spam filter
+[[ $SPAMF == nospam ]] && SPAMF=0
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER"
 EPASS=$(newpw 1)
@@ -46,6 +48,7 @@ else
         did,
         uid,
         gid,
+        spam,
         user,
         home,
         password,
@@ -55,8 +58,9 @@ else
         $DID,
         $U_UID,
         $U_GID,
+        $SPAMF,
         '$VUSER@$VHOST',
-        '/home/u/$VHOST/home/admin',
+        '$VPATH/$VHOST/home/$VUSER',
         '$PW',
         '$_DATE',
         '$_DATE'
@@ -128,8 +132,12 @@ fi
 if [[ -f $MPATH/.dovecot.sieve ]]; then
     echo "*** $MPATH/.dovecot.sieve already exists"
 else
-    echo "*** Create $MPATH/.dovecot.sieve"
-    cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
+    if [[ $SPAMF ]]; then
+        echo "*** Create $MPATH/.dovecot.sieve"
+        cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
+    else
+        echo "*** Ignore creating $MPATH/.dovecot.sieve"
+    fi
 fi
 
 if [[ -d $MPATH/.spamprobe ]]; then
