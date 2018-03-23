@@ -132,7 +132,7 @@ fi
 if [[ -f $MPATH/.dovecot.sieve ]]; then
     echo "*** $MPATH/.dovecot.sieve already exists"
 else
-    if [[ $SPAMF ]]; then
+    if [[ $SPAMF -gt 0 ]]; then
         echo "*** Create $MPATH/.dovecot.sieve"
         cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
     else
