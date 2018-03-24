@@ -235,8 +235,8 @@ UPASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\
 
 cat << EOS | $SQCMD
 INSERT INTO news VALUES
-(null, 'News Item 1', 'Lorem ipsum etc...', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01'),
-(null, 'News Item 2', 'Lorem ipsum etc...', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01');
+(null, 'News Item 1', 'Lorem ipsum etc...', 'lib/uploads/Blank-300x150.png', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01'),
+(null, 'News Item 2', 'Lorem ipsum etc...', 'lib/uploads/Blank-300x150.png', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01');
 INSERT INTO accounts VALUES
 (null,1,0,1,'admin@$VHOST','System','Administrator','',0,'','','$UPASS_HASH','2018-01-01 00:00:01','2018-01-01 00:00:01');
 EOS
