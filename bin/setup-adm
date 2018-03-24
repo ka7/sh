@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-adm 20170519 - 20180317
+# .sh/bin/setup-adm 20170519 - 20180324
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-adm [domain]" && exit 1
@@ -12,7 +12,11 @@ VHOST=${1:-$VHOST}
 
 source ~/.vhosts/$VHOST || exit 4
 
-addvhost
+if [[ -d $WPATH ]]; then
+    echo "@@@ $WPATH already exists"
+else
+    addvhost
+fi
 
 if [[ -d $WPATH/adm ]]; then
     echo "@@@ $WPATH/adm (HCP) already exists"
@@ -21,6 +25,21 @@ else
     cd $UPATH/var
 #    [[ -d www && ! -d www_old ]] && mv www www_old
     git clone https://github.com/netserva/www $WPATH/adm > /dev/null 2>&1
+fi
+
+if [[ -d $UPATH/var/www_old/.well-known ]]; then
+    echo "@@@ Move $UPATH/var/www_old/.well-known to www"
+    mv $UPATH/var/www_old/.well-known $WPATH
+fi
+
+if [[ -d $UPATH/var/www_old/private ]]; then
+    echo "@@@ Move $UPATH/var/www_old/private to www"
+    mv $UPATH/var/www_old/private $WPATH
+fi
+
+if [[ -d $UPATH/var/www_old/public ]]; then
+    echo "@@@ Move $UPATH/var/www_old/public to www"
+    mv $UPATH/var/www_old/public $WPATH
 fi
 
 if [[ -f $WPATH/adm/.htpasswd ]]; then
