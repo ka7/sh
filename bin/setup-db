@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   otpttl int(11) NOT NULL DEFAULT '0',
   cookie varchar(63) NOT NULL DEFAULT '',
   webpw varchar(127) NOT NULL DEFAULT '',
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS logging (
   id $SQLPK,
@@ -91,9 +91,10 @@ CREATE TABLE IF NOT EXISTS news (
   id $SQLPK,
   title varchar(63) NOT NULL,
   content text NOT NULL,
+  media varchar(255) NOT NULL DEFAULT 'lib/uploads/Blank-300x150.png',
   author int(11) NOT NULL,
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS valias (
   id $SQLPK,
@@ -102,14 +103,14 @@ CREATE TABLE IF NOT EXISTS valias (
   active int(1) NOT NULL DEFAULT '1',
   source varchar(63) NOT NULL,
   target varchar(255) NOT NULL,
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS vhosts (
   id $SQLPK,
   aid int(11) NOT NULL DEFAULT '1',
   domain varchar(63) NOT NULL,
-  uname varchar(63) NOT NULL DEFAULT 'u1000',
+  uname varchar(63) NOT NULL DEFAULT 'sysadm',
   uid int(11) NOT NULL DEFAULT '1000',
   gid int(11) NOT NULL DEFAULT '1000',
   aliases int(11) NOT NULL DEFAULT '0',
@@ -117,8 +118,8 @@ CREATE TABLE IF NOT EXISTS vhosts (
   mailquota int(11) NOT NULL DEFAULT '0',
   diskquota int(11) NOT NULL DEFAULT '0',
   active int(1) NOT NULL DEFAULT '1',
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS vmails (
   id $SQLPK,
@@ -126,13 +127,14 @@ CREATE TABLE IF NOT EXISTS vmails (
   did int(11) NOT NULL DEFAULT '1',
   gid int(11) NOT NULL DEFAULT '1000',
   uid int(11) NOT NULL DEFAULT '1000',
+  spam int(1) NOT NULL DEFAULT '1',
   active int(1) NOT NULL DEFAULT '1',
-  quota int(11) NOT NULL DEFAULT '1073741824',
+  quota int(11) NOT NULL DEFAULT '1000000000',
   user varchar(63) NOT NULL DEFAULT '',
   home varchar(63) NOT NULL DEFAULT '',
   password varchar(127) NOT NULL DEFAULT '',
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 
 
@@ -166,8 +168,8 @@ CREATE TABLE IF NOT EXISTS domains (
   type varchar(63) NOT NULL DEFAULT 'master',
   notified_serial int(11) NULL,
   account varchar(63) NULL,
-  updated datetime NOT NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS supermasters (
   id $SQLPK,
@@ -193,8 +195,8 @@ CREATE TABLE IF NOT EXISTS records (
   disabled int(11) NULL DEFAULT '0',
   ordername varchar(63) NULL,
   auth int(11) NULL DEFAULT '1',
-  updated datetime NULL DEFAULT '2017-01-01 00:00:01',
-  created datetime NULL DEFAULT '2017-01-01 00:00:01'
+  updated datetime NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
 
 CREATE UNIQUE INDEX name_index ON domains (name);
@@ -233,10 +235,10 @@ UPASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\
 
 cat << EOS | $SQCMD
 INSERT INTO news VALUES
-(null, 'News Item 1', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01'),
-(null, 'News Item 2', 'Lorem ipsum etc...', 1, '2017-01-01 00:00:01', '2017-01-01 00:00:01');
+(null, 'News Item 1', 'Lorem ipsum etc...', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01'),
+(null, 'News Item 2', 'Lorem ipsum etc...', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01');
 INSERT INTO accounts VALUES
-(null,1,0,1,'admin@$VHOST','System','Administrator','',0,'','','$UPASS_HASH','2017-01-01 00:00:01','2017-01-01 00:00:01');
+(null,1,0,1,'admin@$VHOST','System','Administrator','',0,'','','$UPASS_HASH','2018-01-01 00:00:01','2018-01-01 00:00:01');
 EOS
 
 if [[ $DTYPE == sqlite ]]; then
