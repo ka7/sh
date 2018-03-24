@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180317
+# .sh/bin/setup-host 20170524 - 20180324
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -19,13 +19,15 @@ HLIST="
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)]" && exit 1
+    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)] [os release(bionic)] [os mirror(archive.ubuntu.com)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
 DTYPE=${2:-'mysql'}
 UUSER=${3:-'sysadm'}
+OSREL=${4:-'bionic'}
+OSMIR=${5:-'archive.ubuntu.com'}
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
@@ -34,11 +36,47 @@ if [[ $? -eq 0 ]]; then
     sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
-echo "!!! Updating CURRENT package list, patience please..."
-apt-get -yqq update > /dev/null 2>&1
-DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null 2>&1
-echo "!!! Installing default package set, more patience..."
-DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
+if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    if [[ -d /usr/share/xsessions ]]; then
+        echo "<<< Setup apt sources list for $OSREL DESKTOP"
+        cat << EOS | tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe multiverse restricted
+deb http://$OSMIR/ubuntu $OSREL-updates main universe multiverse restricted
+deb http://$OSMIR/ubuntu $OSREL-backports main universe multiverse restricted
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse restricted
+#
+# for adobe-flashplugin
+deb http://archive.canonical.com/ubuntu $OSREL partner
+#
+# rolling release KDE packages (possibly unstable at times)
+#deb http://ppa.launchpad.net/kubuntu-ci/stable/ubuntu $OSREL main
+#
+# latest Firefox and Thunderbird packages
+#deb http://ppa.launchpad.net/mozillateam/firefox-next/ubuntu $OSREL main
+#deb http://ppa.launchpad.net/mozillateam/thunderbird-next/ubuntu $OSREL main
+EOS
+    else
+        echo "<<< Setup apt sources list for $OSREL SERVER"
+        cat << EOS | tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe
+deb http://$OSMIR/ubuntu $OSREL-updates main universe
+deb http://$OSMIR/ubuntu $OSREL-backports main universe
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+EOS
+    fi
+    echo "!!! Updating $OSREL package list, patience please..."
+    apt-get -yqq update > /dev/null 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null 2>&1
+    echo "!!! Installing default package set, more patience..."
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null 2>&1
+fi
 
 # We now have git available so install the essential SH scripts
 if [[ ! -d /root/.sh ]]; then
