@@ -1,5 +1,20 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20170507
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20180324
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+### If you need to relay mail through an upstream mailserver (where you have
+### an account) then manually add a line like this to /etc/postfix/sasl_passwd
+### [MAILSERVER]:465 YOUR_EMAIL:YOUR_PASSWORD
+### Change MAILSERVER in both places and uncomment the section below. Then...
+### postmap /etc/postfix/sasl_passwd; postfix reload
+
+#relayhost = [MAILSERVER]:465
+#smtp_sasl_auth_enable = yes
+#smtp_sasl_security_options = noanonymous
+#smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+#smtp_use_tls = yes
+#smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+#smtp_tls_security_level = encrypt
+#smtp_tls_wrappermode = yes
 
 alias_database = hash:/etc/aliases
 alias_maps = hash:/etc/aliases
