@@ -126,13 +126,14 @@ deb http://$OSMIR/ubuntu $OSREL-updates main universe
 deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
-
-    echo "<<< Updating packages for $OSREL, patience please..."
-    $EXDEB update > /dev/null 2>&1
-    $EXDEB -u dist-upgrade > /dev/null 2>&1
-    echo "<<< Installing default package set, more patience..."
-    $EXDEB install $DLIST > /dev/null 2>&1
 fi
+
+echo "<<< Updating packages list for $OSREL, patience please..."
+$EXDEB update > /dev/null #2>&1
+echo "<<< Upgrading packages for $OSREL, more patience..."
+$EXDEB -u dist-upgrade > /dev/null #2>&1
+echo "<<< Installing default package set, yet more patience..."
+$EXDEB install $DLIST > /dev/null #2>&1
 
 if [[ -f /usr/bin/python3 && -n $RLIST ]]; then
     echo "<<< Remove python and all related packages"
@@ -155,7 +156,7 @@ EOS
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
-    echo "<<< Installing default applicaton set, yet more patience..."
+    echo "<<< Installing NetServa packages, still more patience..."
     cat << EOS | debconf-set-selections
 postfix postfix/destinations string 'localhost'
 postfix postfix/mailname string '$VHOST'
