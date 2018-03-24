@@ -33,7 +33,7 @@ sh_install ()
     sh_perms
     sed -i 's/^mesg/#mesg/' ~/.profile
     touch ~/.hushlogin
-    echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bash_profile
+    echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bashrc
     echo
     echo ". ~/.shrc"
 }
