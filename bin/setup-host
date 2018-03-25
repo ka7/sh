@@ -19,7 +19,7 @@ HLIST="
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [domain] [mysql(default)|sqlite] [admin(sysadm)] [os release(bionic)] [os mirror(archive.ubuntu.com)]" && exit 1
+    echo "Usage: setup-host [domain] [(mysql)|sqlite] [admin(sysadm)] [os release(bionic)] [os mirror(archive.ubuntu.com)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
