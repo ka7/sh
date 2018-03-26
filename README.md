@@ -55,8 +55,12 @@ Easily reset the RWX permsissions of all SH scripts to a safe(r) default...
 
 Just type `alias` to see a set of simple aliases, typing `?` will show the
 most common ones with some explanation of their usage and `eh` can be used
-to customize this list, and yes, `nano` is the default editor of (my)
-choice. Feel free to replace the `e` alias with vim or any other editor.
+to customize this list. And yes, `nano` is the default editor of (my)
+choice. Feel free to replace the `e` alias with **vi** or any other editor
+by typing `es` (Edit Sh) and add `alias e='/usr/bin/vi'` and `export
+EDITOR='/usr/bin/vi'` then ctl-x (for nano) which will make vi the default
+editor. `es` edits the persistent ~/.myrc file and sources ~/.shrc (which
+within itself sources ~/.myrc as personal env var and alias overrides.)
 
     ? ....... Show this help
     e ....... The nano Editor with a simplified interface
@@ -84,29 +88,49 @@ choice. Feel free to replace the `e` alias with vim or any other editor.
 
 Some other useful aliases not list above are...
 
+    lx ...... Shorthand for "lxc list"
     ram ..... To show a simple sorted list of apps and their ram usage
     block ... Block or drop a an IP from accessing the system
     unblock . Unblock the above blocked IP
     shblock . Show all blocked IPs
 
 Use `alias | grep log` to see some of the logging aliases, tweak or add
-more using `es` to `Edit Shell` your custom and long term persistent
-`~/.myrc` file.
+more using `es` your custom and long term persistent `~/.myrc` file.
 
 `n` (notes) and `sn` (show notes) is an ultra simple note taking system and
 (TODO) should be expanded to keep the notes in a private Git repo (to allow
 for the potential of passwords and any other sensitive info.)
 
-There is also a couple of dozen (still in flux) fairly standard exported
-shell variables that are used by some of the scripts in the `~/.sh/bin/`
-dir. They can be set and overriden in the `~/.myrc` file to customize them
-for each host. For example, the `gethost` shell function on my main
-workstation shows...
+## Bash Scripts
+
+The above env var and alias management feature is useful in it's own right
+and the only `~/.sh/bin` script needed is `~/.sh/bin/shm` (SH Manager) which
+provides some basic functionality. `shm pull` and `shm push` are the most
+frequently used and simply allow to `git pull` and `git push` from anywhere.
+
+    shm [install|pull|push|remove|removeall|perms]
+
+All the other scripts assist with server side virtual host management and
+can be ignored if not needed. If used then the config files for each vhost
+are stored in `~/.vhosts`. The initial (perhaps only) entry would be for
+the current host (ie; when using LXD containers) using `hostname -f` as
+the full filename path, ie; `cat ~/.vhosts/$(hostname -f)` should provide
+the settings for the current host after `setup-host` is run. Ut could be
+set up manually using the below as an example of a non-public local LAN
+domainname assuming that `hostname` returns `myhost`...
 ```
+~ echo myhost.sysadm.lan > /etc/hostname
+~ hostname myhost.sysadm.lan
+~ sethost sysadm@$(hostname -f) $(newpw 5)
+~ [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
+~ gethost > ~/.vhosts/$(hostname -f) && chmod 600 ~/.vhosts/$(hostname -f)
+~ echo -e "\n$IP4_0\t$(hostname -f) $(hostname)" >> /etc/hosts
+~ cat ~/.vhosts/$(hostname -f)
 ADMIN='sysadm'
-AMAIL='admin@adm.mbox.lan'
+AHOST='myhost.sysadm.lan'
+AMAIL='admin@myhost.sysadm.lan'
 ANAME='System Administrator'
-APASS='changeme_N0W'
+APASS='phSdkd1XVxXWVDyT'
 A_GID='1000'
 A_UID='1000'
 BPATH='/home/backups'
@@ -121,38 +145,39 @@ DBMYS='/var/lib/mysql'
 DBSQL='/var/lib/sqlite'
 DHOST='localhost'
 DNAME='sysadm'
-DPASS='changeme_N0W'
+DPASS='xb6D4CRDKSSkkoIl'
 DPATH='/var/lib/sqlite/sysadm/sysadm.db'
 DPORT='3306'
 DTYPE='mysql'
 DUSER='sysadm'
-EPASS='changeme_N0W'
+EPASS='j6Wrh0tWbbZfzh19'
 EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 IP4_0='192.168.0.2'
-MPATH='/home/u/adm.mbox.lan/home'
+MPATH='/home/u/myhost.sysadm.lan/home'
 OSMIR='archive.ubuntu.com'
 OSREL='bionic'
 SQCMD='mysql -BN sysadm'
 TAREA='Australia'
 TCITY='Sydney'
-UPASS='changeme_N0W'
-UPATH='/home/u/adm.mbox.lan'
+UPASS='rSfQ66I137AHjedp'
+UPATH='/home/u/myhost.sysadm.lan'
 UUSER='sysadm'
 U_GID='1000'
 U_SHL='/bin/bash'
 U_UID='1000'
-VHOST='adm.mbox.lan'
+VHOST='myhost.sysadm.lan'
 VPATH='/home/u'
 VUSER='admin'
 V_PHP='7.2'
-WPASS='changeme_N0W'
-WPATH='/home/u/adm.mbox.lan/var/www'
-WPUSR='mrfavo'
+WPASS='phSdkd1XVxXWVDyT'
+WPATH='/home/u/myhost.sysadm.lan/var/www'
+WPUSR='wzoqqh'
 ```
-You would edit (`es`) `~/.myrc` to change the defaults and `sethost` to
-dynamically change them when using the `~/.sh/bin` scripts to, for
-instance, add a virtual host.
+If this host is a server then using `addvhost example.org` would add
+another virtual host and create another config file called
+`~/.vhosts/example.org` where `grep PASS ~/.vhosts/example.org` would
+reveal the passwords used during the setup procedure.
 
 ## More documentation
 
