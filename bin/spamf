@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.shrc || exit 3
+source ~/.shrc || exit 3 # only for SQCMD
 
 SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$1'" | $SQCMD)
 
@@ -31,7 +31,9 @@ elif [[ $2 && $2 == off ]]; then
     else
         echo "Spam setting for $1 is now OFF"
         echo "UPDATE vmails SET spamf=0 WHERE user='$1'" | $SQCMD
-        cd $MPATH/$VUSER && rm .dovecot.sieve
+        cd $MPATH/$VUSER
+        [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
+        [[ -f .dovecot.svbin ]] && rm .dovecot.svbin
     fi
 else
     echo "Spam setting for $1 is $([[ $SPAMF -eq 1 ]] && echo ON || echo OFF)"
