@@ -25,7 +25,7 @@ if [[ $2 && $2 == on ]]; then
         echo "UPDATE vmails SET spamf=1 WHERE user='$1'" | $SQCMD
         cd $MPATH/$VUSER
         ln -s sieve/spamprobe.sieve .dovecot.sieve
-        chown $(stat -c "%u:%g" $MPATH) .dovecot.sieve
+        chown $(stat -c "%u:%g" $MPATH) -R $MPATH/$VUSER
     fi
 elif [[ $2 && $2 == off ]]; then
     if [[ $SPAMF -eq 0 ]]; then
