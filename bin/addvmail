@@ -14,13 +14,12 @@ source ~/.vhosts/$VHOST || exit 4
 
 VUSER=${1%@*} # $VUSER @ domain
 SPAMF=${2:-"1"} # add spam filter
-[[ $SPAMF == nospam ]] && SPAMF=0
-HPATH="$VPATH/$VHOST/home"
-MPATH="$HPATH/$VUSER"
+[[ $SPAMF == nospam ]] && SPAMF=0 || SPAMF=1
+MPATH="$UPATH/home/$VUSER"
 EPASS=$(newpw 1)
 _DATE=$(date "+%Y-%m-%d %H:%M:%S")
 
-[[ ! -d $HPATH ]] && echo "*** ERROR: $HPATH does not exist" && exit 4
+[[ ! -d $UPATH/home ]] && echo "*** ERROR: $UPATH/home does not exist" && exit 4
 
 [[ -d $MPATH/Maildir ]] && echo "*** ERROR: $MPATH/Maildir already exists" && exit 5
 
@@ -60,7 +59,7 @@ else
         $U_GID,
         $SPAMF,
         '$VUSER@$VHOST',
-        '$VPATH/$VHOST/home/$VUSER',
+        '$UPATH/home/$VUSER',
         '$PW',
         '$_DATE',
         '$_DATE'
@@ -132,7 +131,7 @@ fi
 if [[ -f $MPATH/.dovecot.sieve ]]; then
     echo "*** $MPATH/.dovecot.sieve already exists"
 else
-    if [[ $SPAMF -gt 0 ]]; then
+    if [[ $SPAMF -eq 1 ]]; then
         echo "*** Create $MPATH/.dovecot.sieve"
         cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
     else
@@ -154,7 +153,7 @@ else
     cp -a /etc/spamprobe/* $MPATH/.spamprobe
 fi
 
-chown $(stat -c "%u:%g" $HPATH) -R $MPATH
+chown $(stat -c "%u:%g" $UPATH/home) -R $MPATH
 
 serva restart mail
 
