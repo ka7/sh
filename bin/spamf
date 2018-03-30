@@ -23,7 +23,9 @@ if [[ $2 && $2 == on ]]; then
     else
         echo "Spam setting for $1 is now ON"
         echo "UPDATE vmails SET spamf=1 WHERE user='$1'" | $SQCMD
-        cd $MPATH/$VUSER && ln -s sieve/spamprobe.sieve .dovecot.sieve
+        cd $MPATH/$VUSER
+        ln -s sieve/spamprobe.sieve .dovecot.sieve
+        chown $(stat -c "%u:%g" $MPATH) .dovecot.sieve
     fi
 elif [[ $2 && $2 == off ]]; then
     if [[ $SPAMF -eq 0 ]]; then
