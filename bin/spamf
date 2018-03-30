@@ -15,7 +15,7 @@ SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$1'" | $SQCMD)
 source ~/.vhosts/${1#*@} || exit 5
 
 VUSER=${1%@*}
-set -x
+
 if [[ $2 && $2 == on ]]; then
     if [[ $SPAMF -eq 1 ]]; then
         echo "Spam setting for $1 is already ON"
