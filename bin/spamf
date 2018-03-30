@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/spamf 20180329 - 20180329
+# .sh/bin/spamf 20180329 - 20180330
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: spamf user@domain [on|off|(show status)]" && exit 1
@@ -7,18 +7,23 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source ~/.shrc || exit 3
-set -x
+
 SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$1'" | $SQCMD)
 
-if [[ -z $SPAMF ]]; then
-    echo "ERROR: no such user '$1'"
-elif [[ $2 && $2 == on ]]; then
+[[ -z $SPAMF ]] && echo "ERROR: no such user '$1'" && exit 4
+
+VUSER=${1%@*}
+VHOST=${1#*@}
+
+source ~/.vhosts/$VHOST || exit 5
+
+if [[ $2 && $2 == on ]]; then
     if [[ $SPAMF -eq 1 ]]; then
         echo "Spam setting for $1 is already ON"
     else
         echo "Spam setting for $1 is now ON"
         echo "UPDATE vmails SET spamf=1 WHERE user='$1'" | $SQCMD
-        cd $MPATH/${1%@*} && ln -s sieve/spamprobe.sieve .dovecot.sieve
+        cd $MPATH/$VUSER && ln -s sieve/spamprobe.sieve .dovecot.sieve
     fi
 elif [[ $2 && $2 == off ]]; then
     if [[ $SPAMF -eq 0 ]]; then
@@ -26,7 +31,7 @@ elif [[ $2 && $2 == off ]]; then
     else
         echo "Spam setting for $1 is now OFF"
         echo "UPDATE vmails SET spamf=0 WHERE user='$1'" | $SQCMD
-        cd $MPATH/${1%@*} && rm .dovecot.sieve
+        cd $MPATH/$VUSER && rm .dovecot.sieve
     fi
 else
     echo "Spam setting for $1 is $([[ $SPAMF -eq 1 ]] && echo ON || echo OFF)"
