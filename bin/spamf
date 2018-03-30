@@ -14,22 +14,22 @@ if [[ -z $SPAMF ]]; then
     echo "ERROR: no such user '$1'"
 elif [[ $2 && $2 == on ]]; then
     if [[ $SPAMF -eq 1 ]]; then
-        echo "Spam setting for $1 is already on"
+        echo "Spam setting for $1 is already ON"
     else
-        echo "Spam setting for $1 is now on"
+        echo "Spam setting for $1 is now ON"
         echo "UPDATE vmails SET spamf=1 WHERE user='$1'" | $SQCMD
         cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
     fi
 elif [[ $2 && $2 == off ]]; then
-    if [[ $SPAMF -eq 1 ]]; then
-        echo "Spam setting for $1 is already on"
+    if [[ $SPAMF -eq 0 ]]; then
+        echo "Spam setting for $1 is already OFF"
     else
-        echo "Spam setting for $1 is now off"
+        echo "Spam setting for $1 is now OFF"
         echo "UPDATE vmails SET spamf=0 WHERE user='$1'" | $SQCMD
         cd $MPATH && rm .dovecot.sieve
     fi
 else
-    echo "Spam setting for $1 is $([[ $SPAMF -eq 1 ]] && echo on || echo off)"
+    echo "Spam setting for $1 is $([[ $SPAMF -eq 1 ]] && echo ON || echo OFF)"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
