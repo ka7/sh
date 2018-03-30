@@ -12,10 +12,9 @@ SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$1'" | $SQCMD)
 
 [[ -z $SPAMF ]] && echo "ERROR: no such user '$1'" && exit 4
 
-VUSER=${1%@*}
-VHOST=${1#*@}
+source ~/.vhosts/${1#*@} || exit 5
 
-source ~/.vhosts/$VHOST || exit 5
+VUSER=${1%@*}
 
 if [[ $2 && $2 == on ]]; then
     if [[ $SPAMF -eq 1 ]]; then
