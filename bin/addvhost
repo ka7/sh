@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 201800317
+# .sh/bin/addvhost 20170217 - 20180401
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -34,31 +34,32 @@ fi
 # This has to be moved into a database
 if [[ $3 == enterprise ]]; then
     V_ALIASES="200"
-    V_DISKQUOTA="204800000"
+    V_DISKQUOTA="20000000000"
     V_MAILBOXES="20"
-    V_MAILQUOTA="102400000"
+    V_MAILQUOTA="20000000000"
 elif [[ $3 == business ]]; then
     V_ALIASES="100"
-    V_DISKQUOTA="102400000"
+    V_DISKQUOTA="10000000000"
     V_MAILBOXES="10"
-    V_MAILQUOTA="51200000"
+    V_MAILQUOTA="10000000000"
 elif [[ $3 == soho ]]; then
     V_ALIASES="20"
-    V_DISKQUOTA="10240000"
+    V_DISKQUOTA="5000000000"
     V_MAILBOXES="2"
-    V_MAILQUOTA="51200000"
+    V_MAILQUOTA="2000000000"
 else
     V_ALIASES="10"
-    V_DISKQUOTA="1024000"
+    V_DISKQUOTA="1000000000"
     V_MAILBOXES="1"
-    V_MAILQUOTA="512000"
+    V_MAILQUOTA="500000000"
 fi
 
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 V_UPDATED=$V_CREATED
 
 IS_VHOST=$(cat << EOS | $SQCMD
- SELECT COUNT(*) FROM vhosts
+ SELECT COUNT(id)
+   FROM vhosts
   WHERE domain = '$VHOST'
 EOS
 )
@@ -155,6 +156,7 @@ EOS
             echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
             mv $C_FPM/pool.d/www.conf $C_FPM
         fi
+        serva reload php
     fi
 fi
 
@@ -257,10 +259,7 @@ guest:$apr1$OH0WIbVa$21Bj05X1rO5zale7bv1971
 EOS
 fi
 
-addvmail admin@$VHOST
-newautoconfig $VHOST
 chperms $VHOST
-logging $VHOST update
 
 LOCIP=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
@@ -270,18 +269,23 @@ if [[ $DNSIP =~ 192.168 ]]; then
     echo "***       pointing a public IP to it's FQDN then use"
     echo "***           newssl $VHOST cdn www"
     echo "***       to provide a LetsEncrypt SSL certificate."
+    serva reload nginx
 else
     # TODO this needs testing and more work
     [[ $LOCIP == $DNSIP ]] && TMPIP=$DNSIP || TMPIP=$LOCIP
     newssl $VHOST cdn www $TMPIP > /dev/null 2>&1
 fi
 
-if [[ -d $WPATH && $DTYPE == mysql ]]; then
-    addwp $VHOST
-fi
-
+addvmail admin@$VHOST
+newautoconfig $VHOST
+logging $VHOST update
 chshpw $UUSER $UPASS
 
-serva restart web
+if [[ -d $WPATH && $DTYPE == mysql ]]; then
+    addwp $VHOST
+    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
+    [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
+    [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
+fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

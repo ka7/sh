@@ -46,7 +46,7 @@ for i in $ALL; do
     sleep 1
 done
 
-[[ -d /etc/nginx ]] && serva restart web
-[[ -d /etc/postfix ]] && serva restart mail
+[[ -d /etc/nginx ]] && serva reload web
+[[ -d /etc/postfix ]] && serva reload mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
