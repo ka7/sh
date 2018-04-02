@@ -30,13 +30,12 @@ if [[ $? -eq 0 ]]; then
     echo "--- Warning: lxd-pool already installed"
 else
     echo "--- Install lxd with $PSIZE GB $LSTOR lxd-pool at $IP4_0 with pw $APASS"
+    TMP=$([[ $LSTOR != dir ]] && echo "--storage-create-loop $PSIZE --storage-pool lxd-pool")
     # switch group to lxd
     sg lxd -c "lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
-      --storage-backend $LSTOR \
-      --storage-create-loop $PSIZE \
-      --storage-pool lxd-pool \
+      --storage-backend $LSTOR $TMP \
       --trust-password $APASS"
 fi
 
