@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180311
+# .sh/etc/setup-db.sh 20170319 - 20180402
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-db [mysql(default)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -127,7 +126,7 @@ CREATE TABLE IF NOT EXISTS vmails (
   did int(11) NOT NULL DEFAULT '1',
   gid int(11) NOT NULL DEFAULT '1000',
   uid int(11) NOT NULL DEFAULT '1000',
-  spam int(1) NOT NULL DEFAULT '1',
+  spamf int(1) NOT NULL DEFAULT '1',
   active int(1) NOT NULL DEFAULT '1',
   quota int(11) NOT NULL DEFAULT '1000000000',
   user varchar(63) NOT NULL DEFAULT '',

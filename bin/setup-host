@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180324
+# .sh/bin/setup-host 20170524 - 20180402
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -39,7 +39,7 @@ fi
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     if [[ -d /usr/share/xsessions ]]; then
-        echo "<<< Setup apt sources list for $OSREL DESKTOP"
+        echo "!!! Setup apt sources list for $OSREL DESKTOP"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
@@ -60,7 +60,7 @@ deb http://archive.canonical.com/ubuntu $OSREL partner
 #deb http://ppa.launchpad.net/mozillateam/thunderbird-next/ubuntu $OSREL main
 EOS
     else
-        echo "<<< Setup apt sources list for $OSREL SERVER"
+        echo "!!! Setup apt sources list for $OSREL SERVER"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
