@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newpw 20170715 - 20180301
+# .sh/bin/newpw 20170715 - 20180403
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && \
@@ -12,7 +12,7 @@ NUM=$(seq -s ' ' $1)
 PWS=""
 
 for i in $NUM; do
-    PWS="$PWS $(cat /dev/urandom|tr -dc "[:$CLASS:]"|head -c $PWLEN)"
+    PWS="$PWS $(cat /dev/urandom|tr -dc "[:$CLASS:]"|head -c $PWLEN 2> /dev/null)"
 done
 
 echo $PWS
