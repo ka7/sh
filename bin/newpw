@@ -12,7 +12,7 @@ NUM=$(seq -s ' ' $1)
 PWS=""
 
 for i in $NUM; do
-    PWS="$PWS $(cat /dev/urandom|tr -dc \"[:$CLASS:]\"|head -c $PWLEN)"
+    PWS="$PWS $(cat /dev/urandom|tr -dc "[:$CLASS:]"|head -c $PWLEN)"
 done
 
 echo $PWS

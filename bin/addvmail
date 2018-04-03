@@ -16,9 +16,7 @@ VUSER=${1%@*} # $VUSER @ domain
 SPAMF=${2:-"1"} # add spam filter
 [[ $SPAMF == nospam ]] && SPAMF=0 || SPAMF=1
 MPATH="$UPATH/home/$VUSER"
-set -x
 EPASS=$(newpw 1 2> /dev/null)
-set +x
 _DATE=$(date "+%Y-%m-%d %H:%M:%S")
 
 [[ ! -d $UPATH/home ]] && echo "*** ERROR: $UPATH/home does not exist" && exit 4
