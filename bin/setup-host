@@ -104,7 +104,7 @@ source /root/.vhosts/$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
-    R_IP4=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
+    R_IP4=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
     echo "!!! Get the default route IP: $R_IP4"
     echo "!!! Rewrite a sane /etc/hosts"
     sed -i /etc/hosts \
