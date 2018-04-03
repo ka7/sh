@@ -70,7 +70,8 @@ else
 EOS
 )
 
-    echo "*** Create $ADMIN.valias entry ($DTYPE)"
+    echo "*** Create $VUSER.valias entry ($DTYPE)"
+    [[ $VUSER == $ADMIN ]] && SOURCE="@$VHOST" || SOURCE="$VUSER@$VHOST"
     DO_VALIAS=$(cat << EOS | $SQCMD
  INSERT INTO valias (
         did,
@@ -80,7 +81,7 @@ EOS
         created
 ) VALUES (
         $DID,
-        '@$VHOST',
+        '$SOURCE',
         '$VUSER@$VHOST',
         '$_DATE',
         '$_DATE'
@@ -138,7 +139,7 @@ else
         echo "*** Create $MPATH/.dovecot.sieve"
         cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
     else
-        echo "*** Ignore creating $MPATH/.dovecot.sieve"
+        echo "*** Ignore $MPATH/.dovecot.sieve"
     fi
 fi
 
