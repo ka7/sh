@@ -42,6 +42,7 @@ if [[ -n $USRID ]]; then
 else
     echo "*** Create $ADMIN.vmails entry ($DTYPE)"
     PW=$(doveadm pw -s SHA512-CRYPT -p $EPASS)
+    echo "*** $EPASS = $PW"
     DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
         did,
