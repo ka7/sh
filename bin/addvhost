@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180401
+# .sh/bin/addvhost 20170217 - 20180407
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -25,7 +25,9 @@ if [[ -f /root/.vhosts/$VHOST ]]; then
 else
     echo "!!! Create /root/.vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $(newpw 5)
-    gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
+    gethost > /root/.vhosts/$VHOST
+    touch /root/.vhosts/$VHOST.conf
+    chmod 600 /root/.vhosts/$VHOST*
     source /root/.vhosts/$VHOST
 fi
 
@@ -156,7 +158,7 @@ EOS
             echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
             mv $C_FPM/pool.d/www.conf $C_FPM
         fi
-        serva reload php
+        serva restart php
     fi
 fi
 
@@ -269,7 +271,7 @@ if [[ $DNSIP =~ 192.168 ]]; then
     echo "***       pointing a public IP to it's FQDN then use"
     echo "***           newssl $VHOST cdn www"
     echo "***       to provide a LetsEncrypt SSL certificate."
-    serva reload nginx
+    serva restart nginx
 else
     # TODO this needs testing and more work
     [[ $LOCIP == $DNSIP ]] && TMPIP=$DNSIP || TMPIP=$LOCIP
