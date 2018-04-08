@@ -181,6 +181,7 @@ Web
 Wordpress: $WPURL/wp-admin/
 Username: $WPUSR or $AMAIL
 Password: $WPASS
+
 EOS
 fi
 

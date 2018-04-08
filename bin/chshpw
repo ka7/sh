@@ -20,7 +20,7 @@ elif [[ $USERS -eq 1 ]]; then
     VHOST=$(echo $GETPW|cut -d':' -f5)
     [[ $(id -u) -gt 0 ]] && SUDO='sudo -i' || SUDO=
     echo -n "$UUSER:$UPASS" | $SUDO chpasswd
-    echo "
+    cat << EOS >> /root/.vhosts/$VHOST.conf
 SFTP
 ========
 
@@ -31,7 +31,8 @@ Port: 9 (not port 22)
 Path: /var/www
 
 sftp://$UUSER:$UPASS@$VHOST:9/var/www
-"
+
+EOS
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

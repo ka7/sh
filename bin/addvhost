@@ -254,7 +254,7 @@ fi
 if [[ -f $WPATH/private/.htpasswd ]]; then
     echo "!!! $WPATH/private/.htpasswd already exists"
 else
-    echo "!!! Create $WPATH/private/.htpasswd guest/letmein"
+    echo "!!! Create $WPATH/private/.htpasswd (guest/letmein)"
     cat << 'EOS' > $WPATH/private/.htpasswd
 guest:$apr1$OH0WIbVa$21Bj05X1rO5zale7bv1971
 EOS
@@ -264,7 +264,7 @@ newautoconfig $VHOST $AHOST $AHOST
 chperms $VHOST
 serva restart php
 
-LOCIP=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
+LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
 
 if [[ $DNSIP =~ 192.168 ]]; then
@@ -276,7 +276,7 @@ if [[ $DNSIP =~ 192.168 ]]; then
 else
     # TODO this needs testing and more work
     [[ $LOCIP == $DNSIP ]] && TMPIP=$DNSIP || TMPIP=$LOCIP
-    newssl $VHOST cdn www $TMPIP > /dev/null 2>&1
+    newssl $VHOST cdn www $TMPIP
 fi
 
 addvmail admin@$VHOST
