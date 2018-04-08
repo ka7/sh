@@ -256,7 +256,7 @@ if [[ -f $WPATH/private/.htpasswd ]]; then
 else
     PIN=$RANDOM
     echo "!!! Create $WPATH/private/.htpasswd (guest/$PIN)"
-    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN
+    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN > /dev/null 2>&1
     cat << EOS >> /root/.vhosts/$VHOST.conf
 Private
 ========
