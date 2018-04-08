@@ -112,6 +112,8 @@ return [
     fi
 fi
 
-chperms $VHOST > /dev/null 2>&1
+chperms $VHOST
+serva restart web
+serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

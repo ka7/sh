@@ -158,7 +158,6 @@ EOS
             echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
             mv $C_FPM/pool.d/www.conf $C_FPM
         fi
-        serva restart php
     fi
 fi
 
@@ -261,7 +260,9 @@ guest:$apr1$OH0WIbVa$21Bj05X1rO5zale7bv1971
 EOS
 fi
 
+newautoconfig $VHOST $AHOST $AHOST
 chperms $VHOST
+serva restart php
 
 LOCIP=$(ip -4 route get 8.8.8.8 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
@@ -279,7 +280,6 @@ else
 fi
 
 addvmail admin@$VHOST
-newautoconfig $VHOST
 logging $VHOST update
 chshpw $UUSER $UPASS
 
