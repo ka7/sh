@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180402
+# .sh/etc/setup-db.sh 20170319 - 20180409
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -76,9 +76,9 @@ CREATE TABLE IF NOT EXISTS logging (
   did int(11) NOT NULL DEFAULT '1',
   name varchar(63) NOT NULL,
   month int(11) NOT NULL DEFAULT '0',
-  size_mpath int(11) NOT NULL DEFAULT '0',
-  size_wpath int(11) NOT NULL DEFAULT '0',
-  size_upath int(11) NOT NULL DEFAULT '0',
+  size_mpath bigint(20) NOT NULL DEFAULT '0',
+  size_wpath bigint(20) NOT NULL DEFAULT '0',
+  size_upath bigint(20) NOT NULL DEFAULT '0',
   user_mail int(11) NOT NULL DEFAULT '0',
   user_spam int(11) NOT NULL DEFAULT '0',
   user_home int(11) NOT NULL DEFAULT '0',
@@ -114,8 +114,8 @@ CREATE TABLE IF NOT EXISTS vhosts (
   gid int(11) NOT NULL DEFAULT '1000',
   aliases int(11) NOT NULL DEFAULT '0',
   mailboxes int(11) NOT NULL DEFAULT '0',
-  mailquota int(11) NOT NULL DEFAULT '0',
-  diskquota int(11) NOT NULL DEFAULT '0',
+  mailquota bigint(20) NOT NULL DEFAULT '0',
+  diskquota bigint(20) NOT NULL DEFAULT '0',
   active int(1) NOT NULL DEFAULT '1',
   updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS vmails (
   uid int(11) NOT NULL DEFAULT '1000',
   spamf int(1) NOT NULL DEFAULT '1',
   active int(1) NOT NULL DEFAULT '1',
-  quota int(11) NOT NULL DEFAULT '1000000000',
+  quota bigint(20) NOT NULL DEFAULT '500000000',
   user varchar(63) NOT NULL DEFAULT '',
   home varchar(63) NOT NULL DEFAULT '',
   password varchar(127) NOT NULL DEFAULT '',

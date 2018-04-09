@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-set -x
+
 UUTMP=""
 
 if [[ $1 ]]; then
@@ -77,7 +77,7 @@ else
     [[ -n $UPASS && $UPASS != $APASS ]] && { echo $UUSER:$UPASS | chpasswd; }
 fi
 
-echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
+echo "!!! Create entry in $ADMIN.vhosts ($DTYPE) DISK QUOTA = $V_DISKQUOTA, MAIL QUOTA = $V_MAILQUOTA"
 DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
         active,
