@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180407
+# .sh/bin/addvhost 20170217 - 20180409
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-
+set -x
 UUTMP=""
 
 if [[ $1 ]]; then
@@ -24,7 +24,7 @@ if [[ -f /root/.vhosts/$VHOST ]]; then
     source /root/.vhosts/$VHOST
 else
     echo "!!! Create /root/.vhosts/$VHOST config file"
-    sethost $UUTMP$VHOST $(newpw 5)
+    sethost $UUTMP$VHOST $(newpw 5 2> /dev/null)
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/$VHOST*
