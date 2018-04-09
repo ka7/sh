@@ -34,17 +34,17 @@ fi
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
 # This has to be moved into a database
-if [[ $3 == enterprise ]]; then
+if [[ $2 == enterprise ]]; then
     V_ALIASES="200"
     V_DISKQUOTA="20000000000"
     V_MAILBOXES="20"
     V_MAILQUOTA="20000000000"
-elif [[ $3 == business ]]; then
+elif [[ $2 == business ]]; then
     V_ALIASES="100"
     V_DISKQUOTA="10000000000"
     V_MAILBOXES="10"
     V_MAILQUOTA="10000000000"
-elif [[ $3 == soho ]]; then
+elif [[ $2 == soho ]]; then
     V_ALIASES="20"
     V_DISKQUOTA="5000000000"
     V_MAILBOXES="2"
@@ -270,7 +270,7 @@ fi
 
 newautoconfig $VHOST $AHOST $AHOST
 chperms $VHOST
-serva restart php
+#serva restart php
 
 LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
@@ -299,3 +299,5 @@ if [[ -d $WPATH && $DTYPE == mysql ]]; then
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+
+php-fpm$V_PHP -t && systemctl reload php$V_PHP-fpm
