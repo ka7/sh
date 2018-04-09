@@ -158,8 +158,11 @@ else
 fi
 
 chown $(stat -c "%u:%g" $UPATH/home) -R $MPATH
+find $MPATH -type d -exec chmod 00750 {} +
+find $MPATH -type f -exec chmod 00640 {} +
 
-serva restart mail
+# not needed?
+#serva restart mail
 
 cat << EOS >> /root/.vhosts/$VHOST.conf
 Mail
