@@ -38,17 +38,17 @@ if [[ $2 == enterprise ]]; then
     V_ALIASES="200"
     V_DISKQUOTA="20000000000"
     V_MAILBOXES="20"
-    V_MAILQUOTA="20000000000"
+    V_MAILQUOTA="1000000000"
 elif [[ $2 == business ]]; then
     V_ALIASES="100"
     V_DISKQUOTA="10000000000"
     V_MAILBOXES="10"
-    V_MAILQUOTA="10000000000"
+    V_MAILQUOTA="1000000000"
 elif [[ $2 == soho ]]; then
     V_ALIASES="20"
     V_DISKQUOTA="5000000000"
     V_MAILBOXES="2"
-    V_MAILQUOTA="2000000000"
+    V_MAILQUOTA="1000000000"
 else
     V_ALIASES="10"
     V_DISKQUOTA="1000000000"
@@ -257,11 +257,12 @@ else
     PIN=$RANDOM
     echo "!!! Create $WPATH/private/.htpasswd (guest/$PIN)"
     htpasswd -b -c $WPATH/private/.htpasswd guest $PIN > /dev/null 2>&1
+    [[ $IP4_0 =~ 192.168 ]] && SCHEME="http://" || SCHEME="https://"
     cat << EOS >> /root/.vhosts/$VHOST.conf
 Private
 ========
 
-Website:
+Website: $SCHEME$VHOST/private
 Username: guest
 Password: $PIN
 
@@ -270,6 +271,7 @@ fi
 
 newautoconfig $VHOST $AHOST $AHOST
 chperms $VHOST
+php-fpm$V_PHP -t && systemctl reload php$V_PHP-fpm
 #serva restart php
 
 LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
@@ -288,7 +290,6 @@ else
 fi
 
 addvmail admin@$VHOST
-logging $VHOST update
 chshpw $UUSER $UPASS
 
 if [[ -d $WPATH && $DTYPE == mysql ]]; then
@@ -298,6 +299,7 @@ if [[ -d $WPATH && $DTYPE == mysql ]]; then
     [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
 fi
 
+logging $VHOST update
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
 
-php-fpm$V_PHP -t && systemctl reload php$V_PHP-fpm

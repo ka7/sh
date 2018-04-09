@@ -92,4 +92,14 @@ if [[ -d $UPATH ]]; then
     rm -rf $UPATH
 fi
 
+if [[ -f /root/.vhosts/$VHOST ]]; then
+    echo "!!! Remove /root/.vhosts/$VHOST"
+    rm /root/.vhosts/$VHOST*
+fi
+
+if [[ -f /root/.vhosts/$VHOST.conf ]]; then
+    echo "!!! Remove /root/.vhosts/$VHOST.conf"
+    rm /root/.vhosts/$VHOST.conf
+fi
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
