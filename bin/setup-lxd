@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20180402
+# .sh/bin/setup-lxd 20170519 - 20180412
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-LSTOR=btrfs # btrfs, zfs, lvm, dir
+LSTOR=zfs # btrfs, zfs, lvm, dir
 
 PSIZE=${1:-'25'}
 APASS=${2:-$(newpw 1)}
