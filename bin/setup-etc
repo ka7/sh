@@ -261,7 +261,7 @@ if [[ ! -d $C_SSL/$VHOST ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
-    listen                      0.0.0.0:443 ssl http2;
+    listen                      443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
@@ -271,6 +271,7 @@ server {
     ssl_stapling_verify         off;
 }
 EOS
+    fi
 fi
 
 # Missing from Ubuntu nginx installation
