@@ -281,7 +281,23 @@ if [[ $LOCIP =~ ^192.168 || $LOCIP =~ ^10 ]]; then
     echo "*** Note: if this server has outside net access with DNS"
     echo "***       pointing a public IP to it's FQDN then use"
     echo "***           newssl $VHOST cdn www"
-    echo "***       to provide a LetsEncrypt SSL certificate."
+    echo "***       to provide a real LetsEncrypt SSL certificate."
+
+    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
+        echo "*** Create $C_WEB/sites-enabled/$VHOST.selfsigned"
+        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+server {
+    listen                      443 ssl http2;
+    server_name                 $VHOST;
+    set                         \$domain $VHOST;
+    include                     /etc/nginx/common.conf;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_stapling                off;
+    ssl_stapling_verify         off;
+}
+EOS
+    fi
     serva restart nginx
 else
     # TODO this needs testing and more work
