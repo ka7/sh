@@ -37,10 +37,10 @@ if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     rm $C_WEB/sites-enabled/$VHOST
 fi
 
-if [[ -f $C_WEB/sites-enabled/$VHOST.nossl ]]; then
-    echo "!!! Remove $C_WEB/sites-enabled/$VHOST.nossl"
-    cp $C_WEB/sites-enabled/$VHOST.nossl $UPATH/_etc_nginx_sites-enabled_$VHOST.nossl
-    rm $C_WEB/sites-enabled/$VHOST.nossl
+if [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
+    echo "!!! Remove $C_WEB/sites-enabled/$VHOST.selfsigned"
+    cp $C_WEB/sites-enabled/$VHOST.selfsigned $UPATH/_etc_nginx_sites-enabled_$VHOST.selfsigned
+    rm $C_WEB/sites-enabled/$VHOST.selfsigned
 fi
 
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
