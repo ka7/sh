@@ -37,6 +37,12 @@ if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     rm $C_WEB/sites-enabled/$VHOST
 fi
 
+if [[ -f $C_WEB/sites-enabled/$VHOST.nossl ]]; then
+    echo "!!! Remove $C_WEB/sites-enabled/$VHOST.nossl"
+    cp $C_WEB/sites-enabled/$VHOST.nossl $UPATH/_etc_nginx_sites-enabled_$VHOST.nossl
+    rm $C_WEB/sites-enabled/$VHOST.nossl
+fi
+
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
     echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
     cp $C_FPM/pool.d/$VHOST.conf $UPATH/_etc_php_${V_PHP}_pool.d_$VHOST.conf
@@ -90,6 +96,11 @@ if [[ -z $UUSER ]]; then
 else
     echo "!!! Remove $UUSER"
     userdel -rf $UUSER > /dev/null 2>&1
+fi
+
+if [[ -d $C_SSL/$VHOST ]]; then
+    echo "!!! Remove $C_SSL/$VHOST"
+    rm -rf $C_SSL/$VHOST
 fi
 
 if [[ -d $UPATH ]]; then
