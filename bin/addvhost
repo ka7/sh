@@ -283,6 +283,22 @@ if [[ $LOCIP =~ ^192.168 || $LOCIP =~ ^10 ]]; then
     echo "***           newssl $VHOST cdn www"
     echo "***       to provide a real LetsEncrypt SSL certificate."
 
+    if [[ ! -d $C_SSL/$VHOST ]]; then
+        # Temporary self-signed SSL certificate defaults
+        C="AU"
+        ST="QLD"
+        L="GoldCoast"
+        O="NetServa"
+        OU="IT Department"
+
+        echo "^^^ Create temporary self-signed certificate for $VHOST"
+        [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
+            -keyout /etc/ssl/$VHOST/privkey.pem \
+            -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+    fi
+
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         echo "*** Create $C_WEB/sites-enabled/$VHOST.selfsigned"
         cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
