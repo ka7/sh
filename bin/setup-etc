@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180317
+# .sh/bin/setup-etc 20151231 - 20180415
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -236,10 +236,17 @@ if [[ ! -f $C_SSL/dhparams.pem ]]; then
 fi
 
 # Firefox no longer works with a self-signed cert so don't use one
-if [[ ! -f $C_WEB/sites-enabled/_default.nossl && ! -f $C_WEB/sites-enabled/_default ]]; then
-    echo "^^^ Create generic non-SSL Port 80 nginx config"
-    cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
+#if [[ ! -f $C_WEB/sites-enabled/_default.nossl && ! -f $C_WEB/sites-enabled/_default ]]; then
+#    echo "^^^ Create generic non-SSL Port 80 nginx config"
+#    cp ~/.sh/etc/_etc_nginx_sites-enabled__default.nossl $C_WEB/sites-enabled/_default.nossl
+#    [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
+#fi
+
+# Incorrect, Firefox does still work with a self-signed certificate
+if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
+    echo "^^^ Create generic Port 80 nginx default config"
     [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
+    cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
 fi
 
 # This is still needed for postfix and dovecot
