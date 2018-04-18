@@ -7,7 +7,9 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-set -x
+
+[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+
 YMD=$(date +"%Y%m%d")
 UUTMP=""
 
@@ -20,21 +22,17 @@ if [[ $1 ]]; then
     fi
 fi
 
-if [[ -f /root/.vhosts/$VHOST ]]; then
-    echo "!!! Source /root/.vhosts/$VHOST config file"
-    source /root/.vhosts/$VHOST
-else
+if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create /root/.vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $DTYPE $(newpw 5 2> /dev/null)
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/$VHOST*
-    source /root/.vhosts/$VHOST
 fi
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+source /root/.vhosts/$VHOST
 
-# This has to be moved into a database
+# This section has to be moved into a database
 if [[ $2 == enterprise ]]; then
     V_ALIASES="200"
     V_DISKQUOTA="20000000000"

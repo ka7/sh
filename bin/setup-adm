@@ -5,7 +5,7 @@
 [[ $1 =~ '-h' ]] && echo "Usage: setup-adm [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-set -x
+
 #source ~/.shrc || exit 3
 
 VHOST=${1:-$(hostname -f)}
