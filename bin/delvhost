@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180409
+# .sh/bin/delvhost 20170216 - 20180418
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -23,13 +23,13 @@ elif [[ $DTYPE == sqlite ]]; then
     echo "SELECT * vhosts WHERE did = $DID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
     echo "SELECT * vmails WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
     echo "SELECT * valias WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
-    echo "SELECT * logging WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+#    echo "SELECT * logging WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
 fi
 
 echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
 echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
 echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
-echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
+#echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"

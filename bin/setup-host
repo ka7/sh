@@ -91,10 +91,10 @@ fi
 source /root/.shrc
 
 # override static defaults in .shrc
-export DTYPE=${2:-$DTYPE}
-export UUSER=${3:-$UUSER}
-export OSREL=${4:-$OSREL}
-export OSMIR=${5:-$OSMIR}
+DTYPE=${2:-'mysql'}
+UUSER=${3:-'sysadm'}
+OSREL=${4:-$OSREL}
+OSMIR=${5:-$OSMIR}
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
