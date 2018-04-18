@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180402
+# .sh/bin/setup-host 20170524 - 20180418
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -92,10 +92,12 @@ source /root/.shrc
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
-    echo "!!! Create initial vhost config /root/.vhosts/$VHOST"
+    echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
     sethost $UUSER@$VHOST $DTYPE $(newpw 5 2> /dev/null)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
+    # temporary debug
+    cat /root/.vhosts/$VHOST
 fi
 
 source /root/.vhosts/$VHOST

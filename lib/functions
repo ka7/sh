@@ -109,6 +109,7 @@ setuser ()
 }
 sethost ()
 {
+set -x
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]";
         return 1;
@@ -141,7 +142,7 @@ sethost ()
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
-
+set +x
     export AHOST=$(hostname -f)
     export MHOST=$(hostname -d)
     export APASS=${4:-'changeme_N0W'};
