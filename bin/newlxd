@@ -71,7 +71,7 @@ if [[ -d ~/.sh ]]; then
         lxc exec $_HOST -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
     }
     lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    lxc exec $_HOST -- bash -lc "/root/.sh/bin/setup-all $DTYPE"
+    lxc exec $_HOST -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE"
     LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
     echo "--- setup-ssh $VHOST $LXDIP"
 fi

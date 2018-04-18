@@ -4,10 +4,13 @@
 
 export PATH=/bin:/usr/bin:/sbin:/root/.sh/bin
 
-DTYPE=${1:-'mysql'}
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [domain] [(mysql)|sqlite]" && exit 1
 
-echo "### Entering setup-host"
-setup-host $DTYPE
+VHOST=${1:-$(hostname -f)}
+DTYPE=${2:-'mysql'}
+
+echo "### Entering setup-host as $VHOST with $DTYPE"
+setup-host $VHOST $DTYPE
 echo "### Entering setup-deb"
 setup-deb
 echo "### Entering setup-db"
