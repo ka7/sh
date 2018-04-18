@@ -23,6 +23,8 @@ HLIST="
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! START DEBUG"
+set -x
 VHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
 DTYPE=${2:-'mysql'}
 UUSER=${3:-'sysadm'}
@@ -99,6 +101,8 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     # temporary debug
     cat /root/.vhosts/$VHOST
 fi
+set +x
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! STOP DEBUG"
 
 source /root/.vhosts/$VHOST
 
