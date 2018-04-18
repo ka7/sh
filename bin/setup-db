@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180409
+# .sh/etc/setup-db.sh 20170319 - 20180418
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1

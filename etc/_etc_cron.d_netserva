@@ -1,9 +1,9 @@
-# .sh/etc/_etc_cron.d_netserva 20170614 - 20170907
+# .sh/etc/_etc_cron.d_netserva 20170614 - 20180418
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-MAILTO=admin@renta.net
+MAILTO=_MAILTO
 
-1 */4 * * * root /root/.sh/bin/logging all mysql update
+1 0 * * * root /root/.sh/bin/logging all update
 
 10 * * * * root /usr/bin/find /home/u/*/var/tmp -name 'sess_*' -type f -cmin "+240" -delete
 
