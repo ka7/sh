@@ -70,22 +70,53 @@ CREATE TABLE IF NOT EXISTS accounts (
   updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
-CREATE TABLE IF NOT EXISTS logging (
+
+
+CREATE TABLE IF NOT EXISTS vhost_log (
   id $SQLPK,
   aid int(11) NOT NULL DEFAULT '1',
-  did int(11) NOT NULL DEFAULT '1',
-  name varchar(63) NOT NULL,
-  month int(11) NOT NULL DEFAULT '0',
+  vhid int(11) NOT NULL DEFAULT '1',
+  month date NOT NULL DEFAULT '2018-01-01',
   size_mpath bigint(20) NOT NULL DEFAULT '0',
   size_wpath bigint(20) NOT NULL DEFAULT '0',
   size_upath bigint(20) NOT NULL DEFAULT '0',
-  user_mail int(11) NOT NULL DEFAULT '0',
-  user_spam int(11) NOT NULL DEFAULT '0',
-  user_home int(11) NOT NULL DEFAULT '0',
+);
+CREATE TABLE IF NOT EXISTS vhost_log_bkp (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  vhid int(11) NOT NULL DEFAULT '1',
+  month date NOT NULL DEFAULT '2018-01-01',
+  size_mpath bigint(20) NOT NULL DEFAULT '0',
+  size_wpath bigint(20) NOT NULL DEFAULT '0',
+  size_upath bigint(20) NOT NULL DEFAULT '0',
+);
+
+CREATE TABLE IF NOT EXISTS vmail_log (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  vmid int(11) NOT NULL DEFAULT '1',
+  month date NOT NULL DEFAULT '2018-01-01',
+  size_mail bigint(20) NOT NULL DEFAULT '0',
+  size_spam bigint(20) NOT NULL DEFAULT '0',
+  size_home bigint(20) NOT NULL DEFAULT '0',
   num_inbox int(11) NOT NULL DEFAULT '0',
   num_spam int(11) NOT NULL DEFAULT '0',
   num_total int(11) NOT NULL DEFAULT '0'
 );
+CREATE TABLE IF NOT EXISTS vmail_log_bkp (
+  id $SQLPK,
+  aid int(11) NOT NULL DEFAULT '1',
+  vmid int(11) NOT NULL DEFAULT '1',
+  month date NOT NULL DEFAULT '2018-01-01',
+  size_mail bigint(20) NOT NULL DEFAULT '0',
+  size_spam bigint(20) NOT NULL DEFAULT '0',
+  size_home bigint(20) NOT NULL DEFAULT '0',
+  num_inbox int(11) NOT NULL DEFAULT '0',
+  num_spam int(11) NOT NULL DEFAULT '0',
+  num_total int(11) NOT NULL DEFAULT '0'
+);
+
+
 CREATE TABLE IF NOT EXISTS news (
   id $SQLPK,
   title varchar(63) NOT NULL,
