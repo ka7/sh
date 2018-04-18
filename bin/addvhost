@@ -304,16 +304,16 @@ else
     newssl $VHOST cdn www $TMPIP > /dev/null 2>&1
 fi
 
-addvmail admin@$VHOST
+addvmail $VUSER@$VHOST
 chshpw $UUSER $UPASS
 
 MID=$(cat << EOS | $SQCMD
  SELECT id FROM vmails
-  WHERE name = 'admin@$VHOST'
+  WHERE user = '$VUSER@$VHOST'
 EOS
 )
 
-echo "!!! Create admin@$VHOST entry in $ADMIN.vmail_log ($DTYPE)"
+echo "!!! Create $VUSER@$VHOST entry in $ADMIN.vmail_log ($DTYPE)"
 DO_VMAILLOG=$(cat << EOS | $SQCMD
  INSERT INTO vmail_log (
         mid,

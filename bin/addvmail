@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20180407
+# .sh/bin/addvmail 20170418 - 20180418
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
@@ -40,7 +40,7 @@ EOS
 if [[ -n $USRID ]]; then
     echo "*** Warning: '$1' already exists in $DTYPE"
 else
-    echo "*** Create $ADMIN.vmails entry ($DTYPE)"
+    echo "*** Create $VUSER.vmails entry ($DTYPE)"
     PW=$(doveadm pw -s SHA512-CRYPT -p $EPASS)
 #    echo "*** $EPASS = $PW"
     DO_VMAIL=$(cat << EOS | $SQCMD
