@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180317
+# .sh/bin/setup-all 20170519 - 20180418
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/root/.sh/bin
 
+DTYPE=${1:-'mysql'}
+
 echo "### Entering setup-host"
-setup-host
+setup-host $DTYPE
 echo "### Entering setup-deb"
 setup-deb
 echo "### Entering setup-db"

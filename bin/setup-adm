@@ -98,8 +98,15 @@ if [[ $DTYPE == mysql ]]; then
     if [[ -f $WPATH/adm/lib/.ht_conf.php ]]; then
         echo "@@@ $WPATH/adm/lib/.ht_conf.php already exists"
     else
-        echo "@@@ Create $WPATH/adm/lib/.ht_conf.php (edit to modify/extend)"
-        echo "<?php
+        echo "@@@ Create $WPATH/adm/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
+        if [[ $DTYPE == mysql ]]; then
+            TMPDB="['type' => 'mysql', 'pass' => '$DPASS']"
+        elif [[ $DTYPE == sqlite ]]; then
+            TMPDB="['type' => 'sqlite']"
+        else
+            TMPDB=
+        fi
+        [[ $TMPDB ]] && echo "<?php
 return [
     'cfg' => ['email' => '$ADMIN@$VHOST'],
     'db' => ['type' => 'mysql', 'pass' => '$DPASS'],

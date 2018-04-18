@@ -164,6 +164,16 @@ if [[ ! -f $C_WEB/common.conf ]]; then
     cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
 fi
 
+if [[ ! -f $C_WEB/php.conf ]]; then
+    echo "^^^ Create $C_WEB/php.conf"
+    cp ~/.sh/etc/_etc_nginx_php.conf $C_WEB/php.conf
+fi
+
+if [[ ! -f $C_WEB/headers.conf ]]; then
+    echo "^^^ Create $C_WEB/headers.conf"
+    cp ~/.sh/etc/_etc_nginx_headers.conf $C_WEB/headers.conf
+fi
+
 if [[ ! -f $C_WEB/common-auth.conf ]]; then
     echo "^^^ Create $C_WEB/common-auth.conf"
     cp ~/.sh/etc/_etc_nginx_common-auth.conf $C_WEB/common-auth.conf
