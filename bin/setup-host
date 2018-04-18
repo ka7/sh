@@ -23,11 +23,9 @@ HLIST="
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! START DEBUG"
-set -x
 VHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
-DTYPE=${2:-'mysql'}
-UUSER=${3:-'sysadm'}
+#DTYPE=${2:-'mysql'}
+#UUSER=${3:-'sysadm'}
 OSREL=${4:-'bionic'}
 OSMIR=${5:-'archive.ubuntu.com'}
 
@@ -92,6 +90,12 @@ fi
 
 source /root/.shrc
 
+# override static defaults in .shrc
+export DTYPE=${2:-$DTYPE}
+export UUSER=${3:-$UUSER}
+export OSREL=${4:-$OSREL}
+export OSMIR=${5:-$OSMIR}
+
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
@@ -101,8 +105,6 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     # temporary debug
     cat /root/.vhosts/$VHOST
 fi
-set +x
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! STOP DEBUG"
 
 source /root/.vhosts/$VHOST
 
