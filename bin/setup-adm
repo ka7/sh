@@ -8,7 +8,7 @@
 
 #source ~/.shrc || exit 3
 
-VHOST=${1:-$VHOST}
+VHOST=${1:-$(hostname -f)}
 
 source ~/.vhosts/$VHOST || exit 4
 
