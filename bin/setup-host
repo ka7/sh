@@ -94,7 +94,7 @@ source /root/.shrc
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$VHOST"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    sethost $UUSER@$VHOST $(newpw 5 2> /dev/null)
+    sethost $UUSER@$VHOST $DTYPE $(newpw 5 2> /dev/null)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
 fi
 

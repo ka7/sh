@@ -10,7 +10,7 @@ if [[ -f ~/.vhosts/$1 ]]; then
     source ~/.vhosts/$1
 else
     echo "!!! ERROR: set up vhost config first, ie;"
-    echo "    sethost $1 \$(newpw 5)"
+    echo "    sethost $1 mysql \$(newpw 5)"
     echo "    gethost > ~/.vhosts/$1"
     echo "    chmod 600 ~/.vhosts/$1"
     exit 3
@@ -23,7 +23,7 @@ FPATH=${2:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 
 #[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
-[[ $IP4_0 =~ 192.168 ]] && SCHEME="http://" || SCHEME="https://"
+[[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
 
 if [[ $FPATH ]]; then
     WPURL=$SCHEME$VHOST/$FPATH
