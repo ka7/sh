@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS vhost_log (
   month date NOT NULL DEFAULT '2018-01-01',
   size_mpath bigint(20) NOT NULL DEFAULT '0',
   size_wpath bigint(20) NOT NULL DEFAULT '0',
-  size_upath bigint(20) NOT NULL DEFAULT '0',
+  size_upath bigint(20) NOT NULL DEFAULT '0'
 );
 CREATE TABLE IF NOT EXISTS vhost_log_bkp (
   id $SQLPK,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS vhost_log_bkp (
   month date NOT NULL DEFAULT '2018-01-01',
   size_mpath bigint(20) NOT NULL DEFAULT '0',
   size_wpath bigint(20) NOT NULL DEFAULT '0',
-  size_upath bigint(20) NOT NULL DEFAULT '0',
+  size_upath bigint(20) NOT NULL DEFAULT '0'
 );
 
 CREATE TABLE IF NOT EXISTS vmail_log (
@@ -247,8 +247,8 @@ CREATE INDEX accounts_acl ON accounts (acl);
 CREATE UNIQUE INDEX accounts_login ON accounts (login);
 CREATE UNIQUE INDEX vhosts_domain ON vhosts (domain);
 CREATE INDEX vhosts_aid ON vhosts (aid);
-CREATE INDEX logging_month ON logging (month);
-CREATE INDEX logging_name ON logging (name);
+CREATE INDEX vhost_log_month ON vhost_log (month);
+CREATE INDEX vmail_log_month ON vmail_log (month);
 CREATE UNIQUE INDEX virtual_users_user ON vmails (user);
 CREATE INDEX virtual_users_did ON vmails (did);
 CREATE INDEX mail_users_aid ON vmails (aid);
