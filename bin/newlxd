@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20180415
+# .sh/bin/newlxd 20171013 - 20180419
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root so we need OSREL and DTYPE
@@ -14,18 +14,18 @@ OSREL=${4:-'bionic'}
 # Modify these profile "plans" to suit your needs
 if [[ $2 == large ]]; then
     PNAME=large
-    PSIZE=10GB
-    P_MEM=1024MB
+    PSIZE=10000MB
+    P_MEM=1000MB
     P_CPU=3
 elif [[ $2 == medium ]]; then
     PNAME=medium
-    PSIZE=5GB
-    P_MEM=512MB
+    PSIZE=5000MB
+    P_MEM=500MB
     P_CPU=2
 else
     PNAME=small
-    PSIZE=2GB
-    P_MEM=256MB
+    PSIZE=2000MB
+    P_MEM=250MB
     P_CPU=1
 fi
 
