@@ -159,7 +159,7 @@ if [[ ! -e /usr/sbin/nginx ]]; then
     echo "<<< Installing NetServa packages, still more patience..."
     cat << EOS | debconf-set-selections
 postfix postfix/destinations string 'localhost'
-postfix postfix/mailname string '$VHOST'
+postfix postfix/mailname string $VHOST
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB install $SLIST > /dev/null 2>&1
