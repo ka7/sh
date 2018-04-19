@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180315
+# .sh/bin/logging 20170417 - 20180419
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: logging domain|all [update]" && exit 1
@@ -12,18 +12,9 @@ source ~/.shrc || exit 3
 
 DU="/usr/bin/du -sb"
 FIND="/usr/bin/find"
-MONTH=$(date +%Y%m)
+YMD=$(date +%Y-%m-%d)
 
-log_setup()
-{
-    local IS_ENTRY=$(echo "SELECT 1 FROM logging WHERE name='$1' AND month=$MONTH LIMIT 1" | $SQCMD)
-    if [[ -z $IS_ENTRY ]]; then
-        echo "!!! Adding $1 to database"
-        echo "INSERT INTO logging (did, name, month) VALUES ($2, '$1', $MONTH)" | $SQCMD
-    fi
-}
-
-log_upath()
+log_vhost()
 {
     local UPATH=$VPATH/$1
     local MPATH=$UPATH/home
@@ -35,15 +26,13 @@ log_upath()
     [[ -d $WPATH ]] && WDU=$($DU $WPATH | cut -f1)
 
     if [[ $UPD ]]; then
-        log_setup $1 $2
-        echo "UPDATE logging SET size_mpath=$MDU, size_wpath=$WDU, size_upath=$UDU WHERE name='$1' AND month=$MONTH" | $SQCMD
+        echo "INSERT INTO vhost_log (hid, ymd, size_mpath, size_wpath, size_upath) VALUES ($2, '$YMD', $MDU, $WDU, $UDU)" | $SQCMD
     else
-#        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
-        printf "%-48s %9.1f %9.1f %9.1f\n" $1 $(echo $MDU/1000000|bc -l) $(echo $WDU/1000000|bc -l) $(echo $UDU/1000000|bc -l)
+        printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
 }
 
-log_mpath()
+log_vmail()
 {
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
@@ -62,23 +51,22 @@ log_mpath()
 
         if [[ $UPD ]]; then
             local VUSER="$(basename $MBOX)@$1"
-            log_setup $VUSER $2
-            echo "UPDATE logging SET user_mail=$MDU, user_spam=$SDU, user_home=$HDU, num_inbox=$INUM, num_spam=$SNUM, num_total=$TNUM WHERE name='$VUSER' AND month=$MONTH" | $SQCMD
+            MID=$(echo "SELECT id FROM vmails WHERE user='$VUSER'" | $SQCMD)
+            echo "INSERT INTO vmail_log (mid, ymd, size_mail, size_spam, size_home, num_inbox, num_spam, num_total) VALUES ($MID, '$YMD', $MDU, $SDU, $HDU, $INUM, $SNUM, $TNUM)" | $SQCMD
         else
-#            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
-            printf "  %-46s %9.1f %9.1f %9.1f\n" "$(basename $MBOX)@$1" $(echo $MDU/1000000|bc -l) $(echo $SDU/1000000|bc -l) $(echo $HDU/1000000|bc -l)
+            printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
 }
 
 log_all()
 {
-    DID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
-    if [[ $DID -gt 0 ]]; then
-        log_upath $1 $DID
-        log_mpath $1 $DID
+    HID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
+    if [[ $HID -gt 0 ]]; then
+        log_vhost $1 $HID
+        log_vmail $1 $HID
     else
-        echo "Warning: '$1' did not return a DID from '$SQCMD'"
+        echo "Warning: '$1' did not return a HID from '$SQCMD'"
     fi
 }
 
