@@ -110,7 +110,7 @@ if [[ $DTYPE == mysql ]]; then
         [[ $TMPDB ]] && echo "<?php
 return [
     'cfg' => ['email' => '$ADMIN@$VHOST'],
-    'db' => ['type' => 'mysql', 'pass' => '$DPASS'],
+    'db' => $TMPDB,
     'out' => [
         'doc'   => '$VHOST',
         'head'  => '$VHOST',
