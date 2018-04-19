@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180418
+# .sh/bin/addvhost 20170217 - 20180419
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -32,7 +32,7 @@ fi
 
 source /root/.vhosts/$VHOST
 
-# This section has to be moved into a database
+# This "plans" section has to be moved into a database
 if [[ $2 == enterprise ]]; then
     V_ALIASES="200"
     V_DISKQUOTA="20000000000"
@@ -252,8 +252,7 @@ fi
 
 newautoconfig $VHOST $AHOST $AHOST
 chperms $VHOST
-php-fpm$V_PHP -t && systemctl reload php$V_PHP-fpm
-#serva restart php
+serva reload php
 
 LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
 DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
