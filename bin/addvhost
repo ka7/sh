@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180419
+# .sh/bin/addvhost 20170217 - 20180420
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -106,23 +106,24 @@ DO_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-HID=$(cat << EOS | $SQCMD
- SELECT id FROM vhosts
-  WHERE domain = '$VHOST'
-EOS
-)
-
-echo "!!! Create $VHOST entry in $ADMIN.vhost_log ($DTYPE)"
-DO_VHOSTLOG=$(cat << EOS | $SQCMD
- INSERT INTO vhost_log (
-        hid,
-        ymd
-) VALUES (
-        $HID,
-        '$YMD'
-)
-EOS
-)
+# Not needed with new daily logging script and tables
+#HID=$(cat << EOS | $SQCMD
+# SELECT id FROM vhosts
+#  WHERE domain = '$VHOST'
+#EOS
+#)
+#
+#echo "!!! Create $VHOST entry in $ADMIN.vhost_log ($DTYPE)"
+#DO_VHOSTLOG=$(cat << EOS | $SQCMD
+# INSERT INTO vhost_log (
+#        hid,
+#        ymd
+#) VALUES (
+#        $HID,
+#        '$YMD'
+#)
+#EOS
+#)
 
 if [[ -d $C_FPM ]]; then
     if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
@@ -192,6 +193,8 @@ export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
 alias la='ls -lA -F --color'
 alias ll='ls -l -F --color'
 alias ls='ls -F --color'
+alias e='nano -t -x -c'
+alias plog='tail -f ~/var/log/php-errors.log'
 EOS
 fi
 

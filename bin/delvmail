@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20180321
+# .sh/bin/delvmail 20170418 - 20180420
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
@@ -14,35 +14,37 @@ VUSER=${1%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER"
 
-[[ ! -d $HPATH ]] && echo "*** ERROR: $HPATH does not exist" && exit 4
-[[ ! -d $MPATH ]] && echo "*** ERROR: $MPATH does not exist" && exit 5
+if [[ -d $MPATH ]]; then
+    echo "*** Remove $MPATH"
+    rm -rf $MPATH
+else
+    echo "*** ERROR: $MPATH does not exist"
+    exit 4
+fi
 
-echo "*** Remove $MPATH"
-rm -rf $MPATH
-
-USRID=$(cat << EOS | $SQCMD
+MID=$(cat << EOS | $SQCMD
  SELECT id FROM vmails
   WHERE user = '$1'
 EOS
 )
 
-if [[ -z $USRID ]]; then
+if [[ -z $MID ]]; then
     echo "*** Warning: '$1' does not exist in $ADMIN.vmails"
 else
     echo "*** Remove '$1' from $ADMIN.vmails ($DTYPE)"
     cat << EOS | $SQCMD
  DELETE FROM vmails
-  WHERE id = $USRID
+  WHERE id = $MID
 EOS
 fi
 
-USRID=$(cat << EOS | $SQCMD
+AID=$(cat << EOS | $SQCMD
  SELECT id FROM valias
   WHERE target = '$1'
 EOS
 )
 
-if [[ -z $USRID ]]; then
+if [[ -z $AID ]]; then
     echo "*** Warning: '$1' does not exist in $ADMIN.valias"
 else
     echo "*** Remove '$1' from $ADMIN.valias ($DTYPE)"
@@ -52,19 +54,19 @@ else
 EOS
 fi
 
-USRID=$(cat << EOS | $SQCMD
- SELECT id FROM logging
-  WHERE name = '$1'
+LID=$(cat << EOS | $SQCMD
+ SELECT id FROM mail_log
+  WHERE mid = '$MID'
 EOS
 )
 
-if [[ -z $USRID ]]; then
-    echo "*** Warning: '$1' does not exist in $ADMIN.logging"
+if [[ -z $LID ]]; then
+    echo "*** Warning: '$1' does not exist in $ADMIN.mail_log"
 else
-    echo "*** Remove '$1' from $ADMIN.logging ($DTYPE)"
+    echo "*** Remove '$1' from $ADMIN.mail_log ($DTYPE)"
     cat << EOS | $SQCMD
- DELETE FROM logging
-  WHERE name = '$1'
+ DELETE FROM mail_log
+  WHERE mid = '$MID'
 EOS
 fi
 

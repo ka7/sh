@@ -23,7 +23,7 @@ _DATE=$(date "+%Y-%m-%d %H:%M:%S")
 
 [[ -d $MPATH/Maildir ]] && echo "*** ERROR: $MPATH/Maildir already exists" && exit 5
 
-DID=$(cat << EOS | $SQCMD
+HID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
   WHERE domain = '$VHOST'
 EOS
@@ -45,7 +45,7 @@ else
 #    echo "*** $EPASS = $PW"
     DO_VMAIL=$(cat << EOS | $SQCMD
  INSERT INTO vmails (
-        did,
+        hid,
         uid,
         gid,
         active,
@@ -56,7 +56,7 @@ else
         updated,
         created
 ) VALUES (
-        $DID,
+        $HID,
         $U_UID,
         $U_GID,
         1,
@@ -74,13 +74,13 @@ EOS
     [[ $VUSER == $ADMIN ]] && SOURCE="@$VHOST" || SOURCE="$VUSER@$VHOST"
     DO_VALIAS=$(cat << EOS | $SQCMD
  INSERT INTO valias (
-        did,
+        hid,
         source,
         target,
         updated,
         created
 ) VALUES (
-        $DID,
+        $HID,
         '$SOURCE',
         '$VUSER@$VHOST',
         '$_DATE',

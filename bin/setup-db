@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180418
+# .sh/etc/setup-db.sh 20170319 - 20180420
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -12,7 +12,9 @@ DTYPE=${1:-$DTYPE}
 
 if [[ $DTYPE == sqlite ]]; then
 
-    if [[ ! -d $DBSQL ]]; then
+    if [[ -d $DBSQL ]]; then
+        echo "||| $DBSQL already exists"
+    else
         echo "||| Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
@@ -25,7 +27,9 @@ if [[ $DTYPE == sqlite ]]; then
 
 elif [[ $DTYPE == mysql ]]; then
 
-    if [[ ! -f ~/.my.cnf ]]; then
+    if [[ -f ~/.my.cnf ]]; then
+        echo "||| ~/.my.cnf (MySQL) already exists"
+    else
         echo "||| Create ~/.my.cnf"
         cat << EOS | tee ~/.my.cnf > /dev/null
 # Autocreated by setup-db
@@ -38,7 +42,9 @@ EOS
         chmod 600 ~/.my.cnf
     fi
 
-    if [[ ! -d $DBMYS/$ADMIN ]]; then
+    if [[ -d $DBMYS/$ADMIN ]]; then
+        echo "||| $DBMYS/$ADMIN already exists"
+    else
         echo "||| Create MySQL privileges"
         cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
@@ -129,8 +135,8 @@ CREATE TABLE IF NOT EXISTS news (
 CREATE TABLE IF NOT EXISTS valias (
   id $SQLPK,
   aid int(11) NOT NULL DEFAULT '1',
-  did int(11) NOT NULL DEFAULT '1',
-  active int(1) NOT NULL DEFAULT '1',
+  hid int(11) NOT NULL DEFAULT '1',
+  active tinyint(1) NOT NULL DEFAULT '1',
   source varchar(63) NOT NULL,
   target varchar(255) NOT NULL,
   updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
@@ -147,21 +153,21 @@ CREATE TABLE IF NOT EXISTS vhosts (
   mailboxes int(11) NOT NULL DEFAULT '0',
   mailquota bigint(20) NOT NULL DEFAULT '0',
   diskquota bigint(20) NOT NULL DEFAULT '0',
-  active int(1) NOT NULL DEFAULT '1',
+  active tinyint(1) NOT NULL DEFAULT '1',
   updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
 );
 CREATE TABLE IF NOT EXISTS vmails (
   id $SQLPK,
   aid int(11) NOT NULL DEFAULT '1',
-  did int(11) NOT NULL DEFAULT '1',
+  hid int(11) NOT NULL DEFAULT '1',
   gid int(11) NOT NULL DEFAULT '1000',
   uid int(11) NOT NULL DEFAULT '1000',
-  spamf int(1) NOT NULL DEFAULT '1',
-  active int(1) NOT NULL DEFAULT '1',
+  spamf tinyint(1) NOT NULL DEFAULT '1',
+  active tinyint(1) NOT NULL DEFAULT '1',
   quota bigint(20) NOT NULL DEFAULT '500000000',
   user varchar(63) NOT NULL DEFAULT '',
-  home varchar(63) NOT NULL DEFAULT '',
+  home varchar(127) NOT NULL DEFAULT '',
   password varchar(127) NOT NULL DEFAULT '',
   updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
@@ -250,10 +256,10 @@ CREATE INDEX vhosts_aid ON vhosts (aid);
 CREATE INDEX vhost_log_ymd ON vhost_log (ymd);
 CREATE INDEX vmail_log_ymd ON vmail_log (ymd);
 CREATE UNIQUE INDEX virtual_users_user ON vmails (user);
-CREATE INDEX virtual_users_did ON vmails (did);
+CREATE INDEX virtual_users_hid ON vmails (hid);
 CREATE INDEX mail_users_aid ON vmails (aid);
 CREATE INDEX virtual_aliases_source ON valias (source);
-CREATE INDEX virtual_aliases_did ON valias (did);
+CREATE INDEX virtual_aliases_hid ON valias (hid);
 CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
 

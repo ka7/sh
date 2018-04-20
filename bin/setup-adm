@@ -62,7 +62,7 @@ EOS
 fi
 
 # Even if SQLite is the default this is so switching to MySQL has a chance
-# of working when index.php db=>type is manally changed to "mysql".
+# of working when index.php db=>type is dynamically changed to "mysql".
 if [[ -f $WPATH/adm/lib/.ht_pw ]]; then
     echo "@@@ $WPATH/adm/lib/.ht_pw already exists"
 else
