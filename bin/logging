@@ -18,18 +18,6 @@ YMD=$(date +%Y-%m-%d)
 
 log_vhost()
 {
-    DOBKP=$(echo "SELECT COUNT(id) FROM vhost_log WHERE ymd != '$YMD'" | $SQCMD)
-    if [[ $DOBKP -eq 0 ]]; then
-        ISBKP=$(echo "SELECT COUNT(id) FROM vhost_log" | $SQCMD)
-        if [[ $ISBKP -eq 0 ]]; then
-            echo "Warning: no records in $ADMIN.vhost_log to backup"
-        else
-            echo "
- INSERT INTO vhost_log_bkp (aid,hid,ymd,size_mpath,size_wpath,size_upath)
- SELECT aid,hid,ymd,size_mpath,size_wpath,size_upath FROM vhost_log;" | $SQCMD
-        fi
-    fi
-
     local UPATH=$VPATH/$1
     local MPATH=$UPATH/home
     local WPATH=$UPATH/var/www
@@ -40,6 +28,18 @@ log_vhost()
     [[ -d $WPATH ]] && WDU=$($DU $WPATH | cut -f1)
 
     if [[ $UPD ]]; then
+        DOBKP=$(echo "SELECT COUNT(id) FROM vhost_log WHERE ymd != '$YMD'" | $SQCMD)
+        if [[ $DOBKP -eq 0 ]]; then
+            ISBKP=$(echo "SELECT COUNT(id) FROM vhost_log" | $SQCMD)
+            if [[ $ISBKP -eq 0 ]]; then
+                echo "Warning: no records in $ADMIN.vhost_log to backup"
+            else
+                echo "
+ INSERT INTO vhost_log_bkp (aid,hid,ymd,size_mpath,size_wpath,size_upath)
+ SELECT aid,hid,ymd,size_mpath,size_wpath,size_upath FROM vhost_log;" | $SQCMD
+            fi
+        fi
+
         HID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
         if [[ -z $HID ]]; then
             echo "Warning: $1 not in $ADMIN.vhosts table"
@@ -66,18 +66,6 @@ log_vhost()
 
 log_vmail()
 {
-    DOBKP=$(echo "SELECT COUNT(id) FROM vmail_log WHERE ymd != '$YMD'" | $SQCMD)
-    if [[ $DOBKP -eq 0 ]]; then
-        ISBKP=$(echo "SELECT COUNT(id) FROM vmail_log" | $SQCMD)
-        if [[ $ISBKP -eq 0 ]]; then
-            echo "Warning: no records in $ADMIN.vmail_log to backup"
-        else
-            echo "
- INSERT INTO vmail_log_bkp (aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total)
- SELECT aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total FROM vmail_log;" | $SQCMD
-        fi
-    fi
-
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
@@ -94,6 +82,18 @@ log_vmail()
         [[ -d $MBOX/Maildir/.Spam/cur ]] && SNUM=$($FIND $MBOX/Maildir/.Spam/cur -name "[0-9][0-9]*" | wc -l)
 
         if [[ $UPD ]]; then
+            DOBKP=$(echo "SELECT COUNT(id) FROM vmail_log WHERE ymd != '$YMD'" | $SQCMD)
+            if [[ $DOBKP -eq 0 ]]; then
+                ISBKP=$(echo "SELECT COUNT(id) FROM vmail_log" | $SQCMD)
+                if [[ $ISBKP -eq 0 ]]; then
+                    echo "Warning: no records in $ADMIN.vmail_log to backup"
+                else
+                    echo "
+ INSERT INTO vmail_log_bkp (aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total)
+ SELECT aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total FROM vmail_log;" | $SQCMD
+                fi
+            fi
+
             local VUSER="$(basename $MBOX)@$1"
             MID=$(echo "SELECT id FROM vmails WHERE user='$VUSER'" | $SQCMD)
             if [[ -z $MID ]]; then
