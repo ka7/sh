@@ -18,9 +18,9 @@ YMD=$(date +%Y-%m-%d)
 
 log_vhost()
 {
-    DOBKP=$("SELECT COUNT(id) FROM vhost_log WHERE ymd != '$YMD'" | $SQCMD)
+    DOBKP=$(echo "SELECT COUNT(id) FROM vhost_log WHERE ymd != '$YMD'" | $SQCMD)
     if [[ $DOBKP -eq 0 ]]; then
-        ISBKP=$("SELECT COUNT(id) FROM vhost_log" | $SQCMD)
+        ISBKP=$(echo "SELECT COUNT(id) FROM vhost_log" | $SQCMD)
         if [[ $ISBKP -eq 0 ]]; then
             echo "Warning: no records in $ADMIN.vhost_log to backup"
         else
@@ -66,9 +66,9 @@ log_vhost()
 
 log_vmail()
 {
-    DOBKP=$("SELECT COUNT(id) FROM vmail_log WHERE ymd != '$YMD'" | $SQCMD)
+    DOBKP=$(echo "SELECT COUNT(id) FROM vmail_log WHERE ymd != '$YMD'" | $SQCMD)
     if [[ $DOBKP -eq 0 ]]; then
-        ISBKP=$("SELECT COUNT(id) FROM vmail_log" | $SQCMD)
+        ISBKP=$(echo "SELECT COUNT(id) FROM vmail_log" | $SQCMD)
         if [[ $ISBKP -eq 0 ]]; then
             echo "Warning: no records in $ADMIN.vmail_log to backup"
         else
