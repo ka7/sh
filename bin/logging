@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180419
+# .sh/bin/logging 20170417 - 20180421
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# TODO add AID (account/admin ID)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: logging domain|all [update]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 source ~/.shrc || exit 3
-
+set -x
 [[ $2 == update ]] && UPD=1 || UPD=
 
 DU="/usr/bin/du -sb"
@@ -16,6 +18,18 @@ YMD=$(date +%Y-%m-%d)
 
 log_vhost()
 {
+    DOBKP=$("SELECT COUNT(id) FROM vhost_log WHERE ymd != '$YMD'" | $SQCMD)
+    if [[ $DOBKP -eq 0 ]]; then
+        ISBKP=$("SELECT COUNT(id) FROM vhost_log" | $SQCMD)
+        if [[ $ISBKP -eq 0 ]]; then
+            echo "Warning: no records in $ADMIN.vhost_log to backup"
+        else
+            echo "
+ INSERT INTO vhost_log_bkp (aid,hid,ymd,size_mpath,size_wpath,size_upath)
+ SELECT aid,hid,ymd,size_mpath,size_wpath,size_upath FROM vhost_log;" | $SQCMD
+        fi
+    fi
+
     local UPATH=$VPATH/$1
     local MPATH=$UPATH/home
     local WPATH=$UPATH/var/www
@@ -26,7 +40,25 @@ log_vhost()
     [[ -d $WPATH ]] && WDU=$($DU $WPATH | cut -f1)
 
     if [[ $UPD ]]; then
-        echo "INSERT INTO vhost_log (hid, ymd, size_mpath, size_wpath, size_upath) VALUES ($2, '$YMD', $MDU, $WDU, $UDU)" | $SQCMD
+        HID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
+        if [[ -z $HID ]]; then
+            echo "Warning: $1 not in $ADMIN.vhosts table"
+        else
+            local TMP=$(echo "SELECT 1 FROM vhost_log WHERE hid=$HID" | $SQCMD)
+            if [[ $TMP -ne 1 ]]; then
+                echo "
+ INSERT INTO vhost_log (hid, ymd, size_mpath, size_wpath, size_upath)
+ VALUES ($2, '$YMD', $MDU, $WDU, $UDU)" | $SQCMD
+            else
+                echo "
+ UPDATE vhost_log
+    SET ymd='$YMD',
+        size_mpath=$MDU,
+        size_wpath=$WDU,
+        size_upath=$UDU
+   WHERE hid=$HID" | $SQCMD
+            fi
+        fi
     else
         printf "%-48s %9s %9s %9s\n" $1 $(numfmt --to=si $MDU) $(numfmt --to=si $WDU) $(numfmt --to=si $UDU)
     fi
@@ -34,6 +66,18 @@ log_vhost()
 
 log_vmail()
 {
+    DOBKP=$("SELECT COUNT(id) FROM vmail_log WHERE ymd != '$YMD'" | $SQCMD)
+    if [[ $DOBKP -eq 0 ]]; then
+        ISBKP=$("SELECT COUNT(id) FROM vmail_log" | $SQCMD)
+        if [[ $ISBKP -eq 0 ]]; then
+            echo "Warning: no records in $ADMIN.vmail_log to backup"
+        else
+            echo "
+ INSERT INTO vmail_log_bkp (aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total)
+ SELECT aid,mid,ymd,size_mail,size_spam,size_home,num_inbox,num_spam,num_total FROM vmail_log;" | $SQCMD
+        fi
+    fi
+
     local MPATH=$VPATH/$1/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
@@ -52,31 +96,41 @@ log_vmail()
         if [[ $UPD ]]; then
             local VUSER="$(basename $MBOX)@$1"
             MID=$(echo "SELECT id FROM vmails WHERE user='$VUSER'" | $SQCMD)
-            echo "INSERT INTO vmail_log (mid, ymd, size_mail, size_spam, size_home, num_inbox, num_spam, num_total) VALUES ($MID, '$YMD', $MDU, $SDU, $HDU, $INUM, $SNUM, $TNUM)" | $SQCMD
+            if [[ -z $MID ]]; then
+                echo "Warning: $VUSER not in $ADMIN.vmails table"
+            else
+                local TMP=$(echo "SELECT 1 FROM vmail_log WHERE mid=$MID" | $SQCMD)
+                if [[ $TMP -ne 1 ]]; then
+                    echo "
+ INSERT INTO vmail_log (mid, ymd, size_mail, size_spam, size_home, num_inbox, num_spam, num_total)
+ VALUES ($MID, '$YMD', $MDU, $SDU, $HDU, $INUM, $SNUM, $TNUM)" | $SQCMD
+                else
+                    echo "
+ UPDATE vmail_log
+    SET ymd='$YMD',
+        size_mail=$MDU,
+        size_spam=$SDU,
+        size_home=$HDU,
+        num_inbox=$INUM,
+        num_spam=$SNUM,
+        num_total=$TNUM
+   WHERE mid=$MID" | $SQCMD
+                fi
+            fi
         else
             printf "  %-46s %9s %9s %9s\n" "$(basename $MBOX)@$1" $(numfmt --to=si $MDU) $(numfmt --to=si $SDU) $(numfmt --to=si $HDU)
         fi
     done
 }
 
-log_all()
-{
-    HID=$(echo "SELECT id FROM vhosts WHERE domain='$1'" | $SQCMD)
-    if [[ $HID -gt 0 ]]; then
-        log_vhost $1 $HID
-        log_vmail $1 $HID
-    else
-        echo "Warning: '$1' did not return a HID from '$SQCMD'"
-    fi
-}
-
 [[ $UPD ]] || printf "%-48s %9s %9s %9s\n" "Vhost / Mailbox" "Mail/Box" "Web/Spam" "Disk/Home"
 
 if [[ $1 == all ]]; then
     VHOSTS=$(find $VPATH -mindepth 1 -maxdepth 1 -type d \! -type l | sed "s#$VPATH/##" | sort)
-    for VHOST in $VHOSTS; do log_all $VHOST; done
+    for VHOST in $VHOSTS; do log_vhost $VHOST; log_vmail $VHOST; done
 else
-    log_all $1
+    log_vhost $1
+    log_vmail $1
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
