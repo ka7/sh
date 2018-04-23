@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180421
+# .sh/bin/logging 20170417 - 20180423
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
@@ -48,7 +48,7 @@ log_vhost()
             if [[ $TMP -ne 1 ]]; then
                 echo "
  INSERT INTO vhost_log (hid, ymd, size_mpath, size_wpath, size_upath)
- VALUES ($2, '$YMD', $MDU, $WDU, $UDU)" | $SQCMD
+ VALUES ($HID, '$YMD', $MDU, $WDU, $UDU)" | $SQCMD
             else
                 echo "
  UPDATE vhost_log
