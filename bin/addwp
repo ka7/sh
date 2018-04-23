@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180407
+# .sh/bin/addwp 20160231 - 20180423
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -41,6 +41,11 @@ if [[ ! -x /usr/local/bin/wp ]]; then
     curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod +x wp-cli.phar
     mv wp-cli.phar /usr/local/bin/wp
+fi
+
+# Exception: keep wp-* tables out of $ADMIN (sysadm) database
+if [[ $DNAME == $ADMIN ]]; then
+    DNAME=${VHOST//[.-]/_}
 fi
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
