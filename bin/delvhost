@@ -20,16 +20,16 @@ if [[ $DTYPE == mysql ]]; then
     mysqldump sysadm vhosts vmails valias logging \
       --where="id=$HID" --compact --no-create-info > $UPATH/mysql-$ADMIN.sql
 elif [[ $DTYPE == sqlite ]]; then
-    echo "SELECT * vhosts WHERE did = $HID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
-    echo "SELECT * vmails WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
-    echo "SELECT * valias WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
-#    echo "SELECT * logging WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * vhosts WHERE hid = $HID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * vmails WHERE hid = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * valias WHERE hid = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+#    echo "SELECT * logging WHERE hid = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
 fi
 
 echo "DELETE FROM vhosts WHERE id = $HID" | $SQCMD
-echo "DELETE FROM vmails WHERE did = $HID" | $SQCMD
-echo "DELETE FROM valias WHERE did = $HID" | $SQCMD
-#echo "DELETE FROM logging WHERE did = $HID" | $SQCMD
+echo "DELETE FROM vmails WHERE hid = $HID" | $SQCMD
+echo "DELETE FROM valias WHERE hid = $HID" | $SQCMD
+#echo "DELETE FROM logging WHERE hid = $HID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
