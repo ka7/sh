@@ -13,8 +13,8 @@ source ~/.shrc || exit 3
 [[ $2 == update ]] && UPD=1 || UPD=
 
 DU="/usr/bin/du -sb"
-FIND="/usr/bin/find"
 YMD=$(date +%Y-%m-%d)
+FIND="/usr/bin/find"
 
 log_vhost()
 {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180420
+# .sh/bin/addvhost 20170217 - 20180423
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -10,7 +10,7 @@ source /root/.shrc || exit 3
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
-YMD=$(date +"%Y%m%d")
+YMD=$(date +"%Y-%m-%d")
 UUTMP=""
 
 if [[ $1 ]]; then
