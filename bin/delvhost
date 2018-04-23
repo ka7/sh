@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180418
+# .sh/bin/delvhost 20170216 - 20180423
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -10,7 +10,7 @@ source ~/.vhosts/${1:-$VHOST} || exit 3
 
 [[ ! -d $VPATH/$VHOST ]] && echo "!!! ERROR: '$VPATH/$VHOST' does not exist" && exit 4
 
-DID=$(cat << EOS | $SQCMD
+HID=$(cat << EOS | $SQCMD
  SELECT id FROM vhosts
   WHERE domain = '$VHOST'
 EOS
@@ -18,18 +18,18 @@ EOS
 
 if [[ $DTYPE == mysql ]]; then
     mysqldump sysadm vhosts vmails valias logging \
-      --where="id=$DID" --compact --no-create-info > $UPATH/mysql-$ADMIN.sql
+      --where="id=$HID" --compact --no-create-info > $UPATH/mysql-$ADMIN.sql
 elif [[ $DTYPE == sqlite ]]; then
-    echo "SELECT * vhosts WHERE did = $DID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
-    echo "SELECT * vmails WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
-    echo "SELECT * valias WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
-#    echo "SELECT * logging WHERE did = $DID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * vhosts WHERE did = $HID" | $SQCMD > $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * vmails WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+    echo "SELECT * valias WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
+#    echo "SELECT * logging WHERE did = $HID" | $SQCMD >> $UPATH/sqlite-$ADMIN.sql
 fi
 
-echo "DELETE FROM vhosts WHERE id = $DID" | $SQCMD
-echo "DELETE FROM vmails WHERE did = $DID" | $SQCMD
-echo "DELETE FROM valias WHERE did = $DID" | $SQCMD
-#echo "DELETE FROM logging WHERE did = $DID" | $SQCMD
+echo "DELETE FROM vhosts WHERE id = $HID" | $SQCMD
+echo "DELETE FROM vmails WHERE did = $HID" | $SQCMD
+echo "DELETE FROM valias WHERE did = $HID" | $SQCMD
+#echo "DELETE FROM logging WHERE did = $HID" | $SQCMD
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
     echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
