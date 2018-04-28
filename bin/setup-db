@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180420
+# .sh/etc/setup-db.sh 20170319 - 20180428
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -234,7 +234,8 @@ CREATE TABLE IF NOT EXISTS records (
   updated datetime NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
-CREATE VIEW vmails_view as (
+
+CREATE VIEW vmails_view AS
  SELECT m.id,
         m.user,
         h.domain,
@@ -245,8 +246,9 @@ CREATE VIEW vmails_view as (
    FROM vmails m
         JOIN vhosts h ON m.hid=h.id
             LEFT JOIN vmail_log ml ON m.id=ml.mid
-);
-CREATE VIEW vhosts_view as (
+;
+
+CREATE VIEW vhosts_view AS
  SELECT vh.id,
         vh.domain,
         vh.aliases,
@@ -264,7 +266,7 @@ CREATE VIEW vhosts_view as (
             LEFT JOIN vmails vm ON vh.id=vm.hid
                 LEFT JOIN valias va ON vh.id=va.hid
   GROUP BY vh.id, vl.size_mpath, vl.size_upath
-);
+;
 
 CREATE UNIQUE INDEX name_index ON domains (name);
 CREATE INDEX rec_name_index ON records (name);
