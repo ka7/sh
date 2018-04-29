@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180419
+# .sh/bin/setup-etc 20151231 - 20180429
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -171,6 +171,12 @@ fi
 if [[ ! -f $C_WEB/php.conf ]]; then
     echo "^^^ Create $C_WEB/php.conf"
     cp ~/.sh/etc/_etc_nginx_php.conf $C_WEB/php.conf
+fi
+
+# Not strictly necessary a this point (could be in setup-adm)
+if [[ ! -f $C_WEB/adm.conf ]]; then
+    echo "^^^ Create $C_WEB/adm.conf"
+    cp ~/.sh/etc/_etc_nginx_adm.conf $C_WEB/adm.conf
 fi
 
 if [[ ! -f $C_WEB/headers.conf ]]; then
