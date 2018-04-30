@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-adm 20170519 - 20180418
+# .sh/bin/setup-hcp 20170519 - 20180430
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-adm [domain]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-#source ~/.shrc || exit 3
-
 VHOST=${1:-$(hostname -f)}
 
-source ~/.vhosts/$VHOST || exit 4
+source ~/.vhosts/$VHOST || exit 3
 
 if [[ -d $WPATH ]]; then
     echo "@@@ $WPATH already exists"
@@ -19,13 +17,11 @@ else
     addvhost
 fi
 
-if [[ -d $WPATH/adm ]]; then
-    echo "@@@ $WPATH/adm (HCP) already exists"
+if [[ -d $WPATH/hcp ]]; then
+    echo "@@@ $WPATH/hcp (HCP) already exists"
 else
-    echo "@@@ Clone Netserva HCP to $WPATH/adm"
-    cd $UPATH/var
-#    [[ -d www && ! -d www_old ]] && mv www www_old
-    git clone https://github.com/netserva/www $WPATH/adm > /dev/null 2>&1
+    echo "@@@ Clone Netserva HCP to $WPATH/hcp"
+    git clone https://github.com/netserva/hcp $WPATH/hcp > /dev/null 2>&1
 fi
 
 if [[ -d $UPATH/var/www_old/.well-known ]]; then
@@ -43,18 +39,18 @@ if [[ -d $UPATH/var/www_old/public ]]; then
     mv $UPATH/var/www_old/public $WPATH
 fi
 
-if [[ -f $WPATH/adm/.htpasswd ]]; then
-    echo "@@@ $WPATH/adm/.htpasswd already exists"
+if [[ -f $WPATH/hcp/.htpasswd ]]; then
+    echo "@@@ $WPATH/hcp/.htpasswd already exists"
 else
     PIN=$RANDOM
-    echo "@@@ Create $WPATH/adm/.htpasswd $ADMIN/$PIN"
-    htpasswd -b -c $WPATH/adm/.htpasswd $ADMIN $PIN
-    echo "# HTTP auth for https://$VHOST/adm -> $ADMIN / $PIN" >> ~/.my.cnf
+    echo "@@@ Create $WPATH/hcp/.htpasswd $ADMIN/$PIN"
+    htpasswd -b -c $WPATH/hcp/.htpasswd $ADMIN $PIN
+    echo "# HTTP auth for https://$VHOST/hcp -> $ADMIN / $PIN" >> ~/.my.cnf
     cat << EOS >> /root/.vhosts/$VHOST.conf
 HTTP Auth
 =========
 
-AdminWeb: https://$VHOST/adm
+AdminWeb: https://$VHOST/hcp
 Username: $ADMIN
 Password: $PIN
 
@@ -63,11 +59,11 @@ fi
 
 # Even if SQLite is the default this is so switching to MySQL has a chance
 # of working when index.php db=>type is dynamically changed to "mysql".
-if [[ -f $WPATH/adm/lib/.ht_pw ]]; then
-    echo "@@@ $WPATH/adm/lib/.ht_pw already exists"
+if [[ -f $WPATH/hcp/lib/.ht_pw ]]; then
+    echo "@@@ $WPATH/hcp/lib/.ht_pw already exists"
 else
-    echo "@@@ Create $WPATH/adm/lib/.ht_pw"
-    echo $DPASS > $WPATH/adm/lib/.ht_pw
+    echo "@@@ Create $WPATH/hcp/lib/.ht_pw"
+    echo $DPASS > $WPATH/hcp/lib/.ht_pw
 fi
 
 if [[ -d $WPATH/webmail ]]; then
@@ -83,23 +79,23 @@ else
 fi
 
 if [[ $DTYPE == mysql ]]; then
-    if [[ -d $WPATH/adm/phpmyadmin ]]; then
-        echo "@@@ $WPATH/adm/phpmyadmin already exists"
+    if [[ -d $WPATH/hcp/phpmyadmin ]]; then
+        echo "@@@ $WPATH/hcp/phpmyadmin already exists"
     else
-        echo "@@@ Setup phpmyadmin to $WPATH/adm/phpmyadmin"
+        echo "@@@ Setup phpmyadmin to $WPATH/hcp/phpmyadmin"
         cd $UPATH/var
         wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
         tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
-        mv phpMyAdmin-*/ www/adm/phpmyadmin
-        mv www/adm/phpmyadmin/config.sample.inc.php www/adm/phpmyadmin/config.inc.php
+        mv phpMyAdmin-*/ www/hcp/phpmyadmin
+        mv www/hcp/phpmyadmin/config.sample.inc.php www/hcp/phpmyadmin/config.inc.php
         ENCPW=$(newpw 4 | tr ' ' _ 2> /dev/null)
-        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/adm/phpmyadmin/config.inc.php
+        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/hcp/phpmyadmin/config.inc.php
         rm phpMyAdmin-latest-english.tar.gz
     fi
-    if [[ -f $WPATH/adm/lib/.ht_conf.php ]]; then
-        echo "@@@ $WPATH/adm/lib/.ht_conf.php already exists"
+    if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
+        echo "@@@ $WPATH/hcp/lib/.ht_conf.php already exists"
     else
-        echo "@@@ Create $WPATH/adm/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
+        echo "@@@ Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
         if [[ $DTYPE == mysql ]]; then
             TMPDB="['type' => 'mysql', 'pass' => '$DPASS']"
         elif [[ $DTYPE == sqlite ]]; then
@@ -117,7 +113,7 @@ return [
         'foot'  => 'Copyright (C) 2018 $VHOST',
     ],
 ];
-" > $WPATH/adm/lib/.ht_conf.php
+" > $WPATH/hcp/lib/.ht_conf.php
     fi
 fi
 
