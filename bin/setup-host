@@ -24,9 +24,6 @@ HLIST="
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$(hostname -f)} # Admin Host must be hostname.domainname
-#DTYPE=${2:-'mysql'}
-#UUSER=${3:-'sysadm'}
 OSREL=${4:-'bionic'}
 OSMIR=${5:-'archive.ubuntu.com'}
 
@@ -91,9 +88,10 @@ fi
 
 source /root/.shrc
 
-# override static defaults in .shrc
-DTYPE=${2:-'mysql'}
-UUSER=${3:-'sysadm'}
+# override any static defaults in .shrc
+VHOST=${1:-$VHOST} # Admin Host must be hostname.domainname
+DTYPE=${2:-$DTYPE}
+UUSER=${3:-$UUSER}
 OSREL=${4:-$OSREL}
 OSMIR=${5:-$OSMIR}
 
