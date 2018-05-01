@@ -152,6 +152,7 @@ EPASS='j6Wrh0tWbbZfzh19'
 EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 IP4_0='192.168.0.2'
+MHOST='myhost.sysadm.lan'
 MPATH='/home/u/myhost.sysadm.lan/home'
 OSMIR='archive.ubuntu.com'
 OSREL='bionic'
@@ -189,7 +190,7 @@ There are also some semi-related posts on my [personal blog].
 _All scripts and documentation are Copyright (C) 1995-2018 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
-[NetServa HCP]: https://github.com/netserva/www
+[NetServa HCP]: https://github.com/netserva/hcp
 [review the script]: https://github.com/netserva/sh/blob/master/bin/setup-sh
 [AGPL-3.0]: http://www.gnu.org/licenses/agpl-3.0.html
 [fork this project]: https://help.github.com/articles/fork-a-repo
