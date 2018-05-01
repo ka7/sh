@@ -1,12 +1,10 @@
-# NetServa SH
+# NetServa SH (BETA)
 
 This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env
 variables to help make it easier to manage your Bash shell from an upstream
 (Github) repository. The project also includes an associated collection of
 shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
 which also provides a foundation for the [NetServa HCP] PHP web interface.
-
-**Note: server management scripts updated to use Ubuntu Bionic 18.04.**
 
 ## Usage
 
