@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180428
+# .sh/etc/setup-db.sh 20170319 - 20180502
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -224,7 +224,7 @@ CREATE TABLE IF NOT EXISTS records (
   domain_id int(11) NULL,
   name varchar(63) NULL,
   type varchar(63) NULL,
-  content varchar(63) NULL,
+  content text NULL,
   ttl int(11) NULL,
   prio int(11) NULL,
   change_date int(11) NULL,
