@@ -184,11 +184,6 @@ if [[ ! -f $C_WEB/headers.conf ]]; then
     cp ~/.sh/etc/_etc_nginx_headers.conf $C_WEB/headers.conf
 fi
 
-if [[ ! -f $C_WEB/hcp.conf ]]; then
-    echo "^^^ Create $C_WEB/hcp.conf"
-    cp ~/.sh/etc/_etc_nginx_hcp.conf $C_WEB/hcp.conf
-fi
-
 if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     echo "^^^ Create $C_WEB/nginx.conf"
     mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
