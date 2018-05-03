@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20180420
+# .sh/bin/delvmail 20170418 - 20180503
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
@@ -55,7 +55,7 @@ EOS
 fi
 
 LID=$(cat << EOS | $SQCMD
- SELECT id FROM mail_log
+ SELECT id FROM vmail_log
   WHERE mid = '$MID'
 EOS
 )
