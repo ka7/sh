@@ -61,11 +61,11 @@ EOS
 )
 
 if [[ -z $LID ]]; then
-    echo "*** Warning: '$1' does not exist in $ADMIN.mail_log"
+    echo "*** Warning: '$1' does not exist in $ADMIN.vmail_log"
 else
-    echo "*** Remove '$1' from $ADMIN.mail_log ($DTYPE)"
+    echo "*** Remove '$1' from $ADMIN.vmail_log ($DTYPE)"
     cat << EOS | $SQCMD
- DELETE FROM mail_log
+ DELETE FROM vmail_log
   WHERE mid = '$MID'
 EOS
 fi

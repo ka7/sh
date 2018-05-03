@@ -164,7 +164,7 @@ find $MPATH -type f -exec chmod 00640 {} +
 # not needed?
 #serva restart mail
 
-cat << EOS >> /root/.vhosts/$VHOST.conf
+cat << EOS | tee -a /root/.vhosts/$VHOST.conf
 Mail
 ========
 
