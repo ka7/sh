@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180502
+# .sh/etc/setup-db.sh 20170319 - 20180504
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -235,17 +235,28 @@ CREATE TABLE IF NOT EXISTS records (
   created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
 
+CREATE VIEW IF NOT EXISTS valias_view AS
+ SELECT va.id,
+        va.source,
+        va.target,
+        va.active,
+        va.updated,
+        vh.domain
+   FROM valias va
+        JOIN vhosts vh ON vh.id = va.hid;
+
 CREATE VIEW IF NOT EXISTS vmails_view AS
- SELECT m.id,
-        m.user,
-        h.domain,
-        size_mail,
-        quota,
-        num_total,
-        m.active
-   FROM vmails m
-        JOIN vhosts h ON m.hid=h.id
-            LEFT JOIN vmail_log ml ON m.id=ml.mid;
+ SELECT vm.id,
+        vm.user,
+        vm.quota,
+        vm.active,
+        vm.updated,
+        vh.domain,
+        ml.size_mail,
+        ml.num_total
+   FROM vmails vm
+        JOIN vhosts vh ON vh.id = vm.hid
+            LEFT JOIN vmail_log ml ON vm.id = ml.mid;
 
 CREATE VIEW IF NOT EXISTS vhosts_view AS
  SELECT vh.id,
@@ -256,15 +267,15 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
         vh.diskquota,
         vh.active,
         vh.updated,
-        vl.size_mpath,
-        vl.size_upath,
+        hl.size_mpath,
+        hl.size_upath,
         count(distinct vm.id) num_mailboxes,
         count(distinct va.id) num_aliases
    FROM vhosts vh
-        LEFT JOIN vhost_log vl ON vh.id=vl.hid
-            LEFT JOIN vmails vm ON vh.id=vm.hid
-                LEFT JOIN valias va ON vh.id=va.hid
-  GROUP BY vh.id, vl.size_mpath, vl.size_upath;
+        LEFT JOIN vhost_log hl ON vh.id = hl.hid
+            LEFT JOIN vmails vm ON vh.id = vm.hid
+                LEFT JOIN valias va ON vh.id = va.hid
+  GROUP BY vh.id, hl.size_mpath, hl.size_upath;
 
 CREATE UNIQUE INDEX name_index ON domains (name);
 CREATE INDEX rec_name_index ON records (name);
