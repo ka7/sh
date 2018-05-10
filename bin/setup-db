@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180504
+# .sh/etc/setup-db.sh 20170319 - 20180510
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
@@ -234,6 +234,20 @@ CREATE TABLE IF NOT EXISTS records (
   updated datetime NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
+
+CREATE VIEW domains_view1 AS 
+ SELECT D.id,D.name,D.type,D.updated,count(R.domain_id) AS records
+   FROM domains D
+   LEFT OUTER JOIN records R ON D.id = R.domain_id
+          GROUP BY D.id, D.name, D.type, D.updated
+         HAVING (D.name LIKE '' OR 1)
+            AND (D.type='' OR 1);
+
+CREATE VIEW domains_view2 AS 
+ SELECT *, (SELECT DISTINCT content as soa
+              FROM records
+             WHERE type = 'SOA' AND domain_id = T.id) AS soa 
+   FROM domains_view1 T;
 
 CREATE VIEW IF NOT EXISTS valias_view AS
  SELECT va.id,
