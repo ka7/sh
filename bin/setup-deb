@@ -49,6 +49,7 @@ RLIST="
   at
   bind9
   cloud*
+  install-info
   lxcfs
   man*
   open-iscsi
