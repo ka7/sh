@@ -33,32 +33,32 @@ else
     INSERT INTO accounts VALUES
     (null,1,0,1,'$AMAIL','System','Administrator','',0,'','','$APASS_HASH','2018-01-01 00:00:01','2018-01-01 00:00:01');
 EOS
-    echo "@@@ Create default $DTYPE entries"
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
-HCP Auth
-=========
-
-AdminWeb: https://$VHOST/hcp
-Username: $AMAIL
-Password: $APASS
-
-EOS
-fi
-
-if [[ -f $WPATH/hcp/.htpasswd ]]; then
-    echo "@@@ $WPATH/hcp/.htpasswd already exists"
-else
-    PIN=$RANDOM
-    echo "@@@ Create $WPATH/hcp/.htpasswd $ADMIN/$PIN"
-    htpasswd -b -c $WPATH/hcp/.htpasswd $ADMIN $PIN
-    echo "# HTTP auth for https://$VHOST/hcp -> $ADMIN / $PIN" >> ~/.my.cnf
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+    if [[ -f $WPATH/hcp/.htpasswd ]]; then
+        echo "@@@ $WPATH/hcp/.htpasswd already exists"
+    else
+        PIN=$RANDOM
+        echo "@@@ Create $WPATH/hcp/.htpasswd $ADMIN/$PIN"
+        htpasswd -b -c $WPATH/hcp/.htpasswd $ADMIN $PIN
+        echo "# HTTP auth for https://$VHOST/hcp -> $ADMIN / $PIN" >> ~/.my.cnf
+        cat << EOS | tee -a /root/.vhosts/$VHOST.conf
 HTTP Auth
 =========
 
 AdminWeb: https://$VHOST/hcp
 Username: $ADMIN
 Password: $PIN
+
+EOS
+    fi
+
+    echo "@@@ Create default $DTYPE entries"
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+HCP Auth
+=========
+
+AdminWeb: https://$VHOST/hcp/?o=auth
+Username: $AMAIL
+Password: $APASS
 
 EOS
 fi

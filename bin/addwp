@@ -179,9 +179,9 @@ add_action('admin_head', function() {
 });
 EOS
     chperms $VHOST
-    cat << EOS >> /root/.vhosts/$VHOST.conf
-Web
-========
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+WordPress
+=========
 
 Wordpress: $WPURL/wp-admin/
 Username: $WPUSR or $AMAIL
