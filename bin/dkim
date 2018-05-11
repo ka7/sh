@@ -63,3 +63,5 @@ esac
 systemctl reload opendkim
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+
+exit 0
