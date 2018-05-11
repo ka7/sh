@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20170529
+# .sh/bin/dkim 20170201 - 20180511
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-# Usage: ~/.sh/www/dkim add dkim example.org 1024
 
-[[ ${#@} -lt 1 ]] && echo "Usage: $0 add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
 
-[[ $EUID -ne 0 ]] && echo "Please run as root" && exit 1
+[[ $(id -u) -gt 0 ]]  && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ ! -d /etc/opendkim ]]; then
     mkdir /etc/opendkim
@@ -15,6 +14,8 @@ if [[ ! -d /etc/opendkim ]]; then
     touch /etc/opendkim/SigningTable
     touch /etc/opendkim/TrustedHosts
     chown opendkim:opendkim -R /etc/opendkim
+    find /etc/opendkim -type d -exec chmod 700 +
+    find /etc/opendkim -type f -exec chmod 600 +
 fi
 
 SELECTOR=$2
