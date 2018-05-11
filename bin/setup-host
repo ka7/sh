@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180501
+# .sh/bin/setup-host 20170524 - 20180511
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 # Essential host package list, adjust accordingly
 HLIST="
   bc
