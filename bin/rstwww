@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/rstwww 20180205 - 20180303
+# .sh/bin/rstwww 20180205 - 20180511
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
@@ -53,7 +53,7 @@ else
     fi
 
     if [[ $VFILE != $VHOST ]]; then
-        WPUSR=$(newpw 1 6 lower)
+        WPUSR=$(pwgen -sB0A 6 1)
         WPASS=$(newpw 1)
         AMAIL=admin@$VHOST
 

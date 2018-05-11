@@ -109,7 +109,7 @@ if [[ $DTYPE == mysql ]]; then
         tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
         mv phpMyAdmin-*/ www/hcp/phpmyadmin
         mv www/hcp/phpmyadmin/config.sample.inc.php www/hcp/phpmyadmin/config.inc.php
-        ENCPW=$(newpw 4 | tr ' ' _ 2> /dev/null)
+        ENCPW=$(newpw 4 | tr ' ' _)
         sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/hcp/phpmyadmin/config.inc.php
         rm phpMyAdmin-latest-english.tar.gz
     fi

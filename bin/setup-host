@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-host 20170524 - 20180511
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 # Essential host package list, adjust accordingly
 HLIST="
   bc
@@ -97,10 +97,10 @@ UUSER=${3:-$ADMIN}
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    sethost $UUSER@$VHOST $DTYPE $(newpw 5 2> /dev/null)
+    sethost $UUSER@$VHOST $DTYPE $(newpw 5)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
     ## temporary debug
-    #cat /root/.vhosts/$VHOST
+    cat /root/.vhosts/$VHOST
 fi
 
 source /root/.vhosts/$VHOST
