@@ -71,11 +71,11 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
     fi
     echo "!!! Updating $OSREL package list, patience please..."
-    apt-get -yqq update # > /dev/null #2>&1
+    apt-get -yqq update > /dev/null
     echo "!!! Upgrading $OSREL package list, more patience please..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade #> /dev/null #2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
     echo "!!! Installing default package set, even more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST #> /dev/null 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
 fi
 
 # We now have git available so install the essential SH scripts
@@ -101,7 +101,7 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     sethost $UUSER@$VHOST $DTYPE $(newpw 5)
     gethost > /root/.vhosts/$VHOST && chmod 600 /root/.vhosts/$VHOST
     ## temporary debug
-    cat /root/.vhosts/$VHOST
+    #cat /root/.vhosts/$VHOST
 fi
 
 source /root/.vhosts/$VHOST
