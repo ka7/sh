@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180430
+# .sh/bin/setup-all 20170519 - 20180512
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-export PATH=/bin:/usr/bin:/sbin:/root/.sh/bin
+export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-all [domain] [(mysql)|sqlite]" && exit 1
 
