@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vultr 20170620 - 20180317
+# .sh/bin/setup-vultr 20170620 - 20180512
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Howto use: signup for an account at https://vultr.com and add the below
 # snippet between the dashes (and remove the initial #) as a Startup Script
-# along with your SSH Key, then Deploy New Sever and with a fully qualified
+# along with your SSH Key, then Deploy New Sever (+) with a fully qualified
 # hostname (ie; hostname + domainname). When the first activation email
 # arrives in your mailbox then add the IP to whatever is your DNS system to
 # resolve the FQDN hostname you supplied and wait at least another 5 minutes
@@ -37,6 +37,6 @@ systemctl restart postfix
 systemctl restart dovecot
 
 echo "--- Send firstboot message to: $MAILTO"
-cat ~/.vhosts/$VHOST /tmp/firstboot.log | mail -s "Vultr Setup $VHOST" -r admin@$VHOST $MAILTO
+cat ~/.vhosts/$VHOST.conf | mail -s "Vultr Setup $VHOST" -r admin@$VHOST $MAILTO
 
 echo "--- FINISHED NetServa setup"
