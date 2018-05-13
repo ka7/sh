@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20180511
+# .sh/bin/dkim 20170201 - 20180513
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
@@ -14,8 +14,8 @@ if [[ ! -d /etc/opendkim ]]; then
     touch /etc/opendkim/SigningTable
     touch /etc/opendkim/TrustedHosts
     chown opendkim:opendkim -R /etc/opendkim
-    find /etc/opendkim -type d -exec chmod 700 +
-    find /etc/opendkim -type f -exec chmod 600 +
+    find /etc/opendkim -type d -exec chmod 700 {} +
+    find /etc/opendkim -type f -exec chmod 600 {} +
 fi
 
 SELECTOR=$2
