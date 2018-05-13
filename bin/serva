@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/serva 20170417 - 20180419
+# .sh/bin/serva 20170417 - 20180513
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 == '-h' ]] && \
@@ -30,7 +30,8 @@ serva_nginx()
 }
 
 if [[ $2 == all ]]; then
-    serva_web $1
+    serva_nginx $1
+    serva_php $1
     serva_mail $1
     serva_dns $1
 elif [[ $2 == dns ]]; then
