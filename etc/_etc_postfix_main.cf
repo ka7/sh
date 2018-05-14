@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20180324
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20180514
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -15,6 +15,9 @@
 #smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 #smtp_tls_security_level = encrypt
 #smtp_tls_wrappermode = yes
+
+# This may be needed in some cases
+#myhostname = _AHOST
 
 alias_database = hash:/etc/aliases
 alias_maps = hash:/etc/aliases
