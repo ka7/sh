@@ -29,6 +29,7 @@ add)
     if [[ ${#@} -eq 4 ]]; then
         [[ -f "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}" ]] && exit 1
         opendkim-genkey -b ${KEYLENGTH} -S -a -r -s "${SELECTOR}" -d "${DOMAIN}" -D /tmp/
+        [[ $? -gt 0 ]] && exit 1
         mv "/tmp/${SELECTOR}.txt" "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}"
         mv "/tmp/${SELECTOR}.private" "/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim"
         sed -i "s/ ; ----- DKIM key $SELECTOR for $DOMAIN//g" "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}"
