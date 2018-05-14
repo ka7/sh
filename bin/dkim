@@ -40,6 +40,7 @@ add)
         echo "${ID}     ${DOMAIN}:${SELECTOR}:/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim" >> /etc/opendkim/KeyTable
         echo "*@${DOMAIN}       ${ID}" >> /etc/opendkim/SigningTable
         systemctl reload opendkim
+        echo "Added DKIM keys for ${DOMAIN} using a selector of '${SELECTOR}' and a key length of ${KEYLENGTH}"
     fi
     ;;
 del)
