@@ -38,6 +38,7 @@ add)
         chmod 600 "/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim"
         echo "${ID}     ${DOMAIN}:${SELECTOR}:/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim" >> /etc/opendkim/KeyTable
         echo "*@${DOMAIN}       ${ID}" >> /etc/opendkim/SigningTable
+        systemctl reload opendkim
     fi
     ;;
 del)
@@ -48,25 +49,26 @@ del)
         DELID=$(grep -i "${SELECTOR}_${DOMAIN}.dkim" /etc/opendkim/KeyTable | awk '{ print $1 }')
         sed -i "/${DELID}/d" /etc/opendkim/KeyTable 2> /dev/null
         sed -i "/${DELID}/d" /etc/opendkim/SigningTable 2> /dev/null
+        systemctl reload opendkim
     fi
     ;;
 list)
-    for list in $(ls "/etc/opendkim/dnstxt/" 2> /dev/null); do
-        echo "Domain '$(echo $list | cut -d '_' -f 2)' with selector '$(echo $list | cut -d '_' -f 1)'"
-    done
+    /bin/ls -1 /etc/opendkim/dnstxt/ | sort
     ;;
 show)
-    /bin/ls /etc/opendkim/dnstxt/*$2 > /dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
-        cat /etc/opendkim/dnstxt/*$2 | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7}'
+    if [[ ! -z $2 ]]; then
+        /bin/ls /etc/opendkim/dnstxt/*_$2 > /dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            cat /etc/opendkim/dnstxt/*_$2 | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7}'
+        else
+            echo "No match for '$2'"
+        fi
     else
-        echo "No match for '$2'"
+        for list in $(ls "/etc/opendkim/dnstxt/" 2> /dev/null); do
+            cat /etc/opendkim/dnstxt/$list | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7}'
+        done
     fi
     ;;
 esac
 
-systemctl reload opendkim
-
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
-
-exit 0
