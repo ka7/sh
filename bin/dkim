@@ -57,7 +57,7 @@ list)
 show)
     /bin/ls /etc/opendkim/dnstxt/*$2 > /dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        cat /etc/opendkim/dnstxt/*$2 | tr -d '\t\n\r"' | awk '{print $1"\n"$5$6$7$8$9$10}'
+        cat /etc/opendkim/dnstxt/*$2 | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7}'
     else
         echo "No match for '$2'"
     fi
