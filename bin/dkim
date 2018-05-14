@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20180513
+# .sh/bin/dkim 20170201 - 20180514
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
@@ -55,8 +55,12 @@ list)
     done
     ;;
 show)
-    /bin/ls /etc/opendkim/dnstxt/*$2* > /dev/null 2>&1
-    [[ $? -eq 0 ]] && cat /etc/opendkim/dnstxt/*$2* || echo "No match for '$2'"
+    /bin/ls /etc/opendkim/dnstxt/*$3* > /dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        cat /etc/opendkim/dnstxt/*$3* | tr -d '\n\r"' | awk '{print $1"\n"$5$6$7$8$9$10}'
+    else
+        echo "No match for '$3'"
+    fi
     ;;
 esac
 
