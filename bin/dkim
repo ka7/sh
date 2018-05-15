@@ -2,7 +2,7 @@
 # .sh/bin/dkim 20170201 - 20180515
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show domain [selector(dkim)] [keylength(1024)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -19,9 +19,9 @@ if [[ ! -d /etc/opendkim ]]; then
     find /etc/opendkim -type f -exec chmod 600 {} +
 fi
 
-SELECT=${2:-''}
-DOMAIN=${3:-''}
-KEYLEN=${4:-''}
+DOMAIN=${2:-''}
+SELECT=${3:-'dkim'}
+KEYLEN=${4:-'1024'}
 
 DNSTXT="/etc/opendkim/dnstxt/${SELECT}._domainkey.${DOMAIN}"
 KFILES="/etc/opendkim/keyfiles/${SELECT}_${DOMAIN}.dkim"
@@ -30,13 +30,9 @@ ID="${RANDOM}${RANDOM}"
 
 case $1 in
 add)
-    if [[ ${#@} -eq 4 ]]; then
+    if [[ $DOMAIN ]]; then
         [[ -f "$DNSTXT" ]] && echo "DKIM key for ${DOMAIN} already exists" && exit 3
-
-        source ~/.vhosts/${DOMAIN}
-        DID=$(echo "SELECT id FROM vhosts WHERE domain='${DOMAIN}';"|$SQCMD)
-        [[ -z $DID || $DID -eq 0 ]] && echo "'${DOMAIN}' does not exist" && exit 4
-
+        [[ ! -f ~/.vhosts/${DOMAIN} ]] && echo "'${DOMAIN}' does not exist" && exit 4
         opendkim-genkey -b ${KEYLEN} -S -a -r -s "${SELECT}" -d "${DOMAIN}" -D /tmp/
         [[ $? -gt 0 ]] && exit 1
         mv "/tmp/${SELECT}.txt" "$DNSTXT"
@@ -52,7 +48,7 @@ add)
     fi
     ;;
 del)
-    if [[ ${#@} -eq 3 ]]; then
+    if [[ $DOMAIN ]]; then
         [[ ! -f "$DNSTXT" ]] && exit 1
         rm "$DNSTXT" 2> /dev/null
         rm "$KFILES" 2> /dev/null
