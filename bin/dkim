@@ -4,7 +4,7 @@
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
 
-[[ $(id -u) -gt 0 ]]  && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ ! -d /etc/opendkim ]]; then
     mkdir /etc/opendkim
@@ -31,7 +31,12 @@ ID="${RANDOM}${RANDOM}"
 case $1 in
 add)
     if [[ ${#@} -eq 4 ]]; then
-        [[ -f "$DNSTXT" ]] && exit 1
+        [[ -f "$DNSTXT" ]] && echo "DKIM key for ${DOMAIN} already exists" && exit 3
+
+        source ~/.vhosts/${DOMAIN}
+        DID=$(echo "SELECT id FROM vhosts WHERE domain='${DOMAIN}';"|$SQCMD)
+        [[ -z $DID || $DID -eq 0 ]] && echo "'${DOMAIN}' does not exist" && exit 4
+
         opendkim-genkey -b ${KEYLEN} -S -a -r -s "${SELECT}" -d "${DOMAIN}" -D /tmp/
         [[ $? -gt 0 ]] && exit 1
         mv "/tmp/${SELECT}.txt" "$DNSTXT"
