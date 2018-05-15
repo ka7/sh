@@ -23,28 +23,28 @@ DOMAIN=${2:-''}
 SELECT=${3:-'dkim'}
 KEYLEN=${4:-'1024'}
 
-DNSTXT="/etc/opendkim/dnstxt/${SELECT}._domainkey.${DOMAIN}"
-KFILES="/etc/opendkim/keyfiles/${SELECT}_${DOMAIN}.dkim"
+DNSTXT="/etc/opendkim/dnstxt/$SELECT._domainkey.$DOMAIN"
+KFILES="/etc/opendkim/keyfiles/$SELECT_$DOMAIN.dkim"
 
 ID="${RANDOM}${RANDOM}"
 
 case $1 in
 add)
     if [[ $DOMAIN ]]; then
-        [[ -f "$DNSTXT" ]] && echo "DKIM key for ${DOMAIN} already exists" && exit 3
-        [[ ! -f ~/.vhosts/${DOMAIN} ]] && echo "'${DOMAIN}' does not exist" && exit 4
-        opendkim-genkey -b ${KEYLEN} -S -a -r -s "${SELECT}" -d "${DOMAIN}" -D /tmp/
+        [[ -f "$DNSTXT" ]] && echo "DKIM key for $DOMAIN already exists" && exit 3
+        [[ ! -f ~/.vhosts/$DOMAIN ]] && echo "'$DOMAIN' does not exist" && exit 4
+        opendkim-genkey -b $KEYLEN -S -a -r -s "$SELECT" -d "$DOMAIN" -D /tmp/
         [[ $? -gt 0 ]] && exit 1
-        mv "/tmp/${SELECT}.txt" "$DNSTXT"
-        mv "/tmp/${SELECT}.private" "$KFILES"
+        mv "/tmp/$SELECT.txt" "$DNSTXT"
+        mv "/tmp/$SELECT.private" "$KFILES"
         sed -i "s/ ; ----- DKIM key $SELECT for $DOMAIN//g" "$DNSTXT"
         chown www-data: /etc/opendkim/dnstxt/*
         chown opendkim: "$KFILES"
         chmod 600 "$KFILES"
-        echo "${ID}     ${DOMAIN}:${SELECT}:$KFILES" >> /etc/opendkim/KeyTable
-        echo "*@${DOMAIN}       ${ID}" >> /etc/opendkim/SigningTable
+        echo "$ID     $DOMAIN:$SELECT:$KFILES" >> /etc/opendkim/KeyTable
+        echo "*@$DOMAIN       $ID" >> /etc/opendkim/SigningTable
         systemctl reload opendkim
-        echo "Added DKIM keys for ${DOMAIN} using a selector of '${SELECT}' and a key length of ${KEYLEN}"
+        echo "Added DKIM keys for $DOMAIN using a selector of '$SELECT' and a key length of $KEYLEN"
     fi
     ;;
 del)
@@ -53,10 +53,10 @@ del)
         rm "$DNSTXT" 2> /dev/null
         rm "$KFILES" 2> /dev/null
         DELID=$(grep -i "${SELECT}_${DOMAIN}.dkim" /etc/opendkim/KeyTable | awk '{ print $1 }')
-        sed -i "/${DELID}/d" /etc/opendkim/KeyTable 2> /dev/null
-        sed -i "/${DELID}/d" /etc/opendkim/SigningTable 2> /dev/null
+        sed -i "/$DELID/d" /etc/opendkim/KeyTable 2> /dev/null
+        sed -i "/$DELID/d" /etc/opendkim/SigningTable 2> /dev/null
         systemctl reload opendkim
-        echo "Removed DKIM key for ${DOMAIN}"
+        echo "Removed DKIM key for $DOMAIN"
     fi
     ;;
 list)
