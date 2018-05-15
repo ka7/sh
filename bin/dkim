@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20180514
+# .sh/bin/dkim 20170201 - 20180515
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show (ex; dkim add dkim example.org 1024)" && exit 1
@@ -31,7 +31,7 @@ add)
         [[ -f "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}" ]] && exit 1
         opendkim-genkey -b ${KEYLENGTH} -S -a -r -s "${SELECTOR}" -d "${DOMAIN}" -D /tmp/
         [[ $? -gt 0 ]] && exit 1
-        mv "/tmp/${SELECTOR}.txt" "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}"
+        mv "/tmp/${SELECTOR}.txt" "/etc/opendkim/dnstxt/${SELECTOR}._domainkey.${DOMAIN}"
         mv "/tmp/${SELECTOR}.private" "/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim"
         sed -i "s/ ; ----- DKIM key $SELECTOR for $DOMAIN//g" "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}"
         chown www-data: /etc/opendkim/dnstxt/*
@@ -45,8 +45,8 @@ add)
     ;;
 del)
     if [[ ${#@} -eq 3 ]]; then
-        [[ ! -f "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}" ]] && exit 1
-        rm "/etc/opendkim/dnstxt/${SELECTOR}_${DOMAIN}" 2> /dev/null
+        [[ ! -f "/etc/opendkim/dnstxt/${SELECTOR}._domainkey.${DOMAIN}" ]] && exit 1
+        rm "/etc/opendkim/dnstxt/${SELECTOR}._domainkey.${DOMAIN}" 2> /dev/null
         rm "/etc/opendkim/keyfiles/${SELECTOR}_${DOMAIN}.dkim" 2> /dev/null
         DELID=$(grep -i "${SELECTOR}_${DOMAIN}.dkim" /etc/opendkim/KeyTable | awk '{ print $1 }')
         sed -i "/${DELID}/d" /etc/opendkim/KeyTable 2> /dev/null
