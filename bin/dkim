@@ -49,7 +49,7 @@ add)
     ;;
 del)
     if [[ $DOMAIN ]]; then
-        [[ ! -f "$DNSTXT" ]] && echo "DKIM key for $DOMAIN does not exists" && exit 5
+        [[ ! -f "$DNSTXT" ]] && echo "DKIM key for $DOMAIN does not exist" && exit 5
         rm "$DNSTXT" 2> /dev/null
         rm "$KFILES" 2> /dev/null
         DELID=$(grep -i "${SELECT}_${DOMAIN}.dkim" /etc/opendkim/KeyTable | awk '{ print $1 }')

@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180513
+# .sh/etc/setup-db.sh 20170319 - 20180518
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Suggested by Rachid
+#CREATE TABLE `cookie` IF NOT EXISTS(
+#`user_id` INT,
+#`cookie` CHAR(64),
+#`expire` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#primary key(user_id, cookie)
+#);
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
 
