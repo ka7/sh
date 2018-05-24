@@ -6,8 +6,6 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-[[ ! -f ~/.vhosts/$2 ]] && echo "ERROR: '$2' does not exist" && exit 3
-
 case $1 in
 add)
     if [[ ! -f ~/.vhosts/$2 ]]; then
