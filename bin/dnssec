@@ -8,7 +8,7 @@
 
 case $1 in
 add)
-    if [[ ! -f ~/.vhosts/$2 ]]; then
+    if [[ -f ~/.vhosts/$2 ]]; then
         pdnsutil secure-zone $2
         pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
         pdnsutil set-nsec3 $2 '1 0 1 ab'
@@ -20,7 +20,7 @@ add)
     fi
     ;;
 del)
-    if [[ ! -f ~/.vhosts/$2 ]]; then
+    if [[ -f ~/.vhosts/$2 ]]; then
         pdnsutil disable-dnssec $2
     else
         echo "ERROR: '$2' does not exist"
@@ -31,7 +31,7 @@ list)
     pdnsutil list-keys 2>/dev/null | tail +3
     ;;
 show)
-    if [[ ! -f ~/.vhosts/$2 ]]; then
+    if [[ -f ~/.vhosts/$2 ]]; then
         pdnsutil show-zone $2 2>/dev/null | grep ^DS
     else
         echo "ERROR: '$2' does not exist"
