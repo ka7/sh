@@ -2,7 +2,7 @@
 # .sh/bin/dnssec 20180524 - 20180524
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $2 || $1 =~ '-h' ]] && echo "Usage: dnssec add|del|list|show domain" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dnssec add|del|list|show [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -10,22 +10,34 @@
 
 case $1 in
 add)
-    pdnsutil secure-zone $2
-    pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
-    pdnsutil set-nsec3 $2 '1 0 1 ab'
-    pdnsutil rectify-zone $2
-    pdnsutil increase-serial $2
-    echo "Created DNSSEC for $2"
+    if [[ ! -f ~/.vhosts/$2 ]]; then
+        pdnsutil secure-zone $2
+        pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
+        pdnsutil set-nsec3 $2 '1 0 1 ab'
+        pdnsutil rectify-zone $2
+        pdnsutil increase-serial $2
+        echo "Created DNSSEC for $2"
+    else
+        echo "ERROR: '$2' does not exist"
+    fi
     ;;
 del)
-    pdnsutil disable-dnssec $2
+    if [[ ! -f ~/.vhosts/$2 ]]; then
+        pdnsutil disable-dnssec $2
+    else
+        echo "ERROR: '$2' does not exist"
+    fi
     echo "Disable DNSSEC for $2"
     ;;
 list)
     pdnsutil list-keys 2>/dev/null | tail +3
     ;;
 show)
-    pdnsutil show-zone $2 2>/dev/null | grep ^DS
+    if [[ ! -f ~/.vhosts/$2 ]]; then
+        pdnsutil show-zone $2 2>/dev/null | grep ^DS
+    else
+        echo "ERROR: '$2' does not exist"
+    fi
     ;;
 esac
 
