@@ -16,15 +16,15 @@ fi
 
 case $1 in
 add)
-    pdnsutil secure-zone $2
-    pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
-    pdnsutil set-nsec3 $2 '1 0 1 ab'
-    pdnsutil rectify-zone $2
-    pdnsutil increase-serial $2
+    pdnsutil secure-zone $2 2>/dev/null
+    pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS 2>/dev/null
+    pdnsutil set-nsec3 $2 '1 0 1 ab' 2>/dev/null
+    pdnsutil rectify-zone $2 2>/dev/null
+    pdnsutil increase-serial $2 2>/dev/null
     echo "Created DNSSEC for $2"
     ;;
 del)
-    pdnsutil disable-dnssec $2
+    pdnsutil disable-dnssec $2 2>/dev/null
     echo "Disable DNSSEC for $2"
     ;;
 list)
