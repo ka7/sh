@@ -6,36 +6,32 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+if [[ $2 ]]; then
+    pdnsutil list-zone $2 > /dev/null 2>&1
+    if [[ $? -gt 0 ]] then
+        echo "ERROR: '$2' does not exist in local pdns datastore"
+        exit 3
+    fi
+fi
+
 case $1 in
 add)
-    if [[ -f ~/.vhosts/$2 ]]; then
-        pdnsutil secure-zone $2
-        pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
-        pdnsutil set-nsec3 $2 '1 0 1 ab'
-        pdnsutil rectify-zone $2
-        pdnsutil increase-serial $2
-        echo "Created DNSSEC for $2"
-    else
-        echo "ERROR: '$2' does not exist"
-    fi
+    pdnsutil secure-zone $2
+    pdnsutil set-meta $2 SOA-EDIT INCREMENT-WEEKS
+    pdnsutil set-nsec3 $2 '1 0 1 ab'
+    pdnsutil rectify-zone $2
+    pdnsutil increase-serial $2
+    echo "Created DNSSEC for $2"
     ;;
 del)
-    if [[ -f ~/.vhosts/$2 ]]; then
-        pdnsutil disable-dnssec $2
-    else
-        echo "ERROR: '$2' does not exist"
-    fi
+    pdnsutil disable-dnssec $2
     echo "Disable DNSSEC for $2"
     ;;
 list)
     pdnsutil list-keys 2>/dev/null | tail +3
     ;;
 show)
-    if [[ -f ~/.vhosts/$2 ]]; then
-        pdnsutil show-zone $2 2>/dev/null | grep ^DS
-    else
-        echo "ERROR: '$2' does not exist"
-    fi
+    pdnsutil show-zone $2 2>/dev/null | grep ^DS
     ;;
 esac
 
