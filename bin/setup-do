@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-do 20180526 - 20180526
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Howto use: signup for an account at https://digitalocean.com and add the
+# below snippet between the dashes (and remove the initial #) as User Data
+# along with your SSH Key, then Deploy New Sever (+) with a fully qualified
+# hostname (ie; hostname + domainname). When the first activation email
+# arrives in your mailbox then add the IP to whatever is your DNS system to
+# resolve the FQDN hostname you supplied and wait at least another 5 minutes
+# for the NetServa setup email to arrive (change MAILTO= below). If DNS
+# resolves to the server then you should be able to gain access via...
+
+# ssh -p9 -i ~/.ssh/YOUR_SSHKEY root@YOUR_NEW_FQDN_HOSTNAME (or IP)
+
+#------------------------------------------------
+##!/bin/bash
+#export HOME=/root
+#sleep 15
+#cd
+#git clone -q https://github.com/netserva/sh .sh
+#.sh/bin/shm install > /dev/null
+#source .shrc
+#shm perms
+#export MAILTO=YOUR_NOTIFICATION_EMAIL_ADDRESS
+#setup-do
+#------------------------------------------------
+
+setup-all
+
+echo "--- Make sure postfix has current host details"
+cp /etc/hosts /var/spool/postfix/etc/
+cp /etc/resolv.conf /var/spool/postfix/etc/
+
+echo "--- Restart postfix and dovecot"
+systemctl restart postfix
+systemctl restart dovecot
+
+echo "--- Send firstboot message to: $MAILTO"
+cat ~/.vhosts/$VHOST.conf | mail -s "Vultr Setup $VHOST" -r admin@$VHOST $MAILTO
+
+echo "--- FINISHED NetServa setup"
