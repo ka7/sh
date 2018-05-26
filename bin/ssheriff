@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/sheriff 20170618 - 20180225
-# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 #
 # ssheriff                Limit SSH access to 4 attemtps per 2 mins
 # ssheriff clear          Will clear ALL iptables rules and tables

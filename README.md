@@ -93,7 +93,7 @@ Some other useful aliases not list above are...
     shblock . Show all blocked IPs
 
 Use `alias | grep log` to see some of the logging aliases, tweak or add
-more using `es` your custom and long term persistent `~/.myrc` file.
+more using `es` to edit your custom and long term persistent `~/.myrc` file.
 
 `n` (notes) and `sn` (show notes) is an ultra simple note taking system and
 (TODO) should be expanded to keep the notes in a private Git repo (to allow
@@ -113,20 +113,20 @@ can be ignored if not needed. If used then the config files for each vhost
 are stored in `~/.vhosts`. The initial (perhaps only) entry would be for
 the current host (ie; when using LXD containers) using `hostname -f` as
 the full filename path, ie; `cat ~/.vhosts/$(hostname -f)` should provide
-the settings for the current host after `setup-host` is run. Ut could be
+the settings for the current host after `setup-host` is run. It could be
 set up manually using the below as an example of a non-public local LAN
 domainname assuming that `hostname` returns `myhost`...
 ```
-~ echo myhost.sysadm.lan > /etc/hostname
-~ hostname myhost.sysadm.lan
+~ echo myhost.netservs.lan > /etc/hostname
+~ hostname myhost.netservs.lan
 ~ sethost sysadm@$(hostname -f) $(newpw 5)
 ~ [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
 ~ gethost > ~/.vhosts/$(hostname -f) && chmod 600 ~/.vhosts/$(hostname -f)
 ~ echo -e "\n$IP4_0\t$(hostname -f) $(hostname)" >> /etc/hosts
 ~ cat ~/.vhosts/$(hostname -f)
 ADMIN='sysadm'
-AHOST='myhost.sysadm.lan'
-AMAIL='admin@myhost.sysadm.lan'
+AHOST='myhost.netservs.lan'
+AMAIL='admin@myhost.netservs.lan'
 ANAME='System Administrator'
 APASS='phSdkd1XVxXWVDyT'
 A_GID='1000'
@@ -152,25 +152,25 @@ EPASS='j6Wrh0tWbbZfzh19'
 EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 IP4_0='192.168.0.2'
-MHOST='myhost.sysadm.lan'
-MPATH='/home/u/myhost.sysadm.lan/home'
+MHOST='myhost.netservs.lan'
+MPATH='/home/u/myhost.netservs.lan/home'
 OSMIR='archive.ubuntu.com'
 OSREL='bionic'
 SQCMD='mysql -BN sysadm'
 TAREA='Australia'
 TCITY='Sydney'
 UPASS='rSfQ66I137AHjedp'
-UPATH='/home/u/myhost.sysadm.lan'
+UPATH='/home/u/myhost.netservs.lan'
 UUSER='sysadm'
 U_GID='1000'
 U_SHL='/bin/bash'
 U_UID='1000'
-VHOST='myhost.sysadm.lan'
+VHOST='myhost.netservs.lan'
 VPATH='/home/u'
 VUSER='admin'
 V_PHP='7.2'
 WPASS='phSdkd1XVxXWVDyT'
-WPATH='/home/u/myhost.sysadm.lan/var/www'
+WPATH='/home/u/myhost.netservs.lan/var/www'
 WPUSR='wzoqqh'
 ```
 If this host is a server then using `addvhost example.org` would add

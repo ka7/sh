@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180423
+# .sh/bin/addvhost 20170217 - 20180526
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
@@ -27,7 +27,7 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     sethost $UUTMP$VHOST $DTYPE $(newpw 5)
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
-    chmod 600 /root/.vhosts/$VHOST*
+    chmod 600 /root/.vhosts/*
 fi
 
 source /root/.vhosts/$VHOST

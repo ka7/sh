@@ -31,12 +31,9 @@ setup-all
 echo "--- Make sure postfix has current host details"
 cp /etc/hosts /var/spool/postfix/etc/
 cp /etc/resolv.conf /var/spool/postfix/etc/
-
-echo "--- Restart postfix and dovecot"
 systemctl restart postfix
-systemctl restart dovecot
 
 echo "--- Send firstboot message to: $MAILTO"
-cat ~/.vhosts/$VHOST.conf | mail -s "Vultr Setup $VHOST" -r admin@$VHOST $MAILTO
+cat ~/.vhosts/$VHOST.conf | mail -s "DigitalOcean Setup $VHOST" -r admin@$VHOST $MAILTO
 
 echo "--- FINISHED NetServa setup"
