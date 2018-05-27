@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180518
+# .sh/etc/setup-db.sh 20170319 - 20180527
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
@@ -248,6 +248,19 @@ CREATE TABLE IF NOT EXISTS records (
   updated datetime NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
+
+CREATE VIEW IF NOT EXISTS records_view AS
+ SELECT r.id id,
+        r.domain_id AS did,
+        r.name, r.type,
+        r.content,
+        r.ttl,
+        r.prio,
+        r.disabled AS active,
+        r.updated,
+        d.name AS domain
+   FROM (records r JOIN domains d)
+  WHERE ((d.id = r.domain_id) AND (r.type <> 'SOA'));
 
 CREATE VIEW IF NOT EXISTS news_view AS
  SELECT n.*, u.id as uid, u.login, u.fname, u.lname
