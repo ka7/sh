@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20180528
+# .sh/bin/dkim 20170201 - 20180529
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: dkim add|del|list|show [domain()] [selector(dkim)] [keylen(1024)]" && exit 1
@@ -21,7 +21,7 @@ fi
 
 DOMAIN=${2:-''}
 SELECT=${3:-'mail'}
-KEYLEN=${4:-'1024'}
+KEYLEN=${4:-'2048'}
 
 DNSTXT="/etc/opendkim/dnstxt/$SELECT._domainkey.$DOMAIN"
 KFILES="/etc/opendkim/keyfiles/$SELECT_$DOMAIN.dkim"
