@@ -24,7 +24,7 @@ SELECT=${3:-'mail'}
 KEYLEN=${4:-'2048'}
 
 DNSTXT="/etc/opendkim/dnstxt/$SELECT._domainkey.$DOMAIN"
-KFILES="/etc/opendkim/keyfiles/$SELECT_$DOMAIN.dkim"
+KFILES="/etc/opendkim/keyfiles/${SELECT}_${DOMAIN}.dkim"
 
 ID="${RANDOM}${RANDOM}"
 
@@ -75,7 +75,7 @@ show)
         fi
     else
         for list in $(ls "/etc/opendkim/dnstxt/" 2> /dev/null); do
-            cat /etc/opendkim/dnstxt/$list | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7}'
+            cat /etc/opendkim/dnstxt/$list | tr -d '\t\n\r"()' | sed 's/\.INTXT//'| awk '{print $1"\n"$2$3$4$5$6$7$8$9}'
         done
     fi
     ;;
