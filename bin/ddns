@@ -10,7 +10,7 @@
 # MAILTO=YOUR@EMAIL.ADDRESS
 # */5 * * * * root /root/.sh/bin/ddns DOMAIN APIKEY https://DNS_SERVER/ddns.php
 
-[[ -z $1 || $1 =~ "-h" ]] && echo "Usage: ddns [domain] [apikey] [dns script]" && exit 1
+[[ $1 =~ "-h" ]] && echo "Usage: ddns [domain] [apikey] [dns script]" && exit 1
 
 # Either pass the 3 values above or hardwire them below between the ''
 
