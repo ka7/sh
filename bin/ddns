@@ -2,9 +2,17 @@
 # .sh/bin/ddns 20180606 - 20180607
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+# This script needs to be on a 1 to 5 minute cron job and requires a
+# a companion PHP script (dns script) to insert the values into pdns.
+# Example cron job, APIKEY must match what's in the remote PHP script...
+#
+#~ cat /etc/cron.d/ddns
+#MAILTO=YOUR@EMAIL.ADDRESS
+#*/5 * * * * root /root/.sh/bin/ddns DOMAIN APIKEY https://DNS_SERVER/ddns.php
+
 [[ -z $1 || $1 =~ "-h" ]] && echo "Usage: ddns [domain] [apikey] [dns script]" && exit 1
 
-# Either pass the 3 values above or hardwire them below
+# Either pass the 3 values above or hardwire them below between the ''
 
 DDNS_FOR=${1:-''}
 DDNS_KEY=${2:-''}
