@@ -6,9 +6,9 @@
 # a companion PHP script (dns script) to insert the values into pdns.
 # Example cron job, APIKEY must match what's in the remote PHP script...
 #
-#~ cat /etc/cron.d/ddns
-#MAILTO=YOUR@EMAIL.ADDRESS
-#*/5 * * * * root /root/.sh/bin/ddns DOMAIN APIKEY https://DNS_SERVER/ddns.php
+# ~ cat /etc/cron.d/ddns
+# MAILTO=YOUR@EMAIL.ADDRESS
+# */5 * * * * root /root/.sh/bin/ddns DOMAIN APIKEY https://DNS_SERVER/ddns.php
 
 [[ -z $1 || $1 =~ "-h" ]] && echo "Usage: ddns [domain] [apikey] [dns script]" && exit 1
 
