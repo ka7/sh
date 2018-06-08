@@ -27,7 +27,7 @@ NEWIP=$(curl -s https://canihazip.com/s)
 echo $NEWIP | grep -qE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"
 
 if [[ $? -gt 0 ]]; then
-    echo "$NEWIP is not a valid IP"
+    echo "'$NEWIP' is not a valid IP (old IP is $OLDIP)"
 elif [[ -z $OLDIP || $NEWIP != $OLDIP ]]; then
     echo $NEWIP > /var/tmp/ip
     curl -s "$DDNS_URL?key=$DDNS_KEY&for=$DDNS_FOR"
