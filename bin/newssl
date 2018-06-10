@@ -18,7 +18,7 @@ for SUB in $_ARGS; do
     SUBDS="$SUBDS -d $SUB.$VHOST"
 done
 
-AHOST=$(hostname -f)
+AHOST=$(hostname -f|tr 'A-Z' 'a-z')
 WPATH="$VPATH/$VHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"

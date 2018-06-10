@@ -142,8 +142,8 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
-    export AHOST=$(hostname -f)
-    export MHOST=$(hostname -d)
+    export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
+    export MHOST=$(hostname -d|tr 'A-Z' 'a-z')
     export APASS=${4:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${5:-$APASS};

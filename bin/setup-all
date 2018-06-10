@@ -6,7 +6,7 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-all [domain] [(mysql)|sqlite]" && exit 1
 
-VHOST=${1:-$(hostname -f)}
+VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-'mysql'}
 
 echo "### Entering setup-host as $VHOST with $DTYPE"

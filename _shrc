@@ -1,42 +1,42 @@
-# .sh/_shrc 20130315 - 20180305
+# .sh/_shrc 20130315 - 20180610
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
-export SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
-export VHOST=$(hostname -f)
-export MAILTO=admin@$VHOST
-export EDITOR=nano
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
+SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
+VHOST=$(hostname -f|tr 'A-Z' 'a-z')
+MAILTO=admin@$VHOST
+EDITOR=nano
 
 # Let's try these here, may not be needed
-export TERM=linux
-export DEBIAN_FRONTEND=readline
+TERM=linux
+DEBIAN_FRONTEND=readline
 
 COLOR=31
 LABEL=$(id -un)@${VHOST/%\.*/}
 
 # Global static shell variables
-export ADMIN='sysadm'
-export ANAME='System Administrator'
-export A_GID='1000'
-export A_UID='1000'
-export BPATH='/home/backups'
-export CIMAP='/etc/dovecot'
-export CSMTP='/etc/postfix'
-export C_DNS='/etc/powerdns'
-export C_SQL='/etc/mysql'
-export C_SSL='/etc/ssl'
-export C_WEB='/etc/nginx'
-export DBMYS='/var/lib/mysql'
-export DBSQL='/var/lib/sqlite'
-export DHOST='localhost'
-export DPORT='3306'
-export DTYPE='mysql'
-export OSMIR='archive.ubuntu.com'
-export OSREL='bionic'
-export TAREA='Australia'
-export TCITY='Sydney'
-export VPATH='/home/u'
-export V_PHP='7.2'
+ADMIN='sysadm'
+ANAME='System Administrator'
+A_GID='1000'
+A_UID='1000'
+BPATH='/home/backups'
+CIMAP='/etc/dovecot'
+CSMTP='/etc/postfix'
+C_DNS='/etc/powerdns'
+C_SQL='/etc/mysql'
+C_SSL='/etc/ssl'
+C_WEB='/etc/nginx'
+DBMYS='/var/lib/mysql'
+DBSQL='/var/lib/sqlite'
+DHOST='localhost'
+DPORT='3306'
+DTYPE='mysql'
+OSMIR='archive.ubuntu.com'
+OSREL='bionic'
+TAREA='Australia'
+TCITY='Sydney'
+VPATH='/home/u'
+V_PHP='7.2'
 
 # Import managed aliases
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
@@ -44,17 +44,16 @@ export V_PHP='7.2'
 # Local custom aliases and env var overrides
 [ -f ~/.myrc ] && source ~/.myrc
 
-export PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
+PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
 # Import default vhost
-if [[ -f ~/.vhosts/$VHOST ]]; then
-    source ~/.vhosts/$VHOST
-elif [[ $EUID -eq 0 ]]; then
-    VHOST=$(hostname -f)
-    [[ -f ~/.vhosts/$VHOST ]] && \
-        source ~/.vhosts/$VHOST || \
-        echo "!!! Warning: no ~/.vhosts/$VHOST, please run setup-host"
-fi
+[[ -f ~/.vhosts/$VHOST ]] && source ~/.vhosts/$VHOST
+
+export PATH SUDO VHOST MAILTO EDITOR TERM DEBIAN_FRONTEND PS1
+export ADMIN AHOST AMAIL ANAME APASS A_GID A_UID BPATH CIMAP CSMTP C_DNS C_FPM
+export C_SQL C_SSL C_WEB DBMYS DBSQL DHOST DNAME DPASS DPATH DPORT DTYPE DUSER
+export EPASS EXMYS EXSQL IP4_0 MHOST MPATH OSMIR OSREL SQCMD TAREA TCITY UPASS
+export UPATH UUSER U_GID U_SHL U_UID VHOST VPATH VUSER V_PHP WPASS WPATH WPUSR

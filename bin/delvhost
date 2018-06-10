@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180423
+# .sh/bin/delvhost 20170216 - 20180610
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
@@ -50,7 +50,7 @@ if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
 fi
 
 if [[ -f /root/.vhosts/$VHOST ]]; then
-    if [[ $VHOST == $(hostname -f) ]];then
+    if [[ $VHOST == $(hostname -f|tr 'A-Z' 'a-z') ]];then
         echo "!!! Leaving /root/.vhosts/$VHOST"
     else
         echo "!!! Remove /root/.vhosts/$VHOST"

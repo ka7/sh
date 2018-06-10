@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20180412
+# .sh/bin/setup-lxd 20170519 - 20180610
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
