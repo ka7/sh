@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180610
+# .sh/bin/setup-all 20170519 - 20180612
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -19,8 +19,5 @@ echo "### Entering setup-etc"
 setup-etc
 echo "### Entering setup-hcp"
 setup-hcp
-
-echo "### Fix up timezone"
-apt install --reinstall tzdata
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

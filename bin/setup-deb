@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180511
+# .sh/bin/setup-deb 20170519 - 20180612
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -111,9 +111,6 @@ Dpkg::Options {
     "--force-confold";
 }
 EOS
-    echo "<<< Create zoneinfo for $TAREA/$TCITY"
-    cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
-    dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
@@ -209,5 +206,10 @@ EOS
 
     systemctl restart mysql
 fi
+
+echo "<<< Create zoneinfo for $TAREA/$TCITY"
+# cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
+timedatectl set-timezone $TAREA/$TCITY
+dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
