@@ -108,6 +108,19 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 #export WIDGETS=$(su $UUSER -c "wp widget list sidebar-1 --format=ids --path=$FPATH")
 #wp widget delete $WIDGETS
 
+## Let's just use Elementor with the default twentyseventeen theme
+#echo 'Install astra theme'
+#wp theme --quiet install astra 2> /dev/null
+#echo 'Install astra-child theme'
+#wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
+#wp theme delete twentyseventeen
+#echo 'Install astra-sites plugin'
+#wp plugin --quiet install astra-sites --activate 2> /dev/null
+
+## A static
+#echo 'Install wp-super-cache plugin'
+#wp plugin --quiet install wp-super-cache 2> /dev/null
+
     su - $UUSER -c "
 cd $FPATH
 wp theme delete twentyfifteen twentysixteen
@@ -115,13 +128,8 @@ wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
 
-echo 'Install astra theme'
-wp theme --quiet install astra 2> /dev/null
-echo 'Install astra-child theme'
-wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
-wp theme delete twentyseventeen
-echo 'Install astra-sites plugin'
-wp plugin --quiet install astra-sites --activate 2> /dev/null
+echo 'Install simply-static plugin'
+wp plugin --quiet install simply-static --activate 2> /dev/null
 echo 'Install elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
 echo 'Install header-footer-elementor plugin'

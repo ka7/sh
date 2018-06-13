@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20170501
+# .sh/lib/aliases 20151231 - 20180613
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 alias ?='bash ~/.help'
@@ -22,6 +22,7 @@ alias sc=$SUDO'systemctl'
 alias se='sudo nano -t -x -c'
 alias sn='[ -f ~/.note ] && cat ~/.note'
 alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
+alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
 # change to postfix equiv
 #alias cs='courier show all'
