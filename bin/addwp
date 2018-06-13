@@ -128,6 +128,8 @@ wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
 
+echo 'Install twentyseventeen-child theme'
+wp scaffold child-theme twentyseventeen-child --parent_theme=twentyseventeen --theme_name='Twenty Seventeen Child Theme' --activate 2> /dev/null
 echo 'Install simply-static plugin'
 wp plugin --quiet install simply-static --activate 2> /dev/null
 echo 'Install elementor plugin'
@@ -174,13 +176,13 @@ wp menu create 'Primary Menu'
 wp menu item add-post primary-menu $NEWSPAGE
 wp menu item add-post primary-menu $ABOUTPAGE
 wp menu item add-post primary-menu $CONTACTPAGE
-wp menu location assign primary-menu primary
+wp menu location assign primary-menu top
 
 wp option update page_on_front $HOMEPAGE
 wp option update page_for_posts $NEWSPAGE
 wp option update show_on_front page
 "
-    cat << EOS >> $FPATH/wp-content/themes/astra-child/functions.php
+    cat << EOS >> $FPATH/wp-content/themes/twentyseventeen-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
 add_action('admin_head', function() {
     echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
