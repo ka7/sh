@@ -117,7 +117,7 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 #echo 'Install astra-sites plugin'
 #wp plugin --quiet install astra-sites --activate 2> /dev/null
 
-## A static
+## Use simply-static instead
 #echo 'Install wp-super-cache plugin'
 #wp plugin --quiet install wp-super-cache 2> /dev/null
 
@@ -144,8 +144,6 @@ echo 'Install woocommerce plugin'
 wp plugin --quiet install woocommerce 2> /dev/null
 echo 'Install autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
-echo 'Install wp-super-cache plugin'
-wp plugin --quiet install wp-super-cache 2> /dev/null
 echo 'Install google-analytics-dashboard-for-wp plugin'
 wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
 echo 'Install mainwp-child plugin'
