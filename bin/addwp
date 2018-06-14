@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180423
+# .sh/bin/addwp 20160231 - 20180614
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -135,7 +135,7 @@ wp plugin --quiet install simply-static --activate 2> /dev/null
 echo 'Install elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
 echo 'Install header-footer-elementor plugin'
-wp plugin --quiet install header-footer-elementor --activate 2> /dev/null
+wp plugin --quiet install header-footer-elementor 2> /dev/null
 echo 'Install contact-form-7 plugin'
 wp plugin --quiet install contact-form-7 --activate 2> /dev/null
 echo 'Install user-switching plugin'
