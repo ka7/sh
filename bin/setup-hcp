@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 201800526
+# .sh/bin/setup-hcp 20170519 - 20180614
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -122,18 +122,20 @@ Password: $DPASS
 
 EOS
     fi
-    if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
-        echo "@@@ $WPATH/hcp/lib/.ht_conf.php already exists"
+fi
+
+if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
+    echo "@@@ $WPATH/hcp/lib/.ht_conf.php already exists"
+else
+    echo "@@@ Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
+    if [[ $DTYPE == mysql ]]; then
+        TMPDB="['type' => 'mysql', 'pass' => '$DPASS']"
+    elif [[ $DTYPE == sqlite ]]; then
+        TMPDB="['type' => 'sqlite']"
     else
-        echo "@@@ Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
-        if [[ $DTYPE == mysql ]]; then
-            TMPDB="['type' => 'mysql', 'pass' => '$DPASS']"
-        elif [[ $DTYPE == sqlite ]]; then
-            TMPDB="['type' => 'sqlite']"
-        else
-            TMPDB=
-        fi
-        [[ $TMPDB ]] && echo "<?php
+        TMPDB=
+    fi
+    [[ $TMPDB ]] && echo "<?php
 return [
     'cfg' => ['email' => '$ADMIN@$VHOST'],
     'db' => $TMPDB,
@@ -144,7 +146,6 @@ return [
     ],
 ];
 " > $WPATH/hcp/lib/.ht_conf.php
-    fi
 fi
 
 chperms $VHOST
