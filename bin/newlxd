@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20180501
+# .sh/bin/newlxd 20171013 - 20180614
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root so we need OSREL and DTYPE
@@ -42,7 +42,7 @@ fi
 lxc launch images:ubuntu/$OSREL $_HOST -p $PNAME
 
 echo "--- Setup '$_HOST' hostname as $VHOST"
-lxc exec $_HOST -- bash -c "echo $VHOST > /etc/hostname; hostname $VHOST"
+lxc exec $_HOST -- bash -c "echo $_HOST > /etc/hostname; hostname $_HOST"
 
 #echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
 #lxc exec $_HOST -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
