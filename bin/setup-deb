@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180612
+# .sh/bin/setup-deb 20170519 - 20180618
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -73,6 +73,7 @@ SLIST="
   nginx-light
   opendkim
   opendkim-tools
+  opendmarc
   pdns-backend-sqlite3
   pflogsumm
   php$V_PHP
