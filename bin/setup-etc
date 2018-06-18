@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180430
+# .sh/bin/setup-etc 20151231 - 20180618
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -201,6 +201,26 @@ if [[ ! -f /etc/opendkim.conf.orig ]]; then
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
 fi
 
+if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
+    echo "^^^ Create /etc/systemd/system/opendkim.service"
+    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+    systemctl daemon-reload
+    systemctl restart opendkim
+fi
+
+if [[ ! -f /etc/opendmarc.conf.orig ]]; then
+    echo "^^^ Create /etc/opendmarc.conf"
+    mv /etc/opendmarc.conf /etc/opendmarc.conf.orig
+    cp ~/.sh/etc/_etc_opendmarc.conf /etc/opendmarc.conf
+fi
+
+if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
+    echo "^^^ Create /etc/systemd/system/opendmarc.service"
+    cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
+    systemctl daemon-reload
+    systemctl restart opendmarc
+fi
+
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "^^^ Create $C_FPM/common.conf"
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
@@ -229,13 +249,6 @@ fi
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     echo "^^^ Create /etc/sudoers.d/99-sysadm"
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
-fi
-
-if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
-    echo "^^^ Create /etc/systemd/system/opendkim.service"
-    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
-    systemctl daemon-reload
-    systemctl restart opendkim
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
