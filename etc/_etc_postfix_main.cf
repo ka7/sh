@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20180514
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20180618
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -33,7 +33,7 @@ milter_protocol = 2
 mydestination = localhost
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 myorigin = /etc/mailname
-non_smtpd_milters = inet:127.0.0.1:8891
+non_smtpd_milters = inet:127.0.0.1:8891,inet:127.0.0.1:54321
 policy-spf_time_limit = 3600s
 postscreen_access_list = permit_mynetworks
 postscreen_dnsbl_action = enforce
@@ -52,7 +52,7 @@ smtpd_client_restrictions = permit_mynetworks permit_sasl_authenticated
 smtpd_helo_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_invalid_helo_hostname reject_non_fqdn_helo_hostname
     reject_unknown_helo_hostname
-smtpd_milters = inet:127.0.0.1:8891
+smtpd_milters = inet:127.0.0.1:8891,inet:127.0.0.1:54321
 smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_unauth_destination reject_non_fqdn_recipient
     reject_unknown_recipient_domain check_policy_service unix:private/policy-spf
