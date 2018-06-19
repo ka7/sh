@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# .sh/bin/remotessl 20160121 - 20180619
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Just dns-01 hardwired for vultr, for now
+
+[[ -z $1 || $1 =~ -h ]] && \
+    echo "Usage: remotessl remote_target domain [subd subd...[--force][0.0.0.0]]" && exit 1
+
+[[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 2
+
+RHOST=$1
+VHOST=$2
+_ARGS="$3 $4 $5 $6 $7 $8 $9"
+IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+IPARG=
+
+for SUB in $_ARGS; do
+    [[ $SUB =~ $IPREG ]] && IPARG="$SUB:" && continue
+    [[ $SUB == '--force' ]] && SUBDS="$SUBDS --force" && continue
+    SUBDS="$SUBDS -d $SUB.$VHOST"
+done
+
+AHOST=$(hostname -f|tr 'A-Z' 'a-z')
+LECFG="/etc/dehydrated"
+C_SSL="/etc/ssl"
+C_WEB="/etc/nginx"
+
+if [[ ! -d $LECFG ]]; then
+    git clone --depth 1 https://github.com/lukas2511/dehydrated.git $LECFG
+    chmod +x $LECFG/dehydrated
+    [[ ! -d $LECFG/hooks ]] && mkdir $LECFG/hooks
+    git clone --depth 1 https://github.com/ttalle/dehydrated-vultr-hook.git $LECFG/hooks/vultr
+#    git clone --depth 1 https://github.com/sineverba/cfhookbash.git $LECFG/hooks/cloudflare
+#    git clone --depth 1 https://github.com/silkeh/pdns_api.sh.git $LECFG/hooks/pdns
+fi
+
+cd $LECFG
+
+[[ ! -f vultr.inc ]] && \
+    echo "APIKEY=$VULTR_API_KEY" > vultr.inc
+
+[[ ! -f accounts/*/account_key.pem ]] && \
+    ./dehydrated --register --accept-terms
+
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $VHOST$SUBDS
+
+rsync -av certs/$VHOST/ $RHOST:/etc/ssl/$VHOST
+
+ssh -T $RHOST <<EOSSH
+
+if [[ -f ~/.vhosts/$VHOST ]]; then
+    source ~/.vhosts/$VHOST
+else
+    echo "ERROR: ~/.vhosts/$VHOST does not exist"
+    exit 2
+fi
+
+if [[ -d \$WPATH ]]; then
+    if [[ ! -f \$C_WEB/sites-enabled/\$VHOST ]]; then
+
+        [[ -f \$C_WEB/sites-enabled/\$VHOST.selfsigned ]] \
+            && rm \$C_WEB/sites-enabled/\$VHOST.selfsigned
+
+        if [[ \$VHOST == \$AHOST ]]; then
+            NCONF="
+    include                     \$C_WEB/hcp.conf;
+    include                     \$C_WEB/common.conf;"
+        else
+            NCONF="
+    include                     \$C_WEB/common.conf;"
+        fi
+        cat << EOS > \$C_WEB/sites-enabled/\$VHOST
+server {
+    listen                      ${IPARG}443 ssl http2;
+    server_name                 \$VHOST;
+    set                         \\$domain \$VHOST;\$NCONF
+    ssl_certificate             \$C_SSL/\$VHOST/fullchain.pem;
+    ssl_certificate_key         \$C_SSL/\$VHOST/privkey.pem;
+    ssl_trusted_certificate     \$C_SSL/\$VHOST/chain.pem;
+}
+EOS
+        if [[ \$SUBDS =~ www.\$VHOST ]]; then
+            cat << EOS >> \$C_WEB/sites-enabled/\$VHOST
+server {
+    listen                      ${IPARG}443 ssl http2;
+    server_name                 www.\$VHOST;
+    ssl_certificate             \$C_SSL/\$VHOST/fullchain.pem;
+    ssl_certificate_key         \$C_SSL/\$VHOST/privkey.pem;
+    return 301                  https://\$VHOST\\$request_uri;
+}
+EOS
+        fi
+    fi
+
+    chmod 755 \$C_SSL/\$VHOST
+    if [[ -f \$C_WEB/sites-enabled/_default.nossl ]]; then
+        echo "^^^ Replace generic non-SSL with SSL nginx config"
+        rm \$C_WEB/sites-enabled/_default.nossl
+        cp ~/.sh/etc/_etc_nginx_sites-enabled__default \$C_WEB/sites-enabled/_default
+    fi
+    serva reload nginx
+    serva reload mail
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+
+EOSSH
