@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 # .sh/bin/remotessl 20160121 - 20180619
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Just dns-01 hardwired for vultr, for now
-set -x
+
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: remotessl remote_target domain [subd subd...[--force][0.0.0.0]]" && exit 1
 
@@ -47,7 +47,7 @@ cd $LECFG
 
 rsync -av certs/$VHOST/ $RHOST:/etc/ssl/$VHOST
 
-ssh -T $RHOST <<EOSSH
+ssh $RHOST bash -ix +m << EOSSH
 
 if [[ -f ~/.vhosts/$VHOST ]]; then
     source ~/.vhosts/$VHOST
