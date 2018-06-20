@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# .sh/bin/remote-vultr 20180619 - 20180620
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# -n  Name of new virtual machine
+# -p  Plan (VPSPLANID)                       201 = 1GB Ram
+# -r  Region (DCID)                          19  = Sydney
+# -s  Script to execute on boot (SCRIPTID)
+# -k  SSH key to apply (SSHKEYID)
+# -o  Operating system (OSID)                270 = Ubuntu 18.04
+# --hostname=host.domain.name
+
+[[ -z $1 || $1 =~ -h ]] && \
+    echo "Usage: remote-vultr hostname.domain.name [planid] [sshkeyid] [regionid] [scriptid] [osid]" && exit 1
+
+[[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 2
+
+set -x
+VHOST=$1
+VARG2=${2:-'201'}
+VARG3=${3:-'19'}
+VARG4=${4:-'69340'}
+VARG5=${5:-'5951b68883517'}
+VARG6=${6:-'270'}
+
+HNAME=${VHOST%%.*} # hostname
+DNAME=${VHOST#*.*} # domain.name
+LECFG='~/.dehydrated'
+DOSSH='ssh -l root -p9 -i ~/.ssh/vultrsshkey -o StrictHostKeyChecking=no'
+C_SSL='/etc/ssl'
+C_WEB='/etc/nginx'
+
+vultr servers | grep -q $VHOST
+
+[[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 2
+
+echo "+++ Start remote setup of $VHOST"
+
+vultr server create -n $VHOST -p $VARG2 -r $VARG3 -s $VARG4 -k $VARG5 -o $VARG6 --hostname=$VHOST
+
+sleep 10
+
+$DOSSH -o StrictHostKeyChecking=no $VHOST '. .shrc;gethost'
+
+VULTR=($(vultr servers | awk '/'$VHOST'/ {printf $1" "$3}'))
+SUBID=${VULTR[0]}
+IP4_0=${VULTR[1]}
+
+if [[ $(vultr dns domain list | grep -q $DNAME) -eq 0 ]];then
+    vultr dns domain delete -d $DNAME
+fi
+
+sleep 5
+
+vultr dns domain create -d $DNAME -s $IP4_0
+RECID=$(vultr dns record list -d $DNAME | awk '/CNAME/ {print $1}')
+vultr dns record delete -d $DNAME -r $RECID
+vultr dns record create -d $DNAME -n www -t A -D $IP4_0
+vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0
+vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\""
+
+if [[ ! -d $LECFG ]]; then
+    git clone --depth 1 https://github.com/lukas2511/dehydrated.git $LECFG
+    chmod +x $LECFG/dehydrated
+    [[ ! -d $LECFG/hooks ]] && mkdir $LECFG/hooks
+    [[ ! -d $LECFG/nginx ]] && mkdir $LECFG/nginx
+    git clone --depth 1 https://github.com/ttalle/dehydrated-vultr-hook.git $LECFG/hooks/vultr
+    sed 's#/etc/#~/.#' $LECFG/hooks/vultr/vultr-hook.sh
+#    git clone --depth 1 https://github.com/sineverba/cfhookbash.git $LECFG/hooks/cloudflare
+#    git clone --depth 1 https://github.com/silkeh/pdns_api.sh.git $LECFG/hooks/pdns
+fi
+
+cd $LECFG
+
+[[ ! -f vultr.inc ]] && \
+    echo "APIKEY=$VULTR_API_KEY" > vultr.inc
+
+sleep 5
+
+[[ ! -f accounts/*/account_key.pem ]] && \
+    ./dehydrated --register --accept-terms
+
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d www.$DNAME
+
+cat << EOS > $LECFG/nginx/$DNAME
+server {
+    listen                      443 ssl http2;
+    server_name                 www.$DNAME;
+    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
+    return 301                  https://$DNAME\$request_uri;
+}
+server {
+    listen                      443 ssl http2;
+    server_name                 $VHOST;
+    set                         \$domain $VHOST
+    include                     $C_WEB/hcp.conf;
+    include                     $C_WEB/common.conf;
+    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$DNAME/chain.pem;
+}
+server {
+    listen                      443 ssl http2;
+    server_name                 $DNAME;
+    set                         \$domain $DNAME;
+    include                     $C_WEB/common.conf;
+    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$DNAME/chain.pem;
+}
+EOS
+
+$DOSSH $VHOST "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
+
+rsync -e "$DOSSH" -av ~/.dehydrated/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
+rsync -e "$DOSSH" -v ~/.dehydrated/nginx/$DNAME $VHOST:$C_WEB/sites-enabled/$DNAME
+
+$DOSSH $VHOST "nginx -t && systemctl restart nginx; systemctl restart postfix; systemctl restart dovecot"
