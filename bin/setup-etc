@@ -9,6 +9,8 @@
 source /root/.shrc || exit 3
 
 DTYPE=${1:-$DTYPE}
+HNAME=${VHOST%%.*} # hostname
+DNAME=${VHOST#*.*} # domain.name
 
 # Temporary self-signed SSL certificate defaults
 C="AU"
@@ -33,8 +35,13 @@ fi
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "^^^ Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
+
+    sed -e "s/_VHOST/$DNAME/" \
+        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+
     sed -e "s/^#myhostname = _AHOST/myhostname = $AHOST/" \
         ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+
     if [[ $DTYPE == sqlite ]]; then
         echo "^^^ Append SQLite details to $CSMTP/main.cf"
         cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
@@ -126,8 +133,10 @@ fi
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
-    sed -e "s;_VHOST;$VHOST;" \
+
+    sed -e "s/_VHOST/$DNAME/" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
+
     if [[ $DTYPE == sqlite ]]; then
         echo "^^^ Append SQLite details to $CIMAP/dovecot.conf"
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf

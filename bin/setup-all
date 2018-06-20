@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180612
+# .sh/bin/setup-all 20170519 - 20180620
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [domain] [(mysql)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.domain.name] [(mysql)|sqlite] [plan(personal|business)]" && exit 1
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-'mysql'}
+VPLAN=${3:-'personal'}
+HNAME=${VHOST%%.*} # hostname
+DNAME=${VHOST#*.*} # domain.name
 
 echo "### Entering setup-host as $VHOST with $DTYPE"
 setup-host $VHOST $DTYPE
@@ -19,5 +22,7 @@ echo "### Entering setup-etc"
 setup-etc
 echo "### Entering setup-hcp"
 setup-hcp
+echo "### Add primary domain.name"
+addvhost $DNAME $VPLAN
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

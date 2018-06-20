@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180526
+# .sh/bin/addvhost 20170217 - 20180620
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -33,20 +33,10 @@ fi
 source /root/.vhosts/$VHOST
 
 # This "plans" section has to be moved into a database
-if [[ $2 == enterprise ]]; then
-    V_ALIASES="200"
-    V_DISKQUOTA="20000000000"
-    V_MAILBOXES="20"
-    V_MAILQUOTA="1000000000"
-elif [[ $2 == business ]]; then
+if [[ $2 == business ]]; then
     V_ALIASES="100"
     V_DISKQUOTA="10000000000"
     V_MAILBOXES="10"
-    V_MAILQUOTA="1000000000"
-elif [[ $2 == soho ]]; then
-    V_ALIASES="20"
-    V_DISKQUOTA="5000000000"
-    V_MAILBOXES="2"
     V_MAILQUOTA="1000000000"
 else
     V_ALIASES="10"
