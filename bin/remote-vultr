@@ -4,7 +4,7 @@
 
 # First obtain your API key from your account section at https://my.vultr.common
 # Add "export VULTR_API_KEY=YOUR_API_KEY" to ~/.myrc (use the es alias)
-# Then register your startup script and sshkey before using going any further
+# Then register your startup script and sshkey before going any further
 # Use "vultr scripts" to get your SCRIPTID and "vultr sshkeys" for your SSHKEYID
 # This is a very handy alias, add to ~/.myrc
 # alias lv='vultr servers | awk "{printf \"%-8s %-32s %-16s\n\", \$1, \$4, \$3}"'
@@ -16,6 +16,9 @@
 # -k  SSH key to apply (SSHKEYID)
 # -o  Operating system (OSID)                270 = Ubuntu 18.04
 # --hostname=host.domain.name
+
+# Make sure your local SSH key matches the public SSH key at Vultr
+MYKEY="$HOME/.ssh/vultrsshkey"
 
 if [[ ! -f /usr/local/bin/vultr ]]; then
     cd /tmp
@@ -41,7 +44,7 @@ VARG6=${6:-'270'}
 HNAME=${VHOST%%.*} # hostname
 DNAME=${VHOST#*.*} # domain.name
 LECFG=$HOME/.dehydrated
-DOSSH="ssh -l root -p9 -i $HOME/.ssh/vultrsshkey -o StrictHostKeyChecking=no"
+DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
 
@@ -106,7 +109,7 @@ server {
 server {
     listen                      443 ssl http2;
     server_name                 $VHOST;
-    set                         \$domain $VHOST
+    set                         \$domain $VHOST;
     include                     $C_WEB/hcp.conf;
     include                     $C_WEB/common.conf;
     ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
@@ -124,14 +127,27 @@ server {
 }
 EOS
 
-echo "+++ Wait 5 mins until NetServa packages have been installed"
-sleep 300
+echo
+echo "+++ Wait 6 mins until NetServa packages have been installed"
+sleep 60
+echo "+++ 5 mins to go"
+sleep 60
+echo "+++ 4 mins to go"
+sleep 60
+echo "+++ 3 mins to go"
+sleep 60
+echo "+++ 2 mins to go"
+sleep 60
+echo "+++ 1 minute to go!"
+sleep 60
 
+echo "+++ Add SSL certificate and restart web and mail services"
 # TODO remove the need for this by not installing a self-signed certificate in the first place
 $DOSSH $VHOST "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
 
-rsync -e "$DOSSH" -av $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
+rsync -e "$DOSSH" -a $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
 rsync -e "$DOSSH" -v $LECFG/nginx/$DNAME $VHOST:$C_WEB/sites-enabled/$DNAME
 
 $DOSSH $VHOST "nginx -t && systemctl restart nginx; systemctl restart postfix; systemctl restart dovecot"
 
+$DOSSH $VHOST
