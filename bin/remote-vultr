@@ -63,17 +63,21 @@ SUBID=${VULTR[0]}
 IP4_0=${VULTR[1]}
 
 if [[ $(vultr dns domain list | grep -q $DNAME) -eq 0 ]];then
+    echo "+++ Delete old DNS records for $VHOST"
     vultr dns domain delete -d $DNAME
 fi
 
 sleep 15
 
-vultr dns domain create -d $DNAME -s $IP4_0
+echo "+++ Add DNS records for $VHOST"
+vultr dns domain create -d $DNAME -s $IP4_0  > /dev/null 2>&1
 RECID=$(vultr dns record list -d $DNAME | awk '/CNAME/ {print $1}')
-vultr dns record delete -d $DNAME -r $RECID
-vultr dns record create -d $DNAME -n www -t A -D $IP4_0
-vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0
-vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\""
+vultr dns record delete -d $DNAME -r $RECID > /dev/null 2>&1
+vultr dns record create -d $DNAME -n www -t A -D $IP4_0 > /dev/null 2>&1
+vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0 > /dev/null 2>&1
+vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
+
+# TODO add DKIM and DMARC records
 
 sleep 15
 
@@ -94,9 +98,9 @@ cd $LECFG
     echo "APIKEY=$VULTR_API_KEY" > vultr.inc
 
 [[ ! -f accounts/*/account_key.pem ]] && \
-    ./dehydrated --register --accept-terms
+    ./dehydrated --register --accept-terms > /dev/null 2>&1
 
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d www.$DNAME
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d www.$DNAME > /dev/null 2>&1
 
 cat << EOS > $LECFG/nginx/$DNAME
 server {
@@ -128,7 +132,15 @@ server {
 EOS
 
 echo
-echo "+++ Wait 6 mins until NetServa packages have been installed"
+echo "+++ Wait 10 mins until NetServa packages have been installed"
+sleep 60
+echo "+++ 9 mins to go"
+sleep 60
+echo "+++ 8 mins to go"
+sleep 60
+echo "+++ 7 mins to go"
+sleep 60
+echo "+++ 6 mins to go"
 sleep 60
 echo "+++ 5 mins to go"
 sleep 60
@@ -141,13 +153,15 @@ sleep 60
 echo "+++ 1 minute to go!"
 sleep 60
 
-echo "+++ Add SSL certificate and restart web and mail services"
+echo "+++ Add SSL certificate to $VHOST"
 # TODO remove the need for this by not installing a self-signed certificate in the first place
 $DOSSH $VHOST "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
 
 rsync -e "$DOSSH" -a $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
 rsync -e "$DOSSH" -v $LECFG/nginx/$DNAME $VHOST:$C_WEB/sites-enabled/$DNAME
 
+echo "+++ Restart web and mail services"
 $DOSSH $VHOST "nginx -t && systemctl restart nginx; systemctl restart postfix; systemctl restart dovecot"
 
+echo "+++ SSH to $VHOST and confirm setup is finished via tail -f /tmp/firstboot.log"
 $DOSSH $VHOST

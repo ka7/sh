@@ -315,6 +315,13 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
 EOS
 )
 
+if [[ -d $WPATH && $DTYPE == mysql && ! $VHOST == $AHOST ]]; then
+    addwp $VHOST
+    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
+    [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
+    [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
+fi
+
 logging $VHOST update
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
