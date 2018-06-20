@@ -47,7 +47,11 @@ cd $LECFG
 
 rsync -av certs/$VHOST/ $RHOST:/etc/ssl/$VHOST
 
-ssh $RHOST bash -ix +m << EOSSH
+### Start remote shell
+
+#ssh -t $RHOST bash -ix +m << EOSSH
+
+ssh -t $RHOST bash << EOSSH
 
 if [[ -f ~/.vhosts/$VHOST ]]; then
     source ~/.vhosts/$VHOST
