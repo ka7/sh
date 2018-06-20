@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/remote-vultr 20180619 - 20180620
+# .sh/bin/create-vultr 20180619 - 20180620
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
@@ -30,7 +30,7 @@ if [[ ! -f /usr/local/bin/vultr ]]; then
 fi
 
 [[ -z $1 || $1 =~ -h ]] && \
-    echo "Usage: remote-vultr hostname.domain.name [planid] [sshkeyid] [regionid] [scriptid] [osid]" && exit 1
+    echo "Usage: create-vultr hostname.domain.name [planid] [sshkeyid] [regionid] [scriptid] [osid]" && exit 1
 
 [[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 3
 
@@ -49,30 +49,27 @@ C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
 
 vultr servers | grep -q $VHOST
-
 [[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 4
 
-echo "+++ Start remote setup of $VHOST"
+echo "+++ Create server instance for $VHOST"
+vultr server create -n $VHOST -p $VARG2 -r $VARG3 -s $VARG4 -k $VARG5 -o $VARG6 --hostname=$VHOST > /dev/null 2>&1
 
-vultr server create -n $VHOST -p $VARG2 -r $VARG3 -s $VARG4 -k $VARG5 -o $VARG6 --hostname=$VHOST
-
+echo "+++ Wait 15 seconds for server to become active"
 sleep 15
 
 VULTR=($(vultr servers | awk '/'$VHOST'/ {printf $1" "$3}'))
 SUBID=${VULTR[0]}
 IP4_0=${VULTR[1]}
+echo "+++ Server IP is $IP4_0 and SUBID is $SUBID"
 
 vultr dns domain list | grep -q $DNAME
-
 if [[ $? -eq 0 ]];then
-    echo "+++ Delete old DNS records for $VHOST"
+    echo "+++ Delete old DNS records for $DNAME"
     vultr dns domain delete -d $DNAME
 fi
 
-sleep 15
-
-echo "+++ Add DNS records for $VHOST"
-vultr dns domain create -d $DNAME -s $IP4_0  > /dev/null 2>&1
+echo "+++ Add DNS records for $DNAME"
+vultr dns domain create -d $DNAME -s $IP4_0 > /dev/null 2>&1
 RECID=$(vultr dns record list -d $DNAME | awk '/CNAME/ {print $1}')
 vultr dns record delete -d $DNAME -r $RECID > /dev/null 2>&1
 vultr dns record create -d $DNAME -n www -t A -D $IP4_0 > /dev/null 2>&1
@@ -82,9 +79,10 @@ vultr server reverse-dns set-ipv4 $SUBID $IP4_0 $VHOST > /dev/null 2>&1
 
 # TODO add DKIM and DMARC records
 
-sleep 15
+sleep 5
 
 if [[ ! -d $LECFG ]]; then
+    echo "+++ Installing dehydrated to manage LetsEncrypt SSL certificates"
     git clone --depth 1 https://github.com/lukas2511/dehydrated.git $LECFG
     chmod +x $LECFG/dehydrated
     [[ ! -d $LECFG/hooks ]] && mkdir $LECFG/hooks
@@ -103,8 +101,10 @@ cd $LECFG
 [[ ! -f accounts/*/account_key.pem ]] && \
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
+echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
 ./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d www.$DNAME > /dev/null 2>&1
 
+echo "+++ Create local SSL enabled nginx config for $DNAME"
 cat << EOS > $LECFG/nginx/$DNAME
 server {
     listen                      443 ssl http2;
@@ -134,7 +134,6 @@ server {
 }
 EOS
 
-echo
 echo "+++ Wait 10 mins until NetServa packages have been installed"
 sleep 60
 echo "+++ 9 mins to go"
@@ -156,12 +155,13 @@ sleep 60
 echo "+++ 1 minute to go!"
 sleep 60
 
-echo "+++ Add SSL certificate to $VHOST"
 # TODO remove the need for this by not installing a self-signed certificate in the first place
 $DOSSH $VHOST "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
 
-rsync -e "$DOSSH" -a $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
-rsync -e "$DOSSH" -v $LECFG/nginx/$DNAME $VHOST:$C_WEB/sites-enabled/$DNAME
+echo "+++ Upload SSL certificate to $VHOST"
+rsync -q -e "$DOSSH" -a $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
+echo "+++ Upload nginx SSL config to $VHOST"
+rsync -q -e "$DOSSH" $LECFG/nginx/$DNAME $VHOST:$C_WEB/sites-enabled/$DNAME
 
 echo "+++ Restart web and mail services"
 $DOSSH $VHOST "nginx -t && systemctl restart nginx; systemctl restart postfix; systemctl restart dovecot"
