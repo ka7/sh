@@ -46,22 +46,22 @@ if [[ ! -f /usr/local/bin/vultr ]]; then
 fi
 
 # -n  Name of new virtual machine
-# -p  Plan (VPSPLANID)                       201 = 1GB Ram
-# -s  Script to execute on boot (SCRIPTID)
 # -r  Region (DCID)                          19  = Sydney
+# -p  Plan (VPSPLANID)                       201 = 1GB Ram
 # -k  SSH key to apply (SSHKEYID)
+# -s  Script to execute on boot (SCRIPTID)
 # -o  Operating system (OSID)                270 = Ubuntu 18.04
 # --hostname=host.domain.name (same as -n)
 
 [[ -z $1 || $1 =~ -h ]] && \
-    echo "Usage: create-vultr hostname.domain.name [planid] [sshkeyid] [regionid] [scriptid] [osid]" && exit 1
+    echo "Usage: create-vultr hostname.domain.name [regionid] [planid] [sshkeyid] [scriptid] [osid]" && exit 1
 
 VHOST=$1
 # Change these defaults below for your preferred plan and region etc
-VARG2=${2:-'201'}
-VARG3=${3:-'19'}
-VARG4=${4:-'69340'}
-VARG5=${5:-'5951b68883517'}
+VARG2=${2:-'19'}
+VARG3=${3:-'201'}
+VARG4=${4:-'5951b68883517'}
+VARG5=${5:-'69340'}
 VARG6=${6:-'270'}
 
 HNAME=${VHOST%%.*} # hostname
@@ -75,7 +75,7 @@ vultr servers | grep -q $VHOST
 [[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 4
 
 echo "+++ Create server instance for $VHOST"
-vultr server create -n $VHOST -p $VARG2 -r $VARG3 -s $VARG4 -k $VARG5 -o $VARG6 --hostname=$VHOST > /dev/null 2>&1
+vultr server create -n $VHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$VHOST > /dev/null 2>&1
 
 echo "+++ Wait 15 seconds for server to become active"
 sleep 15
@@ -100,8 +100,6 @@ vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
 vultr dns record create -d $DNAME -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 $VHOST > /dev/null 2>&1
-
-# TODO add DKIM and DMARC records
 
 sleep 5
 

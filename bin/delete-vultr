@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delete-vultr 20180620 - 20180620
+# .sh/bin/delete-vultr 20180620 - 20180621
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && \
@@ -15,6 +15,7 @@ IP4_0=${VULTR[1]}
 
 [[ -z $SUBID || -z $IP4_0 ]] && echo "ERROR: $1 does not exist" && exit 3
 
+vultr dns domain delete -d ${1#*.*}
 vultr server reverse-dns default-ipv4 $SUBID $IP4_0
 vultr server delete $SUBID
 
