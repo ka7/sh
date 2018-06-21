@@ -75,7 +75,7 @@ vultr servers | grep -q $VHOST
 [[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 4
 
 echo "+++ Create server instance for $VHOST"
-vultr server create -n $VHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$VHOST > /dev/null 2>&1
+vultr server create -n $VHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$VHOST --notify-activate=false > /dev/null 2>&1
 
 echo "+++ Wait 15 seconds for server to become active"
 sleep 15
@@ -185,7 +185,7 @@ echo "+++ Make sure postfix has current host details"
 $DOSSH $VHOST "cp /etc/hosts /var/spool/postfix/etc/; cp /etc/resolv.conf /var/spool/postfix/etc/"
 
 echo "+++ Restart web, mail and related services"
-$DOSSH $VHOST ". .shrc; serva restart web; serva restart mail; sc restart opendkim; sc restart opendmarc"
+$DOSSH $VHOST ". .shrc; serva restart all"
 
 echo "+++ SSH to $VHOST and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
 $DOSSH $VHOST

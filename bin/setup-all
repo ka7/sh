@@ -25,6 +25,6 @@ setup-hcp
 echo "### Add primary domain.name"
 addvhost $DNAME $VPLAN
 echo "### Send message to: $MAILTO"
-cat ~/.vhosts/$VHOST.conf ~/.vhosts/$DNAME.conf | mail -s "Setup $DNAME" -r admin@$DNAME $MAILTO
+cat ~/.vhosts/$DNAME.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $DNAME" -r admin@$DNAME $MAILTO
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
