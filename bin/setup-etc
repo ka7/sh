@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180620
+# .sh/bin/setup-etc 20151231 - 20180621
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -10,9 +10,9 @@ source /root/.shrc || exit 3
 
 DTYPE=${1:-$DTYPE}
 HNAME=${VHOST%%.*} # hostname
-DNAME=${VHOST#*.*} # domain.name
+DNAME=${VHOST#*.*} # domainname
 
-# Temporary self-signed SSL certificate defaults
+# Temporary self-signed SSL certificate defaults (not needed anymore?)
 C="AU"
 ST="QLD"
 L="GoldCoast"
@@ -36,10 +36,7 @@ if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "^^^ Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
 
-    sed -e "s/_VHOST/$DNAME/" \
-        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
-
-    sed -e "s/^#myhostname = _AHOST/myhostname = $AHOST/" \
+    sed -e "s/_VHOST/$DNAME/" -e "s/^#myhostname = _AHOST/myhostname = $AHOST/" \
         ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
 
     if [[ $DTYPE == sqlite ]]; then
@@ -182,7 +179,7 @@ if [[ ! -f $C_WEB/php.conf ]]; then
     cp ~/.sh/etc/_etc_nginx_php.conf $C_WEB/php.conf
 fi
 
-# Not strictly necessary a this point (could be in setup-hcp)
+# Not strictly necessary at this point (could be in setup-hcp)
 if [[ ! -f $C_WEB/hcp.conf ]]; then
     echo "^^^ Create $C_WEB/hcp.conf"
     cp ~/.sh/etc/_etc_nginx_hcp.conf $C_WEB/hcp.conf
@@ -208,12 +205,16 @@ if [[ ! -f /etc/opendkim.conf.orig ]]; then
     echo "^^^ Create /etc/opendkim.conf"
     mv /etc/opendkim.conf /etc/opendkim.conf.orig
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
+    chown opendkim:opendkim /etc/opendkim.conf
 fi
 
 if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendkim.service"
     cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+    chmod 644 /etc/systemd/system/opendkim.service
+    update-rc.d opendkim disable
     systemctl daemon-reload
+    systemctl enable opendkim
     systemctl restart opendkim
 fi
 
@@ -226,7 +227,10 @@ fi
 if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendmarc.service"
     cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
+    chmod 644 /etc/systemd/system/opendmarc.service
+    update-rc.d opendmarc disable
     systemctl daemon-reload
+    systemctl enable opendmarc
     systemctl restart opendmarc
 fi
 
