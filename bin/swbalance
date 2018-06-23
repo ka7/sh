@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# swbalance 20180623 - 20180623
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# apt install libxml2-utils
+
+#SW_RESELLERID=YOUR_RESELLER_ID
+#SW_APIKEY=YOUR_API_KEY
+
+XMLREQF=$(mktemp)
+XMLRESF=$(mktemp)
+
+cat << EOS > $XMLREQF
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Body>
+    <ns1:balanceQuery>
+      <param0 xsi:type="ns2:Map">
+        <item>
+          <key xsi:type="xsd:string">resellerID</key>
+          <value xsi:type="xsd:string">$SW_RESELLERID</value>
+        </item>
+        <item>
+          <key xsi:type="xsd:string">apiKey</key>
+          <value xsi:type="xsd:string">$SW_APIKEY</value>
+        </item>
+      </param0>
+    </ns1:balanceQuery>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+EOS
+
+curl -s --header "Content-Type: text/xml;charset=UTF-8" \
+ --header "SOAPAction: balanceQuery" \
+ --data @$XMLREQF \
+ https://api.synergywholesale.com/?wsdl > $XMLRESF
+
+rm $XMLREQF
+SW_BALANCE=$(xmllint --xpath "//*[local-name()='balance']/text()" $XMLRESF)
+rm $XMLRESF
+
+echo "Your balance is: $SW_BALANCE"
