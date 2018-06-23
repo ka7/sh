@@ -189,3 +189,8 @@ $DOSSH $VHOST ". .shrc; serva restart all"
 
 echo "+++ SSH to $VHOST and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
 $DOSSH $VHOST
+
+# It seems dnssec is not part of the vultr binary, have to make raw API calls
+#curl -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_enable --data "domain=$DNAME" --data 'enable=yes'
+#curl -s -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq .
+
