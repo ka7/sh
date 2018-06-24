@@ -1,0 +1,45 @@
+#!/usr/bin/php
+<?php
+// .sh/bin/swdsadd 20180619 - 20180624
+// Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if ($argc < 6 ) {
+    exit("Usage: swdsadd domain keyTag algorithm digestType digest\n");
+}
+
+$api_id = getenv('SW_API_ID');
+$api_key = getenv('SW_API_KEY');
+
+try {
+    $client = new SoapClient(
+        null, [
+            'location' => 'https://api.synergywholesale.com/?wsdl',
+            'uri' => '',
+//            'trace' => 1,
+        ]
+    );
+
+    $data = [
+        'resellerID' => $api_id,
+        'apiKey'     => $api_key,
+        'domainName' => $argv[1],
+        'keyTag'     => $argv[2],
+        'algorithm'  => $argv[3],
+        'digestType' => $argv[4],
+        'digest'     => $argv[5],
+    ];
+
+    $output = $client->DNSSECAddDS($data);
+
+    if ($output->status == 'OK') {
+        var_export($output->status);
+    } else {
+        print_r($output);
+    }
+
+} catch (SoapFault $fault) {
+    print_r($fault);
+}
+
+//echo "\nREQUEST:\n" . $client->__getLastRequest() . "\n";
+//echo "\nRESPONSE:\n" . $client->__getLastResponse() . "\n";
