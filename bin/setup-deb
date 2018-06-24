@@ -68,6 +68,7 @@ SLIST="
   dovecot-managesieved
   dovecot-sqlite
   fcgiwrap
+  jq
   libxml2-utils
   mailgraph
   mutt
@@ -85,6 +86,7 @@ SLIST="
   php$V_PHP-intl
   php$V_PHP-mbstring
   php$V_PHP-sqlite3
+  php$V_PHP-zip
   php$V_PHP-xml
   postfix-policyd-spf-perl
   postfix-sqlite

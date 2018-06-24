@@ -171,10 +171,7 @@ server {
 }
 EOS
 
-echo "+++ Wait 10 mins until NetServa packages have been installed"
-sleep 60; echo "+++ 9 mins to go"
-sleep 60; echo "+++ 8 mins to go"
-sleep 60; echo "+++ 7 mins to go"
+echo "+++ Wait 7 mins until NetServa packages have been installed"
 sleep 60; echo "+++ 6 mins to go"
 sleep 60; echo "+++ 5 mins to go"
 sleep 60; echo "+++ 4 mins to go"
@@ -202,17 +199,22 @@ $DOSSH $VHOST "cp /etc/hosts /var/spool/postfix/etc/; cp /etc/resolv.conf /var/s
 echo "+++ Restart web, mail and related services"
 $DOSSH $VHOST ". .shrc; serva restart all"
 
+# It seems dnssec is not part of the vultr binary, have to make raw API calls
+curl -s -H "API-Key: $VULTR_API_KEY" \
+ https://api.vultr.com/v1/dns/dnssec_enable --data "domain=$DNAME" --data 'enable=yes'
+
+curl -s -H "API-Key: $VULTR_API_KEY" \
+ https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq .
+
+curl -s -H "API-Key: $VULTR_API_KEY" \
+ https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | \
+ jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
+ while read DS; do echo "swdsadd $DNAME $DS"; done
+
+swreghostadd $DNAME ns1.$DNAME $NS1IP
+swreghostadd $DNAME ns2.$DNAME $NS2IP
+
+swchangens $DNAME ns1.$DNAME ns2.$DNAME
+
 echo "+++ SSH to $VHOST and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
 $DOSSH $VHOST
-
-# It seems dnssec is not part of the vultr binary, have to make raw API calls
-#curl -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_enable --data "domain=$DNAME" --data 'enable=yes'
-#curl -s -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq .
-
-#DS=$(curl -s -H "API-Key: $VULTR_API_KEY" \
-# https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq . | grep DS | \
-# awk '{print $4" "$5" "$6" "$7}' | tr -d '",')
-
-#while read DS; do
-#    echo "$DNAME $DS"
-#done
