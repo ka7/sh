@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180621
+# .sh/bin/setup-deb 20170519 - 20180624
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -68,6 +68,7 @@ SLIST="
   dovecot-managesieved
   dovecot-sqlite
   fcgiwrap
+  libxml2-utils
   mailgraph
   mutt
   nginx-light
