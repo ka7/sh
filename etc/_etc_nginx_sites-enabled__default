@@ -1,15 +1,9 @@
-# .sh/etc/_etc_nginx_sites-enables__default 20170515 - 20170715
+# .sh/etc/_etc_nginx_sites-enables__default 20170515 - 20180624
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 server {
     listen                      80;
-    server_name                 ~^cdn\.(?<domain>.+)$;
-    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
-    location                    / { return 301 https://cdn.$domain$request_uri; }
-}
-server {
-    listen                      80;
-    server_name                 ~^www\.(?<domain>.+)$;
+    server_name                 ~^([^.]+)\.(?<domain>.+)$;
     location                    ^~ /.well-known { root /home/u/$domain/var/www; }
     location                    / { return 301 https://$domain$request_uri; }
 }

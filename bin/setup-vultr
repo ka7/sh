@@ -70,6 +70,8 @@ LECFG="$HOME/.dehydrated"
 DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
+NS1IP='173.199.96.96'
+NS2IP='173.199.96.97'
 
 vultr servers | grep -q $VHOST
 [[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 4
@@ -95,11 +97,17 @@ echo "+++ Add DNS records for $DNAME"
 vultr dns domain create -d $DNAME -s $IP4_0 > /dev/null 2>&1
 RECID=$(vultr dns record list -d $DNAME | awk '/CNAME/ {print $1}')
 vultr dns record delete -d $DNAME -r $RECID > /dev/null 2>&1
+vultr dns record create -d $DNAME -n ns1 -t A -D $NS1IP > /dev/null 2>&1
+vultr dns record create -d $DNAME -n ns2 -t A -D $NS2IP > /dev/null 2>&1
 vultr dns record create -d $DNAME -n www -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
 vultr dns record create -d $DNAME -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
-vultr server reverse-dns set-ipv4 $SUBID $IP4_0 $VHOST > /dev/null 2>&1
+
+vultr dns record create -d $DNAME -n mail -t A -D $IP4_0 > /dev/null 2>&1
+RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
+vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
+vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
 
 sleep 5
 
@@ -128,6 +136,13 @@ echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
 
 echo "+++ Create local SSL enabled nginx config for $DNAME"
 cat << EOS > $LECFG/nginx/$DNAME
+server {
+    listen                      443 ssl http2;
+    server_name                 mail.$DNAME;
+    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
+    return 301                  https://$DNAME\$request_uri;
+}
 server {
     listen                      443 ssl http2;
     server_name                 www.$DNAME;
@@ -194,3 +209,10 @@ $DOSSH $VHOST
 #curl -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_enable --data "domain=$DNAME" --data 'enable=yes'
 #curl -s -H "API-Key: $VULTR_API_KEY" https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq .
 
+#DS=$(curl -s -H "API-Key: $VULTR_API_KEY" \
+# https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | jq . | grep DS | \
+# awk '{print $4" "$5" "$6" "$7}' | tr -d '",')
+
+#while read DS; do
+#    echo "$DNAME $DS"
+#done

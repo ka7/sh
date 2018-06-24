@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20180502
+# .sh/bin/newssl 20160121 - 20180624
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
@@ -48,26 +48,48 @@ echo "WELLKNOWN=$WACME" > config
 
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
+
         [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] \
             && rm $C_WEB/sites-enabled/$VHOST.selfsigned
-        if [[ $VHOST == $AHOST ]]; then
-            NCONF="
-    include                     $C_WEB/hcp.conf;
-    include                     $C_WEB/common.conf;"
-        else
-            NCONF="
-    include                     $C_WEB/common.conf;"
-        fi
+
         cat << EOS > $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
-    set                         \$domain $VHOST;$NCONF
+    set                         \$domain $VHOST;
+    include                     $C_WEB/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
 EOS
+        if [[ $SUBDS =~ $AHOST ]]; then
+            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+server {
+    listen                      ${IPARG}443 ssl http2;
+    server_name                 $AHOST;
+    set                         \$domain $AHOST;
+    include                     $C_WEB/hcp.conf;
+    include                     $C_WEB/common.conf;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
+}
+EOS
+        fi
+
+        if [[ $SUBDS =~ mail.$VHOST ]]; then
+            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+server {
+    listen                      ${IPARG}443 ssl http2;
+    server_name                 mail.$VHOST;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    return 301                  https://$VHOST\$request_uri;
+}
+EOS
+        fi
+
         if [[ $SUBDS =~ www.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
@@ -79,6 +101,7 @@ server {
 }
 EOS
         fi
+
         if [[ $SUBDS =~ cdn.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
