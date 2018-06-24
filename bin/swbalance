@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# swbalance 20180623 - 20180623
+# swbalance 20180623 - 20180624
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-# apt install libxml2-utils
-
-#SW_RESELLERID=YOUR_RESELLER_ID
-#SW_APIKEY=YOUR_API_KEY
+#
+# This is just an example of calling the SynergyWholesale SOAP API from a
+# shell script. Depends on xmllint from the libxml2-utils package. Add these
+# two shell variables to ~/.myrc (or ~/.profile or ~/.bashrc)...
+#
+# export SW_API_ID=YOUR_RESELLER_ID
+# export SW_API_KEY=YOUR_API_KEY
 
 XMLREQF=$(mktemp)
 XMLRESF=$(mktemp)
@@ -18,11 +20,11 @@ cat << EOS > $XMLREQF
       <param0 xsi:type="ns2:Map">
         <item>
           <key xsi:type="xsd:string">resellerID</key>
-          <value xsi:type="xsd:string">$SW_RESELLERID</value>
+          <value xsi:type="xsd:string">$SW_API_ID</value>
         </item>
         <item>
           <key xsi:type="xsd:string">apiKey</key>
-          <value xsi:type="xsd:string">$SW_APIKEY</value>
+          <value xsi:type="xsd:string">$SW_API_KEY</value>
         </item>
       </param0>
     </ns1:balanceQuery>
