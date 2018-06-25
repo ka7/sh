@@ -132,7 +132,7 @@ cd $LECFG
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
 echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d www.$DNAME > /dev/null 2>&1
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d mail.$DNAME  -d www.$DNAME > /dev/null 2>&1
 
 echo "+++ Create local SSL enabled nginx config for $DNAME"
 cat << EOS > $LECFG/nginx/$DNAME

@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20180511
+# .sh/lib/functions 20151231 - 20180625
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -143,7 +143,7 @@ sethost ()
     fi;
 
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
-    export MHOST=$(hostname -d|tr 'A-Z' 'a-z')
+    export MHOST="mail.$(hostname -d|tr 'A-Z' 'a-z')"
     export APASS=${4:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DPASS=${5:-$APASS};

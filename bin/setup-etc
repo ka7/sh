@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20180621
+# .sh/bin/setup-etc 20151231 - 20180625
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -36,7 +36,7 @@ if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "^^^ Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
 
-    sed -e "s/_VHOST/$DNAME/" -e "s/^#myhostname = _AHOST/myhostname = $AHOST/" \
+    sed -e "s/_VHOST/$DNAME/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
         ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
 
     if [[ $DTYPE == sqlite ]]; then
