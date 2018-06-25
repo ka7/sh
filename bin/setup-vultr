@@ -109,7 +109,16 @@ RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
 vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
 
-echo "+++ Wait 1 min for DNS to propogate (needs checking?)"
+echo "+++ Wait 10 mins until NetServa packages have been installed"
+sleep 60; echo "+++ 9 mins to go"
+sleep 60; echo "+++ 8 mins to go"
+sleep 60; echo "+++ 7 mins to go"
+sleep 60; echo "+++ 6 mins to go"
+sleep 60; echo "+++ 5 mins to go"
+sleep 60; echo "+++ 4 mins to go"
+sleep 60; echo "+++ 3 mins to go"
+sleep 60; echo "+++ 2 mins to go"
+sleep 60; echo "+++ 1 minute to go!"
 sleep 60
 
 if [[ ! -d $LECFG ]]; then
@@ -172,22 +181,10 @@ server {
 }
 EOS
 
-echo "+++ Wait 10 mins until NetServa packages have been installed"
-sleep 60; echo "+++ 9 mins to go"
-sleep 60; echo "+++ 8 mins to go"
-sleep 60; echo "+++ 7 mins to go"
-sleep 60; echo "+++ 6 mins to go"
-sleep 60; echo "+++ 5 mins to go"
-sleep 60; echo "+++ 4 mins to go"
-sleep 60; echo "+++ 3 mins to go"
-sleep 60; echo "+++ 2 mins to go"
-sleep 60; echo "+++ 1 minute to go!"
-sleep 60
-
 # TODO remove the need for this by not installing a self-signed certificate in the first place?
 $DOSSH $VHOST "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
 
-echo "+++ Upload SSL certificate to $VHOST"
+echo "+++ Upload SSL certificates to $VHOST"
 rsync -q -e "$DOSSH" -a $LECFG/certs/$DNAME/ $VHOST:$C_SSL/$DNAME
 
 echo "+++ Upload nginx SSL config to $VHOST"
@@ -203,18 +200,29 @@ $DOSSH $VHOST "cp /etc/hosts /var/spool/postfix/etc/; cp /etc/resolv.conf /var/s
 echo "+++ Restart web, mail and related services"
 $DOSSH $VHOST ". .shrc; serva restart all"
 
+echo "+++ Update SOA record"
+curl -s -H "API-Key: $VULTR_API_KEY" \
+ https://api.vultr.com/v1/dns/soa_update \
+ --data "domain=$DNAME" \
+ --data "nsprimary=ns1.$DNAME" \
+ --data "email=admin@$DNAME"
+
+echo "+++ Enable DNSSEC"
 # It seems dnssec is not part of the vultr binary, have to make raw API calls
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_enable --data "domain=$DNAME" --data 'enable=yes'
+ https://api.vultr.com/v1/dns/dnssec_enable \
+ --data "domain=$DNAME" \
+ --data "enable=yes"
 
+echo "+++ Add DNSSEC DS records"
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | \
  jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
  while read DS; do swdsadd $DNAME $DS; done
 
+echo "+++ Setup vanity nameservers"
 swreghostadd $DNAME ns1.$DNAME $NS1IP
 swreghostadd $DNAME ns2.$DNAME $NS2IP
-
 swchangens $DNAME ns1.$DNAME ns2.$DNAME
 
 echo "+++ SSH to $VHOST and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
