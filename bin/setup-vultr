@@ -109,7 +109,8 @@ RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
 vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
 
-sleep 5
+echo "+++ Wait 1 min for DNS to propogate (needs checking?)"
+sleep 60
 
 if [[ ! -d $LECFG ]]; then
     echo "+++ Installing dehydrated to manage LetsEncrypt SSL certificates"
@@ -132,7 +133,7 @@ cd $LECFG
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
 echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d $VHOST -d mail.$DNAME  -d www.$DNAME > /dev/null 2>&1
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d mail.$DNAME -d www.$DNAME -d $VHOST > /dev/null 2>&1
 
 echo "+++ Create local SSL enabled nginx config for $DNAME"
 cat << EOS > $LECFG/nginx/$DNAME
