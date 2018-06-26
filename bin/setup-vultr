@@ -195,7 +195,7 @@ echo "+++ Upload nginx SSL config to $IP4_0"
 rsync -q -e "$DOSSH" $LECFG/nginx/$DNAME $IP4_0:$C_WEB/sites-enabled/$DNAME
 
 echo "+++ Add and create DKIM record for $DNAME"
-DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $DNAME; dkim show $DNAME"|tail +2)
+DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $DNAME; dkim show $DNAME"|grep "v=DKIM1")
 vultr dns record create -d $DNAME -n mail._domainkey -t TXT -D "\"$DKIM\""
 
 echo "+++ Make sure postfix has current host details"

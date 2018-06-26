@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180620
+# .sh/bin/addvhost 20170217 - 20180626
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)]" && exit 1
@@ -243,7 +243,7 @@ Password: $PIN
 EOS
 fi
 
-newautoconfig $VHOST $AHOST $AHOST
+newautoconfig $VHOST
 chperms $VHOST
 serva reload php
 
