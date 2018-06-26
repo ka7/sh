@@ -32,7 +32,8 @@ try {
     $output = $client->DNSSECAddDS($data);
 
     if ($output->status == 'OK') {
-        var_export($output->status);
+//        var_export($output->status);
+        echo "+++ Added DS record for $argv[1]\n";
     } else {
         print_r($output);
     }

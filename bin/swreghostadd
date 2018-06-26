@@ -30,7 +30,8 @@ try {
     $output = $client->addHost($data);
 
     if ($output->status == 'OK') {
-        var_export($output->status);
+//        var_export($output->status);
+        echo "+++ Added registry host for $argv[1], $argv[2] => $argv[3]\n";
     } else {
         print_r($output);
     }

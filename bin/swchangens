@@ -31,7 +31,8 @@ try {
     $output = $client->updateNameServers($data);
 
     if ($output->status == 'OK') {
-        var_export($output->status);
+//        var_export($output->status);
+        echo "+++ Updated nameservers for $argv[1] to $argv[2] and $argv[3]\n";
     } else {
         print_r($output);
     }
