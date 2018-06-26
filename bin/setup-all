@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180621
+# .sh/bin/setup-all 20170519 - 20180626
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -25,6 +25,6 @@ setup-hcp
 echo "### Add primary domain.name"
 addvhost $DNAME $VPLAN
 echo "### Send message to: $MAILTO"
-cat ~/.vhosts/$DNAME.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $DNAME" -r admin@$DNAME $MAILTO
+cat ~/.vhosts/$DNAME.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $DNAME - $(hostname -i)" -r admin@$DNAME $MAILTO
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

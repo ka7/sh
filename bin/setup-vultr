@@ -113,7 +113,13 @@ RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
 vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
 
-echo "+++ Wait 10 mins until NetServa packages have been installed"
+# 5 mins should be enough but sometimes the *buntu repos can be slow
+echo "+++ Wait 15 mins until NetServa packages have been installed"
+sleep 60; echo "+++ 14 mins to go"
+sleep 60; echo "+++ 13 mins to go"
+sleep 60; echo "+++ 12 mins to go"
+sleep 60; echo "+++ 11 mins to go"
+sleep 60; echo "+++ 10 mins to go"
 sleep 60; echo "+++ 9 mins to go"
 sleep 60; echo "+++ 8 mins to go"
 sleep 60; echo "+++ 7 mins to go"
