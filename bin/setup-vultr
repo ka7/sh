@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/create-vultr 20180619 - 20180621
+# .sh/bin/create-vultr 20180619 - 20180627
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
@@ -56,7 +56,7 @@ fi
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: create-vultr hostname.domain.name [regionid] [planid] [sshkeyid] [scriptid] [osid]" && exit 1
 
-VHOST=$1
+AHOST=$1
 # Change these defaults below for your preferred plan and region etc
 VARG2=${2:-'19'}
 VARG3=${3:-'202'}
@@ -64,8 +64,8 @@ VARG4=${4:-'5951b68883517'}
 VARG5=${5:-'69340'}
 VARG6=${6:-'270'}
 
-HNAME=${VHOST%%.*} # hostname
-DNAME=${VHOST#*.*} # domain.name
+_HOST=${AHOST%%.*} # hostname
+VHOST=${AHOST#*.*} # domain.name
 LECFG="$HOME/.dehydrated"
 DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 C_SSL='/etc/ssl'
@@ -73,46 +73,46 @@ C_WEB='/etc/nginx'
 NS1IP='173.199.96.96'
 NS2IP='173.199.96.97'
 
-vultr servers | grep -q $VHOST
-[[ $? -eq 0 ]] && echo "ERROR: $VHOST already exists" && exit 4
+vultr servers | grep -q $AHOST
+[[ $? -eq 0 ]] && echo "ERROR: $AHOST already exists" && exit 4
 
-echo "+++ Create server instance for $VHOST"
-vultr server create -n $VHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$VHOST --notify-activate=false > /dev/null 2>&1
+echo "+++ Create server instance for $AHOST"
+vultr server create -n $AHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$AHOST --notify-activate=false > /dev/null 2>&1
 
 echo "+++ Wait 15 seconds for server to become active"
 sleep 15
 
-VULTR=($(vultr servers | awk '/'$VHOST'/ {printf $1" "$3}'))
+VULTR=($(vultr servers | awk '/'$AHOST'/ {printf $1" "$3}'))
 SUBID=${VULTR[0]}
 IP4_0=${VULTR[1]}
 echo "+++ Server IP is $IP4_0 and SUBID is $SUBID"
 
-vultr dns domain list | grep -q $DNAME
+vultr dns domain list | grep -q $VHOST
 if [[ $? -eq 0 ]];then
-    echo "+++ Delete old DNS records for $DNAME"
-    vultr dns domain delete -d $DNAME
+    echo "+++ Delete old DNS records for $VHOST"
+    vultr dns domain delete -d $VHOST
 fi
 
-echo "+++ Reset nameserver records for $DNAME to ns1/ns2.vultr.com"
-swchangens $DNAME ns1.vultr.com ns2.vultr.com
+echo "+++ Reset nameserver records for $VHOST to ns1/ns2.vultr.com"
+swchangens $VHOST ns1.vultr.com ns2.vultr.com
 
-echo "+++ Add DNS records for $DNAME"
-vultr dns domain create -d $DNAME -s $IP4_0 > /dev/null 2>&1
-swchangens $DNAME ns1.vultr.com ns2.vultr.com
-RECID=$(vultr dns record list -d $DNAME | awk '/CNAME/ {print $1}')
-vultr dns record delete -d $DNAME -r $RECID > /dev/null 2>&1
-vultr dns record create -d $DNAME -n ns1 -t A -D $NS1IP > /dev/null 2>&1
-vultr dns record create -d $DNAME -n ns2 -t A -D $NS2IP > /dev/null 2>&1
-vultr dns record create -d $DNAME -n www -t A -D $IP4_0 > /dev/null 2>&1
-vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0 > /dev/null 2>&1
-vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
-vultr dns record create -d $DNAME -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
+echo "+++ Add DNS records for $VHOST"
+vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null 2>&1
+swchangens $VHOST ns1.vultr.com ns2.vultr.com
+RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
+vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
+vultr dns record create -d $VHOST -n ns1 -t A -D $NS1IP > /dev/null 2>&1
+vultr dns record create -d $VHOST -n ns2 -t A -D $NS2IP > /dev/null 2>&1
+vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null 2>&1
+vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 > /dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
+vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
 
-[[ $HNAME != mail ]] && \
-  vultr dns record create -d $DNAME -n mail -t A -D $IP4_0 > /dev/null 2>&1
-RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
-vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
-vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
+[[ $_HOST != mail ]] && \
+  vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
+RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
+vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null 2>&1
+vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$VHOST > /dev/null 2>&1
 
 # 5 mins should be enough but sometimes the *buntu repos can be slow
 echo "+++ Wait 15 mins until NetServa packages have been installed"
@@ -152,63 +152,63 @@ cd $LECFG
 [[ ! -f accounts/*/account_key.pem ]] && \
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
-echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
-[[ $HNAME != mail ]] && TMP="-d mail.$DNAME -d $HNAME.$DNAME" || TMP="-d $HNAME.$DNAME"
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME $TMP -d www.$DNAME > /dev/null 2>&1
+echo "+++ Install or update LetsEncrypt SSL certificates for $VHOST"
+[[ $_HOST != mail ]] && TMP="-d mail.$VHOST -d $_HOST.$VHOST" || TMP="-d $_HOST.$VHOST"
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $VHOST $TMP -d www.$VHOST > /dev/null 2>&1
 
-echo "+++ Create local SSL enabled nginx config for $DNAME"
-if [[ $HNAME != mail ]]; then
-    cat << EOS > $LECFG/nginx/$DNAME
+echo "+++ Create local SSL enabled nginx config for $VHOST"
+if [[ $_HOST != mail ]]; then
+    cat << EOS > $LECFG/nginx/$VHOST
 server {
     listen                      443 ssl http2;
-    server_name                 mail.$DNAME;
-    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
-    return 301                  https://$DNAME\$request_uri;
+    server_name                 mail.$VHOST;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    return 301                  https://$VHOST\$request_uri;
 }
 EOS
 fi
-cat << EOS >> $LECFG/nginx/$DNAME
+cat << EOS >> $LECFG/nginx/$VHOST
+server {
+    listen                      443 ssl http2;
+    server_name                 $AHOST;
+    set                         \$domain $AHOST;
+    include                     $C_WEB/hcp.conf;
+    include                     $C_WEB/common.conf;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
+}
+server {
+    listen                      443 ssl http2;
+    server_name                 www.$VHOST;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    return 301                  https://$VHOST\$request_uri;
+}
 server {
     listen                      443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
-    include                     $C_WEB/hcp.conf;
     include                     $C_WEB/common.conf;
-    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
-    ssl_trusted_certificate     $C_SSL/$DNAME/chain.pem;
-}
-server {
-    listen                      443 ssl http2;
-    server_name                 www.$DNAME;
-    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
-    return 301                  https://$DNAME\$request_uri;
-}
-server {
-    listen                      443 ssl http2;
-    server_name                 $DNAME;
-    set                         \$domain $DNAME;
-    include                     $C_WEB/common.conf;
-    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
-    ssl_trusted_certificate     $C_SSL/$DNAME/chain.pem;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
 EOS
 
 # TODO remove the need for this by not installing a self-signed certificate in the first place?
-$DOSSH $IP4_0 "bash -c \"[[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$VHOST.selfsigned\""
+$DOSSH $IP4_0 "bash -c \"[[ -f $C_WEB/sites-enabled/$AHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$AHOST.selfsigned\""
 
 echo "+++ Upload SSL certificates to $IP4_0"
-rsync -q -e "$DOSSH" -a $LECFG/certs/$DNAME/ $IP4_0:$C_SSL/$DNAME
+rsync -q -e "$DOSSH" -a $LECFG/certs/$VHOST/ $IP4_0:$C_SSL/$VHOST
 
 echo "+++ Upload nginx SSL config to $IP4_0"
-rsync -q -e "$DOSSH" $LECFG/nginx/$DNAME $IP4_0:$C_WEB/sites-enabled/$DNAME
+rsync -q -e "$DOSSH" $LECFG/nginx/$VHOST $IP4_0:$C_WEB/sites-enabled/$VHOST
 
-echo "+++ Add and create DKIM record for $DNAME"
-DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $DNAME; dkim show $DNAME"|grep "v=DKIM1")
-vultr dns record create -d $DNAME -n mail._domainkey -t TXT -D "\"$DKIM\""
+echo "+++ Add and create DKIM record for $VHOST"
+DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $VHOST; dkim show $VHOST"|grep "v=DKIM1")
+vultr dns record create -d $VHOST -n mail._domainkey -t TXT -D "\"$DKIM\""
 
 echo "+++ Make sure postfix has current host details"
 $DOSSH $IP4_0 "cp /etc/hosts /var/spool/postfix/etc/; cp /etc/resolv.conf /var/spool/postfix/etc/"
@@ -219,27 +219,27 @@ $DOSSH $IP4_0 ". .shrc; serva restart all"
 echo "+++ Update SOA record"
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/soa_update \
- --data "domain=$DNAME" \
- --data "nsprimary=ns1.$DNAME" \
- --data "email=admin@$DNAME"
+ --data "domain=$VHOST" \
+ --data "nsprimary=ns1.$VHOST" \
+ --data "email=admin@$VHOST"
 
 echo "+++ Enable DNSSEC"
 # It seems dnssec is not part of the vultr binary, have to make raw API calls
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/dnssec_enable \
- --data "domain=$DNAME" \
+ --data "domain=$VHOST" \
  --data "enable=yes"
 
 echo "+++ Add DNSSEC DS records"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_info?domain=$DNAME | \
+ https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST | \
  jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
- while read DS; do swdsadd $DNAME $DS; done
+ while read DS; do swdsadd $VHOST $DS; done
 
 echo "+++ Setup vanity nameservers"
-swreghostadd $DNAME ns1.$DNAME $NS1IP
-swreghostadd $DNAME ns2.$DNAME $NS2IP
-swchangens $DNAME ns1.$DNAME ns2.$DNAME
+swreghostadd $VHOST ns1.$VHOST $NS1IP
+swreghostadd $VHOST ns2.$VHOST $NS2IP
+swchangens $VHOST ns1.$VHOST ns2.$VHOST
 
 echo "+++ SSH to $IP4_0 and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
 $DOSSH $IP4_0
