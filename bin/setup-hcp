@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20180614
+# .sh/bin/setup-hcp 20170519 - 20180626
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -91,9 +91,10 @@ if [[ -d $WPATH/webmail ]]; then
     echo "@@@ $WPATH/webmail already exists"
 else
     echo "@@@ Setup rainloop in $WPATH/webmail"
-    cd $UPATH/var
-    mkdir $WPATH/webmail
-    cd $WPATH/webmail
+#    cd $UPATH/var
+#    mkdir $WPATH/webmail
+#    cd $WPATH/webmail
+    cd $WPATH
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip

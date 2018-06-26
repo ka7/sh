@@ -47,7 +47,7 @@ fi
 
 # -n  Name of new virtual machine
 # -r  Region (DCID)                          19  = Sydney
-# -p  Plan (VPSPLANID)                       201 = 1GB Ram
+# -p  Plan (VPSPLANID)                       202 = 2GB Ram
 # -k  SSH key to apply (SSHKEYID)
 # -s  Script to execute on boot (SCRIPTID)
 # -o  Operating system (OSID)                270 = Ubuntu 18.04
@@ -59,7 +59,7 @@ fi
 VHOST=$1
 # Change these defaults below for your preferred plan and region etc
 VARG2=${2:-'19'}
-VARG3=${3:-'201'}
+VARG3=${3:-'202'}
 VARG4=${4:-'5951b68883517'}
 VARG5=${5:-'69340'}
 VARG6=${6:-'270'}
@@ -108,7 +108,8 @@ vultr dns record create -d $DNAME -n $HNAME -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $DNAME -n $DNAME -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
 vultr dns record create -d $DNAME -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
 
-vultr dns record create -d $DNAME -n mail -t A -D $IP4_0 > /dev/null 2>&1
+[[ $HNAME != mail ]] && \
+  vultr dns record create -d $DNAME -n mail -t A -D $IP4_0 > /dev/null 2>&1
 RECID=$(vultr dns record list -d $DNAME | awk '/MX/ {print $1}')
 vultr dns record update -d $DNAME -r $RECID -D mail.$DNAME > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$DNAME > /dev/null 2>&1
@@ -152,10 +153,12 @@ cd $LECFG
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
 echo "+++ Install or update LetsEncrypt SSL certificates for $DNAME"
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME -d mail.$DNAME -d www.$DNAME -d $VHOST > /dev/null 2>&1
+[[ $HNAME != mail ]] && TMP="-d mail.$DNAME -d $HNAME.$DNAME" || TMP="-d $HNAME.$DNAME"
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $DNAME $TMP -d www.$DNAME > /dev/null 2>&1
 
 echo "+++ Create local SSL enabled nginx config for $DNAME"
-cat << EOS > $LECFG/nginx/$DNAME
+if [[ $HNAME != mail ]]; then
+    cat << EOS > $LECFG/nginx/$DNAME
 server {
     listen                      443 ssl http2;
     server_name                 mail.$DNAME;
@@ -163,13 +166,9 @@ server {
     ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
     return 301                  https://$DNAME\$request_uri;
 }
-server {
-    listen                      443 ssl http2;
-    server_name                 www.$DNAME;
-    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
-    return 301                  https://$DNAME\$request_uri;
-}
+EOS
+fi
+cat << EOS >> $LECFG/nginx/$DNAME
 server {
     listen                      443 ssl http2;
     server_name                 $VHOST;
@@ -179,6 +178,13 @@ server {
     ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
     ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
     ssl_trusted_certificate     $C_SSL/$DNAME/chain.pem;
+}
+server {
+    listen                      443 ssl http2;
+    server_name                 www.$DNAME;
+    ssl_certificate             $C_SSL/$DNAME/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$DNAME/privkey.pem;
+    return 301                  https://$DNAME\$request_uri;
 }
 server {
     listen                      443 ssl http2;
