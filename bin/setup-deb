@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20180624
+# .sh/bin/setup-deb 20170519 - 20180630
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -88,6 +88,7 @@ SLIST="
   php$V_PHP-sqlite3
   php$V_PHP-zip
   php$V_PHP-xml
+  php$V_PHP-xmlrpc
   postfix-policyd-spf-perl
   postfix-sqlite
   spamprobe
