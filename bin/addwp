@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180614
+# .sh/bin/addwp 20160231 - 20180709
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -121,21 +121,32 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 #echo 'Install wp-super-cache plugin'
 #wp plugin --quiet install wp-super-cache 2> /dev/null
 
+# Let's try the official Elementor Hello theme
+#echo 'Install twentyseventeen-child theme'
+#wp scaffold child-theme twentyseventeen-child --parent_theme=twentyseventeen --theme_name='Twenty Seventeen Child Theme' --activate 2> /dev/null
+#echo 'Install mainwp-child plugin'
+#wp plugin --quiet install mainwp-child 2> /dev/null
+
     su - $UUSER -c "
 cd $FPATH
-wp theme delete twentyfifteen twentysixteen
+wp theme delete twentyfifteen twentysixteen twentyseventeen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
 
-echo 'Install twentyseventeen-child theme'
-wp scaffold child-theme twentyseventeen-child --parent_theme=twentyseventeen --theme_name='Twenty Seventeen Child Theme' --activate 2> /dev/null
-echo 'Install simply-static plugin'
-wp plugin --quiet install simply-static --activate 2> /dev/null
 echo 'Install elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
 echo 'Install header-footer-elementor plugin'
 wp plugin --quiet install header-footer-elementor 2> /dev/null
+
+echo 'Install elementor-hello-theme theme'
+git clone https://github.com/pojome/elementor-hello-theme.git wp-content/themes/elementor-hello-theme
+
+echo 'Activate elementor-hello-theme theme'
+wp theme --quiet activate elementor-hello-theme 2> /dev/null
+
+echo 'Install simply-static plugin'
+wp plugin --quiet install simply-static --activate 2> /dev/null
 echo 'Install contact-form-7 plugin'
 wp plugin --quiet install contact-form-7 --activate 2> /dev/null
 echo 'Install user-switching plugin'
@@ -146,8 +157,6 @@ echo 'Install autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
 echo 'Install google-analytics-dashboard-for-wp plugin'
 wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
-echo 'Install mainwp-child plugin'
-wp plugin --quiet install mainwp-child 2> /dev/null
 
 # These may not be needed, but just in case
 echo 'Install wordpress-social-login plugin'

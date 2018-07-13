@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180626
+# .sh/bin/addvhost 20170217 - 20180709
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)] [nossl] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -12,6 +12,7 @@ source /root/.shrc || exit 3
 
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
+DOSSL=${3:-'ssl'}
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
@@ -247,13 +248,14 @@ newautoconfig $VHOST
 chperms $VHOST
 serva reload php
 
-LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
-DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
+#LOCIP=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
+#DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
+#if [[ $LOCIP =~ ^192.168 || $LOCIP =~ ^10 ]]; then
 
-if [[ $LOCIP =~ ^192.168 || $LOCIP =~ ^10 ]]; then
+if [[ $DOSSL == nossl ]]; then
     echo "*** Note: if this server has outside net access with DNS"
     echo "***       pointing a public IP to it's FQDN then use"
-    echo "***           newssl $VHOST cdn www"
+    echo "***           newssl $VHOST mail www"
     echo "***       to provide a real LetsEncrypt SSL certificate."
 
     if [[ ! -d $C_SSL/$VHOST ]]; then

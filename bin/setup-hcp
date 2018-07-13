@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20180626
+# .sh/bin/setup-hcp 20170519 - 20180713
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -24,7 +24,8 @@ else
     git clone https://github.com/netserva/hcp $WPATH/hcp > /dev/null 2>&1
 
     #APASS_HASH=$(doveadm pw -s SHA512-CRYPT -p $UPASS | sed 's/\$/\\\$/g')
-    APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\$/\\\$/g')
+    #APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\$/\\\$/g')
+    APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);")
 
     cat << EOS | $SQCMD
     INSERT INTO news VALUES

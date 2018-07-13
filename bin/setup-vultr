@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/create-vultr 20180619 - 20180627
+# .sh/bin/create-vultr 20180619 - 20180710
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
@@ -101,8 +101,8 @@ vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null 2>&1
 swchangens $VHOST ns1.vultr.com ns2.vultr.com
 RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
 vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
-vultr dns record create -d $VHOST -n ns1 -t A -D $NS1IP > /dev/null 2>&1
-vultr dns record create -d $VHOST -n ns2 -t A -D $NS2IP > /dev/null 2>&1
+vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null 2>&1
+vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null 2>&1
 vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
