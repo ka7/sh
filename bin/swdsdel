@@ -1,0 +1,50 @@
+#!/usr/bin/php
+<?php
+// .sh/bin/swdsdel 20180710 - 20180710
+// Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if ($argc < 1 ) {
+    exit("Usage: swdsdel domain\n");
+}
+
+$api_id = getenv('SW_API_ID');
+$api_key = getenv('SW_API_KEY');
+
+try {
+    $client = new SoapClient(
+        null, [
+            'location' => 'https://api.synergywholesale.com/?wsdl',
+            'uri' => '',
+//            'trace' => 1,
+        ]
+    );
+
+    $data = [
+        'resellerID' => $api_id,
+        'apiKey'     => $api_key,
+        'domainName' => $argv[1],
+    ];
+
+    $output = $client->DNSSECListDS($data);
+
+    if ($output->status == 'OK') {
+//        var_export($output->DSData);
+        foreach($output->DSData as $ds) {
+            if (isset($ds->UUID)) {
+                $data['UUID'] = $ds->UUID;
+                $output = $client->DNSSECRemoveDS($data);
+                if ($output->status == 'OK') {
+                    echo "+++ Removed DS record " . $ds->UUID . " from " . $argv[1] . "\n";
+                }
+            }
+        }
+    } else {
+        print_r($output);
+    }
+
+} catch (SoapFault $fault) {
+    print_r($fault);
+}
+
+//echo "\nREQUEST:\n" . $client->__getLastRequest() . "\n";
+//echo "\nRESPONSE:\n" . $client->__getLastResponse() . "\n";

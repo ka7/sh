@@ -1,0 +1,48 @@
+#!/usr/bin/php
+<?php
+// .sh/bin/swreghostadd 20180619 - 20180624
+// Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if ($argc < 1 ) {
+    exit("Usage: swreghostlist domain\n");
+}
+
+$reghosts = ['ns1', 'ns2'];
+
+$api_id = getenv('SW_API_ID');
+$api_key = getenv('SW_API_KEY');
+
+try {
+    $client = new SoapClient(
+        null, [
+            'location' => 'https://api.synergywholesale.com/?wsdl',
+            'uri' => '',
+//            'trace' => 1,
+        ]
+    );
+
+    foreach($reghosts as $rh) {
+        $data = [
+            'resellerID' => $api_id,
+            'apiKey'     => $api_key,
+            'domainName' => $argv[1],
+            'host'       => $rh,
+        ];
+
+        $output = $client->listHost($data);
+
+        if ($output->status == 'OK') {
+            $ips = '';
+            //var_export($output);
+            foreach($output->ipAddress as $ip) { $ips .= $ip . ', '; }
+            echo $output->host . '.' . $output->domainName . ' ' . trim($ips, ', ') . "\n";
+        } else {
+            print_r($output);
+        }
+    }
+} catch (SoapFault $fault) {
+    print_r($fault);
+}
+
+//echo "\nREQUEST:\n" . $client->__getLastRequest() . "\n";
+//echo "\nRESPONSE:\n" . $client->__getLastResponse() . "\n";
