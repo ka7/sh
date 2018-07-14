@@ -7,8 +7,8 @@
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvdns domain.name IP [sshkey]" && exit 1
 
-[[ -z $SW_API_ID ]] && "ERROR: missing or empty SW_API_ID" && exit 2
-[[ -z $SW_API_KEY ]] && "ERROR: missing or empty SW_API_KEY" && exit 3
+[[ -z $SW_API_ID ]] && echo "ERROR: missing or empty SW_API_ID" && exit 2
+[[ -z $SW_API_KEY ]] && echo "ERROR: missing or empty SW_API_KEY" && exit 3
 [[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 4
 
 VHOST=$1
