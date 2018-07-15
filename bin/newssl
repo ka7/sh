@@ -49,9 +49,6 @@ echo "WELLKNOWN=$WACME" > config
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
-        [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] \
-            && rm $C_WEB/sites-enabled/$VHOST.selfsigned
-
         if [[ $SUBDS =~ mail.$VHOST ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
@@ -98,6 +95,9 @@ EOS
         rm $C_WEB/sites-enabled/_default.nossl
         cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
     fi
+    [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]] \
+        && rm $C_WEB/sites-enabled/$VHOST.selfsigned
+
     serva reload nginx
     serva reload mail
 fi

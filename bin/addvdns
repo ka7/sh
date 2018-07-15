@@ -110,4 +110,4 @@ else
     echo "+++ Adding DKIM record for $VHOST"
 fi
 
-echo "+++ Added $VHOST to Vultr DNS (TODO add DKIM record from server)"
+echo "+++ Added $VHOST to Vultr DNS"
