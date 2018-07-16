@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/create-vultr 20180619 - 20180710
+# .sh/bin/create-vultr 20180619 - 20180716
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
@@ -93,23 +93,24 @@ if [[ $? -eq 0 ]];then
     vultr dns domain delete -d $VHOST
 fi
 
-echo "+++ Reset nameserver records for $VHOST to ns1/ns2.vultr.com"
-swchangens $VHOST ns1.vultr.com ns2.vultr.com
+#echo "+++ Reset nameserver records for $VHOST to ns1/ns2.vultr.com"
+#swchangens $VHOST ns1.vultr.com ns2.vultr.com
 
 echo "+++ Add DNS records for $VHOST"
 vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null 2>&1
 swchangens $VHOST ns1.vultr.com ns2.vultr.com
-RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
-vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
+#RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
+#vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
 vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null 2>&1
 vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null 2>&1
 vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null 2>&1
+vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
 vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
 
-[[ $_HOST != mail ]] && \
-  vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
+#[[ $_HOST != mail ]] && \
+#  vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
 RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
 vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$VHOST > /dev/null 2>&1

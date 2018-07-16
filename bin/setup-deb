@@ -89,8 +89,10 @@ SLIST="
   php$V_PHP-zip
   php$V_PHP-xml
   php$V_PHP-xmlrpc
+  php-redis
   postfix-policyd-spf-perl
   postfix-sqlite
+  redis-server
   spamprobe
 "
 
