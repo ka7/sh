@@ -103,6 +103,8 @@ swchangens $VHOST ns1.vultr.com ns2.vultr.com
 #vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
 vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null 2>&1
 vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t NS -D ns1.$VHOST > /dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t NS -D ns2.$VHOST > /dev/null 2>&1
 vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
 vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 > /dev/null 2>&1
