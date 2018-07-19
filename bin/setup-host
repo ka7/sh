@@ -4,6 +4,7 @@
 
 # Essential host package list, adjust accordingly
 HLIST="
+  apt-utils
   bash
   bc
   bind9-host
@@ -114,16 +115,15 @@ source /root/.vhosts/$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
-    if [[ -z $USERIP ]]; then
+    if [[ -z $USEIP ]]; then
         R_IP4=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
     else
         R_IP4=$USEIP
     fi
     echo "!!! Get the default route IP: $R_IP4"
     echo "!!! Rewrite a sane /etc/hosts"
-    sed -i /etc/hosts \
-        -e "s/^127.0.1.1.*$/127.0.1.1\tresolved/" \
-        -e "/^127.0.1.1.*$/a $R_IP4\t$VHOST $_HOST"
+    sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
+    echo -e "\n$R_IP4\t$VHOST $_HOST" >> /etc/hosts
 
     echo "!!! Change /etc/resolv.conf to talk directly to 1.1.1.1"
     cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
