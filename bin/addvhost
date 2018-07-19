@@ -258,7 +258,7 @@ serva reload php
 if [[ $DOSSL == nossl ]]; then
     echo "*** Note: if this server has outside net access with DNS"
     echo "***       pointing a public IP to it's FQDN then use"
-    echo "***           newssl $VHOST mail www"
+    echo "***           newssl $VHOST mail www [IP]"
     echo "***       to provide a real LetsEncrypt SSL certificate."
 
     if [[ ! -d $C_SSL/$VHOST ]]; then
