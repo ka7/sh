@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20180625
+# .sh/lib/functions 20151231 - 20180719
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -110,7 +110,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 || $1 =~ -h ]]; then
-        echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [admin_pw] [mysql_pw] [email_pw] [uuser_pw] [wordpress_pw]";
+        echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [IP]";
         return 1;
     elif [[ $1 =~ "@" ]]; then
         export UUSER=${1%@*};
@@ -127,7 +127,10 @@ sethost ()
         export UUSER="u$U_UID";
     fi;
     export U_GID=$U_UID;
+
     [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
+
+    export IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)};
 
     export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
     export EXMYS="mysql -BN $ADMIN";
@@ -142,20 +145,20 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
+    export APASS=$(pwgen -sB 16 1);
+    export DPASS=$(pwgen -sB 16 1);
+    export EPASS=$(pwgen -sB 16 1);
+    export UPASS=$(pwgen -sB 16 1);
+    export WPASS=$(pwgen -sB 16 1);
+
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     export MHOST="mail.$(hostname -d|tr 'A-Z' 'a-z')"
-    export APASS=${4:-'changeme_N0W'};
     export C_FPM="/etc/php/$V_PHP/fpm";
-    export DPASS=${5:-$APASS};
     export DUSER=$UUSER;
-    export EPASS=${6:-$APASS};
-    export IP4_0=$(hostname -i|cut -d ' ' -f -1);
     export MPATH=$VPATH/$VHOST/home;
-    export UPASS=${7:-$APASS};
     export UPATH=$VPATH/$VHOST;
     export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
     export VUSER='admin';
-    export WPASS=${8:-$APASS};
     export WPATH=$VPATH/$VHOST/var/www;
     export WPUSR=$(pwgen -sB0A 6 1);
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;

@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180626
+# .sh/bin/setup-all 20170519 - 20180719
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.domain.name] [(mysql)|sqlite] [plan(personal|business)]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.domain.name] [(mysql)|sqlite] [IP] [plan(personal|business)]" && exit 1
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-'mysql'}
-VPLAN=${3:-'personal'}
+USEIP=${3:-''}
+VPLAN=${4:-'personal'}
 HNAME=${VHOST%%.*} # hostname
 DNAME=${VHOST#*.*} # domainname
 
 echo "### Entering setup-host as $VHOST with $DTYPE"
-setup-host $VHOST $DTYPE
+setup-host $VHOST $DTYPE $USEIP
 echo "### Entering setup-deb"
 setup-deb
 echo "### Entering setup-db"

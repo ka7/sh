@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180709
+# .sh/bin/addwp 20160231 - 20180719
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -10,7 +10,7 @@ if [[ -f ~/.vhosts/$1 ]]; then
     source ~/.vhosts/$1
 else
     echo "!!! ERROR: set up vhost config first, ie;"
-    echo "    sethost $1 mysql \$(newpw 5)"
+    echo "    sethost $1 [mysql] [IP]"
     echo "    gethost > ~/.vhosts/$1"
     echo "    chmod 600 ~/.vhosts/$1"
     exit 3

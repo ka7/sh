@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180614
+# .sh/bin/setup-host 20170524 - 20180719
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -21,7 +21,7 @@ HLIST="
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [domain] [(mysql)|sqlite] [admin(sysadm)] [os release(bionic)] [os mirror(archive.ubuntu.com)]" && exit 1
+    echo "Usage: setup-host [domain] [(mysql)|sqlite] [IP] [admin(sysadm)] [os release(bionic)] [os mirror(archive.ubuntu.com)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
@@ -93,13 +93,14 @@ source /root/.shrc
 VHOST=${1:-$VHOST} # Admin Host must be hostname.domainname
 _HOST=${VHOST/%\.*/}
 DTYPE=${2:-$DTYPE}
-UUSER=${3:-$ADMIN}
+USEIP=${3:-''}
+UUSER=${4:-$ADMIN}
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
-    sethost $UUSER@$VHOST $DTYPE $(newpw 5)
+    sethost $UUSER@$VHOST $DTYPE $USEIP
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*
@@ -113,7 +114,11 @@ source /root/.vhosts/$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
-    R_IP4=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
+    if [[ -z $USERIP ]]; then
+        R_IP4=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
+    else
+        R_IP4=$USEIP
+    fi
     echo "!!! Get the default route IP: $R_IP4"
     echo "!!! Rewrite a sane /etc/hosts"
     sed -i /etc/hosts \
@@ -166,28 +171,5 @@ Host *
 EOS
     chmod 600 /root/.ssh/*
 fi
-
-# TODO work this out properly
-#if [[ -f /etc/NetworkManager/NetworkManager.conf ]]; then
-#    if [[ ! -f /etc/NetworkManager/dispatcher.d/99iptables ]]; then
-#        echo "!!! Create desktop iptables save/restore"
-#        cp /root/.sh/etc/_etc_NetworkManager_dispatcher.d_99iptables \
-#            /etc/NetworkManager/dispatcher.d/99iptables
-#        chmod +x /etc/NetworkManager/dispatcher.d/99iptables
-#    fi
-#else
-#    if [[ ! -f /etc/network/if-post-down.d/iptsave ]]; then
-#        echo "!!! (not) Create server iptables save/restore (needs to be updated for systemd-networkd)"
-#        cp /root/.sh/etc/_etc_network_if-post-down.d_iptsave \
-#            /etc/network/if-post-down.d/iptsave
-#        chmod +x /etc/network/if-post-down.d/iptsave
-#
-#        cp /root/.sh/etc/_etc_network_if-pre-up.d_iptrestore \
-#            /etc/network/if-pre-up.d/iptrestore
-#        chmod +x /etc/network/if-pre-up.d/iptrestore
-#    fi
-#fi
-#
-#[[ ! -f /etc/iptables.rules ]] && ssheriff clear && ssheriff
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

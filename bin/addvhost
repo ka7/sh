@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180709
+# .sh/bin/addvhost 20170217 - 20180719
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)] [nossl] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+# for DTYPE and VPATH
 source /root/.shrc || exit 3
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
@@ -13,6 +14,7 @@ source /root/.shrc || exit 3
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
 DOSSL=${3:-'ssl'}
+USEIP=${4:-''}
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
@@ -25,7 +27,7 @@ fi
 
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create /root/.vhosts/$VHOST config file"
-    sethost $UUTMP$VHOST $DTYPE $(newpw 5)
+    sethost $UUTMP$VHOST $DTYPE $USEIP
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*
@@ -63,7 +65,8 @@ if [[ $(grepuser ":$VHOST:") ]]; then
 else
     echo "!!! Create $UUSER user"
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
-    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c $VHOST $U_GRP $UUSER
+    TMPIP=$([[ -n $USEIP ]] && echo ",$USEIP")
+    useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c "$VHOST$TMPIP" $U_GRP $UUSER
     [[ -n $UPASS && $UPASS != $APASS ]] && { echo $UUSER:$UPASS | chpasswd; }
 fi
 
@@ -291,9 +294,7 @@ EOS
     fi
     serva restart nginx
 else
-    # TODO this needs testing and more work
-    [[ $LOCIP == $DNSIP ]] && TMPIP=$DNSIP || TMPIP=$LOCIP
-    newssl $VHOST cdn www $TMPIP > /dev/null 2>&1
+    newssl $VHOST cdn www $USEIP > /dev/null 2>&1
 fi
 
 addvmail $VUSER@$VHOST
