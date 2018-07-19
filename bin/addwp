@@ -129,6 +129,11 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
     su - $UUSER -c "
 cd $FPATH
+echo 'Install elementor-hello-theme theme'
+git clone https://github.com/pojome/elementor-hello-theme.git wp-content/themes/elementor-hello-theme
+echo 'Activate elementor-hello-theme theme'
+wp theme --quiet activate elementor-hello-theme 2> /dev/null
+
 wp theme delete twentyfifteen twentysixteen twentyseventeen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
@@ -138,12 +143,6 @@ echo 'Install elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
 echo 'Install header-footer-elementor plugin'
 wp plugin --quiet install header-footer-elementor 2> /dev/null
-
-echo 'Install elementor-hello-theme theme'
-git clone https://github.com/pojome/elementor-hello-theme.git wp-content/themes/elementor-hello-theme
-
-echo 'Activate elementor-hello-theme theme'
-wp theme --quiet activate elementor-hello-theme 2> /dev/null
 
 echo 'Install simply-static plugin'
 wp plugin --quiet install simply-static --activate 2> /dev/null
