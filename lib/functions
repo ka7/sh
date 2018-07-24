@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20180719
+# .sh/lib/functions 20151231 - 20180824
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -85,7 +85,7 @@ go2 ()
 }
 grepuser ()
 {
-    getusers | grep "$1";
+    getusers | grep -E "$1[,:]";
 }
 newuid ()
 {

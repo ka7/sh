@@ -1,4 +1,4 @@
-# .sh/lib/_chperms 20151231 - 20170430
+# .sh/lib/_chperms 20151231 - 20180824
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 _chperms()
