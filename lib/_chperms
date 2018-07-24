@@ -3,7 +3,7 @@
 
 _chperms()
 {
-    local UUSER=$(grepuser ":$1:")
+    local UUSER=$(grepuser ":$1")
     [[ -z $UUSER ]] && echo "ERROR: $1 does not exist" && return 10
 
     local U_UID=$(echo $UUSER | cut -d: -f3)
