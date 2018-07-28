@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20180515
+# .sh/bin/addvmail 20170418 - 20180728
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
@@ -16,8 +16,9 @@ VUSER=${1%@*} # $VUSER @ domain
 SPAMF=${2:-"1"} # add spam filter
 [[ $SPAMF == nospam ]] && SPAMF=0 || SPAMF=1
 MPATH="$UPATH/home/$VUSER"
-#EPASS=$(newpw 1) # should be in ~/.vhosts/$VHOST
 _DATE=$(date "+%Y-%m-%d %H:%M:%S")
+
+[[ $VUSER != admin ]] && EPASS=$(newpw 1)
 
 [[ ! -d $UPATH/home ]] && echo "*** ERROR: $UPATH/home does not exist" && exit 4
 

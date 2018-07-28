@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvdns 20180709 - 20180814
+# .sh/bin/addvdns 20180709 - 20180728
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.com
@@ -28,11 +28,6 @@ fi
 echo "+++ Add basic DNS records for $VHOST"
 vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null
 
-# Need to check if this interferes with mail.* and www.* A records
-#echo "+++ Remove wildcard subdomain CNAME"
-#RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
-#vultr dns record delete -d $VHOST -r $RECID > /dev/null
-
 echo "+++ Update MX record to mail.$VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
 vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null
@@ -49,10 +44,9 @@ echo "+++ Add ns1.$VHOST and ns2.$VHOST"
 vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null
 vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null
 
-# Not needed if we keep the wildcard CNAME record
-#echo "+++ Add www.$VHOST and mail.$VHOST pointing to $IP4_0"
-#vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null
-#vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null
+echo "+++ Add www.$VHOST and mail.$VHOST pointing to $IP4_0"
+vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null
+vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null
 
 echo "+++ Add SPF record for $VHOST"
 vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null
@@ -65,6 +59,9 @@ vultr dns record create -d $VHOST -n $VHOST -t CAA -D '0 issue "letsencrypt.org"
 
 echo "+++ Add mail.$VHOST CAA record for letsencrypt.org"
 vultr dns record create -d $VHOST -n mail.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
+
+echo "+++ Add www.$VHOST CAA record for letsencrypt.org"
+vultr dns record create -d $VHOST -n www.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
 
 echo "+++ Update SOA record for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \
