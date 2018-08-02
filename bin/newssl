@@ -3,7 +3,7 @@
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
-
+set -x
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: newssl domain [subd subd...[--force][0.0.0.0]]" && exit 1
 
