@@ -15,7 +15,7 @@ else
             TMP1=$(echo $UUSER | awk -F: '{print $5}')
             TMP2=$(echo $TMP1 | awk -F, '{print $1}')
             TMP3=$(echo $TMP1 | awk -F, '{print $2}')
-            echo $UUSER | awk -F: '{printf "  host: "$TMP1"\n    IP: "$TMP2"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
+            echo $UUSER | awk -F: '{printf "  host: "$TMP2"\n    IP: "$TMP3"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
         else
             echo $UUSER | awk -F: '{printf "  host: "$5"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
         fi
