@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# .sh/bin/shhost 20151216 - 20180719
+# .sh/bin/shhost 20151216 - 20180802
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: shhost domain|uid|homedir|all" && exit 1
 
 if [[ $1 == all ]]; then
@@ -11,7 +11,14 @@ else
     if [[ -z $UUSER ]]; then
         echo "Warning: no system user contains '$1'"
     else
-        echo $UUSER | awk -F: '{printf "  host: "$5"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
+        if [[ $UUSER =~ , ]]; then
+            TMP1=$(echo $UUSER | awk -F: '{print $5}')
+            TMP2=$(echo $TMP1 | awk -F, '{print $1}')
+            TMP3=$(echo $TMP1 | awk -F, '{print $2}')
+            echo $UUSER | awk -F: '{printf "  host: "$TMP1"\n    IP: "$TMP2"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
+        else
+            echo $UUSER | awk -F: '{printf "  host: "$5"\n  user: "$1"\n   uid: "$3"\n   gid: "$4"\n  home: "$6"\n shell: "$7"\n"}'
+        fi
     fi
 fi
 
