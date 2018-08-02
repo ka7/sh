@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 # .sh/bin/shhost 20151216 - 20180802
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: shhost domain|uid|homedir|all" && exit 1
 
 if [[ $1 == all ]]; then
-    getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
+    getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | while read UUSER; do
+        if [[ $UUSER =~ , ]]; then
+            TMP1=$(echo $UUSER | awk -F: '{print $5}')
+            TMP2=$(echo $TMP1 | awk -F, '{print $1}')
+            TMP3=$(echo $TMP1 | awk -F, '{print $2}')
+            echo $UUSER | awk -v TMP2="$TMP2" -v TMP3="$TMP3" -F: '{printf "%-7s %-19s %-19s %s\n", $1, TMP2, TMP3, $6}'
+        else
+            echo $UUSER | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
+        fi
+    done
 else
     UUSER=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | sort | grep -E ":$1[,:]")
     if [[ -z $UUSER ]]; then
