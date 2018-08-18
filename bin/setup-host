@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180719
+# .sh/bin/setup-host 20170524 - 20180818
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -12,6 +12,7 @@ HLIST="
   ca-certificates
   curl
   git
+  iputils-ping
   iptables
   mutt
   nano
