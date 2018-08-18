@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20180802
+# .sh/bin/newssl 20160121 - 20180818
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
-set -x
+
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: newssl domain [subd subd...[--force][0.0.0.0]]" && exit 1
 
@@ -49,7 +49,7 @@ echo "WELLKNOWN=$WACME" > config
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
-        if [[ $SUBDS =~ mail.$VHOST ]]; then
+        if [[ mail.$VHOST =~ "$SUBDS" ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
@@ -63,7 +63,7 @@ server {
 EOS
         fi
 
-        if [[ $SUBDS =~ www.$VHOST ]]; then
+        if [[ www.$VHOST =~ "$SUBDS" ]]; then
             cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
