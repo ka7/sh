@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvdns 20180709 - 20180728
+# .sh/bin/addvdns 20180709 - 20180819
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.com
@@ -7,9 +7,18 @@
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvdns domain.name IP [sshkey]" && exit 1
 
-[[ -z $SW_API_ID ]] && echo "ERROR: missing or empty SW_API_ID" && exit 2
-[[ -z $SW_API_KEY ]] && echo "ERROR: missing or empty SW_API_KEY" && exit 3
-[[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 4
+if [[ ! -f /usr/local/bin/vultr ]]; then
+    cd /tmp
+    wget -q https://github.com/JamesClonk/vultr/releases/download/1.15.0/vultr_1.15.0_Linux-64bit.tar.gz
+    tar xf vultr_1.15.0_Linux-64bit.tar.gz
+    sudo mv vultr /usr/local/bin/vultr
+    echo "+++ Looks like a first time setup, get you API key and setup SCRIPTID/SSHKEYID at https://my.vultr.com"
+    exit 2
+fi
+
+[[ -z $SW_API_ID ]] && echo "ERROR: missing or empty SW_API_ID" && exit 3
+[[ -z $SW_API_KEY ]] && echo "ERROR: missing or empty SW_API_KEY" && exit 4
+[[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 5
 
 VHOST=$1
 IP4_0=$2

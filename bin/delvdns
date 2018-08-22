@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/delvdns 20180709 - 20180710
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 # First obtain your API key from your account section at https://my.vultr.com
 # then add "export VULTR_API_KEY=YOUR_API_KEY" to ~/.myrc (use the es alias)
 
