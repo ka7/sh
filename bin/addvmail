@@ -6,12 +6,11 @@ set -x
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+source /root/.shrc || exit 3 # for VPATH and SQCMD
+
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VUSER=${EMAIL%@*} # $VUSER @ domain
-
-source /root/.shrc || exit 3 # for VPATH and SQCMD
-
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER" 
 
