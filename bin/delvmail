@@ -12,7 +12,7 @@ source ~/.vhosts/$VHOST || exit 3
 
 VUSER=${1%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
-MPATH="$HPATH/$VUSER"
+MPATH="$HPATH/${VUSER,,}" # lowercase $VUSER
 
 if [[ -d $MPATH ]]; then
     echo "*** Remove $MPATH"
