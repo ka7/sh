@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # .sh/bin/delvmail 20170418 - 20180826
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
 [[ $EUID -gt 0 ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
 
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
-VUSER=${EMAIL%@*} # $VUSER @ domain
 
 source ~/.vhosts/$VHOST || exit 3
 
+VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER"
 

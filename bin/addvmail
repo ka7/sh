@@ -8,10 +8,10 @@
 
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
-VUSER=${EMAIL%@*} # $VUSER @ domain
 
 source /root/.vhosts/$VHOST || exit 3 # for VPATH and SQCMD
 
+VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER" 
 
