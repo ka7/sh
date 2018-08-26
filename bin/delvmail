@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/delvmail 20170418 - 20180503
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
 [[ $EUID -gt 0 ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
