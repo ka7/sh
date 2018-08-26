@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/addvmail 20170418 - 20180826
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
@@ -10,7 +10,7 @@ EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VUSER=${EMAIL%@*} # $VUSER @ domain
 
-source ~/.shrc || exit 3 # for VPATH and SQCMD
+source /root/.shrc || exit 3 # for VPATH and SQCMD
 
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER" 
