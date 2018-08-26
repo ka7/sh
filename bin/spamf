@@ -6,11 +6,18 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.shrc || exit 3 # only for SQCMD
+EMAIL=${1,,} # lowercase user@domain
+VHOST=${EMAIL#*@} # userid @ $VHOST
+VUSER=${EMAIL%@*} # $VUSER @ domain
 
-SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$1'" | $SQCMD)
+source ~/.vhosts/$VHOST || exit 3
 
-[[ -z $SPAMF ]] && echo "ERROR: no such user '$1'" && exit 4
+HPATH="$VPATH/$VHOST/home"
+MPATH="$HPATH/$VUSER"
+
+SPAMF=$(echo "SELECT spamf FROM vmails WHERE user='$EMAIL'" | $SQCMD)
+
+[[ -z $SPAMF ]] && echo "ERROR: no such user '$EMAIL'" && exit 4
 
 source ~/.vhosts/${1#*@} || exit 5
 
@@ -18,26 +25,26 @@ VUSER=${1%@*}
 
 if [[ $2 && $2 == on ]]; then
     if [[ $SPAMF -eq 1 ]]; then
-        echo "Spam setting for $1 is already ON"
+        echo "Spam setting for $EMAIL is already ON"
     else
-        echo "Spam setting for $1 is now ON"
-        echo "UPDATE vmails SET spamf=1 WHERE user='$1'" | $SQCMD
+        echo "Spam setting for $EMAIL is now ON"
+        echo "UPDATE vmails SET spamf=1 WHERE user='$EMAIL'" | $SQCMD
         cd $MPATH/$VUSER
         ln -s sieve/spamprobe.sieve .dovecot.sieve
         chown $(stat -c "%u:%g" $MPATH) -R $MPATH/$VUSER
     fi
 elif [[ $2 && $2 == off ]]; then
     if [[ $SPAMF -eq 0 ]]; then
-        echo "Spam setting for $1 is already OFF"
+        echo "Spam setting for $EMAIL is already OFF"
     else
-        echo "Spam setting for $1 is now OFF"
-        echo "UPDATE vmails SET spamf=0 WHERE user='$1'" | $SQCMD
+        echo "Spam setting for $EMAIL is now OFF"
+        echo "UPDATE vmails SET spamf=0 WHERE user='$EMAIL'" | $SQCMD
         cd $MPATH/$VUSER
         [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
         [[ -f .dovecot.svbin ]] && rm .dovecot.svbin
     fi
 else
-    echo "Spam setting for $1 is $([[ $SPAMF -eq 1 ]] && echo ON || echo OFF)"
+    echo "Spam setting for $EMAIL is $([[ $SPAMF -eq 1 ]] && echo ON || echo OFF)"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

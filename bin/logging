@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180423
+# .sh/bin/logging 20170417 - 20180826
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
@@ -18,7 +18,7 @@ FIND="/usr/bin/find"
 
 log_vhost()
 {
-    local UPATH=$VPATH/$1
+    local UPATH=$VPATH/${1,,}
     local MPATH=$UPATH/home
     local WPATH=$UPATH/var/www
     local UDU=0; local MDU=0; local WDU=0;
@@ -66,7 +66,7 @@ log_vhost()
 
 log_vmail()
 {
-    local MPATH=$VPATH/$1/home
+    local MPATH=$VPATH/${1,,}/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
 
