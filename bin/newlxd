@@ -53,10 +53,10 @@ lxc exec $_HOST -- bash -c "echo $_HOST > /etc/hostname; hostname $_HOST"
 echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
 lxc exec $_HOST -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 
-echo "--- Wait for network to become available..."
+echo "--- Wait 60 secs for network to become available..."
 lxc exec $_HOST -- systemctl restart systemd-networkd
 
-sleep 15
+sleep 60
 
 echo "--- Update current package list"
 lxc exec $_HOST -- apt-get -qq update
