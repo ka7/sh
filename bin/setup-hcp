@@ -88,18 +88,25 @@ else
     echo $DPASS > $WPATH/hcp/lib/.ht_pw
 fi
 
-if [[ -d $WPATH/webmail ]]; then
-    echo "@@@ $WPATH/webmail already exists"
+if [[ -d $WPATH/rainloop ]]; then
+    echo "@@@ $WPATH/rainloop already exists"
 else
-    echo "@@@ Setup rainloop in $WPATH/webmail"
-#    cd $UPATH/var
-#    mkdir $WPATH/webmail
-#    cd $WPATH/webmail
+    echo "@@@ Setup rainloop in $WPATH"
     cd $WPATH
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip
-    [[ -f index.html ]] && rm index.html
+#    [[ -f index.html ]] && rm index.html
+
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+Webmail
+=========
+
+Webmail: https://$VHOST/index.php?admin
+Username: admin
+Password: 12345 (default password, must be changed and remove index.html)
+
+EOS
 fi
 
 if [[ $DTYPE == mysql ]]; then
