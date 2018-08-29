@@ -1,38 +1,24 @@
 #!/usr/bin/env bash
 # .sh/bin/addnc 20180829 - 20180829
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addnc domain [path]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-if [[ -f ~/.vhosts/$1 ]]; then
-    source ~/.vhosts/$1
-else
-    echo "!!! ERROR: set up vhost config first, ie;"
-    echo "    sethost $1 [mysql] [IP]"
-    echo "    gethost > ~/.vhosts/$1"
-    echo "    chmod 600 ~/.vhosts/$1"
-    exit 3
-fi
-
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 4
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 5
+source /root/.vhosts/$VHOST || exit 3
 
 FPATH=${2:-''}
 
 if [[ $FPATH ]]; then
-    WPURL=$SCHEME$VHOST/$FPATH
+    WPURL=https://$VHOST/$FPATH
     FPATH=$WPATH/$FPATH
 else
-    WPURL=$SCHEME$VHOST
+    WPURL=https://$VHOST
     FPATH=$WPATH
 fi
 
-# Exception: keep wp-* tables out of $ADMIN (sysadm) database
-if [[ $DNAME == $ADMIN ]]; then
-    DNAME=${VHOST//[.-]/_}
-fi
+[[ -f $FPATH/wp-config.php ]] && echo "!!! Wordpress installed, use delwp" && exit 4
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
     echo "!!! '$DNAME' database already exists"
@@ -43,7 +29,7 @@ else
     mysql -e "FLUSH PRIVILEGES"
 fi
 
-if [ -f "$FPATH/occ" ]; then
+if [[ -f $FPATH/occ ]]; then
     echo "!!! Nextcloud already installed"
 else
     echo "!!! Download Nextcloud"
@@ -58,7 +44,7 @@ else
         mv $FPATH ${FPATH}_old
     fi
     mv nextcloud $FPATH
-    chown $U_UID:www-data -R $FPATH
+    chperms $VHOST
 fi
 
 if [[ -f $FPATH/occ ]]; then
@@ -70,19 +56,19 @@ php occ maintenance:install \
   --database-name $DNAME \
   --database-user $DUSER \
   --database-pass $DPASS \
-  --admin-user sysadm \
+  --admin-user $ADMIN \
   --admin-pass $APASS
+
+php occ config:system:set trusted_domains 1 --value=$VHOST
 "
 fi
-
-chperms $vhost
 
 cat << EOS | tee -a /root/.vhosts/$vhost.conf
 Nextcloud
 =========
 
-Nextcloud: $WPURL/admin/
-Username: sysadm
+Nextcloud: $WPURL/login
+Username: $ADMIN
 Password: $APASS
 
 EOS

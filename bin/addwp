@@ -57,7 +57,7 @@ else
     mysql -e "FLUSH PRIVILEGES"
 fi
 
-if [ -f "$FPATH/wp-config.php" ]; then
+if [[ -f $FPATH/wp-config.php ]]; then
     echo "!!! Wordpress already installed"
 else
     echo "!!! Download Wordpress"
