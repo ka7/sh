@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/addnc 20180829 - 20180829
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addnc domain [path]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
@@ -73,16 +73,17 @@ php occ maintenance:install \
   --admin-user sysadm \
   --admin-pass $APASS
 "
+fi
 
 chperms $vhost
 
 cat << eos | tee -a /root/.vhosts/$vhost.conf
-WordPress
+Nextcloud
 =========
 
 Nextcloud: $WPURL/admin/
-Username: admin
-Password: $WPASS
+Username: sysadm
+Password: $APASS
 
 EOS
 
