@@ -48,11 +48,11 @@ if [ -f "$FPATH/occ" ]; then
 else
     echo "!!! Download Nextcloud"
     cd $UPATH/var
-    if [[ ! -f latest.tar.gz ]]; then
+    if [[ ! -f latest.tar.bz2 ]]; then
         wget -nv --no-check-certificate https://download.nextcloud.com/server/releases/latest.tar.bz2
     fi
-    tar xf latest.tar.gz
-    rm latest.tar.gz
+    tar xf latest.tar.bz2
+    rm latest.tar.bz2
     if [[ -d $FPATH ]]; then
         [[ -d ${FPATH}_old ]] && rm -rf ${FPATH}_old
         mv $FPATH ${FPATH}_old
@@ -77,7 +77,7 @@ fi
 
 chperms $vhost
 
-cat << eos | tee -a /root/.vhosts/$vhost.conf
+cat << EOS | tee -a /root/.vhosts/$vhost.conf
 Nextcloud
 =========
 
