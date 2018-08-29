@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20180713
+# .sh/bin/setup-hcp 20170519 - 20180829
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -99,6 +99,7 @@ else
     wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
     unzip rainloop-latest.zip > /dev/null 2>&1
     rm rainloop-latest.zip
+    [[ -f index.html ]] && rm index.html
 fi
 
 if [[ $DTYPE == mysql ]]; then
