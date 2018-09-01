@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/allssl 20170304 - 20180303
+# .sh/bin/allssl 20170304 - 20180901
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
@@ -46,7 +46,7 @@ for i in $ALL; do
     sleep 1
 done
 
-[[ -d /etc/nginx ]] && serva reload web
-[[ -d /etc/postfix ]] && serva reload mail
+[[ -d /etc/nginx ]] && ~/.sh/bin/serva reload web
+[[ -d /etc/postfix ]] && ~/.sh/bin/serva reload mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
