@@ -2,7 +2,7 @@
 # .sh/bin/addvhost 20170217 - 20180909
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [plan(personal|business)] [ip] [nossl]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [plan(personal|business)] [ip] [nossl] [nowp]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -14,7 +14,8 @@ source /root/.shrc || exit 3
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
 USEIP=${3:-''}
-DOSSL=${4:-'ssl'}
+DOSSL=${4:-''}
+DO_WP=${5:-''}
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
@@ -275,7 +276,7 @@ EOS
     fi
     serva restart nginx
 else
-    newssl $VHOST cdn www $USEIP > /dev/null 2>&1
+    newssl $VHOST mail www $USEIP > /dev/null 2>&1
 fi
 
 addvmail $VUSER@$VHOST
@@ -299,7 +300,7 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
 EOS
 )
 
-if [[ -d $WPATH && $DTYPE == mysql && ! $VHOST == $AHOST ]]; then
+if [[ -d $WPATH && $DTYPE == mysql && $VHOST != $AHOST && $DO_WP != nowp ]]; then
     addwp $VHOST
     [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
     [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
