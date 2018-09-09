@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180719
+# .sh/bin/addvhost 20170217 - 20180909
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [uuser@domain|domain] [plan(personal|business)] [nossl] [ip]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [plan(personal|business)] [ip] [nossl]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -13,8 +13,8 @@ source /root/.shrc || exit 3
 
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
-DOSSL=${3:-'ssl'}
-USEIP=${4:-''}
+USEIP=${3:-''}
+DOSSL=${4:-'ssl'}
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
@@ -35,7 +35,7 @@ fi
 
 source /root/.vhosts/$VHOST
 
-# This "plans" section has to be moved into a database
+# This "plans" section needs to be moved into a database
 if [[ $2 == business ]]; then
     V_ALIASES="100"
     V_DISKQUOTA="10000000000"
@@ -99,25 +99,6 @@ DO_VHOST=$(cat << EOS | $SQCMD
 )
 EOS
 )
-
-# Not needed with new daily logging script and tables
-#HID=$(cat << EOS | $SQCMD
-# SELECT id FROM vhosts
-#  WHERE domain = '$VHOST'
-#EOS
-#)
-#
-#echo "!!! Create $VHOST entry in $ADMIN.vhost_log ($DTYPE)"
-#DO_VHOSTLOG=$(cat << EOS | $SQCMD
-# INSERT INTO vhost_log (
-#        hid,
-#        ymd
-#) VALUES (
-#        $HID,
-#        '$YMD'
-#)
-#EOS
-#)
 
 if [[ -d $C_FPM ]]; then
     if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
