@@ -13,6 +13,10 @@ if [[ ! -f /usr/local/bin/vultr ]]; then
     tar xf vultr_1.15.0_Linux-64bit.tar.gz
     sudo mv vultr /usr/local/bin/vultr
     echo "+++ Looks like a first time setup, get you API key and setup SCRIPTID/SSHKEYID at https://my.vultr.com"
+    if [[ ! -e /usr/bin/php ]]; then
+        source ~/.myrc || exit 2
+        apt install php-$V_PHP-cli php-$V_PHP-soap
+    fi
     exit 2
 fi
 
