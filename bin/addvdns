@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvdns 20180709 - 20180819
+# .sh/bin/addvdns 20180709 - 20180909
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.com
@@ -36,6 +36,10 @@ fi
 
 echo "+++ Add basic DNS records for $VHOST"
 vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null
+
+echo "+++ Delete CNAME wildcard record for $VHOST"
+RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
+vultr dns record delete -d $VHOST -r $RECID > /dev/null
 
 echo "+++ Update MX record to mail.$VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
