@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/create-vultr 20180619 - 20180716
+# .sh/bin/create-vultr 20180619 - 20180910
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
@@ -54,7 +54,7 @@ fi
 # --hostname=host.domain.name (same as -n)
 
 [[ -z $1 || $1 =~ -h ]] && \
-    echo "Usage: create-vultr hostname.domain.name [regionid] [planid] [sshkeyid] [scriptid] [osid]" && exit 1
+    echo "Usage: setup-vultr hostname.domain.name [regionid] [planid] [sshkeyid] [scriptid] [osid]" && exit 1
 
 AHOST=$1
 # Change these defaults below for your preferred plan and region etc
