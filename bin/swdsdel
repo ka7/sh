@@ -29,6 +29,7 @@ try {
 
     if ($output->status == 'OK') {
 //        var_export($output->DSData);
+
         foreach($output->DSData as $ds) {
             if (isset($ds->UUID)) {
                 $data['UUID'] = $ds->UUID;
@@ -38,6 +39,7 @@ try {
                 }
             }
         }
+
     } else {
         print_r($output);
     }
