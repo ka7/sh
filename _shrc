@@ -1,7 +1,7 @@
-# .sh/_shrc 20130315 - 20180610
+# .sh/_shrc 20130315 - 20181006
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:~/.sh/bin
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
 VHOST=$(hostname -f|tr 'A-Z' 'a-z')
 MAILTO=admin@$VHOST

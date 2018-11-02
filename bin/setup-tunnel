@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-ssh 20170521 - 20181102
+# .sh/bin/setup-tunnel 20181102 - 20181102
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkeyname]" && exit 1
+    echo "Usage: setup-tunnel domain [targethost] [user] [port] [sshkeyname]" && exit 1
 
 VHOST=$1
 THOST=${2:-$VHOST}

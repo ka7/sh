@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# .sh/bin/cfadddns 20181002 - 20181002
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# See setup-cf
+
+[[ -z $4 || $1 =~ -h ]] && echo "Usage: cfadddns domain name type content [priority(0)] [proxied(false|true)]" && exit 1
+
+[[ -z $CF_HOST_API_KEY ]] && echo "ERROR: CF_HOST_API_KEY is empty" && exit 2
+[[ -z $CF_USER_API_KEY ]] && echo "ERROR: CF_USER_API_KEY is empty" && exit 3
+
+_PRIO=${5:-'0'}
+PROXY=${6:-'false'}
+ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
+    -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+    -H "X-Auth-Key: $CF_USER_API_KEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '{"result"}[] | .[0] | .id')
+set -x
+if [[ $ZONID ]]; then
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"name":"'$2'","type":"'$3'","content":"'$4'","ttl":1,"priority":'$_PRIO',"proxied":'$PROXY'}' \
+        | jq -r '.errors[] | .message'
+else
+    echo "!!! Warning: no ZONE_ID for $1"
+fi

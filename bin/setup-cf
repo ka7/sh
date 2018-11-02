@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-cf 20181002 - 20181007
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Create a PARTNER account at https://partners.cloudflare.com and take
+# note of your email address and password. Once logged in then get your
+# Host API Key from https://partners.cloudflare.com/api-management
+
+[[ -z $3 || $1 =~ -h ]] && \
+    echo "Usage: setup-cf email password host_key" && exit 1
+
+_JSON=$(curl -s -X POST https://api.cloudflare.com/host-gw.html \
+    -d "act=user_create" \
+    -d "cloudflare_email=$1" \
+    -d "cloudflare_pass=$2" \
+    -d "host_key=$3")
+
+CF_USER_KEY=$(echo $_JSON | jq -r '.response.user_key')
+CF_USER_API_KEY=$(echo $_JSON | jq -r '.response.user_api_key')
+
+if [[ -z $CF_USER_KEY ]]; then
+    echo "ERROR: CF_USER_KEY is empty" && exit 2
+elif [[ -z $CF_USER_API_KEY ]]; then
+    echo "ERROR: CF_USER_API_KEY is empty" && exit 3
+else
+    echo "!!! Add these export variables to your bash profile (use 'es')"
+    echo
+    echo "export CF_PARTNER_EMAIL='$1'"
+    echo "export CF_PARTNER_PASS='$2'"
+    echo "export CF_HOST_API_KEY='$3'"
+    echo "export CF_USER_KEY='$CF_USER_KEY'"
+    echo "export CF_USER_API_KEY='$CF_USER_API_KEY'"
+fi

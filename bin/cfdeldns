@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# .sh/bin/cfdeldns 20181002 - 20181007
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# See setup-cf
+
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: cfdeldns zone_id record_id (use cfzones domain)" && exit 1
+
+[[ -z $CF_PARTNER_KEY ]] && echo "ERROR: CF_PARTNER_KEY is empty" && exit 2
+[[ -z $CF_USER_KEY ]] && echo "ERROR: CF_USER_KEY is empty" && exit 3
+
+_JSON=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$1/dns_records/$2" \
+     -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+     -H "X-Auth-Key: $CF_USER_API_KEY" \
+     -H "Content-Type: application/json")
+
+RESULT=$(echo $_JSON | jq -r '.success')
+
+if [[ $RESULT =~ false ]]; then
+    echo $_JSON | jq .
+else
+    echo "Successfully removed DNS record"
+fi

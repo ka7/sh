@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/ddns 20180606 - 20180607
+# .sh/bin/ddns 20180606 - 20181102
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # This script needs to be on a 1 to 5 minute cron job and requires a
@@ -8,15 +8,19 @@
 #
 # ~ cat /etc/cron.d/ddns
 # MAILTO=YOUR@EMAIL.ADDRESS
-# */5 * * * * root /root/.sh/bin/ddns DOMAIN APIKEY https://DNS_SERVER/ddns.php
+# */5 * * * * root /root/.sh/bin/ddns DOMAIN SUBDOMAIN APIKEY https://DNS_SERVER/hcp/lib/php/ddns.php username:password
 
-[[ $1 =~ "-h" ]] && echo "Usage: ddns [domain] [apikey] [dns script]" && exit 1
+[[ $1 =~ "-h" ]] && \
+    echo "Usage: ddns [domain] [subdomain|''] [apikey] [dns script] [http auth(use:pw)] [email]" && exit 1
 
-# Either pass the 3 values above or hardwire them below between the ''
+# Either pass the 6 values above or hardwire them below between the ''
 
-DDNS_FOR=${1:-''}
-DDNS_KEY=${2:-''}
-DDNS_URL=${3:-''}
+DDNS_FOR=${1:-''} # Target client FQDN domainname
+DDNS_SUB=${2:-''} # Optional subdomain (or use '')
+DDNS_KEY=${3:-''} # API Key (must match ddns.php)
+DDNS_URL=${4:-''} # Remote DNS server (ddns.php)
+DDNS_USR=${5:-''} # HTTP auth username:password
+DDNS_MSG=${6:-''} # Email address for messages (default admin@$DDNS_FOR)
 
 OLDIP=
 
@@ -30,7 +34,9 @@ if [[ $? -gt 0 ]]; then
     echo "'$NEWIP' is not a valid IP (old IP is $OLDIP)"
 elif [[ -z $OLDIP || $NEWIP != $OLDIP ]]; then
     echo $NEWIP > /var/tmp/ip
-    curl -s "$DDNS_URL?key=$DDNS_KEY&for=$DDNS_FOR"
+    [[ $DDNS_USR ]] && TMP_USR="--user=$DDNS_USR" || TMP_USR=""
+    [[ $DDNS_MSG ]] && TMP_MSG="&msg=$DDNS_MSG" || TMP_MSG=""
+    curl -s $TMP_USR "$DDNS_URL?key=$DDNS_KEY&for=$DDNS_FOR&sub=$DDNS_SUB$TMP_MSG"
 fi
 
 #systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

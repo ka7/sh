@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# .sh/bin/addcfdns 20181002 - 20181002
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# See setup-cf
+
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addcfdns domain IP" && exit 1
+
+[[ -z $CF_HOST_API_KEY ]] && echo "ERROR: CF_HOST_API_KEY is empty" && exit 2
+[[ -z $CF_USER_KEY ]] && echo "ERROR: CF_USER_KEY is empty" && exit 3
+
+echo -ne "!!! Adding Full Zone for $1 - "
+curl -s https://api.cloudflare.com/host-gw.html \
+    -d "host_key=$CF_HOST_API_KEY" \
+    -d "user_key=$CF_USER_KEY" \
+    -d "act=full_zone_set" \
+    -d "zone_name=$1" \
+    | jq -r '.msg'
+
+ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
+    -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+    -H "X-Auth-Key: $CF_USER_API_KEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '.result[] | [.name,.id] | join("\t")' \
+    | awk "/^$1/ {print \$2}")
+
+if [[ $ZONE_ID ]]; then
+
+    echo -ne "!!! Adding $1\tA\t$2\t- "
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"type":"A","name":"'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' \
+        | jq -r '.errors[] | .message'
+
+    echo -ne "!!! Adding www.$1\tA\t$2\t- "
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"type":"A","name":"www.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' \
+        | jq -r '.errors[] | .message'
+
+    echo -ne "!!! Adding mail.$1\tA\t$2\t- "
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"type":"A","name":"mail.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' \
+        | jq -r '.errors[] | .message'
+
+    echo -ne "!!! Adding $1\tMX\tmail.$1\t- "
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"type":"MX","name":"'$1'","content":"mail.'$1'","ttl":1,"priority":10,"proxied":false}' \
+        | jq -r '.errors[] | .message'
+
+    echo -ne "!!! Adding $1\tTXT\t'v=spf1 ip4:$2/32 -all'\t- "
+    curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data '{"type":"TXT","name":"'$1'","content":"v=spf1 ip4:'$2'/32 -all","ttl":1,"priority":0,"proxied":false}' \
+        | jq -r '.errors[] | .message'
+
+    CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
+        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result.name_servers | join(" ")')
+
+    swdsdel $1
+    swchangens $1 $CF_NS
+
+else
+    echo "!!! Warning: no ZONE_ID for $1 ($2)"
+fi
