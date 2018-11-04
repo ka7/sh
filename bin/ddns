@@ -28,6 +28,8 @@ OLDIP=
 
 NEWIP=$(curl -s https://canihazip.com/s)
 
+[[ -z $NEWIP ]] && exit
+
 echo $NEWIP | grep -qE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"
 
 if [[ $? -gt 0 ]]; then
