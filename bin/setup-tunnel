@@ -1,15 +1,38 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-tunnel 20181102 - 20181102
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
-[[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: setup-tunnel domain [targethost] [user] [port] [sshkeyname]" && exit 1
 
-VHOST=$1
+[[ -z $1 || $1 =~ '-h' ]] && \
+    echo "Usage: setup-tunnel forward|reverse|list [targethost] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
+
+if [[ $1 == list ]]; then
+    stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
+#echo $?
+    if [[ $? -eq 0 ]]; then
+        echo "Tunnel files exit"
+    else
+        echo "No tunnel systemd services files exit"
+    fi
+    exit
+elif [[ $1 == forward ]]; then
+    T_ARG='-L'
+    T_STR=Forward
+elif [[ $1 == reverse ]]; then
+    T_ARG='-R'
+    T_STR=Reverse
+else
+    echo "Tunnel direction must be forward or reverse"
+    exit
+fi
+
 THOST=${2:-$VHOST}
-SUSER=${3:-'root'}
-SPORT=${4:-'9'}
-S_KEY=${5:-'id_rsa'}
+LPORT=${3:-'9999'}
+RPORT=${4:-'9999'}
+LUSER=${5:-'tunnel'}
+RUSER=${6:-'tunnel'}
+SPORT=${7:-'9'}
+S_KEY=${8:-'id_rsa'}
+SOPTS="-NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ ! -d ~/.ssh ]]; then
     echo ">>> Create local ~/.ssh dir"
@@ -17,30 +40,25 @@ if [[ ! -d ~/.ssh ]]; then
     chmod 700 ~/.ssh
 fi
 
-if [[ ! -f ~/.ssh/$S_KEY ]]; then
-    echo ">>> Create local ~/.ssh/$S_KEY key"
-    ssh-keygen -b 2048 -t rsa -f ~/.ssh/$S_KEY -N '' > /dev/null
-    chmod 600 ~/.ssh/$S_KEY*
-    echo ">>> Copy public key to $SUSER@$VHOST:.ssh/authorized_keys and chmod 600"
-    echo
-    cat ~/.ssh/$S_KEY.pub
-    echo
-fi
+service_file() {
+#mbox2 ~ cat /etc/systemd/system/tunnel-9090.service
+   cat << EOS
+[Unit]
+Description=$T_STR SSH Tunnel
+ConditionPathExists=|/usr/bin
+After=network.target
 
-grep -q -E "^Host $VHOST\$" ~/.ssh/config
-if [[ $? -eq 1 ]]; then
-    echo ">>> Create SSH config entry"
-    echo "Host $VHOST
-  User $SUSER
-  Port $SPORT
-  Hostname $THOST
-  IdentityFile ~/.ssh/$S_KEY
-" > ~/.ssh/config.tmp
-    cat ~/.ssh/config >> ~/.ssh/config.tmp
-    mv ~/.ssh/config.tmp ~/.ssh/config
-    chmod 600 ~/.ssh/config
-else
-    echo "Warning: ~/.ssh/config entry for $1 already exists"
-fi
+[Service]
+User=$LUSER
+ExecStart=/usr/bin/ssh SOPTS -i /home/$LUSER/.ssh/$S_KEY $T_ARG $LPORT:localhost:$RPORT -p$SPORT $RUSER@$THOST
+RestartSec=3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOS
+}
+
+service_file $*
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

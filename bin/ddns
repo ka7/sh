@@ -34,7 +34,7 @@ if [[ $? -gt 0 ]]; then
     echo "'$NEWIP' is not a valid IP (old IP is $OLDIP)"
 elif [[ -z $OLDIP || $NEWIP != $OLDIP ]]; then
     echo $NEWIP > /var/tmp/ip
-    [[ $DDNS_USR ]] && TMP_USR="--user=$DDNS_USR" || TMP_USR=""
+    [[ $DDNS_USR ]] && TMP_USR="-u $DDNS_USR" || TMP_USR=""
     [[ $DDNS_MSG ]] && TMP_MSG="&msg=$DDNS_MSG" || TMP_MSG=""
     curl -s $TMP_USR "$DDNS_URL?key=$DDNS_KEY&for=$DDNS_FOR&sub=$DDNS_SUB$TMP_MSG"
 fi
