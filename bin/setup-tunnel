@@ -26,7 +26,18 @@ elif [[ $1 == del ]]; then
         echo "/etc/systemd/system/$2 does not exist"
     fi
     exit 4
-elif [[ $1 == forward ]]; then
+fi
+
+THOST=${2:-$VHOST}
+LPORT=${3:-'9999'}
+RPORT=${4:-'9999'}
+LUSER=${5:-'tunnel'}
+RUSER=${6:-'tunnel'}
+SPORT=${7:-'9'}
+S_KEY=${8:-'id_rsa'}
+SOPTS="-v -NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
+
+if [[ $1 == forward ]]; then
     T_ARG='-L'
     T_STR=Forward
 elif [[ $1 == reverse ]]; then
@@ -37,14 +48,6 @@ else
     exit 5
 fi
 
-THOST=${2:-$VHOST}
-LPORT=${3:-'9999'}
-RPORT=${4:-'9999'}
-LUSER=${5:-'tunnel'}
-RUSER=${6:-'tunnel'}
-SPORT=${7:-'9'}
-S_KEY=${8:-'id_rsa'}
-SOPTS="-NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ ! -d ~/.ssh ]]; then
     echo ">>> Create local ~/.ssh dir"
@@ -80,6 +83,7 @@ EOS
 if [[ $1 == forward || $1 == reverse ]]; then
     service_file $* > /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service
     systemctl daemon-reload
+    sleep 1
     systemctl start tunnel-${LPORT}-${RPORT}.service
     systemctl enable tunnel-${LPORT}-${RPORT}.service >/dev/null 2>&1
     echo "Added /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service"
