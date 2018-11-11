@@ -18,9 +18,10 @@ if [[ $1 == list ]]; then
 elif [[ $1 == del ]]; then
     if [[ -f /etc/systemd/system/$2 ]]; then
         systemctl stop $2
-        systemctl disable $2
+        systemctl disable $2 >/dev/null 2>&1
         rm /etc/systemd/system/$2
         systemctl daemon-reload
+        echo "Removed /etc/systemd/system/$2"
     else
         echo "/etc/systemd/system/$2 does not exist"
     fi
@@ -80,7 +81,8 @@ if [[ $1 == forward || $1 == reverse ]]; then
     service_file $* > /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service
     systemctl daemon-reload
     systemctl start tunnel-${LPORT}-${RPORT}.service
-    systemctl enable tunnel-${LPORT}-${RPORT}.service
+    systemctl enable tunnel-${LPORT}-${RPORT}.service >/dev/null 2>&1
+    echo "Added /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
