@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-tunnel 20181102 - 20181102
+# .sh/bin/setup-tunnel 20181102 - 20181111
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: setup-tunnel forward|reverse|list [targethost] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
+    echo "Usage: setup-tunnel forward|reverse|list|del [targethost|tunnel-*.service file] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
@@ -15,6 +15,16 @@ if [[ $1 == list ]]; then
         echo "No systemd tunnel files exit"
     fi
     exit 3
+elif [[ $1 == del ]]; then
+    if [[ -f /etc/systemd/system/$2 ]]; then
+        systemctl stop $2
+        systemctl disable $2
+        rm /etc/systemd/system/$2
+        systemctl daemon-reload
+    else
+        echo "/etc/systemd/system/$2 does not exist"
+    fi
+    exit 4
 elif [[ $1 == forward ]]; then
     T_ARG='-L'
     T_STR=Forward
@@ -23,7 +33,7 @@ elif [[ $1 == reverse ]]; then
     T_STR=Reverse
 else
     echo "Tunnel setup arguments must be either forward, reverse or list"
-    exit 4
+    exit 5
 fi
 
 THOST=${2:-$VHOST}
