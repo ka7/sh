@@ -5,15 +5,16 @@
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: setup-tunnel forward|reverse|list [targethost] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
 
+[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+
 if [[ $1 == list ]]; then
     stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
-#echo $?
     if [[ $? -eq 0 ]]; then
-        echo "Tunnel files exit"
+        /bin/ls -1 /etc/systemd/system/tunnel*
     else
-        echo "No tunnel systemd services files exit"
+        echo "No systemd tunnel files exit"
     fi
-    exit
+    exit 3
 elif [[ $1 == forward ]]; then
     T_ARG='-L'
     T_STR=Forward
@@ -21,8 +22,8 @@ elif [[ $1 == reverse ]]; then
     T_ARG='-R'
     T_STR=Reverse
 else
-    echo "Tunnel direction must be forward or reverse"
-    exit
+    echo "Tunnel setup arguments must be either forward, reverse or list"
+    exit 4
 fi
 
 THOST=${2:-$VHOST}
@@ -40,6 +41,12 @@ if [[ ! -d ~/.ssh ]]; then
     chmod 700 ~/.ssh
 fi
 
+if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
+    echo "!!! Create $LUSER user"
+    useradd -r $LUSER
+fi
+
+
 service_file() {
 #mbox2 ~ cat /etc/systemd/system/tunnel-9090.service
    cat << EOS
@@ -50,7 +57,7 @@ After=network.target
 
 [Service]
 User=$LUSER
-ExecStart=/usr/bin/ssh SOPTS -i /home/$LUSER/.ssh/$S_KEY $T_ARG $LPORT:localhost:$RPORT -p$SPORT $RUSER@$THOST
+ExecStart=/usr/bin/ssh $SOPTS -i /home/$LUSER/.ssh/$S_KEY $T_ARG $LPORT:localhost:$RPORT -p$SPORT $RUSER@$THOST
 RestartSec=3
 Restart=always
 
@@ -59,6 +66,11 @@ WantedBy=multi-user.target
 EOS
 }
 
-service_file $*
+if [[ $1 == forward || $1 == reverse ]]; then
+    service_file $* > /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service
+    systemctl daemon-reload
+    systemctl start tunnel-${LPORT}-${RPORT}.service
+    systemctl enable tunnel-${LPORT}-${RPORT}.service
+fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
