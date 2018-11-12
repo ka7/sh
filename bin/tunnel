@@ -62,10 +62,12 @@ if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
 mkdir .ssh
 chmod 700 .ssh
 cd .ssh
-ssh-keygen -f ~/.ssh/$S_KEY -N ''
+ssh-keygen -f ~/.ssh/$S_KEY -N '' >/dev/null 2>&1
 chmod 600 *
 cat $S_KEY.pub"
-    echo "Copy public key to remote servers ~/.ssh/authorized_keys and manually 'ssh -p$SPORT $RUSER@$THOST' first"
+    echo "
+Copy above public key to ~/.ssh/authorized_keys on the remote server, then
+test using 'ssh -p $SPORT -i /home/$LUSER/.ssh/$S_KEY $RUSER@$THOST' first"
     exit
 fi
 
