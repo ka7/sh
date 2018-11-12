@@ -57,14 +57,14 @@ fi
 
 if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
     echo "!!! Create $LUSER user"
-    useradd -r $LUSER
+    useradd -r -m $LUSER
     su - $LUSER -c "
 mkdir .ssh
 chmod 700 .ssh
 cd .ssh
-ssh-keygen -N ''
+ssh-keygen -f ~/.ssh/$S_KEY -N ''
 chmod 600 *
-cat id_rsa.pub"
+cat $S_KEY.pub"
     echo "Copy public key to remote servers ~/.ssh/authorized_keys and manually 'ssh -p$SPORT $RUSER@$THOST' first"
     exit
 fi
