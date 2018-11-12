@@ -71,9 +71,12 @@ After=network.target
 
 [Service]
 User=$LUSER
+Type=forking
 ExecStart=/usr/bin/ssh $SOPTS -i /home/$LUSER/.ssh/$S_KEY $T_ARG $LPORT:localhost:$RPORT -p$SPORT $RUSER@$THOST
-RestartSec=3
-Restart=always
+RemainAfterExit=yes
+
+#RestartSec=3
+#Restart=always
 
 [Install]
 WantedBy=multi-user.target
