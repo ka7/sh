@@ -58,11 +58,18 @@ fi
 if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
     echo "!!! Create $LUSER user"
     useradd -r $LUSER
+    su - $LUSER -c "
+mkdir .ssh
+chmod 700 .ssh
+cd .ssh
+ssh-keygen -N ''
+chmod 600 *
+cat id_rsa.pub"
+    echo "Copy public key to remote servers ~/.ssh/authorized_keys and manually 'ssh -p$SPORT $RUSER@$THOST' first"
+    exit
 fi
 
-
 service_file() {
-#mbox2 ~ cat /etc/systemd/system/tunnel-9090.service
    cat << EOS
 [Unit]
 Description=$T_STR SSH Tunnel
