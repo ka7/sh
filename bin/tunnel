@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-tunnel 20181102 - 20181111
+# .sh/bin/tunnel 20181102 - 20181112
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: setup-tunnel forward|reverse|list|del [targethost|tunnel-*.service file] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
+    echo "Usage: tunnel forward|reverse|list|del [targethost|tunnel-*.service file] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
