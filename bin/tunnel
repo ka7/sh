@@ -74,14 +74,14 @@ fi
 service_file() {
    cat << EOS
 [Unit]
-Description=$T_STR SSH Tunnel
+Description=${T_STR} SSH Tunnel
 ConditionPathExists=|/usr/bin
 After=network.target
 
 [Service]
-User=$LUSER
+User=${LUSER}
 Type=forking
-ExecStart=/usr/bin/ssh $SOPTS -i /home/$LUSER/.ssh/$S_KEY $T_ARG $LPORT:localhost:$RPORT -p$SPORT $RUSER@$THOST
+ExecStart=/usr/bin/ssh ${SOPTS} -i ~${LUSER}/.ssh/${S_KEY} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
 RemainAfterExit=yes
 
 #RestartSec=3
