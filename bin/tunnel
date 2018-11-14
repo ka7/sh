@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/tunnel 20181102 - 20181112
+# .sh/bin/tunnel 20181102 - 20181114
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
@@ -16,14 +16,16 @@ if [[ $1 == list ]]; then
     fi
     exit 3
 elif [[ $1 == del ]]; then
-    if [[ -f /etc/systemd/system/$2 ]]; then
+    SERVF=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
+    SERVF="/etc/systemd/system/${SERVF}.service"
+    if [[ -f $SERVF ]]; then
         systemctl stop $2
         systemctl disable $2 >/dev/null 2>&1
-        rm /etc/systemd/system/$2
+        rm $SERVF
         systemctl daemon-reload
-        echo "Removed /etc/systemd/system/$2"
+        echo "Removed $SERVF"
     else
-        echo "/etc/systemd/system/$2 does not exist"
+        echo "$SERVF does not exist"
     fi
     exit 4
 fi
@@ -79,11 +81,15 @@ ConditionPathExists=|/usr/bin
 After=network.target
 
 [Service]
+Type=simple
 User=${LUSER}
-Type=forking
+#Type=forking
 ExecStart=/usr/bin/ssh ${SOPTS} -i ~${LUSER}/.ssh/${S_KEY} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
-RemainAfterExit=yes
+RestartSec=10
+Restart=on-success
+RestartForceExitStatus=255
 
+#RemainAfterExit=yes
 #RestartSec=3
 #Restart=always
 
