@@ -35,7 +35,7 @@ elif [[ $1 == del ]]; then
     grep $S_KEY $LHOME/.ssh/authorized_keys
     if [[ $? -eq 0 ]]; then
         echo "Delete public key"
-        sed -i $LHOME/.ssh/authorized_keys "/$S_KEY/d"
+        sed -i $LHOME/.ssh/authorized_keys '/'$S_KEY'/d'
     else
         echo "$S_KEY does not exist in $LHOME/.ssh/authorized_keys"
     fi
