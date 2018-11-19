@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/tunnel 20181102 - 20181114
+# .sh/bin/tunnel 20181102 - 20181118
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: tunnel forward|reverse|list|del [targethost|tunnel-*.service file] [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
+[[ -z $2 || $1 =~ '-h' ]] && \
+    echo "Usage: tunnel forward|reverse|list|del targethost|tunnel-*.service [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+# Tunnels should be able to be set up by a non-root user
+#[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ $1 == list ]]; then
     stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
@@ -16,13 +17,14 @@ if [[ $1 == list ]]; then
     fi
     exit 3
 elif [[ $1 == del ]]; then
-    SERVF=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
-    SERVF="/etc/systemd/system/${SERVF}.service"
+    TUNID=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
+    SERVF="/etc/systemd/system/${TUNID}.service"
     if [[ -f $SERVF ]]; then
-        systemctl stop $2
-        systemctl disable $2 >/dev/null 2>&1
+        systemctl stop $TUNID
+        systemctl disable $TUNID >/dev/null 2>&1
         rm $SERVF
         systemctl daemon-reload
+        ssh -S /tmp/$TUNID.sock -O exit foobar
         echo "Removed $SERVF"
     else
         echo "$SERVF does not exist"
@@ -30,14 +32,16 @@ elif [[ $1 == del ]]; then
     exit 4
 fi
 
-THOST=${2:-$VHOST}
+THOST=${2}
 LPORT=${3:-'9999'}
 RPORT=${4:-'9999'}
 LUSER=${5:-'tunnel'}
 RUSER=${6:-'tunnel'}
 SPORT=${7:-'9'}
 S_KEY=${8:-'id_rsa'}
-SOPTS="-v -NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
+SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
+
+TUNID="tunnel_${LPORT}_${RPORT}"
 
 if [[ $1 == forward ]]; then
     T_ARG='-L'
@@ -67,9 +71,11 @@ cd .ssh
 ssh-keygen -f ~/.ssh/$S_KEY -N '' >/dev/null 2>&1
 chmod 600 *
 cat $S_KEY.pub"
-    echo "
-Copy above public key to ~/.ssh/authorized_keys on the remote server, then
-test using 'ssh -p $SPORT -i /home/$LUSER/.ssh/$S_KEY $RUSER@$THOST' first"
+
+# Unsure how applicable generating this key is, need generic key management
+#    echo "
+#Copy above public key to ~/.ssh/authorized_keys on the remote server, then
+#test using 'ssh -p $SPORT -i /home/$LUSER/.ssh/$S_KEY $RUSER@$THOST' first"
     exit
 fi
 
@@ -84,7 +90,7 @@ After=network.target
 Type=simple
 User=${LUSER}
 #Type=forking
-ExecStart=/usr/bin/ssh ${SOPTS} -i ~${LUSER}/.ssh/${S_KEY} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
+ExecStart=/usr/bin/ssh ${SOPTS} -N -M -S /tmp/${TUNID}.sock -i ~${LUSER}/.ssh/${TUNID} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
 RestartSec=10
 Restart=on-success
 RestartForceExitStatus=255
@@ -99,12 +105,12 @@ EOS
 }
 
 if [[ $1 == forward || $1 == reverse ]]; then
-    service_file $* > /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service
+    service_file $* > /etc/systemd/system/${TUNID}.service
     systemctl daemon-reload
     sleep 1
-    systemctl start tunnel-${LPORT}-${RPORT}.service
-    systemctl enable tunnel-${LPORT}-${RPORT}.service >/dev/null 2>&1
-    echo "Added /etc/systemd/system/tunnel-${LPORT}-${RPORT}.service"
+    systemctl start ${TUNID}.service
+    systemctl enable ${TUNID}.service >/dev/null 2>&1
+    echo "Added /etc/systemd/system/${TUNID}.service"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
