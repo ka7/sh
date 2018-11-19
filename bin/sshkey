@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/sshkey 20181119 - 20181119
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list [sshkey] [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
@@ -34,7 +34,7 @@ elif [[ $1 == del ]]; then
     grep $S_KEY $LHOME/.ssh/authorized_keys
     if [[ $? -eq 0 ]]; then
         echo "Delete public key"
-        sed -i $LHOME/.ssh/authorized_keys '/'"$S_KEY"'/d'
+        sed '/'"$S_KEY"'/d' -i $LHOME/.ssh/authorized_keys
     else
         echo "$S_KEY does not exist in $LHOME/.ssh/authorized_keys"
     fi
