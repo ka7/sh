@@ -34,8 +34,8 @@ fi
 THOST=${2}
 LPORT=${3:-'9999'}
 RPORT=${4:-'9999'}
-LUSER=${5:-'tunnel'}
-RUSER=${6:-'tunnel'}
+LUSER=${5:-'utunnel'}
+RUSER=${6:-'utunnel'}
 SPORT=${7:-'9'}
 SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
@@ -69,8 +69,10 @@ chmod 600 *
 cat $TUNID.pub"
     echo "
 Copy above public key to ~/.ssh/authorized_keys on the remote server then
-test using 'ssh -p $SPORT -i ~$LUSER/.ssh/$TUNID $RUSER@$THOST'
-first before running this tunnel script again."
+test using below command first before running this tunnel script again...
+
+'ssh -o StrictHostKeyChecking=no -p $SPORT -i ~$LUSER/.ssh/$TUNID $RUSER@$THOST'
+"
     exit
 fi
 
