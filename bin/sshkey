@@ -2,6 +2,7 @@
 # .sh/bin/sshkey 20181119 - 20181119
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
+
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list [sshkey] [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
@@ -10,31 +11,32 @@ SKCMD=$1
 S_KEY=${2:-'id_rsa'}
 LUSER=${3:-$USER}
 VHOST=$(hostname -f)
+LHOME=$(eval echo ~$LUSER)
 
-if [[ ! -d ~$LUSER/.ssh ]]; then
-    echo ">>> Create local ~$LUSER/.ssh dir"
-    mkdir ~$LUSER/.ssh
-    chown $LUSER:$LUSER ~$LUSER/.ssh
-    chmod 700 ~$LUSER/.ssh
+if [[ ! -d $LHOME/.ssh ]]; then
+    echo ">>> Create local $LHOME/.ssh dir"
+    mkdir $LHOME/.ssh
+    chown $LUSER:$LUSER $LHOME/.ssh
+    chmod 700 $LHOME/.ssh
 fi
 
 if [[ $1 == add ]]; then
     echo "Add key (paste public key into editor, ctrl-x to save and quit)"
     sleep 2
-    nano -t -x -c ~$LUSER/.ssh/authorized_keys
+    nano -t -x -c $LHOME/.ssh/authorized_keys
 elif [[ $1 == create ]]; then
     echo "Create key"
     su - $LUSER -c "
 cd .ssh
-ssh-keygen -f ~/.ssh/$S_KEY -N '' -C $S_KEY@$VHOST >/dev/null 2>&1
+ssh-keygen -f $LHOME/.ssh/$S_KEY -N '' -C $S_KEY@$VHOST >/dev/null 2>&1
 chmod 600 *"
-    cat ~$LUSER/.ssh/$S_KEY.pub
+    cat $LHOME/.ssh/$S_KEY.pub
 elif [[ $1 == del ]]; then
     echo "Delete key"
 
 elif [[ $1 == list ]]; then
-    if [[ -f ~$SUSER/.ssh/authorized_keys ]]; then
-        cat ~$SUSER/.ssh/authorized_keys | awk '{print $3}'
+    if [[ -f $LHOME/.ssh/authorized_keys ]]; then
+        cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
     fi
 fi
 
