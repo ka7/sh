@@ -45,9 +45,10 @@ elif [[ $1 == del ]]; then
     else
         echo "$KEYID does not exist in $LHOME/.ssh/authorized_keys"
     fi
-    if [[ -f $LHOME/.ssh/$KEYID ]]; then
+
+    if [[ $(stat -t $LHOME/.ssh/$KEYID* 2>/dev/null) ]]; then
         echo "Delete private key $LHOME/.ssh/$KEYID"
-        rm $LHOME/.ssh/$KEYID $LHOME/.ssh/$KEYID.pub
+        rm -f $LHOME/.ssh/$KEYID $LHOME/.ssh/$KEYID.pub
     else
         echo "$LHOME/.ssh/$KEYID does not exist"
     fi
