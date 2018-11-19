@@ -11,9 +11,10 @@ S_KEY=${2:-'id_rsa'}
 LUSER=${3:-$USER}
 VHOST=$(hostname -f)
 
-if [[ ! -d ~$SUSER/.ssh ]]; then
+if [[ ! -d ~$LUSER/.ssh ]]; then
     echo ">>> Create local ~$LUSER/.ssh dir"
     mkdir ~$LUSER/.ssh
+    chown $LUSER:$LUSER ~$LUSER/.ssh
     chmod 700 ~$LUSER/.ssh
 fi
 
