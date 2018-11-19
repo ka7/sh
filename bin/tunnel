@@ -5,8 +5,7 @@
 [[ -z $2 || $1 =~ '-h' ]] && \
     echo "Usage: tunnel forward|reverse|list|del targethost|tunnel-*.service [lport] [rport] [luser] [ruser] [sport] [sshkeyname]" && exit 1
 
-# Tunnels should be able to be set up by a non-root user
-#[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ $1 == list ]]; then
     stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
