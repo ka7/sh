@@ -7,7 +7,8 @@
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 SKCMD=$1
-S_KEY=${2:-'id_rsa'}
+KEYID=${2:-'id_rsa'}
+KEYID=${KEYID%@*} # remove any trailing @hostname
 LUSER=${3:-$USER}
 LHOME=$(eval echo ~$LUSER)
 VHOST=$(hostname -f)
@@ -27,23 +28,22 @@ elif [[ $1 == create ]]; then
     echo "Create key"
     su - $LUSER -c "
 cd .ssh
-ssh-keygen -f $LHOME/.ssh/$S_KEY -N '' -C $S_KEY@$VHOST >/dev/null 2>&1
+ssh-keygen -f $LHOME/.ssh/$KEYID -N '' -C $KEYID@$VHOST >/dev/null 2>&1
 chmod 600 *"
-    cat $LHOME/.ssh/$S_KEY.pub
+    cat $LHOME/.ssh/$KEYID.pub
 elif [[ $1 == del ]]; then
-    grep $S_KEY $LHOME/.ssh/authorized_keys
+    grep $KEYID $LHOME/.ssh/authorized_keys >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         echo "Delete public key"
-        sed '/'"$S_KEY"'/d' -i $LHOME/.ssh/authorized_keys
+        sed '/'"$KEYID"'/d' -i $LHOME/.ssh/authorized_keys
     else
-        echo "$S_KEY does not exist in $LHOME/.ssh/authorized_keys"
+        echo "$KEYID does not exist in $LHOME/.ssh/authorized_keys"
     fi
-    PRIVK=${S_KEY%@*}
-    if [[ -f $LHOME/.ssh/$PRIVK ]]; then
-        echo "Delete private key $LHOME/.ssh/$PRIVK"
-        rm $LHOME/.ssh/$PRIVK
+    if [[ -f $LHOME/.ssh/$KEYID ]]; then
+        echo "Delete private key $LHOME/.ssh/$KEYID"
+        rm $LHOME/.ssh/$KEYID
     else
-        echo "$LHOME/.ssh/$S_KEY does not exist"
+        echo "$LHOME/.ssh/$KEYID does not exist"
     fi
 elif [[ $1 == list ]]; then
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
