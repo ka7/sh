@@ -32,7 +32,7 @@ elif [[ $1 == create ]]; then
     su - $LUSER -c "
 cd .ssh
 ssh-keygen -f $LHOME/.ssh/$KEYID -N '' -C $KEYID@$VHOST >/dev/null 2>&1
-cat $LHOME/.ssh/$KEYID >> $LHOME/.ssh/authorized_keys
+cat $LHOME/.ssh/$KEYID.pub >> $LHOME/.ssh/authorized_keys
 chmod 600 *"
     cat $LHOME/.ssh/$KEYID.pub
 
@@ -65,7 +65,7 @@ elif [[ $1 == list ]]; then
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
         echo
-        /bin/ls -1 $LHOME/.ssh/*.pub
+        /bin/ls -1 $LHOME/.ssh/
     fi
 fi
 
