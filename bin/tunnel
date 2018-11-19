@@ -64,7 +64,7 @@ if [[ ! -f ~$LUSER/.ssh/$TUNID ]]; then
     echo "!!! Create ~$LUSER/.ssh/$TUNID key"
     su - $LUSER -c "
 cd .ssh
-ssh-keygen -f ~/.ssh/$TUNID -N '' >/dev/null 2>&1
+ssh-keygen -f ~/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
 chmod 600 *
 cat $TUNID.pub"
     echo "
