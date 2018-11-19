@@ -10,8 +10,8 @@ set -x
 SKCMD=$1
 S_KEY=${2:-'id_rsa'}
 LUSER=${3:-$USER}
-VHOST=$(hostname -f)
 LHOME=$(eval echo ~$LUSER)
+VHOST=$(hostname -f)
 
 if [[ ! -d $LHOME/.ssh ]]; then
     echo ">>> Create local $LHOME/.ssh dir"
@@ -32,8 +32,19 @@ ssh-keygen -f $LHOME/.ssh/$S_KEY -N '' -C $S_KEY@$VHOST >/dev/null 2>&1
 chmod 600 *"
     cat $LHOME/.ssh/$S_KEY.pub
 elif [[ $1 == del ]]; then
-    echo "Delete key"
-
+    grep $S_KEY $LHOME/.ssh/authorized_keys
+    if [[ $? -eq 0 ]]; then
+        echo "Delete public key"
+        sed -i $LHOME/.ssh/authorized_keys "/$S_KEY/d"
+    else
+        echo "$S_KEY does not exist in $LHOME/.ssh/authorized_keys"
+    fi
+    if [[ -f $LHOME/.ssh/$S_KEY ]]; then
+        echo "Delete private key"
+        rm $LHOME/.ssh/$S_KEY
+    else
+        echo "$LHOME/.ssh/$S_KEY does not exist"
+    fi
 elif [[ $1 == list ]]; then
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
