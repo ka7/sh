@@ -21,17 +21,23 @@ if [[ ! -d $LHOME/.ssh ]]; then
 fi
 
 if [[ $1 == add ]]; then
+
     echo "Add key (paste public key into editor, ctrl-x to save and quit)"
     sleep 2
     nano -t -x -c $LHOME/.ssh/authorized_keys
+
 elif [[ $1 == create ]]; then
-    echo "Create key"
+
+    echo "Create new key"
     su - $LUSER -c "
 cd .ssh
 ssh-keygen -f $LHOME/.ssh/$KEYID -N '' -C $KEYID@$VHOST >/dev/null 2>&1
+cat $LHOME/.ssh/$KEYID >> $LHOME/.ssh/authorized_keys
 chmod 600 *"
     cat $LHOME/.ssh/$KEYID.pub
+
 elif [[ $1 == del ]]; then
+
     grep $KEYID $LHOME/.ssh/authorized_keys >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         echo "Delete public key"
@@ -41,13 +47,17 @@ elif [[ $1 == del ]]; then
     fi
     if [[ -f $LHOME/.ssh/$KEYID ]]; then
         echo "Delete private key $LHOME/.ssh/$KEYID"
-        rm $LHOME/.ssh/$KEYID
+        rm $LHOME/.ssh/$KEYID $LHOME/.ssh/$KEYID.pub
     else
         echo "$LHOME/.ssh/$KEYID does not exist"
     fi
+
 elif [[ $1 == list ]]; then
+
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
+        echo
+        /bin/ls -1 $LHOME/.ssh/*.pub
     fi
 fi
 
