@@ -23,7 +23,7 @@ elif [[ $1 == del ]]; then
         systemctl disable $TUNID >/dev/null 2>&1
         rm $SERVF
         systemctl daemon-reload
-        ssh -S /tmp/$TUNID.sock -O exit foobar
+        [[ -f /tmp/$TUNID.sock ]] && ssh -S /tmp/$TUNID.sock -O exit foobar
         echo "Removed $SERVF"
     else
         echo "$SERVF does not exist"
@@ -40,7 +40,7 @@ SPORT=${7:-'9'}
 S_KEY=${8:-'id_rsa'}
 SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
-TUNID="tunnel_${LPORT}_${RPORT}"
+TUNID="tunnel-${LPORT}-${RPORT}"
 
 if [[ $1 == forward ]]; then
     T_ARG='-L'
@@ -65,16 +65,20 @@ if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
     useradd -r -m $LUSER
     su - $LUSER -c "
 mkdir .ssh
-chmod 700 .ssh
-cd .ssh
-ssh-keygen -f ~/.ssh/$S_KEY -N '' >/dev/null 2>&1
-chmod 600 *
-cat $S_KEY.pub"
+chmod 700 .ssh"
+fi
 
-# Unsure how applicable generating this key is, need generic key management
-#    echo "
-#Copy above public key to ~/.ssh/authorized_keys on the remote server, then
-#test using 'ssh -p $SPORT -i /home/$LUSER/.ssh/$S_KEY $RUSER@$THOST' first"
+if [[ -f ~$LUSER/.ssh/$TUNID ]]; then
+    echo "!!! Create ~$LUSER/.ssh/$TUNID key"
+    su - $LUSER -c "
+cd .ssh
+ssh-keygen -f ~/.ssh/$TUNID -N '' >/dev/null 2>&1
+chmod 600 *
+cat $TUNID.pub"
+    echo "
+Copy above public key to ~/.ssh/authorized_keys on the remote server then
+test using 'ssh -p $SPORT -i ~$LUSER/.ssh/$TUNID $RUSER@$THOST'
+first before running this tunnel script again."
     exit
 fi
 
