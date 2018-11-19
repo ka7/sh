@@ -48,26 +48,19 @@ elif [[ $1 == reverse ]]; then
     T_ARG='-R'
     T_STR=Reverse
 else
-    echo "Tunnel setup arguments must be either forward, reverse or list"
+    echo "First argument must be either forward, reverse, list or del"
     exit 5
 fi
 
-
-if [[ ! -d ~/.ssh ]]; then
-    echo ">>> Create local ~/.ssh dir"
-    mkdir ~/.ssh
-    chmod 700 ~/.ssh
-fi
-
 if [[ ! $(getent passwd | grep "^$LUSER:") ]]; then
-    echo "!!! Create $LUSER user"
+    echo "!!! Create $LUSER system user"
     useradd -r -m $LUSER
     su - $LUSER -c "
 mkdir .ssh
 chmod 700 .ssh"
 fi
 
-if [[ -f ~$LUSER/.ssh/$TUNID ]]; then
+if [[ ! -f ~$LUSER/.ssh/$TUNID ]]; then
     echo "!!! Create ~$LUSER/.ssh/$TUNID key"
     su - $LUSER -c "
 cd .ssh
