@@ -47,12 +47,12 @@ elif [[ $1 == del ]]; then
     fi
 
     if [[ $(stat -t $LHOME/.ssh/$KEYID* 2>/dev/null) ]]; then
-        if [[ $LHOME/.ssh/$KEYID ]]; then
+        if [[ -f $LHOME/.ssh/$KEYID ]]; then
             echo "Delete private key $LHOME/.ssh/$KEYID"
             rm $LHOME/.ssh/$KEYID
         fi
 
-        if [[ $LHOME/.ssh/$KEYID.pub ]]; then
+        if [[ -f $LHOME/.ssh/$KEYID.pub ]]; then
             echo "Delete public key $LHOME/.ssh/$KEYID.pub"
             rm $LHOME/.ssh/$KEYID.pub
         fi
