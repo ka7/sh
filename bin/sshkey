@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/sshkey 20181119 - 20181119
+# .sh/bin/sshkey 20181119 - 20181120
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list [sshkey] [user]" && exit 1
@@ -38,10 +38,10 @@ chmod 600 *"
 
 elif [[ $1 == del ]]; then
 
-    grep $KEYID $LHOME/.ssh/authorized_keys >/dev/null 2>&1
+    grep " $KEYID@" $LHOME/.ssh/authorized_keys >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         echo "Delete public key"
-        sed '/'"$KEYID"'/d' -i $LHOME/.ssh/authorized_keys
+        sed '/'" $KEYID@"'/d' -i $LHOME/.ssh/authorized_keys
     else
         echo "$KEYID does not exist in $LHOME/.ssh/authorized_keys"
     fi
