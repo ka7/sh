@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/tunnel 20181102 - 20181118
+# .sh/bin/tunnel 20181102 - 20181121
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: tunnel forward|reverse|list|del targethost|tunnel-*.service [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ $1 == list ]]; then
+
     stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         /bin/ls -1 /etc/systemd/system/tunnel*
@@ -15,7 +16,9 @@ if [[ $1 == list ]]; then
         echo "No systemd tunnel files exit"
     fi
     exit 3
+
 elif [[ $1 == del ]]; then
+
     TUNID=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
     SERVF="/etc/systemd/system/${TUNID}.service"
     if [[ -f $SERVF ]]; then
@@ -39,7 +42,7 @@ RUSER=${6:-'utunnel'}
 SPORT=${7:-'9'}
 SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
-TUNID="tunnel-${LPORT}-${RPORT}"
+TUNID="utunnel-${LPORT}-${RPORT}"
 
 if [[ $1 == forward ]]; then
     T_ARG='-L'
