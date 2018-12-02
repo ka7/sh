@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addcfzone 20181002 - 20181126
+# .sh/bin/cfadduser 20181126 - 20181126
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
 # Create a partner account at https://partners.cloudflare.com and take
@@ -8,18 +8,14 @@ set -x
 
 # See setup-cf
 
-[[ -z $2 || $1 =~ -h ]] && echo "Usage: addcfzone domain user_key" && exit 1
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addcfuser user@domain password [unique ID]" && exit 1
 
 [[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 2
 
-#swdsdel $1
+[[ -z $3 ]] && _UNIQ='' || _UNIQ="-d 'unique_id=$3'"
 
 _CURL=$(curl -s https://api.cloudflare.com/host-gw.html \
-    -d "act=full_zone_set" \
+    -d "act=user_create" \
     -d "host_key=$CFKEY" \
-    -d "user_key=$2" \
-    -d "zone_name=$1")
-
-echo $_CURL | jq .
-
-#swchangens $1 $CF_NS
+    -d "cloudflare_email=$1" \
+    -d "cloudflare_pass=$2" $_UNIQ)

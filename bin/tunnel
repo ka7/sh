@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/tunnel 20181102 - 20181121
+# .sh/bin/tunnel 20181102 - 20181202
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
@@ -40,9 +40,10 @@ RPORT=${4:-'9999'}
 LUSER=${5:-'utunnel'}
 RUSER=${6:-'utunnel'}
 SPORT=${7:-'9'}
-SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
+LHOME=$(eval echo ~$LUSER)
 TUNID="utunnel-${LPORT}-${RPORT}"
+SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ $1 == forward ]]; then
     T_ARG='-L'
@@ -63,8 +64,8 @@ mkdir .ssh
 chmod 700 .ssh"
 fi
 
-if [[ ! -f ~$LUSER/.ssh/$TUNID ]]; then
-    echo "!!! Create ~$LUSER/.ssh/$TUNID key"
+if [[ ! -f $LHOME/.ssh/$TUNID ]]; then
+    echo "!!! Create $LHOME/.ssh/$TUNID key"
     su - $LUSER -c "
 cd .ssh
 ssh-keygen -f ~/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
@@ -74,7 +75,7 @@ cat $TUNID.pub"
 Copy above public key to ~/.ssh/authorized_keys on the remote server then
 test using below command first before running this tunnel script again...
 
-'ssh -o StrictHostKeyChecking=no -p $SPORT -i ~$LUSER/.ssh/$TUNID $RUSER@$THOST'
+'ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/$TUNID $RUSER@$THOST'
 "
     exit
 fi
@@ -90,7 +91,7 @@ After=network.target
 Type=simple
 User=${LUSER}
 #Type=forking
-ExecStart=/usr/bin/ssh ${SOPTS} -N -M -S /tmp/${TUNID}.sock -i ~${LUSER}/.ssh/${TUNID} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
+ExecStart=/usr/bin/ssh ${SOPTS} -N -M -S /tmp/${TUNID}.sock -i ${LHOME}/.ssh/${TUNID} ${T_ARG} ${LPORT}:localhost:${RPORT} -p ${SPORT} ${RUSER}@${THOST}
 RestartSec=10
 Restart=on-success
 RestartForceExitStatus=255
