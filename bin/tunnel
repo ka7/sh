@@ -42,7 +42,7 @@ RUSER=${6:-'utunnel'}
 SPORT=${7:-'9'}
 
 LHOME=$(eval echo ~$LUSER)
-TUNID="utunnel-${LPORT}-${RPORT}"
+TUNID="tunnel-${LPORT}-${RPORT}"
 SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ $1 == forward ]]; then
@@ -68,7 +68,7 @@ if [[ ! -f $LHOME/.ssh/$TUNID ]]; then
     echo "!!! Create $LHOME/.ssh/$TUNID key"
     su - $LUSER -c "
 cd .ssh
-ssh-keygen -f ~/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
+ssh-keygen -f $LHOME/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
 chmod 600 *
 cat $TUNID.pub"
     echo "
