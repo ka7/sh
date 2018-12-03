@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/sshkey 20181119 - 20181202
+# .sh/bin/sshkey 20181119 - 20181203
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list [sshkey] [user]" && exit 1
@@ -12,6 +12,8 @@ KEYID=${KEYID%@*} # remove any trailing @hostname
 LUSER=${3:-$USER}
 LHOME=$(eval echo ~$LUSER)
 VHOST=$(hostname -f)
+
+[[ ! -d $LHOME ]] && echo "ERROR: $LHOME does not exist" && exit 3
 
 if [[ ! -d $LHOME/.ssh ]]; then
     echo ">>> Create local $LHOME/.ssh dir"
