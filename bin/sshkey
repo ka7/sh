@@ -2,7 +2,7 @@
 # .sh/bin/sshkey 20181119 - 20181203
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list [sshkey] [user]" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sshkey add|create|del|list|show [sshkey] [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
@@ -13,7 +13,7 @@ LUSER=${3:-$USER}
 LHOME=$(eval echo ~$LUSER)
 VHOST=$(hostname -f)
 
-[[ ! -d $LHOME ]] && echo "ERROR: $LHOME does not exist" && exit 3
+[[ ! -d $LHOME ]] && echo "ERROR: '$LHOME' homedir does not exist" && exit 3
 
 if [[ ! -d $LHOME/.ssh ]]; then
     echo ">>> Create local $LHOME/.ssh dir"
@@ -27,6 +27,14 @@ if [[ $1 == add ]]; then
     echo "Add key (paste public key into editor, ctrl-x to save and quit)"
     sleep 2
     nano -t -x -c $LHOME/.ssh/authorized_keys
+
+elif [[ $1 == show ]]; then
+
+    if [[ -f $LHOME/.ssh/$KEYID.pub ]]; then
+        cat $LHOME/.ssh/$KEYID.pub
+    else
+        echo "$LHOME/.ssh/$KEYID.pub does not exist"
+    fi
 
 elif [[ $1 == create ]]; then
 
