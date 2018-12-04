@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/tunnel 20181102 - 20181204
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: tunnel forward|reverse|list|del targethost|tunnel-*.service [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
@@ -69,15 +69,20 @@ if [[ ! -f $LHOME/.ssh/$TUNID ]]; then
     su - $LUSER -c "
 cd .ssh
 ssh-keygen -f $LHOME/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
-chmod 600 *
-cat $TUNID.pub"
-    echo "
-!!! Copy above public key to ~/.ssh/authorized_keys on the remote server then
-!!! test using below command first before running this tunnel script again...
-!!! 
-!!! ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/$TUNID $RUSER@$THOST
+chmod 600 *"
+
+    if [[ ! -f $LHOME/.ssh/id_rsa ]]; then
+        cat $LHOME/.ssh/$TUNID.pub | \
+            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST
+    else
+        echo "
+Copy above public key to $RUSER@$THOST:.ssh/authorized_keys on the remote server
+then test using below command first before running this tunnel script again...
+
+ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/$TUNID $RUSER@$THOST
 "
-    exit
+        exit
+    fi
 fi
 
 service_file() {
