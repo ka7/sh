@@ -73,7 +73,8 @@ chmod 600 *"
 
     if [[ -f $LHOME/.ssh/id_rsa ]]; then
         cat $LHOME/.ssh/$TUNID.pub | \
-            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST
+            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST \
+            cat >> .ssh/authorized_keys
     else
         echo "
 Copy above public key to $RUSER@$THOST:.ssh/authorized_keys on the remote server
