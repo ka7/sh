@@ -3,11 +3,11 @@
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: tunnel forward|reverse|list|(del tunnel-*.service) targethost [lport] [rport] [luser] [ruser] [sport]" && exit 1
+    echo "Usage: tunnel forward|reverse|list|del targethost|local [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-THOST=${2:-''}
+THOST=${2:-'local'}
 LPORT=${3:-'9999'}
 RPORT=${4:-'9999'}
 LUSER=${5:-'utunnel'}
@@ -25,12 +25,33 @@ if [[ $1 == list ]]; then
         /bin/ls -1 /etc/systemd/system/tunnel*
     else
         echo "No systemd tunnel files exit"
+        echo
+    fi
+    
+    if [[ -f $LHOME/.ssh/authorized_keys ]]; then
+        cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
+        echo
+    fi
+    /bin/ls -1 $LHOME/.ssh/
+    
+    if [[ $THOST != local ]]; then
+        if [[ -f $LHOME/.ssh/id_rsa ]]; then
+            ssh -o BatchMode=yes -o ConnectTimeout=5 -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST 'exit'
+            if [[ $? -eq 0 ]]; then
+                ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST \
+                    "cat .ssh/authorized_keys" | awk '{print $3}'
+            else
+                echo "ERROR: SSH can't connect to $RUSER@$THOST"
+            fi
+        else
+            echo "Warning: $LHOME/.ssh/id_rsa does not exist"
+        fi    
     fi
     exit 3
 
 elif [[ $1 == del ]]; then
 
-    TUNID=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
+#    TUNID=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
     
     # Stop, disable and remove systemd service control file
     
@@ -68,13 +89,15 @@ elif [[ $1 == del ]]; then
     
     # Remove SSH public key from remote:.ssh/authorized_keys
     
-    if [[ ! -z $3 && -f $LHOME/.ssh/id_rsa ]]; then
-        ssh -o BatchMode=yes -o ConnectTimeout=5 -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$3 'exit'
-        if [[ $? -eq 0 ]]; then
-            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$3 \
-                "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
-        else
-            echo "ERROR: SSH can't connect to $RUSER@$3"
+    if [[ $THOST != local ]]; then
+        if [[ -f $LHOME/.ssh/id_rsa ]]; then
+            ssh -o BatchMode=yes -o ConnectTimeout=5 -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST 'exit'
+            if [[ $? -eq 0 ]]; then
+                ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST \
+                    "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
+            else
+                echo "ERROR: SSH can't connect to $RUSER@$THOST"
+            fi
         fi
     fi
     exit 4
