@@ -56,12 +56,12 @@ elif [[ $1 == del ]]; then
 
     # Remove local public and private SSH keys
     
-    if [[ -f $LHOME/.ssh/$TUNID >/dev/null 2>&1 ]]; then
+    if [[ -f $LHOME/.ssh/$TUNID ]]; then
         echo "Delete local private key $LHOME/.ssh/$TUNID"
         rm $LHOME/.ssh/$TUNID
     fi
 
-    if [[ -f $LHOME/.ssh/$TUNID.pub >/dev/null 2>&1 ]]; then
+    if [[ -f $LHOME/.ssh/$TUNID.pub ]]; then
         echo "Delete local public key $LHOME/.ssh/$TUNID.pub"
         rm $LHOME/.ssh/$TUNID.pub
     fi
