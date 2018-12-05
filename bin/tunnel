@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
-# .sh/bin/tunnel 20181102 - 20181204
+# .sh/bin/tunnel 20181102 - 20181205
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: tunnel forward|reverse|list|del targethost|tunnel-*.service [lport] [rport] [luser] [ruser] [sport]" && exit 1
+    echo "Usage: tunnel forward|reverse|list|(del tunnel-*.service) targethost [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+
+THOST=${2:-''}
+LPORT=${3:-'9999'}
+RPORT=${4:-'9999'}
+LUSER=${5:-'utunnel'}
+RUSER=${6:-'utunnel'}
+SPORT=${7:-'9'}
+
+LHOME=$(eval echo ~$LUSER)
+TUNID="tunnel-${LPORT}-${RPORT}"
+SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ $1 == list ]]; then
 
@@ -20,6 +31,9 @@ if [[ $1 == list ]]; then
 elif [[ $1 == del ]]; then
 
     TUNID=$(echo $2 | sed -e 's#/etc/systemd/system/##' -e 's#.service##')
+    
+    # Stop, disable and remove systemd service control file
+    
     SERVF="/etc/systemd/system/${TUNID}.service"
     if [[ -f $SERVF ]]; then
         systemctl stop $TUNID
@@ -31,19 +45,40 @@ elif [[ $1 == del ]]; then
     else
         echo "$SERVF does not exist"
     fi
+    
+    # Remove local SSH public key from .ssh/authorized_keys
+    
+    grep " $TUNID@" $LHOME/.ssh/authorized_keys >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        echo "Delete local public key from $LHOME/.ssh/authorized_keys"
+        sed '/'" $TUNID@"'/d' -i $LHOME/.ssh/authorized_keys
+    fi
+
+    # Remove local public and private SSH keys
+    
+    if [[ -f $LHOME/.ssh/$TUNID 2>/dev/null ]]; then
+        echo "Delete local private key $LHOME/.ssh/$TUNID"
+        rm $LHOME/.ssh/$TUNID
+    fi
+
+    if [[ -f $LHOME/.ssh/$TUNID.pub 2>/dev/null ]]; then
+        echo "Delete local public key $LHOME/.ssh/$TUNID.pub"
+        rm $LHOME/.ssh/$TUNID.pub
+    fi
+    
+    # Remove SSH public key from remote:.ssh/authorized_keys
+    
+    if [[ ! -z $3 && -f $LHOME/.ssh/id_rsa ]]; then
+        ssh -o BatchMode=yes -o ConnectTimeout=5 -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$3 'exit'
+        if [[ $? -eq 0 ]]; then
+            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$3 \
+                "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
+        else
+            echo "ERROR: SSH can't connect to $RUSER@$3"
+        fi
+    fi
     exit 4
 fi
-
-THOST=${2}
-LPORT=${3:-'9999'}
-RPORT=${4:-'9999'}
-LUSER=${5:-'utunnel'}
-RUSER=${6:-'utunnel'}
-SPORT=${7:-'9'}
-
-LHOME=$(eval echo ~$LUSER)
-TUNID="tunnel-${LPORT}-${RPORT}"
-SOPTS="-o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no"
 
 if [[ $1 == forward ]]; then
     T_ARG='-L'
@@ -64,6 +99,8 @@ mkdir .ssh
 chmod 700 .ssh"
 fi
 
+# Create a new SSH key if not exists
+
 if [[ ! -f $LHOME/.ssh/$TUNID ]]; then
     echo "!!! Create $LHOME/.ssh/$TUNID key"
     su - $LUSER -c "
@@ -72,9 +109,15 @@ ssh-keygen -f $LHOME/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
 chmod 600 *"
 
     if [[ -f $LHOME/.ssh/id_rsa ]]; then
-        cat $LHOME/.ssh/$TUNID.pub | \
-            ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST \
-            'cat >> .ssh/authorized_keys'
+        ssh -o BatchMode=yes -o ConnectTimeout=5 -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST 'exit'
+        if [[ $? -eq 0 ]]; then
+            cat $LHOME/.ssh/$TUNID.pub | \
+                ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/id_rsa $RUSER@$THOST \
+                'cat >> .ssh/authorized_keys'
+        else
+            echo "ERROR: SSH can't connect to $RUSER@$THOST"
+            exit
+        fi
     else
         echo "
 Copy above public key to $RUSER@$THOST:.ssh/authorized_keys on the remote server
