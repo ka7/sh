@@ -41,7 +41,7 @@ if [[ $1 == list ]]; then
             if [[ $? -eq 0 ]]; then
                 sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
 echo "List remote keys from $RUSER@$THOST"
-cat .ssh/authorized_keys | awk '{print $3}'
+cat .ssh/authorized_keys | awk '{print \$3}'
 echo
 ls -1 .ssh
 EOSSH
