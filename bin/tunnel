@@ -3,7 +3,7 @@
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
-    echo "Usage: tunnel forward|reverse|list|del targethost|local [lport] [rport] [luser] [ruser] [sport]" && exit 1
+    echo "Usage: tunnel forward|reverse|list|del targethost [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
@@ -22,7 +22,7 @@ if [[ $1 == list ]]; then
 
     stat -t /etc/systemd/system/tunnel* >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        echo "# List local systemd service files"
+        echo "!!! List local systemd service files"
         /bin/ls -1 /etc/systemd/system/tunnel*
     else
         echo "No systemd tunnel files exit"
@@ -30,14 +30,14 @@ if [[ $1 == list ]]; then
     echo
     
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
-        echo "# List local public SSH keys in $LHOME/.ssh/authorized_keys"
+        echo "!!! List local public SSH keys in $LHOME/.ssh/authorized_keys"
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
         echo
     fi
     
     stat -t $LHOME/.ssh/* >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        echo "# List local private/public SSH keys in $LHOME/.ssh"
+        echo "!!! List all files in $LHOME/.ssh"
         /bin/ls -1 $LHOME/.ssh/
         echo
     fi
@@ -47,10 +47,10 @@ if [[ $1 == list ]]; then
             sshpass -e ssh -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
                 sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
-echo "# List remote public keys in $RUSER@$THOST:.ssh/authorized_keys"
+echo "!!! List remote public keys in $RUSER@$THOST:.ssh/authorized_keys"
 cat .ssh/authorized_keys | awk '{print \$3}'
 echo
-echo "# List remote public/private keys in $RUSER@$THOST:.ssh/"
+echo "!!! List remote public/private keys in $RUSER@$THOST:.ssh/"
 ls -1 .ssh
 EOSSH
             fi
@@ -69,28 +69,29 @@ elif [[ $1 == del ]]; then
         rm $SERVF
         systemctl daemon-reload
         [[ -f /tmp/$TUNID.sock ]] && ssh -S /tmp/$TUNID.sock -O exit foobar
-        echo "Removed $SERVF"
+        echo "!!! Removed $SERVF"
     else
-        echo "$SERVF does not exist"
+        echo "!!! $SERVF does not exist"
     fi
+    echo
     
     # Remove local SSH public key from .ssh/authorized_keys
     
     grep " $TUNID@" $LHOME/.ssh/authorized_keys >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        echo "Delete local public key from $LHOME/.ssh/authorized_keys"
+        echo "!!! Delete local public key from $LHOME/.ssh/authorized_keys"
         sed '/'" $TUNID@"'/d' -i $LHOME/.ssh/authorized_keys
     fi
 
     # Remove local public and private SSH keys
     
     if [[ -f $LHOME/.ssh/$TUNID ]]; then
-        echo "Delete local private key $LHOME/.ssh/$TUNID"
+        echo "!!! Delete local private key $LHOME/.ssh/$TUNID"
         rm $LHOME/.ssh/$TUNID
     fi
 
     if [[ -f $LHOME/.ssh/$TUNID.pub ]]; then
-        echo "Delete local public key $LHOME/.ssh/$TUNID.pub"
+        echo "!!! Delete local public key $LHOME/.ssh/$TUNID.pub"
         rm $LHOME/.ssh/$TUNID.pub
     fi
     
@@ -101,12 +102,21 @@ elif [[ $1 == del ]]; then
             sshpass -e ssh -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
                 sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
-echo "# Delete remote public key from $RUSER@$THOST:.ssh/authorized_keys"
-sed '/ $TUNID@/d' -i .ssh/authorized_keys
-echo "Delete remote private key $RUSER@$THOST:.ssh/$TUNID"
-rm .ssh/$TUNID
-echo "Delete remote public key $RUSER@$THOST:.ssh/$TUNID"
-rm .ssh/$TUNID.pub
+grep " $TUNID@" .ssh/authorized_keys >/dev/null 2>&1
+if [[ $? -eq 0 ]]; then
+    echo "!!! Delete remote public key from $RUSER@$THOST:.ssh/authorized_keys"
+    sed '/ $TUNID@/d' -i .ssh/authorized_keys
+fi
+
+if [[ -f .ssh/$TUNID ]]; then
+    echo "!!! Delete remote private key $RUSER@$THOST:.ssh/$TUNID"
+    rm .ssh/$TUNID
+fi
+
+if [[ -f .ssh/$TUNID.pub ]]; then
+    echo "!!! Delete remote public key $RUSER@$THOST:.ssh/$TUNID.pub"
+    rm .ssh/$TUNID.pub
+fi
 EOSSH
             fi
         fi
@@ -121,7 +131,7 @@ elif [[ $1 == reverse ]]; then
     T_ARG='-R'
     T_STR=Reverse
 else
-    echo "First argument must be either forward, reverse, list or del"
+    echo "!!! First argument must be either forward, reverse, list or del"
     exit 5
 fi
 
@@ -147,11 +157,11 @@ chmod 600 *"
         if [[ $? -eq 0 ]]; then
             P_KEY=$(cat $LHOME/.ssh/$TUNID.pub)
             sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
-echo "Append $LHOME/.ssh/$TUNID.pub to $RUSER@$THOST:.ssh/authorized_keys"
+echo "!!! Append $LHOME/.ssh/$TUNID.pub to $RUSER@$THOST:.ssh/authorized_keys"
 echo "$P_KEY" >> .ssh/authorized_keys       
 EOSSH
         else
-            echo "ERROR: SSH can't connect to $RUSER@$THOST"
+            echo "!!! ERROR: SSH can't connect to $RUSER@$THOST"
             exit
         fi
     else
