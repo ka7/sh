@@ -26,16 +26,21 @@ if [[ $1 == list ]]; then
         /bin/ls -1 /etc/systemd/system/tunnel*
     else
         echo "No systemd tunnel files exit"
-        echo
     fi
+    echo
     
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
         echo "# List local public SSH keys in $LHOME/.ssh/authorized_keys"
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
         echo
     fi
-    /bin/ls -1 $LHOME/.ssh/
-    echo
+    
+    stat -t $LHOME/.ssh/* >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        echo "# List local private/public SSH keys in $LHOME/.ssh"
+        /bin/ls -1 $LHOME/.ssh/
+        echo
+    fi
     
     if [[ $THOST != local ]]; then
         if [[ ! -z $SSHPASS ]]; then
