@@ -39,8 +39,12 @@ if [[ $1 == list ]]; then
         if [[ ! -z $SSHPASS ]]; then
             sshpass -e ssh -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
-                sshpass -e ssh -p $SPORT $RUSER@$THOST \
-                    "cat .ssh/authorized_keys" | awk '{print $3}'
+                sshpass -e ssh -p $SPORT $RUSER@$THOST << EOSSH
+echo "List remote keys from $SPORT $RUSER@$THOST"
+cat .ssh/authorized_keys | awk '{print $3}'
+echo
+ls -1 .ssh
+EOSSH
             fi
         fi    
     fi
@@ -91,6 +95,12 @@ elif [[ $1 == del ]]; then
                 echo "Delete remote public key from $RUSER@$THOST:.ssh/authorized_keys"
                 sshpass -e ssh -p $SPORT $RUSER@$THOST \
                     "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
+                    
+                echo "Delete remote public key $RUSER@$THOST:.ssh/$TUNID"
+                sshpass -e ssh -p $SPORT $RUSER@$THOST \
+                    "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
+                    
+                    
             fi
         fi
     fi
