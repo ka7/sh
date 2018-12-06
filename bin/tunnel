@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/tunnel 20181102 - 20181206
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: tunnel forward|reverse|list|del targethost|local [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
@@ -39,8 +39,8 @@ if [[ $1 == list ]]; then
         if [[ ! -z $SSHPASS ]]; then
             sshpass -e ssh -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
-                sshpass -e ssh -p $SPORT $RUSER@$THOST << EOSSH
-echo "List remote keys from $SPORT $RUSER@$THOST"
+                sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
+echo "List remote keys from $RUSER@$THOST"
 cat .ssh/authorized_keys | awk '{print $3}'
 echo
 ls -1 .ssh
@@ -92,15 +92,14 @@ elif [[ $1 == del ]]; then
         if [[ ! -z $SSHPASS ]]; then
             sshpass -e ssh -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
-                echo "Delete remote public key from $RUSER@$THOST:.ssh/authorized_keys"
-                sshpass -e ssh -p $SPORT $RUSER@$THOST \
-                    "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
-                    
-                echo "Delete remote public key $RUSER@$THOST:.ssh/$TUNID"
-                sshpass -e ssh -p $SPORT $RUSER@$THOST \
-                    "sed '/'" $TUNID@"'/d' -i .ssh/authorized_keys"
-                    
-                    
+                sshpass -e ssh -p $SPORT -T $RUSER@$THOST << EOSSH
+echo "Delete remote public key from ~/.ssh/authorized_keys"
+sed '/ $TUNID@/d' -i .ssh/authorized_keys
+echo "Delete remote private key ~/.ssh/$TUNID"
+rm .ssh/$TUNID
+echo "Delete remote public key ~/.ssh/$TUNID"
+rm .ssh/$TUNID.pub
+EOSSH
             fi
         fi
     fi
