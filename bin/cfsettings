@@ -6,8 +6,8 @@
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: cfsettings domain [key] [value]" && exit 1
 
-[[ -z $CF_PARTNER_KEY ]] && echo "ERROR: CF_PARTNER_KEY is empty" && exit 2
-[[ -z $CF_USER_KEY ]] && echo "ERROR: CF_USER_KEY is empty" && exit 3
+#[[ -z $CF_PARTNER_KEY ]] && echo "ERROR: CF_PARTNER_KEY is empty" && exit 2
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 3
 
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
     -H "X-Auth-Email: $CF_PARTNER_EMAIL" \

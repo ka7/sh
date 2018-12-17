@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/cfzones 20181002 - 20181007
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 # Create a partner account at https://partners.cloudflare.com and take
 # note of your email address and password. Once logged in then get your
 # API Key from https://partners.cloudflare.com/api-management
@@ -10,22 +10,22 @@
 
 [[ $1 =~ -h ]] && echo "Usage: cfzones [domain]" && exit 1
 
-[[ -z $CF_HOST_API_KEY ]] && echo "ERROR: CF_HOST_API_KEY is empty" && exit 2
-[[ -z $CF_USER_API_KEY ]] && echo "ERROR: CF_USER_API_KEY is empty" && exit 3
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
 
 if [[ $1 ]]; then
 
     ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
-        -H "X-Auth-Email: $CF_HOST_API_KEY" \
-        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
         -H "Content-Type: application/json" \
         | jq -r '{"result"}[] | .[0] | .id')
 
     if [[ $ZONID ]]; then
 
         CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID" \
-            -H "X-Auth-Email: $CF_HOST_API_KEY" \
-            -H "X-Auth-Key: $CF_USER_API_KEY" \
+            -H "X-Auth-Email: $CFUSR" \
+            -H "X-Auth-Key: $CFKEY" \
             -H "Content-Type: application/json" \
             | jq -r '.result.name_servers | join(" ")')
 
@@ -34,8 +34,8 @@ if [[ $1 ]]; then
         echo "# Record ID"
 
         curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
-            -H "X-Auth-Email: $CF_HOST_API_KEY" \
-            -H "X-Auth-Key: $CF_USER_API_KEY" \
+            -H "X-Auth-Email: $CFUSR" \
+            -H "X-Auth-Key: $CFKEY" \
             -H "Content-Type: application/json" \
             | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
 
@@ -44,8 +44,8 @@ if [[ $1 ]]; then
     fi
 else
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
-        -H "X-Auth-Email: $CF_HOST_API_KEY" \
-        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
         -H "Content-Type: application/json" \
         | jq -r '.result[] | [.name,.id] | join("\t")'
 fi

@@ -153,9 +153,9 @@ ssh-keygen -f $LHOME/.ssh/$TUNID -N '' -C $TUNID@$THOST >/dev/null 2>&1
 chmod 600 *"
 
     if [[ ! -z $SSHPASS ]]; then
+        P_KEY=$(cat $LHOME/.ssh/$TUNID.pub)
         sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT $RUSER@$THOST exit
         if [[ $? -eq 0 ]]; then
-            P_KEY=$(cat $LHOME/.ssh/$TUNID.pub)
             sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST << EOSSH
 echo "!!! Append $LHOME/.ssh/$TUNID.pub to $RUSER@$THOST:.ssh/authorized_keys"
 echo "$P_KEY" >> .ssh/authorized_keys       
@@ -165,6 +165,7 @@ EOSSH
             exit
         fi
     else
+        cat $P_KEY
         echo "
 Copy above public key to $RUSER@$THOST:.ssh/authorized_keys on the remote server
 then test using below command first before running this tunnel script again...
