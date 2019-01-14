@@ -16,7 +16,7 @@ if [[ -f ~/.vhosts/$VHOST ]];then
         echo $VPASS > $WPATH/$PWPIN.txt
         chown $UUSER:www-data $WPATH/$PWPIN.txt
         chmod 640 $WPATH/$PWPIN.txt
-        echo "$VPASS @ https://$VHOST/$PWPIN.txt"
+        echo "$VPASS is at https://$VHOST/$PWPIN.txt"
     else
         echo "ERROR: $WPATH does not exist"
     fi
