@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20180719
+# .sh/bin/addwp 20160231 - 20190112
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -134,7 +134,7 @@ git clone https://github.com/pojome/elementor-hello-theme.git wp-content/themes/
 echo 'Activate elementor-hello-theme theme'
 wp theme --quiet activate elementor-hello-theme 2> /dev/null
 
-wp theme delete twentyfifteen twentysixteen twentyseventeen
+wp theme delete twentysixteen twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES

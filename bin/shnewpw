@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# .sh/bin/shnewpw 20190114 - 20190114
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: shnewpw login" && exit 1
+
+if [[ -f ~/.vhosts/$(hostname -f) ]];then
+    source ~/.vhosts/$(hostname -f)
+    PWPIN=$((1000 + RANDOM % 9999))
+    NEWPW=$(pwgen -sB 16 1)
+
+    if [[ -d $WPATH ]]; then
+        echo "$1 $NEWPW" > $WPATH/$PWPIN.txt
+        chown $UUSER:www-data $WPATH/$PWPIN.txt
+        chmod 640 $WPATH/$PWPIN.txt
+        echo "Password for $1 is $NEWPW at"
+        echo "https://$MHOST/$PWPIN.txt"
+    else
+        echo "ERROR: $WPATH does not exist"
+    fi
+else
+    echo "ERROR: ~/.vhosts/$(hostname -f) does not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
