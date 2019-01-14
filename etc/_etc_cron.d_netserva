@@ -14,3 +14,5 @@ MAILTO=_MAILTO
 10 0 * * * root doveadm expunge -A mailbox Spam savedbefore 7d
 
 20 0 * * * root doveadm expunge -A mailbox Trash savedbefore 7d
+
+*/16 * * * * root bash -c 'FILES=$(find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt") && [[ $FILES ]] && sleep 900 && rm -v $(echo $FILES)'
