@@ -16,7 +16,7 @@ if [[ -f ~/.vhosts/$VHOST ]];then
         chown $UUSER:www-data $WPATH/$PWPIN.txt
         chmod 640 $WPATH/$PWPIN.txt
         echo "Password for $1 is $NEWPW at"
-        echo "https://$MHOST/$PWPIN.txt"
+        echo "https://$VHOST/$PWPIN.txt"
     else
         echo "ERROR: $WPATH does not exist"
     fi
