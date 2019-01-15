@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/rmpwtxt 20190115 - 20190115
+# .sh/bin/delpwtxt 20190115 - 20190115
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: rmpwtxt" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: delpwtxt" && exit 1
 
 # Remove any files called ie; 1234.txt in root of all vhost websites
 FILES=$(find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt")
@@ -10,5 +10,5 @@ FILES=$(find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt")
 if [[ $FILES ]]; then
     # Check if being called from a cronjob and sleep for 15 mins
     [[ $TERM == dumb ]] && sleep 900
-    rm $(echo $FILES)
+    rm -f -v $(echo $FILES)
 fi
