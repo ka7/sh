@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# .sh/bin/shpwtxt 20190115 - 20190115
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: shpwtxt" && exit 1
+
+find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt"
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

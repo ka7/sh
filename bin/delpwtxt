@@ -8,7 +8,9 @@
 FILES=$(find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt")
 
 if [[ $FILES ]]; then
-    # Check if being called from a cronjob and sleep for 15 mins
+    # Check if being called from a (16 min) cronjob and sleep for 15 mins
     [[ $TERM == dumb ]] && sleep 900
     rm -f -v $(echo $FILES)
 fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
