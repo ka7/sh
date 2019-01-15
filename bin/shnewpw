@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shnewpw 20190114 - 20190114
+# .sh/bin/shnewpw 20190114 - 20190115
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: shnewpw [password] [vhost]" && exit 1
@@ -16,6 +16,7 @@ if [[ -f ~/.vhosts/$VHOST ]];then
         echo $VPASS > $WPATH/$PWPIN.txt
         chown $UUSER:www-data $WPATH/$PWPIN.txt
         chmod 640 $WPATH/$PWPIN.txt
+        echo "$WPATH/$PWPIN.txt"
         echo "$VPASS is at https://$VHOST/$PWPIN.txt"
     else
         echo "ERROR: $WPATH does not exist"
