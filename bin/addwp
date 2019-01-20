@@ -104,29 +104,6 @@ export PLUGINS=$(echo $(su $UUSER -c "wp plugin list --field=name --path=$FPATH"
 export PAGES=$(su $UUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
 export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
 
-#export THEMES=$(echo $(su $UUSER -c "wp theme list --field=name --path=$FPATH"))
-#export WIDGETS=$(su $UUSER -c "wp widget list sidebar-1 --format=ids --path=$FPATH")
-#wp widget delete $WIDGETS
-
-## Let's just use Elementor with the default twentyseventeen theme
-#echo 'Install astra theme'
-#wp theme --quiet install astra 2> /dev/null
-#echo 'Install astra-child theme'
-#wp scaffold child-theme astra-child --parent_theme=astra --theme_name='Astra Child Theme' --activate 2> /dev/null
-#wp theme delete twentyseventeen
-#echo 'Install astra-sites plugin'
-#wp plugin --quiet install astra-sites --activate 2> /dev/null
-
-## Use simply-static instead
-#echo 'Install wp-super-cache plugin'
-#wp plugin --quiet install wp-super-cache 2> /dev/null
-
-# Let's try the official Elementor Hello theme
-#echo 'Install twentyseventeen-child theme'
-#wp scaffold child-theme twentyseventeen-child --parent_theme=twentyseventeen --theme_name='Twenty Seventeen Child Theme' --activate 2> /dev/null
-#echo 'Install mainwp-child plugin'
-#wp plugin --quiet install mainwp-child 2> /dev/null
-
     su - $UUSER -c "
 cd $FPATH
 echo 'Install elementor-hello-theme theme'
@@ -141,29 +118,8 @@ wp post delete $PAGES
 
 echo 'Install elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
-echo 'Install header-footer-elementor plugin'
-wp plugin --quiet install header-footer-elementor 2> /dev/null
-
-echo 'Install simply-static plugin'
-wp plugin --quiet install simply-static --activate 2> /dev/null
-echo 'Install contact-form-7 plugin'
-wp plugin --quiet install contact-form-7 --activate 2> /dev/null
-echo 'Install user-switching plugin'
-wp plugin --quiet install user-switching --activate 2> /dev/null
-echo 'Install woocommerce plugin'
-wp plugin --quiet install woocommerce 2> /dev/null
-echo 'Install autoptimize plugin'
-wp plugin --quiet install autoptimize 2> /dev/null
-echo 'Install google-analytics-dashboard-for-wp plugin'
-wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
-
-# These may not be needed, but just in case
-echo 'Install wordpress-social-login plugin'
-wp plugin --quiet install wordpress-social-login 2> /dev/null
-echo 'Install jgc-google-recaptcha plugin'
-wp plugin --quiet install jgc-google-recaptcha 2> /dev/null
-echo 'Install google-analytics-dashboard-for-wp plugin'
-wp plugin --quiet install google-analytics-dashboard-for-wp 2> /dev/null
+echo 'Install pods plugin'
+wp plugin --quiet install pods 2> /dev/null
 
 wp post create --post_type=page --post_title='Home' --post_status=publish
 wp post create --post_type=page --post_title='News' --post_status=publish
