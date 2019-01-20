@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20180829
+# .sh/bin/newssl 20160121 - 20190120
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
+
+# Provide DHOOK env for dns-01 invocation, ex; use 'se' and add...
+#
+#export DHOOK=hooks/cf-hook.sh
+#export CF_EMAIL=your@email.address
+#export CF_KEY=Xbd63051f5f80a73790c3cddea812f735615X
 
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: newssl domain [subd subd...[--force][0.0.0.0]]" && exit 1
@@ -42,25 +48,22 @@ if [[ ! -d $WACME ]]; then
 fi
 
 cd $LECFG
-echo "WELLKNOWN=$WACME" > config
+echo "CONTACT_EMAIL=$AMAIL" > config
+
+if [[ $DHOOK ]]; then
+    echo "CHALLENGETYPE=dns-01" >> config
+    echo "HOOK=/etc/dehydrated/$DHOOK" >> config
+else
+    echo "WELLKNOWN=$WACME" >> config
+fi
 
 ./dehydrated -c -d $VHOST$SUBDS
 
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
-# For now these are not working so hardwire the mail and www subdomains
-#        if [[ mail.$VHOST =~ "$SUBDS" ]]; then
-#            cat << EOS >> $C_WEB/sites-enabled/$VHOST
-#EOS
-#        fi
-#
-#        if [[ www.$VHOST =~ "$SUBDS" ]]; then
-#            cat << EOS >> $C_WEB/sites-enabled/$VHOST
-#EOS
-#        fi
-
-        cat << EOS > $C_WEB/sites-enabled/$VHOST
+        if [[ mail.$VHOST =~ $SUBDS ]]; then
+            cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 mail.$VHOST;
@@ -71,6 +74,11 @@ server {
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     ssl_trusted_certificate     $C_SSL/$VHOST/chain.pem;
 }
+EOS
+        fi
+
+        if [[ www.$VHOST =~ $SUBDS ]]; then
+            cat << EOS >> $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 www.$VHOST;
@@ -78,6 +86,10 @@ server {
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     return 301                  https://$VHOST\$request_uri;
 }
+EOS
+        fi
+
+        cat << EOS > $C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
