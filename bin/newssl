@@ -58,7 +58,7 @@ else
 fi
 
 ./dehydrated -c -d $VHOST$SUBDS
-
+set -x
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
@@ -101,7 +101,7 @@ server {
 }
 EOS
     fi
-
+set +x
     chmod 755 $C_SSL/$VHOST
     [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
         && rm $C_WEB/sites-enabled/*.selfsigned
