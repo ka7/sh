@@ -1,4 +1,4 @@
-# .sh/etc/_etc_cron.d_netserva 20170614 - 20180901
+# .sh/etc/_etc_cron.d_netserva 20170614 - 20190120
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/root/.sh/bin
@@ -15,4 +15,4 @@ MAILTO=_MAILTO
 
 20 0 * * * root doveadm expunge -A mailbox Trash savedbefore 7d
 
-*/16 * * * * root bash -c 'FILES=$(find /home/u/*/var/www -maxdepth 1 -regex ".*/[0-9][0-9][0-9][0-9].txt") && [[ $FILES ]] && sleep 900 && rm -v $(echo $FILES)'
+*/16 * * * * root rmpwtxt
