@@ -6,9 +6,12 @@
 
 # Provide DHOOK env for dns-01 invocation, ex; use 'se' and add...
 #
-#export DHOOK=hooks/cf-hook.sh
+#export DHOOK=hook.sh
 #export CF_EMAIL=your@email.address
 #export CF_KEY=Xbd63051f5f80a73790c3cddea812f735615X
+#
+#Login to Cloudflare for CF_KEY then go to https://www.cloudflare.com/a/account/my-account
+#cd $LECFG; wget https://raw.githubusercontent.com/BotoX/dehydrated-cloudflare-hook/master/hook.sh
 
 [[ -z $1 || $1 =~ -h ]] && \
     echo "Usage: newssl domain [subd subd...[--force][0.0.0.0]]" && exit 1
@@ -58,7 +61,7 @@ else
 fi
 
 ./dehydrated -c -d $VHOST$SUBDS
-set -x
+
 if [[ $? -eq 0 ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
@@ -101,7 +104,7 @@ server {
 }
 EOS
     fi
-set +x
+
     chmod 755 $C_SSL/$VHOST
     [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
         && rm $C_WEB/sites-enabled/*.selfsigned
