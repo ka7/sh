@@ -15,4 +15,4 @@ MAILTO=_MAILTO
 
 20 0 * * * root doveadm expunge -A mailbox Trash savedbefore 7d
 
-*/16 * * * * root rmpwtxt
+*/16 * * * * root delpwtxt
