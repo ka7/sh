@@ -13,5 +13,5 @@ cat << EOS | $SQCMD
         round(size_upath/1000000,0) AS Upath
    FROM sysadm.vhost_log,sysadm.vhosts
   WHERE vhosts.id=vhost_log.hid
-  ORDER BY size_upath DESC"
+  ORDER BY size_upath DESC
 EOS
