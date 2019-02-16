@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# .sh/bin/shdu 20190216 - 20190216
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: shdu" && exit 1
+
+source ~/.vhosts/$(hostname -f) || exit 2
+
+cat << EOS
+ SELECT vhosts.domain as Domain,
+        round(size_mpath/1000000,0) AS Mpath,
+        round(size_wpath/1000000,0) AS Wpath,
+        round(size_upath/1000000,0) AS Upath,
+   FROM sysadm.vhost_log,sysadm.vhosts
+  WHERE vhosts.id=vhost_log.hid
+  ORDER BY size_upath DESC" | $SQCMD
