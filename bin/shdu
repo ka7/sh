@@ -10,7 +10,7 @@ cat << EOS | $SQCMD
  SELECT vhosts.domain as Domain,
         round(size_mpath/1000000,0) AS Mpath,
         round(size_wpath/1000000,0) AS Wpath,
-        round(size_upath/1000000,0) AS Upath,
+        round(size_upath/1000000,0) AS Upath
    FROM sysadm.vhost_log,sysadm.vhosts
   WHERE vhosts.id=vhost_log.hid
   ORDER BY size_upath DESC"
