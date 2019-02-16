@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+##!/usr/bin/env bash
 # .sh/bin/shdu 20190216 - 20190216
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
@@ -6,7 +6,10 @@
 
 source ~/.vhosts/$(hostname -f) || exit 2
 
-cat << EOS | $SQCMD
+printf "%-30s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
+echo "---------------------------------------------------------------"
+
+cat << EOS | $SQCMD | awk '{printf "%-30s %10d %10d %10d\n", $1, $2, $3, $4}'
  SELECT vhosts.domain as Domain,
         round(size_mpath/1000000,0) AS Mpath,
         round(size_wpath/1000000,0) AS Wpath,
