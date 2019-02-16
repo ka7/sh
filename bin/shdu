@@ -14,3 +14,4 @@ cat << EOS
    FROM sysadm.vhost_log,sysadm.vhosts
   WHERE vhosts.id=vhost_log.hid
   ORDER BY size_upath DESC" | $SQCMD
+EOS
