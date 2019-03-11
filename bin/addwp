@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20190112
+# .sh/bin/addwp 20160231 - 20190311
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -108,17 +108,21 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 cd $FPATH
 echo 'Install elementor-hello-theme theme'
 git clone https://github.com/pojome/elementor-hello-theme.git wp-content/themes/elementor-hello-theme
-echo 'Activate elementor-hello-theme theme'
-wp theme --quiet activate elementor-hello-theme 2> /dev/null
+
+echo 'Install and activate the Astra theme'
+wp theme --quiet install astra 2> /dev/null
+wp theme --quiet activate astra 2> /dev/null
 
 wp theme delete twentysixteen twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
 
-echo 'Install elementor plugin'
+echo 'Install Elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
-echo 'Install pods plugin'
+echo 'Install Autoptimize plugin'
+wp plugin --quiet install autoptimize 2> /dev/null
+echo 'Install Pods plugin'
 wp plugin --quiet install pods 2> /dev/null
 
 wp post create --post_type=page --post_title='Home' --post_status=publish
