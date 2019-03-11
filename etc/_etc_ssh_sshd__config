@@ -1,5 +1,8 @@
-# .sh/etc/_etc_ssh_sshd__config 20180225 - 20180225
+# .sh/etc/_etc_ssh_sshd__config 20180225 - 20190311
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# PermitRootLogin yes
+# LogLevel VERBOSE (or DEBUG)
 
 Port 9
 MaxAuthTries 3
