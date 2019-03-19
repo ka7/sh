@@ -1,0 +1,19 @@
+##!/usr/bin/env bash
+# .sh/bin/shwho 20190319 - 20190319
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: shwho domain" && exit 1
+
+whois $1 | egrep "^(Registrar:|Registrar Name:|Name Server:|DNSSEC:)"
+
+echo "$1 = $(dig +short $1)"
+
+IP=$(dig +short mail.$1)
+
+if [[ $IP ]]; then
+   echo "mail.$1 = $IP"
+   PTR=$(dig +short -x $IP)
+   [[ $PTR ]] && echo "$IP = $PTR"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
