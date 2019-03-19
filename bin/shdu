@@ -18,3 +18,5 @@ cat << EOS | $SQCMD | awk '{printf "%-30s %10d %10d %10d\n", $1, $2, $3, $4}'
   WHERE vhosts.id=vhost_log.hid
   ORDER BY size_upath DESC
 EOS
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
