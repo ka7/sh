@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20180928
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/delvhost 20170216 - 20190321
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: delvhost [domain]" && exit 1
 
@@ -104,14 +104,15 @@ echo "!!! Create $BFILE"
 tar czf $BFILE $UPATH > /dev/null 2>&1
 
 # check for VHOST,IP
-UUSER=$(getent passwd | awk -F: "/:$VHOST:/ {print \$1}")
+UUSER=$(getent passwd | awk -F: "/:$VHOST[,:]/ {print \$1}")
 
 if [[ -z $UUSER ]]; then
-    echo "!!! Warning: $UUSER does not exist"
+    echo "!!! Warning: '$UUSER' does not exist"
 else
     echo "!!! Remove $UUSER"
     userdel -rf $UUSER > /dev/null 2>&1
 fi
+
 if [[ -d $UPATH ]]; then
     echo "!!! Remove $UPATH"
     rm -rf $UPATH

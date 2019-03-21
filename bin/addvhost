@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .sh/bin/addvhost 20170217 - 20190321
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
 
