@@ -258,9 +258,10 @@ if [[ $DOSSL == self ]]; then
 
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         echo "*** Create $C_WEB/sites-enabled/$VHOST.selfsigned"
+        [[ $USEIP ]] && USEIP="$USEIP:"
         cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
-    listen                      443 ssl http2;
+    listen                      ${USEIP}443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
