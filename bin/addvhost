@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20180909
+# .sh/bin/addvhost 20170217 - 20190320
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [plan(personal|business)] [ip] [nossl] [nowp]" && exit 1
+# Move anything to do with hosting plans into another script
+
+[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [cms(none|wp)] [ssl(le|self)] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -13,9 +15,9 @@ source /root/.shrc || exit 3
 
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
-USEIP=${3:-''}
-DOSSL=${4:-''}
-DO_WP=${5:-''}
+DOCMS=${2:-''}
+DOSSL=${3:-''}
+USEIP=${4:-''}
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
@@ -36,18 +38,11 @@ fi
 
 source /root/.vhosts/$VHOST
 
-# This "plans" section needs to be moved into a database
-if [[ $2 == business ]]; then
-    V_ALIASES="100"
-    V_DISKQUOTA="10000000000"
-    V_MAILBOXES="10"
-    V_MAILQUOTA="1000000000"
-else
-    V_ALIASES="10"
-    V_DISKQUOTA="1000000000"
-    V_MAILBOXES="1"
-    V_MAILQUOTA="500000000"
-fi
+# Set some default minimal hosting plan settings
+V_ALIASES="10"
+V_DISKQUOTA="1000000000"
+V_MAILBOXES="1"
+V_MAILQUOTA="500000000"
 
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 V_UPDATED=$V_CREATED
@@ -71,7 +66,7 @@ else
     [[ -n $UPASS && $UPASS != $APASS ]] && { echo $UUSER:$UPASS | chpasswd; }
 fi
 
-echo "!!! Create entry in $ADMIN.vhosts ($DTYPE) DISK QUOTA = $V_DISKQUOTA, MAIL QUOTA = $V_MAILQUOTA"
+echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
 DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
         active,
@@ -237,7 +232,7 @@ serva reload php
 #DNSIP=$(host -t a $VHOST|cut -d' ' -f4)
 #if [[ $LOCIP =~ ^192.168 || $LOCIP =~ ^10 ]]; then
 
-if [[ $DOSSL == nossl ]]; then
+if [[ $DOSSL == self ]]; then
     echo "*** Note: if this server has outside net access with DNS"
     echo "***       pointing a public IP to it's FQDN then use"
     echo "***           newssl $VHOST mail www [IP]"
@@ -299,14 +294,18 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
 )
 EOS
 )
-set -x
-if [[ -d $WPATH && $DTYPE == mysql && $VHOST != $AHOST && $DO_WP != nowp ]]; then
-    addwp $VHOST
-    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
-    [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
-    [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
+
+if [[ -d $WPATH && $DOCMS == wp ]]; then
+    if [[ $DTYPE == mysql ]]; then
+        addwp $VHOST
+        [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
+        [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
+        [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
+    else
+        echo "!!! ERROR: WordPress requires MySQL"
+    fi
 fi
-set +x
+
 logging $VHOST update
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
