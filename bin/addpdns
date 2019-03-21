@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# .sh/bin/addpdns 20180709 - 20190320
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [sshkey]" && exit 1
+
+VHOST=$1
+IP4_0=$2
+NSONE=$3
+NSTWO=$4
+MYKEY=${5:-"/root/.ssh/id_rsa"}
+
+# Check if zone already exists
+pdnsutil list-zone $VHOST 2> /dev/null && exit
+
+# Create zone, add first nameserver
+pdnsutil create-zone $VHOST $NSONE > /dev/null 2>&1
+
+# Add second nameserver
+pdnsutil add-record $VHOST . NS $NSTWO > /dev/null 2>&1
+
+# Add primary A record
+pdnsutil add-record $VHOST @ A $IP4_0 > /dev/null 2>&1
+
+# Add subdomain A records
+pdnsutil add-record $VHOST mail A $IP4_0 > /dev/null 2>&1
+pdnsutil add-record $VHOST www A $IP4_0 > /dev/null 2>&1
+
+# Add SSL CAA records for letsencrypt.org
+pdnsutil add-record $VHOST @ CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
+pdnsutil add-record $VHOST www CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
+pdnsutil add-record $VHOST mail CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
+
+# Add MX record
+pdnsutil add-record $VHOST @ MX "10 mail.$VHOST" > /dev/null 2>&1
+
+# Add SPF records
+pdnsutil add-record $VHOST @ TXT \""v=spf1 ip4:$IP4_0/32 -all"\" > /dev/null 2>&1
+
+# Add DMARC record
+pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:postmaster@$VHOST"\" > /dev/null 2>&1
+
+# Add DKIM record to server then update DNS
+if [[ ! -f $MYKEY ]]; then
+    echo "+++ ERROR: $MYKEY missing, can't proceed with DKIM record"
+else
+    DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    _DKEY=$($DOSSH $IP4_0 ". .shrc; dkim list | grep mail._domainkey.$VHOST")
+    if [[ $_DKEY != mail._domainkey.$VHOST ]]; then
+        echo "+++ Adding DKIM record to $IP4_0"
+        $DOSSH $IP4_0 ". .shrc; dkim add $VHOST"
+    fi
+    _DKIM=$($DOSSH $IP4_0 ". .shrc; dkim show $VHOST" | grep "v=DKIM1")
+    if [[ $_DKIM ]]; then
+        pdnsutil add-record $VHOST mail._domainkey TXT \""v=DKIM1; k=rsa; p=$_DKIM"\"
+    fi
+fi
+
+# Change zone type from NATIVE to MASTER
+pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1
+
+# Show the resulting zone entries
+pdnsutil list-zone $VHOST 2> /dev/null
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
