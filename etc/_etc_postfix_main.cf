@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20180822
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20190414
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -28,7 +28,7 @@ home_mailbox = Maildir/
 inet_interfaces = all
 inet_protocols = ipv4
 mailbox_size_limit = 0
-message_size_limit = 40000000
+message_size_limit = 52428800
 milter_default_action = accept
 milter_protocol = 2
 mydestination = localhost
