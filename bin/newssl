@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20190120
+# .sh/bin/newssl 20160121 - 20190423
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
@@ -28,7 +28,7 @@ for SUB in $_ARGS; do
 done
 
 AHOST=$(hostname -f|tr 'A-Z' 'a-z')
-WPATH="$VPATH/$VHOST/var/www"
+WPATH="$VPATH/mail.$VHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
 LECFG="/etc/dehydrated"
