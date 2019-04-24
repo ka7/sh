@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20190120
+# .sh/bin/setup-deb 20170519 - 20190424
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -143,7 +143,7 @@ $EXDEB -u dist-upgrade > /dev/null #2>&1
 echo "<<< Installing default package set, yet more patience..."
 $EXDEB install $DLIST > /dev/null #2>&1
 
-if [[ -f /usr/bin/python3 && -n $RLIST ]]; then
+if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null 2>&1
     # This action removes /sbin/netplan so replace it with systemd-networkd

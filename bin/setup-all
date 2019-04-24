@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180828
+# .sh/bin/setup-all 20170519 - 20180424
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -10,8 +10,9 @@ VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-'mysql'}
 USEIP=${3:-''}
 VPLAN=${4:-'personal'}
+
 HNAME=${VHOST%%.*} # hostname
-DNAME=${VHOST#*.*} # domainname
+PNAME=${VHOST#*.*} # primary domain
 
 echo "### Entering setup-host as $VHOST with $DTYPE"
 setup-host $VHOST $DTYPE $USEIP
@@ -28,6 +29,6 @@ addvhost $DNAME $VPLAN
 
 MAILTO=${MAILTO:-$AMAIL}
 echo "### Send message to: $MAILTO"
-cat ~/.vhosts/$DNAME.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $DNAME - $(hostname -i)" -r admin@$DNAME $MAILTO
+cat ~/.vhosts/$PNAME.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $PNAME - $(hostname -i)" -r admin@$PNAME $MAILTO
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
