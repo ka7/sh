@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20180909
+# .sh/bin/setup-host 20170524 - 20190424
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Essential host package list, adjust accordingly
@@ -28,8 +28,8 @@ HLIST="
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-OSREL=${4:-'bionic'}
-OSMIR=${5:-'archive.ubuntu.com'}
+OSREL=${5:-'bionic'}
+OSMIR=${6:-'archive.ubuntu.com'}
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
