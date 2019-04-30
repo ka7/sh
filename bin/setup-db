@@ -323,33 +323,6 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
             LEFT JOIN vmails vm ON vh.id = vm.hid
                 LEFT JOIN valias va ON vh.id = va.hid
   GROUP BY vh.id, hl.size_mpath, hl.size_upath;
-
-CREATE UNIQUE INDEX name_index ON domains (name);
-CREATE INDEX rec_name_index ON records (name);
-CREATE INDEX nametype_index ON records (name,type);
-CREATE INDEX domain_id ON records (domain_id);
-CREATE INDEX orderindex ON records (ordername);
-CREATE UNIQUE INDEX ip_nameserver_pk ON supermasters (ip, nameserver);
-CREATE INDEX comments_domain_id_index ON comments (domain_id);
-CREATE INDEX comments_nametype_index ON comments (name, type);
-CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
-CREATE INDEX domainmetaidindex ON domainmetadata (domain_id);
-CREATE INDEX domainidindex ON cryptokeys (domain_id);
-CREATE UNIQUE INDEX namealgoindex ON tsigkeys (name, algorithm);
-
-CREATE INDEX accounts_grp ON accounts (grp);
-CREATE INDEX accounts_acl ON accounts (acl);
-CREATE UNIQUE INDEX accounts_login ON accounts (login);
-CREATE UNIQUE INDEX vhosts_domain ON vhosts (domain);
-CREATE INDEX vhosts_aid ON vhosts (aid);
-CREATE INDEX vhost_log_ymd ON vhost_log (ymd);
-CREATE INDEX vmail_log_ymd ON vmail_log (ymd);
-CREATE UNIQUE INDEX virtual_users_user ON vmails (user);
-CREATE INDEX virtual_users_hid ON vmails (hid);
-CREATE INDEX mail_users_aid ON vmails (aid);
-CREATE INDEX virtual_aliases_source ON valias (source);
-CREATE INDEX virtual_aliases_hid ON valias (hid);
-CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
 
 # Temporary BION tables
@@ -393,5 +366,35 @@ if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
     ln $ADMIN/$(basename $DPATH) dovecot
     ln $ADMIN/$(basename $DPATH) postfix
 fi
+
+# Put create indexes last because when rerun it will fail
+cat << EOS | $SQCMD
+CREATE UNIQUE INDEX name_index ON domains (name);
+CREATE INDEX rec_name_index ON records (name);
+CREATE INDEX nametype_index ON records (name,type);
+CREATE INDEX domain_id ON records (domain_id);
+CREATE INDEX orderindex ON records (ordername);
+CREATE UNIQUE INDEX ip_nameserver_pk ON supermasters (ip, nameserver);
+CREATE INDEX comments_domain_id_index ON comments (domain_id);
+CREATE INDEX comments_nametype_index ON comments (name, type);
+CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
+CREATE INDEX domainmetaidindex ON domainmetadata (domain_id);
+CREATE INDEX domainidindex ON cryptokeys (domain_id);
+CREATE UNIQUE INDEX namealgoindex ON tsigkeys (name, algorithm);
+
+CREATE INDEX accounts_grp ON accounts (grp);
+CREATE INDEX accounts_acl ON accounts (acl);
+CREATE UNIQUE INDEX accounts_login ON accounts (login);
+CREATE UNIQUE INDEX vhosts_domain ON vhosts (domain);
+CREATE INDEX vhosts_aid ON vhosts (aid);
+CREATE INDEX vhost_log_ymd ON vhost_log (ymd);
+CREATE INDEX vmail_log_ymd ON vmail_log (ymd);
+CREATE UNIQUE INDEX virtual_users_user ON vmails (user);
+CREATE INDEX virtual_users_hid ON vmails (hid);
+CREATE INDEX mail_users_aid ON vmails (aid);
+CREATE INDEX virtual_aliases_source ON valias (source);
+CREATE INDEX virtual_aliases_hid ON valias (hid);
+CREATE INDEX mail_aliases_aid ON valias (aid);
+EOS
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
