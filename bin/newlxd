@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20190120
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+# .sh/bin/newlxd 20171013 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+set -x
 # No need to be run as root so we need OSREL and DTYPE
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro(bionic)] [static IP/24] [gateway IP]" && exit 1
