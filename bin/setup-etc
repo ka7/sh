@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20190109
+# .sh/bin/setup-etc 20151231 - 20190430
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -46,7 +46,10 @@ if [[ ! -f $CSMTP/main.cf.orig ]]; then
         echo "^^^ Append MySQL details to $CSMTP/main.cf"
         cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
     fi
-    chmod 644 $CSMTP/main.cf
+
+    echo "/^Subject:/      WARN" > $CSMTP/header_checks
+
+    chmod 644 $CSMTP/main.cf $CSMTP/header_checks
 fi
 
 if [[ ! -f $CSMTP/master.cf.orig ]]; then
@@ -292,14 +295,16 @@ if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
     echo "^^^ Create generic Port 80 nginx default config"
     [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
-    cat << EOS >> $C_WEB/sites-enabled/_default
-server {
-    listen                      80;
-    server_name                 ~^$HNAME\.(?<domain>.+)$;
-    location                    ^~ /.well-known { root /home/u/\$domain/var/www; }
-    location                    / { return 301 https://$HNAME.\$domain\$request_uri; }
-}
-EOS
+    sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
+
+#    cat << EOS >> $C_WEB/sites-enabled/_default
+#server {
+#    listen                      80;
+#    server_name                 ~^$HNAME\.(?<domain>.+)$;
+#    location                    ^~ /.well-known { root /home/u/\$domain/var/www; }
+#    location                    / { return 301 https://$HNAME.\$domain\$request_uri; }
+#}
+#EOS
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then

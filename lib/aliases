@@ -1,5 +1,5 @@
-# .sh/lib/aliases 20151231 - 20180613
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/aliases 20151231 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 alias ?='bash ~/.help'
 alias c='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
@@ -60,3 +60,6 @@ alias mgrep='mlog | grep '
 alias alog='tail -f ../log/access.log'
 alias plog='tail -f ../log/php-errors.log'
 alias elog='tail -f /var/log/nginx/error.log'
+
+# Depends on /etc/postfix/header_checks
+alias maillog="journalctl -f -n 10000 | stdbuf -oL grep 'warning: header Subject:' | sed -e 's/mail .*warning: header Subject:\(.*\)/\1/' -e 's/ from .*];//' -e 's/proto=.*$//'"

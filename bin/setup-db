@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20180527
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/setup-db.sh 20170319 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
-#CREATE TABLE `cookie` IF NOT EXISTS(
-#`user_id` INT,
-#`cookie` CHAR(64),
-#`expire` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#CREATE TABLE cookie IF NOT EXISTS(
+#user_id INT,
+#cookie CHAR(64),
+#expire TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 #primary key(user_id, cookie)
 #);
 
@@ -352,7 +352,40 @@ CREATE INDEX virtual_aliases_hid ON valias (hid);
 CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
 
-if [[ $DTYPE == sqlite ]]; then
+# Temporary BION tables
+cat << EOS | $SQCMD
+CREATE TABLE IF NOT EXISTS bion_clients (
+  id $SQLPK,
+   name varchar(63) NOT NULL,
+   login varchar(63) NOT NULL,
+   admin varchar(63) NOT NULL,
+   updated datetime NOT NULL,
+   created datetime NOT NULL
+);
+CREATE TABLE IF NOT EXISTS bion_sites (
+  id $SQLPK,
+   client varchar(63) NOT NULL,
+   name varchar(63) NOT NULL,
+   city varchar(63) NOT NULL,
+   postcode int(11) NOT NULL,
+   updated datetime NOT NULL,
+   created datetime NOT NULL
+);
+CREATE TABLE IF NOT EXISTS bion_units (
+  id $SQLPK,
+   site varchar(63) NOT NULL,
+   name varchar(63) NOT NULL,
+   port int(11) NOT NULL,
+   link_user varchar(127) NOT NULL,
+   link_admin varchar(127) NOT NULL,
+   link_files varchar(127) NOT NULL,
+   link_charts varchar(127) NOT NULL,
+   updated datetime NOT NULL,
+   created datetime NOT NULL
+);
+EOS
+
+if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
     echo "||| Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN

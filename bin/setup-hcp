@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20180829
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-hcp 20170519 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
@@ -15,6 +15,14 @@ if [[ -d $WPATH ]]; then
 else
     echo "@@@ Create $VHOST with $DTYPE"
     addvhost
+fi
+
+if [[ -d $WPATH/autodiscover.php ]]; then
+    echo "@@@ $WPATH/autodiscover.php already exists"
+else
+    echo "@@@ Setup $WPATH/autodiscover.php with $MHOST"
+    cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/autodiscover.php
+    sed -i $WPATH/autodiscover.php -e "s/_MHOST/$MHOST/g"
 fi
 
 if [[ -d $WPATH/hcp ]]; then

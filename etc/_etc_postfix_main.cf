@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20190414
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20190430
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -24,6 +24,7 @@ alias_maps = hash:/etc/aliases
 append_dot_mydomain = no
 biff = no
 compatibility_level = 2
+header_checks = regexp:/etc/postfix/header_checks
 home_mailbox = Maildir/
 inet_interfaces = all
 inet_protocols = ipv4

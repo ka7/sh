@@ -1,21 +1,35 @@
-# .sh/etc/_etc_nginx_sites-enables__default 20170515 - 20180626
+# .sh/etc/_etc_nginx_sites-enables__default 20170515 - 20190430
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 server {
     listen                      80;
+    server_name                 ~^autoconfig\.(?<domain>.+)$;
+    location                    ^/mail/config-v1.1.xml { root /home/u/_MHOST/var/www; }
+    location                    ^~ /.well-known { root /home/u/_MHOST/var/www; }
+    location                    / { return 301 https://autoconfig.$domain$request_uri; }
+}
+server {
+    listen                      80;
+    server_name                 ~^autodiscover\.(?<domain>.+)$;
+    location                    ^/autodiscover/autodiscover.xml$ { root /home/u/_MHOST/var/www; }
+    location                    ^~ /.well-known { root /home/u/_MHOST/var/www; }
+    location                    / { return 301 https://autodiscover.$domain$request_uri; }
+}
+server {
+    listen                      80;
     server_name                 ~^www\.(?<domain>.+)$;
-    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    ^~ /.well-known { root /home/u/_MHOST/var/www; }
     location                    / { return 301 https://$domain$request_uri; }
 }
 server {
     listen                      80;
     server_name                 ~^mail\.(?<domain>.+)$;
-    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    ^~ /.well-known { root /home/u/_MHOST/var/www; }
     location                    / { return 301 https://$domain$request_uri; }
 }
 server {
     listen                      80;
     server_name                 ~^(?<domain>.+);
-    location                    ^~ /.well-known { root /home/u/$domain/var/www; }
+    location                    ^~ /.well-known { root /home/u/_MHOST/var/www; }
     location                    / { return 301 https://$domain$request_uri; }
 }
