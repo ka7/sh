@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20180424
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-all 20170519 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.domain.name] [(mysql)|sqlite] [IP] [plan(personal|business)]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.domain.name] [(mysql)|sqlite] [IP]" && exit 1
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-'mysql'}
 USEIP=${3:-''}
-VPLAN=${4:-'personal'}
 
 HNAME=${VHOST%%.*} # hostname
 PNAME=${VHOST#*.*} # primary domain
@@ -25,7 +24,9 @@ setup-etc
 echo "### Entering setup-hcp"
 setup-hcp
 echo "### Add primary domain.name"
-addvhost $DNAME $VPLAN
+addvhost $PNAME
+
+source /root/.vhosts/$PNAME
 
 MAILTO=${MAILTO:-$AMAIL}
 echo "### Send message to: $MAILTO"

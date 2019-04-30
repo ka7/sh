@@ -220,9 +220,9 @@ if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendkim.service"
     cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
     chmod 644 /etc/systemd/system/opendkim.service
-    update-rc.d opendkim disable
-    systemctl daemon-reload
-    systemctl enable opendkim
+#?    update-rc.d opendkim disable
+    systemctl daemon-reload > /dev/null 2>&1
+    systemctl enable opendkim > /dev/null 2>&1
     systemctl restart opendkim
 fi
 
@@ -236,9 +236,9 @@ if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendmarc.service"
     cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
     chmod 644 /etc/systemd/system/opendmarc.service
-    update-rc.d opendmarc disable
-    systemctl daemon-reload
-    systemctl enable opendmarc
+#?    update-rc.d opendmarc disable
+    systemctl daemon-reload > /dev/null 2>&1
+    systemctl enable opendmarc > /dev/null 2>&1
     systemctl restart opendmarc
 fi
 
