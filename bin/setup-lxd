@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20180610
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-lxd 20170519 - 20190430
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
@@ -31,12 +31,11 @@ if [[ $? -eq 0 ]]; then
 else
     echo "--- Install lxd with $PSIZE GB $LSTOR lxd-pool at $IP4_0 with pw $APASS"
     TMP=$([[ $LSTOR != dir ]] && echo "--storage-create-loop $PSIZE --storage-pool lxd-pool")
-    # switch group to lxd
-    sg lxd -c "lxd init --auto \
+    lxd init --auto \
       --network-address $IP4_0 \
       --network-port 8443 \
       --storage-backend $LSTOR $TMP \
-      --trust-password $APASS"
+      --trust-password $APASS
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
