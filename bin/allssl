@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/allssl 20170304 - 20180901
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/allssl 20170304 - 20190502
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
 
@@ -10,6 +10,7 @@
 
 LECFG=/etc/dehydrated
 C_SSL=/etc/ssl
+AHOST=$(hostname -f|tr 'A-Z' 'a-z')
 
 [[ -n $1 && $1 == 'force' ]] && FORCE="--force" || FORCE=""
 
@@ -24,7 +25,8 @@ ALL=$(/bin/ls -1 $C_SSL/*/fullchain.pem)
 for i in $ALL; do
     ALTCN=$(openssl x509 -noout -text -in $i | awk -F' DNS:' '/DNS:/ {print $2$3$4$5$6}')
     VHOST=$(basename $(dirname $i))
-    WPATH=/home/u/$VHOST/var/www
+#    WPATH=/home/u/$VHOST/var/www
+    WPATH=/home/u/$AHOST/var/www
     VACME=$WPATH/.well-known/acme-challenge
 
     if [[ ! -d $VACME ]]; then

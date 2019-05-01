@@ -54,7 +54,7 @@ lxc exec $_HOST -- bash -c "echo $_HOST > /etc/hostname; hostname $_HOST"
 
 if [[ $NEWIP ]]; then
     echo "--- Setup static IP in /etc/systemd/network/00-static.network"
-    lxc exec $_HOST -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW' > /etc/systemd/network/00-static.network"
+    lxc exec $_HOST -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
 else
     echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
     lxc exec $_HOST -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
