@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20190430
+# .sh/bin/newlxd 20171013 - 20190510
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
 # No need to be run as root so we need OSREL and DTYPE
@@ -7,11 +7,13 @@ set -x
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro(bionic)] [static IP/24] [gateway IP]" && exit 1
 
 VHOST=$1
-_HOST=${VHOST/%\.*/}
 DTYPE=${3:-'mysql'}
 OSREL=${4:-'bionic'}
 NEWIP=${5:-''}
 NEWGW=${6:-''}
+
+HNAME=${VHOST%%.*} # hostname
+PFQDN=${VHOST#*.*} # parent FQDN
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
@@ -47,45 +49,49 @@ if [[ $? -eq 1 ]]; then
     lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
 fi
 
-lxc launch ubuntu-minimal:$OSREL $_HOST -p $PNAME
+lxc launch ubuntu-minimal:$OSREL $HNAME -p $PNAME
 
-echo "--- Setup '$_HOST' hostname as $VHOST"
-lxc exec $_HOST -- bash -c "echo $_HOST > /etc/hostname; hostname $_HOST"
+echo "--- Setup '$HNAME' hostname as $VHOST"
+lxc exec $HNAME -- bash -c "echo $HNAME > /etc/hostname; hostname $HNAME"
+
+# temporary debug
+lxc exec $HNAME -- bash -c "echo; ip a; ip r; echo"
 
 if [[ $NEWIP ]]; then
     echo "--- Setup static IP in /etc/systemd/network/00-static.network"
-    lxc exec $_HOST -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
+    lxc exec $HNAME -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
+    lxc exec $HNAME -- bash -c "echo -e '\n$NEWIP\t$VHOST $PFQDN $HNAME\n' > /etc/hosts"
 else
     echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
-    lxc exec $_HOST -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
+    lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 fi
 
 echo "--- Wait 60 secs for network to become available..."
-lxc exec $_HOST -- systemctl restart systemd-networkd
+lxc exec $HNAME -- systemctl restart systemd-networkd
 
 sleep 60
 
 echo "--- Update current package list"
-lxc exec $_HOST -- apt-get -qq update
+lxc exec $HNAME -- apt-get -qq update
 
 echo "--- Upgrade current packages"
-lxc exec $_HOST -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
+lxc exec $HNAME -- apt-get -qq -y -u dist-upgrade > /dev/null 2>&1
 
 echo "--- Make sure basic essential packages are available"
-lxc exec $_HOST -- apt-get -qq -y install --no-install-recommends \
+lxc exec $HNAME -- apt-get -qq -y install --no-install-recommends \
     ca-certificates curl git nano net-tools openssh-server rsync wget > /dev/null 2>&1
 
 # Continue container setup if the HOST is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
-    echo "--- Setting up NetServa SH/HCP in '$_HOST' container"
-    lxc exec $_HOST -- bash -c "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
+    echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
+    lxc exec $HNAME -- bash -c "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
     [[ -f ~/.ssh/id_rsa.pub ]] && {
-        lxc file push --mode=600 ~/.ssh/id_rsa.pub $_HOST/root/.ssh/authorized_keys
-        lxc exec $_HOST -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
+        lxc file push --mode=600 ~/.ssh/id_rsa.pub $HNAME/root/.ssh/authorized_keys
+        lxc exec $HNAME -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
     }
-    lxc exec $_HOST -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    lxc exec $_HOST -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE"
-    LXDIP=$(lxc exec $_HOST -- bash -lc "hostname -i|cut -d' ' -f -1")
+    lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+    lxc exec $HNAME -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE"
+    LXDIP=$(lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1")
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
 

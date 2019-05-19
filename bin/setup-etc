@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20190430
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-etc 20151231 - 20190510
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
@@ -10,7 +10,7 @@ source /root/.shrc || exit 3
 
 DTYPE=${1:-$DTYPE}
 HNAME=${VHOST%%.*} # hostname
-DNAME=${VHOST#*.*} # domainname
+PFQDN=${VHOST#*.*} # parent FQDN
 
 # Temporary self-signed SSL certificate defaults (not needed anymore?)
 C="AU"
@@ -36,7 +36,7 @@ if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "^^^ Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
 
-    sed -e "s/_VHOST/$DNAME/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+    sed -e "s/_VHOST/$PFQDN/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
         ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
 
     if [[ $DTYPE == sqlite ]]; then
@@ -134,7 +134,7 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
 
-    sed -e "s/_VHOST/$DNAME/" \
+    sed -e "s/_VHOST/$PFQDN/" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
 
     if [[ $DTYPE == sqlite ]]; then
