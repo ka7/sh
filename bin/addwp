@@ -107,8 +107,8 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
     su - $UUSER -c "
 cd $FPATH
 echo 'Install and activate the Hello Elementor theme'
-wp theme --quiet install hello-elementor/ 2> /dev/null
-wp theme --quiet activate hello-elementor/ 2> /dev/null
+wp theme --quiet install hello-elementor 2> /dev/null
+wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate
 
 wp theme delete twentysixteen twentyseventeen
 wp plugin delete $PLUGINS
@@ -143,7 +143,7 @@ wp option update page_on_front $HOMEPAGE
 wp option update page_for_posts $NEWSPAGE
 wp option update show_on_front page
 "
-    cat << EOS >> $FPATH/wp-content/themes/elementor-hello-theme/functions.php
+    cat << EOS >> $FPATH/wp-content/themes/hello-elementor-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
 add_action('admin_head', function() {
     echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
