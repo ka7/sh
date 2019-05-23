@@ -106,9 +106,9 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
     su - $UUSER -c "
 cd $FPATH
-echo 'Install and activate the Hello Elementor theme'
+echo 'Install and activate the Hello Elementor Child theme'
 wp theme --quiet install hello-elementor 2> /dev/null
-wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate
+wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
 
 wp theme delete twentysixteen twentyseventeen
 wp plugin delete $PLUGINS
