@@ -9,6 +9,8 @@ VHOST=$1
 PROXY=$2
 IPARG=${3:-''}
 
+[[ $IPARG ]] && IPARG="$IPARG:"
+
 #IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
 
 AHOST=$(hostname -f|tr 'A-Z' 'a-z')
