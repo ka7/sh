@@ -11,17 +11,23 @@ CIMAP=/etc/dovecot
 if [[ ! -d $CIMAP/vhosts ]]; then
     echo "^^^ Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
+else
+    echo "^^^ $CIMAP/vhosts exists"
 fi
 
 if [[ ! -d $CIMAP/sieve ]]; then
     echo "^^^ Create $CIMAP/sieve"
     mkdir $CIMAP/sieve
+else
+    echo "^^^ $CIMAP/sieve exists"
 fi
 
-if [[ ! -d $CIMAP/sieve/spamprobe ]]; then
+if [[ ! -f $CIMAP/sieve/spamprobe ]]; then
     echo "^^^ Create $CIMAP/sieve/spamprobe symlink"
     cd $CIMAP/sieve
     ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
+else
+    echo "^^^ $CIMAP/sieve/spamprobe exists"
 fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
@@ -31,6 +37,8 @@ require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
 if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
 EOS
+else
+    echo "^^^ $CIMAP/sieve/retrain-as-good.sieve exists"
 fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
@@ -39,6 +47,8 @@ if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
 require ["vnd.dovecot.execute"];
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
 EOS
+else
+    echo "^^^ $CIMAP/sieve/retrain-as-spam.sieve exists"
 fi
 
 if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
@@ -53,4 +63,11 @@ execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lh
 addheader :last "X-Spam" "${SCORE}";
 if header :matches "X-Spam" "SPAM*" { fileinto "Junk"; }
 EOS
+else
+    echo "^^^ $CIMAP/sieve/global.sieve exists"
 fi
+
+find $CIMAP -type f | grep -v conf.d/ | sort
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+
