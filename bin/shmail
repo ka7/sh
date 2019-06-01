@@ -20,7 +20,7 @@ fi
 
 cd $MPATH/Maildir
 
-find -maxdepth 1 -type d -name "cur" -o -name "new"|sort -f|xargs -0| (
+find -maxdepth 1 -type d -name "cur" -o -name "new"|sort|xargs -0| (
     N1=0; N2=0; N1STR=""
     while read dir; do
         [[ -z $dir ]] && continue
