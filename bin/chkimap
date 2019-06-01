@@ -7,6 +7,8 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 CIMAP=/etc/dovecot
+PHOST=$(hostname -f|tr 'A-Z' 'a-z')
+PFQDN=${PHOST#*.*} # parent FQDN
 
 if [[ ! -d $CIMAP/vhosts ]]; then
     echo "^^^ Create $CIMAP/vhosts"
@@ -69,7 +71,10 @@ fi
 
 grep -q global.sieve $CIMAP/dovecot.conf
 if [[ $? -eq 1 ]]; then
-    echo "$CIMAP/dovecot.conf is not updated"
+    echo "$CIMAP/dovecot.conf will be updated"
+    mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.old
+    sed -e "s/_VHOST/$PFQDN/" \
+        ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
 else
     echo "$CIMAP/dovecot.conf is uptodate"
 fi
