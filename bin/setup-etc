@@ -146,6 +146,48 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     fi
 fi
 
+if [[ ! -d $CIMAP/sieve ]]; then
+    echo "^^^ Create $CIMAP/sieve"
+    mkdir $CIMAP/sieve
+fi
+
+if [[ ! -d $CIMAP/sieve/spamprobe ]]; then
+    echo "^^^ Create $CIMAP/sieve/spamprobe symlink"
+    cd $CIMAP/sieve
+    ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
+fi
+
+if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
+    echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
+    cat << 'EOS' > $CIMAP/sieve/retrain-as-good.sieve
+require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
+if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
+execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
+EOS
+fi
+
+if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
+    echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
+    cat << 'EOS' > $CIMAP/sieve/retrain-as-spam.sieve
+require ["vnd.dovecot.execute"];
+execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
+EOS
+fi
+
+if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
+    echo "*** Create $CIMAP/sieve/global.sieve"
+    cat << 'EOS' > $CIMAP/sieve/global.sieve
+require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
+if header :contains "from" ["root@", "daemon@", "postmaster@"] { fileinto "Trash";
+} elsif header :contains "to" ["root@", "daemon@", "postmaster@"] { fileinto "Trash"; }
+if envelope :localpart :matches "to" "*" { set "lhs" "${1}"; }
+if envelope :domain :matches "to" "*" { set "rhs" "${1}"; }
+execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lhs}/.spamprobe", "receive"];
+addheader :last "X-Spam" "${SCORE}";
+if header :matches "X-Spam" "SPAM*" { fileinto "Junk"; }
+EOS
+fi
+
 if [[ $DTYPE == sqlite ]]; then
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "^^^ Create $CIMAP/user-sqlite.conf"
@@ -163,13 +205,6 @@ elif [[ $DTYPE == mysql ]]; then
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > $CIMAP/user-mysql.conf
     fi
-fi
-
-if [[ ! -d $CIMAP/sieve ]]; then
-    echo "^^^ Create $CIMAP/sieve/spamprobe symlink"
-    mkdir $CIMAP/sieve
-    cd $CIMAP/sieve
-    ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
 fi
 
 if [[ ! -f $C_WEB/common.conf ]]; then
