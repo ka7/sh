@@ -52,7 +52,7 @@ if [[ -d .Sent.* ]]; then
 fi
 
 if [[ -d .Trash ]]; then
-    if [[ -d ".Deleted Items" ]]; then
+    if [[ -d ".Deleted Items" && ! -L ".Deleted Items" ]]; then
         echo "Remove '.Deleted Items' folder"
         rm -rf ".Deleted Items" > /dev/null 2>&1
     fi
@@ -60,7 +60,7 @@ if [[ -d .Trash ]]; then
         echo "Create symlink from '.Deleted Items' to .Trash"
         ln -s .Trash ".Deleted Items"
     fi
-    if [[ -d ".Deleted Messages" ]]; then
+    if [[ -d ".Deleted Messages" && ! -L ".Deleted Messages" ]]; then
         echo "Remove '.Deleted Messages' folder"
         rm -rf ".Deleted Messages" > /dev/null 2>&1
     fi
@@ -73,7 +73,7 @@ else
 fi
 
 if [[ -d .Junk ]]; then
-    if [[ -d ".Junk E-mail" ]]; then
+    if [[ -d ".Junk E-mail" && ! -L ".Junk E-mail" ]]; then
         echo "Remove '.Junk E-mail' folder"
         rm -rf ".Junk E-mail" > /dev/null 2>&1
     fi
@@ -86,7 +86,7 @@ else
 fi
 
 if [[ -d .Sent ]]; then
-    if [[ -d ".Sent Items" ]]; then
+    if [[ -d ".Sent Items" && ! -L ".Sent Items" ]]; then
         for i in ".Sent Items"/cur/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
         for i in ".Sent Items"/new/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
         echo "Remove '.Sent Items' folder"
@@ -96,7 +96,7 @@ if [[ -d .Sent ]]; then
         echo "Create symlink from '.Sent Items' to .Sent"
         ln -s .Sent ".Sent Items"
     fi
-    if [[ -d ".Sent Messages" ]]; then
+    if [[ -d ".Sent Messages" && ! -L ".Sent Messages"  ]]; then
         for i in ".Sent Messages"/cur/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
         for i in ".Sent Messages"/new/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
          echo "Remove '.Sent Messages' folder"
