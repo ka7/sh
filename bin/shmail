@@ -1,38 +1,46 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20180319
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shmail 20150529 - 20190601
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.shrc || exit 3
+EMAIL=${1,,} # lowercase user@domain
+VHOST=${EMAIL#*@} # userid @ $VHOST
+VUSER=${EMAIL%@*} # $VUSER @ domain
+VPATH="/home/u"
+HPATH="$VPATH/$VHOST/home"
+MPATH="$HPATH/$VUSER"
 
-MPATH=$(echo "SELECT home FROM vmails WHERE user='$1'" | $SQCMD)
-
-if [[ -n $MPATH && -d $MPATH/Maildir ]]; then
-    cd $MPATH/Maildir
-    find -maxdepth 2 -type d -name "new" -o -name "cur"|sort|xargs -0| (
-        N1=0; N2=0; N1STR=""
-        while read dir; do
-            [[ -z $dir ]] && continue
-            cd "$dir"
-            N1=$(du -sb|cut -f1)
-            N2=$(find -type f|wc -l)
-            cd - >/dev/null
-            NTOTAL=$(($NTOTAL+$N2))
-            [[ $N1 -eq 0 ]] && N1STR="" || N1STR=$(printf "%'10.1fM" $(echo $N1/1000000|bc -l))
-            [[ $N2 -eq 0 ]] && N2=""
-            printf "%-30s %6s %11s\n" "$(echo $dir|cut -c 3-)" $N2 $N1STR
-            N1=0
-            N2=0
-        done
-        STOTAL=$(du -sb $MPATH/Maildir|cut -f1)
-        echo "-------------------------------------------------"
-        printf "%-30s %6s %'10.1fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
-    )
-else
-    echo "User '$1' does not exist"
+if [[ ! -d $MPATH/Maildir ]]; then
+    echo "Warning: Maildir directory does not exist: $MPATH/Maildir"
+    exit 3
 fi
+
+cd $MPATH/Maildir
+
+find -maxdepth 2 -type d -name "new" -o -name "cur"|sort|xargs -0| (
+    N1=0; N2=0; N1STR=""
+    while read dir; do
+        [[ -z $dir ]] && continue
+        cd "$dir"
+        N1=$(du -sb|cut -f1)
+        N2=$(find -type f|wc -l)
+        cd - >/dev/null
+        NTOTAL=$(($NTOTAL+$N2))
+        [[ $N1 -eq 0 ]] && N1STR="" || N1STR=$(printf "%'10.2fM" $(echo $N1/1000000|bc -l))
+        [[ $N2 -eq 0 ]] && N2=""
+        printf "%-30s %6s %11s\n" "$(echo $dir|cut -c 3-)" $N2 $N1STR
+        N1=0
+        N2=0
+    done
+    STOTAL=$(du -sb $MPATH/Maildir|cut -f1)
+    echo "-------------------------------------------------"
+    printf "%-30s %6s %'10.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+)
+
+find -L . -xtype l
+[ -d $MPATH/.spamprobe ] && du -h $MPATH/.spamprobe | awk '{printf "%-42s %9s\n", $2, $1}'
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
