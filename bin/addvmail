@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20180826
+# .sh/bin/addvmail 20170418 - 20190601
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
@@ -13,7 +13,7 @@ source /root/.vhosts/$VHOST || exit 3 # for VPATH and SQCMD
 
 VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
-MPATH="$HPATH/$VUSER" 
+MPATH="$HPATH/$VUSER"
 
 SPAMF=${2:-"1"} # add spam filter
 [[ $SPAMF == nospam ]] && SPAMF=0 || SPAMF=1
@@ -97,53 +97,7 @@ if [[ ! -d $MPATH/Maildir ]]; then
     mkdir -p $MPATH/{Maildir,sieve}
 fi
 
-if [[ -f $MPATH/sieve/retrain-as-good.sieve ]]; then
-    echo "*** $MPATH/sieve/retrain-as-good.sieve already exists"
-else
-    echo "*** Create $MPATH/sieve/retrain-as-good.sieve"
-    cat << 'EOS' > $MPATH/sieve/retrain-as-good.sieve
-require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
-if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
-execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
-EOS
-fi
-
-if [[ -f $MPATH/sieve/retrain-as-spam.sieve ]]; then
-    echo "*** $MPATH/sieve/retrain-as-spam.sieve already exists"
-else
-    echo "*** Create $MPATH/sieve/retrain-as-spam.sieve"
-    cat << 'EOS' > $MPATH/sieve/retrain-as-spam.sieve
-require ["vnd.dovecot.execute"];
-execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
-EOS
-fi
-
-if [[ -f $MPATH/sieve/spamprobe.sieve ]]; then
-    echo "*** $MPATH/sieve/spamprobe.sieve already exists"
-else
-    echo "*** Create $MPATH/sieve/spamprobe.sieve"
-    cat << 'EOS' > $MPATH/sieve/spamprobe.sieve
-require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
-if header :contains "from" ["root@", "daemon@", "postmaster@"] { fileinto "Trash";
-} elsif header :contains "to" ["root@", "daemon@", "postmaster@"] { fileinto "Trash"; }
-if envelope :localpart :matches "to" "*" { set "lhs" "${1}"; }
-if envelope :domain :matches "to" "*" { set "rhs" "${1}"; }
-execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lhs}/.spamprobe", "receive"];
-addheader :last "X-Spam" "${SCORE}";
-if header :matches "X-Spam" "SPAM*" { fileinto "Spam"; }
-EOS
-fi
-
-if [[ -f $MPATH/.dovecot.sieve ]]; then
-    echo "*** $MPATH/.dovecot.sieve already exists"
-else
-    if [[ $SPAMF -eq 1 ]]; then
-        echo "*** Create $MPATH/.dovecot.sieve"
-        cd $MPATH && ln -s sieve/spamprobe.sieve .dovecot.sieve
-    else
-        echo "*** Ignore $MPATH/.dovecot.sieve"
-    fi
-fi
+# Moved sieve scripts to global /etc/dovecot/sieve
 
 if [[ -d $MPATH/.spamprobe ]]; then
     echo "*** $MPATH/.spamprobe already exists"
