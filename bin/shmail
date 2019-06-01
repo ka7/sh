@@ -38,6 +38,7 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort|xargs -0| (
     STOTAL=$(du -sb $MPATH/Maildir|cut -f1)
     echo "-------------------------------------------------"
     printf "%-30s %6s %'10.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+    echo "-------------------------------------------------"
 )
 
 find -L . -xtype l
