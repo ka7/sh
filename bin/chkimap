@@ -67,7 +67,14 @@ else
     echo "^^^ $CIMAP/sieve/global.sieve exists"
 fi
 
-find $CIMAP -type f | grep -v conf.d/ | sort
+grep -q global.sieve $CIMAP/dovecot.conf
+if [[ $? -eq 1 ]]; then
+    echo "$CIMAP/dovecot.conf is not updated"
+else
+    echo "$CIMAP/dovecot.conf is uptodate"
+fi
+
+#find $CIMAP -type f | grep -v conf.d/ | sort
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
 
