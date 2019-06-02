@@ -2,13 +2,15 @@
 # .sh/bin/addpdns 20180709 - 20190602
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [sshkey]" && exit 1
+[[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [mx] [spfip] [sshkey]" && exit 1
 
 VHOST=$1
 IP4_0=$2
 NSONE=$3
 NSTWO=$4
-MYKEY=${5:-"/root/.ssh/id_rsa"}
+MXHST=${5:-"mail.$VHOST"}
+SPFIP=${6:-$IP4_0}
+MYKEY=${7:-"/root/.ssh/id_rsa"}
 
 # Check if zone already exists
 pdnsutil list-zone $VHOST 2> /dev/null && exit
@@ -36,10 +38,10 @@ pdnsutil add-record $VHOST autoconfig CAA '0 issue "letsencrypt.org"' > /dev/nul
 pdnsutil add-record $VHOST autodiscover CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
 
 # Add MX record
-pdnsutil add-record $VHOST @ MX "10 mail.$VHOST" > /dev/null 2>&1
+pdnsutil add-record $VHOST @ MX "10 $MXHST" > /dev/null 2>&1
 
 # Add SPF records
-pdnsutil add-record $VHOST @ TXT \""v=spf1 ip4:$IP4_0/32 -all"\" > /dev/null 2>&1
+pdnsutil add-record $VHOST @ TXT \""v=spf1 ip4:$SPFIP/32 -all"\" > /dev/null 2>&1
 
 # Add DMARC record
 pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:postmaster@$VHOST"\" > /dev/null 2>&1
