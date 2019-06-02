@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# .sh/bin/mvhost 20190602 - 20190602
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Requires "rhost" (remote ssh host) to be defined in ~/.ssh/config
+
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: mvhost domain rhost" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+VHOST=$1
+RHOST=$2
+
+if [[ ! -f /root/.vhosts/$VHOST ]]; then
+    addvhost $VHOST none none
+fi
+
+source /root/.vhosts/$VHOST
+
+ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
+rsync -rltD $RHOST:/home/u/$VHOST/ /home/u/$VHOST --del
+chperms $VHOST
+
+if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
+    echo "!!! '$DNAME' database already exists"
+else
+    echo "!!! Create $DNAME database"
+    mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
+    mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
+    mysql -e "FLUSH PRIVILEGES"
+
+    cat $UPATH/var/$DNAME.sql | mysql $DNAME
+    su - $UUSER -c "
+cd $WPATH
+mv wp-config.php wp-config.php.bkp
+wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
+chmod 640 wp-config.php
+"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
