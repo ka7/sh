@@ -12,3 +12,5 @@ NEWPW=$2
 PW=$(doveadm pw -s SHA512-CRYPT -p $NEWPW)
 
 mysql -ve "update sysadm.vmails set password='$PW' where user='$EMAIL'"
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
