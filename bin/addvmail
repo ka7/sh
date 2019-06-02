@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addvmail 20170418 - 20190601
+# .sh/bin/addvmail 20170418 - 20190602
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam]" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: addvmail user@domain [nospam] [pw]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -11,6 +11,7 @@ VHOST=${EMAIL#*@} # userid @ $VHOST
 
 source /root/.vhosts/$VHOST || exit 3 # for VPATH and SQCMD
 
+EPASS=${3:-$EPASS}
 VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER"
