@@ -46,6 +46,9 @@ pdnsutil add-record $VHOST @ TXT \""v=spf1 ip4:$SPFIP/32 -all"\" > /dev/null 2>&
 # Add DMARC record
 pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:postmaster@$VHOST"\" > /dev/null 2>&1
 
+# Change zone type from NATIVE to MASTER
+pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1
+
 # Add DKIM record to server then update DNS
 if [[ ! -f $MYKEY ]]; then
     echo "+++ ERROR: $MYKEY missing, can't proceed with DKIM record"
@@ -61,9 +64,6 @@ else
         pdnsutil add-record $VHOST mail._domainkey TXT \""v=DKIM1; k=rsa; p=$_DKIM"\"
     fi
 fi
-
-# Change zone type from NATIVE to MASTER
-pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1
 
 # Show the resulting zone entries
 pdnsutil list-zone $VHOST 2> /dev/null
