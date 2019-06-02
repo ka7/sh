@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# .sh/bin/addvip 20190602 - 20190602
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+set -x
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mx]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+VHOST=$1
+IP4_0=$2
+MHOST=${3:-"mail.$VHOST"}
+M_OUT=$(echo $VHOST|sed 's/\./-/')
+
+if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
+    echo "Warning: /etc/postfix/vhosts/$VHOST already exists"
+else
+    cat << EOS > /etc/postfix/vhosts/$VHOST
+$IP4_0:smtps inet n - y - - smtpd
+    -o smtp_bind_address=$IP4_0
+    -o syslog_name=smtps-$IP4_0
+    -o smtpd_tls_wrappermode=yes
+    -o smtpd_sasl_auth_enable=yes
+    -o smtpd_reject_unlisted_recipient=no
+    -o smtp_helo_name=$MHOST
+    -o mail_name=$MHOST
+    -o myorigin=$MHOST
+    -o myhostname=$MHOST
+    -o smtpd_tls_cert_file=/etc/ssl/$VHOST/fullchain.pem
+    -o smtpd_tls_key_file=/etc/ssl/$VHOST/privkey.pem
+
+$IP4_0:smtp inet n - n - - smtpd
+    -o syslog_name=smptd-$IP4_0
+    -o smtp_helo_name=$MHOST
+    -o smtp_bind_address=$IP4_0
+    -o mail_name=$MHOST
+    -o myorigin=$MHOST
+    -o myhostname=$MHOST
+    -o smtpd_tls_cert_file=/etc/ssl/$VHOST/fullchain.pem
+    -o smtpd_tls_key_file=/etc/ssl/$VHOST/privkey.pem
+
+#$IP4_0:submission inet n - n - - smtpd
+#    -o syslog_name=$IP4_0:587
+#    -o smtpd_tls_security_level=encrypt
+#    -o smtpd_sasl_auth_enable=yes
+#    -o smtpd_sasl_type=dovecot
+#    -o smtpd_sasl_path=private/auth
+#    -o smtpd_sasl_security_options=noanonymous
+#    -o smtpd_sasl_local_domain=$myhostname
+#    -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+#    -o smtpd_sender_restrictions=reject_sender_login_mismatch
+#    -o smtpd_recipient_restrictions=reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject
+##    -o smtpd_banner="$VHOST ESMTP $VHOST (Ubuntu)"
+
+$M_OUT-out  unix - - n - - smtp
+    -o smtp_bind_address=$IP4_0
+    -o smtp_helo_name=$MHOST
+    -o syslog_name=postfix-$IP4_0
+    -o myorigin=$MHOST
+    -o myhostname=$MHOST
+EOS
+    grep -q "^@$VHOST" /etc/postfix/sender_transport
+    if [[ $? -ne 0 ]]; then
+        echo "@$VHOST    $M_OUT-out:" >> /etc/postfix/sender_transport
+        postmap /etc/postfix/sender_transport
+    fi
+    mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
+    cat /etc/postfix/vhosts/* >> /etc/postfix/master.cf
+    postfix reload
+fi
+
+
+if [[ -f /etc/dovecot/vhosts/$VHOSTS ]]; then
+    echo "Warning: /etc/dovecot/vhosts/$VHOSTS already exists"
+else
+    cat << EOS > /etc/dovecot/vhosts/$VHOST
+local $IP4_0 {
+  protocol imap {
+    ssl_cert = </etc/ssl/$VHOST/fullchain.pem
+    ssl_key =  </etc/ssl/$VHOST/privkey.pem
+  }
+  protocol pop3 {
+    ssl_cert = </etc/ssl/$VHOST/fullchain.pem
+    ssl_key =  </etc/ssl/$VHOST/privkey.pem
+  }
+}
+EOS
+    systemctl restart dovecot
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
