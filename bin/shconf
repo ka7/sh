@@ -12,12 +12,12 @@ cd /root/.vhosts
 
 [[ -z $1 ]] && /bin/ls -1 | grep -v '\.conf$' | sort && exit 3
 
-NUMLS=$(/bin/ls -1 *$1*.conf | wc -l)
+NUMLS=$(/bin/ls -1 $1*.conf | wc -l)
 
 if [[ $NUMLS -eq 1 ]]; then
-    cat $(/bin/ls -1 *$1*.conf)
+    cat $(/bin/ls -1 $1*.conf)
 else
-    /bin/ls -1 *$1* | grep -v '\.conf$' | sort
+    /bin/ls -1 $1* | grep -v '\.conf$' | sort
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
