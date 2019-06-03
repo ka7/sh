@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# .sh/bin/shconf 20190603 - 20190603
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Requires "rhost" to be defined in ~/.ssh/config
+
+[[ $1 =~ -h ]] && echo "Usage: shconf [vhost]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+cd /root/.vhosts
+
+[[ -z $1 ]] && /bin/ls -1 | grep -v '\.conf$' | sort && exit 3
+
+NUMLS=$(/bin/ls -1 *$1*.conf | wc -l)
+
+if [[ $NUMLS -eq 1 ]]; then
+    cat $(/bin/ls -1 *$1*.conf)
+else
+    /bin/ls -1 *$1* | grep -v '\.conf$' | sort
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
