@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/shconf 20190603 - 20190603
+# .sh/bin/shconf 20190603 - 20190604
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Requires "rhost" to be defined in ~/.ssh/config
 
 [[ $1 =~ -h ]] && echo "Usage: shconf [vhost]" && exit 1
-
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+[[ ! -d /root/.vhosts ]] && echo "ERROR: install Netserva/SH scripts" && exit 3
 
 cd /root/.vhosts
 
 [[ -z $1 ]] && /bin/ls -1 | grep -v '\.conf$' | sort && exit 3
+
+/bin/ls -1 $1*.conf > /dev/null 2>&1
+
+[[ $? -ne 0 ]] && echo "Nothing matches $1" && exit 4
 
 NUMLS=$(/bin/ls -1 $1*.conf | wc -l)
 
