@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# .sh/bin/incsoa 20190607 - 20190607
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: incsoa domain" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+source /root/.vhosts/$(hostname -f)
+
+DID=$(mysql -BNe "
+ SELECT id
+   FROM domains
+  WHERE name='$1'" $ADMIN)
+
+SOA=$(mysql -BNe "
+ SELECT content
+   FROM records
+  WHERE type='SOA'
+    AND domain_id='$DID'" $ADMIN)
+
+SER=$(echo $SOA|awk '{print $3}')
+RID=$(echo $SOA|awk '{print $1}')
+NOW="$(date +%Y%m%d)00"
+
+(( $SER >= $NOW )) && NEW=$((SER+1)) || NEW=$NOW
+
+REC=$(echo $SOA|awk -v r=${NEW} '{$3=r}1')
+UPD=$(date +"%Y-%m-%d %H:%M:%S")
+
+mysql -e "
+ UPDATE records SET
+        content = '$REC',
+        updated = '$UPD'
+  WHERE type = 'SOA'
+    AND domain_id = $DID" $ADMIN
+
+mysql -e "
+ UPDATE domains SET
+        updated = '$UPD'
+  WHERE id = $DID" $ADMIN
+
+mysql -BNe "
+ SELECT content
+   FROM records
+  WHERE type='SOA'
+    AND domain_id='$DID'" $ADMIN
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
