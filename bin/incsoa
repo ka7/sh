@@ -8,16 +8,16 @@
 
 source /root/.vhosts/$(hostname -f)
 
-DID=$(mysql -BNe "
+DID=$(echo "
  SELECT id
    FROM domains
-  WHERE name='$1'" $ADMIN)
+  WHERE name='$1'" | $SQCMD)
 
-SOA=$(mysql -BNe "
+SOA=$(echo "
  SELECT content
    FROM records
   WHERE type='SOA'
-    AND domain_id='$DID'" $ADMIN)
+    AND domain_id='$DID'" | $SQCMD)
 
 SER=$(echo $SOA|awk '{print $3}')
 RID=$(echo $SOA|awk '{print $1}')
@@ -28,22 +28,22 @@ NOW="$(date +%Y%m%d)00"
 REC=$(echo $SOA|awk -v r=${NEW} '{$3=r}1')
 UPD=$(date +"%Y-%m-%d %H:%M:%S")
 
-mysql -e "
+echo "
  UPDATE records SET
         content = '$REC',
         updated = '$UPD'
   WHERE type = 'SOA'
-    AND domain_id = $DID" $ADMIN
+    AND domain_id = $DID" | $SQCMD
 
-mysql -e "
+echo "
  UPDATE domains SET
         updated = '$UPD'
-  WHERE id = $DID" $ADMIN
+  WHERE id = $DID" | $SQCMD
 
-mysql -BNe "
+echo "
  SELECT content
    FROM records
   WHERE type='SOA'
-    AND domain_id='$DID'" $ADMIN
+    AND domain_id='$DID'" | $SQCMD
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
