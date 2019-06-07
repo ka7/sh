@@ -120,7 +120,7 @@ if [[ -d $UPATH ]]; then
     echo "!!! Warning: $UPATH already exists"
 else
     echo "!!! Create $UPATH"
-    mkdir -p $UPATH/{.ssh,.nano,.wp-cli,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
+    mkdir -p $UPATH/{.cache,.ssh,.nano,.wp-cli,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
 fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
