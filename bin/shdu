@@ -6,7 +6,7 @@
 
 source ~/.vhosts/$(hostname -f) || exit 2
 
-[[ $DTYPE = sqlite ]] && SEP=" -separator" || SEP=""
+[[ $DTYPE = sqlite ]] && SEP=" -separator ' '" || SEP=""
 
 printf "%-30s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
 echo "---------------------------------------------------------------"
