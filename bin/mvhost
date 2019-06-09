@@ -16,31 +16,54 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
 fi
 
 source /root/.vhosts/$VHOST
-set -x
-DOSQL=$(ssh $RHOST "mysql -BNe \"SHOW DATABASES LIKE '$DNAME'\"")
-
-if [[ $DOSQL == $DNAME ]]; then
-    echo ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
-fi
-exit
-rsync -rltD $RHOST:/home/u/$VHOST/ /home/u/$VHOST --del
-chperms $VHOST
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
-    echo "!!! '$DNAME' database already exists"
+    echo "Warning: '$DNAME' database already exists"
 else
-    echo "!!! Create $DNAME database"
-    mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
-    mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
-    mysql -e "FLUSH PRIVILEGES"
+    ISSQL=$(ssh $RHOST "mysql -BNe \"SHOW DATABASES LIKE '$DNAME'\"")
+    if [[ $ISSQL == $DNAME ]]; then
+        ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
+        echo "Create: $DNAME database"
+        mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
+        mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
+        mysql -e "FLUSH PRIVILEGES"
+    else
+        echo "Warning: no remote database called '$DNAME'"
+    fi
+fi
 
+if [[ -d $UPATH ]]; then
+    ISPTH=$(ssh $RHOST "/bin/ls -d $UPATH")
+    if [[ $ISPTH == $UPATH ]]; then
+        rsync -vrltD $RHOST:$UPATH/ $UPATH
+        chperms $VHOST
+    else
+        echo "Warning: no remote path called $RHOST:$UPATH"
+    fi
+else
+    echo "Warning: no local $UPATH, 'addvhost $VHOST' first"
+fi
+
+if [[ -f $UPATH/var/$DNAME.sql ]]; then
+    echo "Update: $UPATH/var/$DNAME.sql"
     cat $UPATH/var/$DNAME.sql | mysql $DNAME
-    su - $UUSER -c "
+    mv $UPATH/var/$DNAME.sql $UPATH/var/$(date +"%Y%m%d")-$DNAME.sql
+else
+    echo "Warning: $UPATH/var/$DNAME.sql does not exist"
+fi
+
+if [[ -f $WPATH/wp-config.php ]]; then
+    if [[ ! -f $WPATH/wp-config.php.bkp ]]; then
+        echo "Update: $WPATH/wp-config.php"
+        su - $UUSER -c "
 cd $WPATH
 mv wp-config.php wp-config.php.bkp
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
 chmod 640 wp-config.php
 "
+    fi
+else
+    echo "Warning: $WPATH/wp-config.php does not exist"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
