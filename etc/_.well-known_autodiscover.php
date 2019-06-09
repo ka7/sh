@@ -1,8 +1,9 @@
 <?php
-// .well-know/autodiscover.php 20190430 - 20190430
+// .well-know/autodiscover.php 20190430 - 20190610
 // Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-$mhost = '_MHOST';
+$pfqdn = str_replace(['autoconfig.', 'autodiscover.'], '', $_SERVER['HTTP_HOST']);
+$mhost = dns_get_record($pfqdn, DNS_MX);
 
 $configXML = explode('?', $_SERVER['REQUEST_URI']);
 $configXML = $configXML[0];
@@ -13,12 +14,12 @@ switch(strtolower($configXML)) {
     case '/autodiscover/autodiscover.xml': {
         $data = file_get_contents('php://input');
         preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $data, $matches);
-        $output = autodiscover(@$matches[1], $mhost);
+        $output = autodiscover(@$matches[1], $mhost, $pfqdn);
         break;
     }
     case '/mail/config-v1.1.xml':
     case '/well-known/autoconfig/mail/config-v1.1.xml': {
-        $output = autoconfig(@$_GET['emailaddress'], $mhost);
+        $output = autoconfig(@$_GET['emailaddress'], $mhost, $pfqdn);
         break;
     }
     default: {
@@ -32,7 +33,7 @@ header("Content-type: text/xml; charset=utf-8");
 print $output;
 exit;
 
-function autodiscover($email, $mhost)
+function autodiscover($email, $mhost, $pfqdn)
 {
     return <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -69,16 +70,15 @@ function autodiscover($email, $mhost)
 XML;
 }
 
-function autoconfig($emailaddress = null, $mhost)
+function autoconfig($emailaddress = null, $mhost, $pfqdn)
 {
-    $domain = str_replace(array('autoconfig.', 'autodiscover.'), '', $_SERVER['HTTP_HOST']);
     return <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <clientConfig version="1.1">
-  <emailProvider id="$domain">
-    <domain>$domain</domain>
-    <displayName>$domain</displayName>
-    <displayShortName>$domain</displayShortName>
+  <emailProvider id="$pfqdn">
+    <domain>$pfqdn</domain>
+    <displayName>$pfqdn</displayName>
+    <displayShortName>$pfqdn</displayShortName>
     <incomingServer type="imap">
       <hostname>$mhost</hostname>
       <port>993</port>
