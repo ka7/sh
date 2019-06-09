@@ -20,7 +20,7 @@ set -x
 DOSQL=$(ssh $RHOST "mysql -BNe \"SHOW DATABASES LIKE '$DNAME'\"")
 
 if [[ $DOSQL == $DNAME ]]; then
-    ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
+    echo ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
 fi
 exit
 rsync -rltD $RHOST:/home/u/$VHOST/ /home/u/$VHOST --del
