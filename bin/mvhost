@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/mvhost 20190602 - 20190602
+# .sh/bin/mvhost 20190602 - 20190609
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Requires "rhost" (remote ssh host) to be defined in ~/.ssh/config
@@ -12,12 +12,17 @@ VHOST=$1
 RHOST=$2
 
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
-    addvhost $VHOST none none
+    addvhost $VHOST
 fi
 
 source /root/.vhosts/$VHOST
+set -x
+DOSQL=$(ssh $RHOST "mysql -BNe \"SHOW DATABASES LIKE '$DNAME'\"")
 
-ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
+if [[ $DOSQL == $DNAME ]]; then
+    ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
+fi
+exit
 rsync -rltD $RHOST:/home/u/$VHOST/ /home/u/$VHOST --del
 chperms $VHOST
 
