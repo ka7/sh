@@ -9,7 +9,7 @@ source ~/.vhosts/$(hostname -f) || exit 2
 [[ $DTYPE = sqlite ]] && CMD=(sqlite3 -separator ' ' $DPATH) || CMD=($SQCMD)
 
 printf "%-40s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
-echo "---------------------------------------------------------------"
+echo "-------------------------------------------------------------------------"
 
 cat << EOS | "${CMD[@]}" | awk '{printf "%-40s %10d %10d %10d\n", $1, $2, $3, $4}'
  SELECT vhosts.domain as Domain,
