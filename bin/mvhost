@@ -35,7 +35,7 @@ fi
 if [[ -d $UPATH ]]; then
     ISPTH=$(ssh $RHOST "/bin/ls -d $UPATH")
     if [[ $ISPTH == $UPATH ]]; then
-        rsync -vrltD $RHOST:$UPATH/ $UPATH
+        rsync -vrltD $RHOST:$UPATH/ $UPATH --del
         chperms $VHOST
     else
         echo "Warning: no remote path called $RHOST:$UPATH"
