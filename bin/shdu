@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shdu 20190216 - 20190608
+# .sh/bin/shdu 20190216 - 20190610
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: shdu" && exit 1
@@ -8,10 +8,10 @@ source ~/.vhosts/$(hostname -f) || exit 2
 
 [[ $DTYPE = sqlite ]] && CMD=(sqlite3 -separator ' ' $DPATH) || CMD=($SQCMD)
 
-printf "%-30s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
+printf "%-40s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
 echo "---------------------------------------------------------------"
 
-cat << EOS | "${CMD[@]}" | awk '{printf "%-30s %10d %10d %10d\n", $1, $2, $3, $4}'
+cat << EOS | "${CMD[@]}" | awk '{printf "%-40s %10d %10d %10d\n", $1, $2, $3, $4}'
  SELECT vhosts.domain as Domain,
         round(size_mpath/1000000,0) AS Mpath,
         round(size_wpath/1000000,0) AS Wpath,
