@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addpdns 20180709 - 20190602
+# .sh/bin/addpdns 20180709 - 20190617
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [mx] [spfip] [sshkey]" && exit 1
@@ -40,11 +40,14 @@ pdnsutil add-record $VHOST autodiscover CAA '0 issue "letsencrypt.org"' > /dev/n
 # Add MX record
 pdnsutil add-record $VHOST @ MX "10 $MXHST" > /dev/null 2>&1
 
-# Add SPF records
-pdnsutil add-record $VHOST @ TXT \""v=spf1 ip4:$SPFIP/32 -all"\" > /dev/null 2>&1
+# Add SPF record
+
+grep -q 'v=spf1' $SPFIP
+[[ $? -ne 0 ]] && SPFIP="v=spf1 ip4:$SPFIP/32 -all"
+pdnsutil add-record $VHOST @ TXT "$SPFIP" > /dev/null 2>&1
 
 # Add DMARC record
-pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:postmaster@$VHOST"\" > /dev/null 2>&1
+pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; aspf=s; adkim=s"\" > /dev/null 2>&1
 
 # Change zone type from NATIVE to MASTER
 pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1

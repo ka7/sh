@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20190523
+# .sh/bin/addwp 20160231 - 20190613
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
@@ -53,7 +53,7 @@ if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
 else
     echo "!!! Create $DNAME database"
     mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
-    mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
+    mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'"
     mysql -e "FLUSH PRIVILEGES"
 fi
 
