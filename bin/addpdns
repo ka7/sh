@@ -44,7 +44,7 @@ pdnsutil add-record $VHOST @ MX "10 $MXHST" > /dev/null 2>&1
 
 grep -q 'v=spf1' $SPFIP
 [[ $? -ne 0 ]] && SPFIP="v=spf1 ip4:$SPFIP/32 -all"
-pdnsutil add-record $VHOST @ TXT "$SPFIP" > /dev/null 2>&1
+pdnsutil add-record $VHOST @ TXT \""$SPFIP"\" > /dev/null 2>&1
 
 # Add DMARC record
 pdnsutil add-record $VHOST @ TXT \""v=DMARC1; p=reject; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; aspf=s; adkim=s"\" > /dev/null 2>&1
