@@ -43,7 +43,7 @@ pdnsutil add-record $VHOST @ MX "10 $MXHST" > /dev/null 2>&1
 # Add SPF record
 echo
 set -x
-grep -q 'v=spf1' "$SPFIP"
+echo "$SPFIP" | grep -q 'v=spf1'
 [[ $? -gt 0 ]] && SPFIP="v=spf1 ip4:$SPFIP/32 -all"
 pdnsutil add-record $VHOST @ TXT \""$SPFIP"\" > /dev/null 2>&1
 set +x
