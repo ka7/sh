@@ -1,5 +1,5 @@
-# .sh/_shrc 20130315 - 20181006
-# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/_shrc 20130315 - 20190621
+# Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
@@ -32,11 +32,11 @@ DHOST='localhost'
 DPORT='3306'
 DTYPE='mysql'
 OSMIR='archive.ubuntu.com'
-OSREL='bionic'
+OSREL='dingo'
 TAREA='Australia'
 TCITY='Sydney'
 VPATH='/home/u'
-V_PHP='7.2'
+V_PHP='7.3'
 
 # Import managed aliases
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases

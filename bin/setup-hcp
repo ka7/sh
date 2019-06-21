@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20190430
+# .sh/bin/setup-hcp 20170519 - 20190619
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -72,10 +72,11 @@ Password: $APASS
 EOS
 fi
 
-if [[ -d $UPATH/var/www_old/.well-known ]]; then
-    echo "@@@ Move $UPATH/var/www_old/.well-known to www"
-    mv $UPATH/var/www_old/.well-known $WPATH
-fi
+# No longer needed
+#if [[ -d $UPATH/var/www_old/.well-known ]]; then
+#    echo "@@@ Move $UPATH/var/www_old/.well-known to www"
+#    mv $UPATH/var/www_old/.well-known $WPATH
+#fi
 
 if [[ -d $UPATH/var/www_old/private ]]; then
     echo "@@@ Move $UPATH/var/www_old/private to www"
@@ -96,26 +97,27 @@ else
     echo $DPASS > $WPATH/hcp/lib/.ht_pw
 fi
 
-if [[ -d $WPATH/rainloop ]]; then
-    echo "@@@ $WPATH/rainloop already exists"
-else
-    echo "@@@ Setup rainloop in $WPATH"
-    cd $WPATH
-    wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
-    unzip rainloop-latest.zip > /dev/null 2>&1
-    rm rainloop-latest.zip
-#    [[ -f index.html ]] && rm index.html
 
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
-Webmail
-=========
-
-Webmail: https://$VHOST/index.php?admin
-Username: admin
-Password: 12345 (default password, must be changed and remove index.html)
-
-EOS
-fi
+#if [[ -d $WPATH/rainloop ]]; then
+#    echo "@@@ $WPATH/rainloop already exists"
+#else
+#    echo "@@@ Setup rainloop in $WPATH"
+#    cd $WPATH
+#    wget -q https://www.rainloop.net/repository/webmail/rainloop-latest.zip
+#    unzip rainloop-latest.zip > /dev/null 2>&1
+#    rm rainloop-latest.zip
+##    [[ -f index.html ]] && rm index.html
+#
+#    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+#Webmail
+#=========
+#
+#Webmail: https://$VHOST/index.php?admin
+#Username: admin
+#Password: 12345 (default password, must be changed and remove index.html)
+#
+#EOS
+#fi
 
 if [[ $DTYPE == mysql ]]; then
     if [[ -d $WPATH/hcp/phpmyadmin ]]; then
@@ -140,6 +142,12 @@ Password: $DPASS
 
 EOS
     fi
+elif [[ $DTYPE == sqlite ]]; then
+     if [[ -f $WPATH/hcp/adminer.php ]]; then
+        echo "@@@ $WPATH/hcp/phpmyadmin already exists"
+     else
+        echo "@@@ Setup adminer (TODO)"
+     fi
 fi
 
 if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
@@ -160,7 +168,7 @@ return [
     'out' => [
         'doc'   => '$VHOST',
         'head'  => '$VHOST',
-        'foot'  => 'Copyright (C) 2018 $VHOST',
+        'foot'  => 'Copyright (C) 2019 $VHOST',
     ],
 ];
 " > $WPATH/hcp/lib/.ht_conf.php
