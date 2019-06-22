@@ -2,6 +2,22 @@
 # .sh/bin/setup-hcp 20170519 - 20190619
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+## How to set up a swapfile
+# fallocate -l 512M /swapfile
+# dd if=/dev/zero of=/swapfile bs=1024 count=524288
+# chmod 600 /swapfile
+# mkswap /swapfile
+# swapon /swapfile
+# echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+
+## Kernel fine tuning in /etc/sysctl.conf
+#net.core.default_qdisc = fq
+#net.ipv4.tcp_congestion_control = bbr
+#net.ipv4.tcp_notsent_lowat = 16384
+#
+#vm.swappiness = 1
+#net.core.somaxconn = 512
+
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
