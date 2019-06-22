@@ -2,7 +2,7 @@
 # .sh/bin/setup-hcp 20170519 - 20190619
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-## How to set up a swapfile
+## How to set up a swapfile in /swapfile
 # fallocate -l 512M /swapfile
 # dd if=/dev/zero of=/swapfile bs=1024 count=524288
 # chmod 600 /swapfile
@@ -11,12 +11,33 @@
 # echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
 
 ## Kernel fine tuning in /etc/sysctl.conf
-#net.core.default_qdisc = fq
-#net.ipv4.tcp_congestion_control = bbr
-#net.ipv4.tcp_notsent_lowat = 16384
-#
-#vm.swappiness = 1
-#net.core.somaxconn = 512
+# net.core.default_qdisc = fq
+# net.ipv4.tcp_congestion_control = bbr
+# net.ipv4.tcp_notsent_lowat = 16384
+# vm.swappiness = 1
+# net.core.somaxconn = 512
+
+## Opcache for a 2GB ram VPS in /etc/php/7.3/fpm/php.ini
+# [opcache]
+# opcache.enable = 1
+# opcache.interned_strings_buffer = 16
+# opcache.max_accelerated_files = 25000
+# opcache.memory_consumption = 512
+# opcache.revalidate_freq = 120
+# opcache.validate_timestamps = 1
+# opcache.fast_shutdown = 1
+## For Nextcloud
+# memory_limit = 512M
+
+## Tweaks for MariaDB in /etc/mysql/mariadb.conf.d/50-server.cnf
+# [mysqld]
+# innodb_buffer_pool_size = 512M
+# (more innodb settings here)
+## 20180930 https://bugs.mysql.com/bug.php?id=42041
+# table_open_cache        = 16384
+# table_definition_cache  = 16384
+# tmp_table_size          = 64M
+# join_buffer_size        = 512k
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
