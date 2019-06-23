@@ -20,12 +20,14 @@
 ## Opcache for a 2GB ram VPS in /etc/php/7.3/fpm/php.ini
 # [opcache]
 # opcache.enable = 1
+# opcache.enable_cli=1
+# opcache.fast_shutdown = 1
 # opcache.interned_strings_buffer = 16
 # opcache.max_accelerated_files = 25000
 # opcache.memory_consumption = 512
 # opcache.revalidate_freq = 120
+# opcache.save_comments=1
 # opcache.validate_timestamps = 1
-# opcache.fast_shutdown = 1
 ## For Nextcloud
 # memory_limit = 512M
 
