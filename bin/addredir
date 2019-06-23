@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# .sh/bin/addredir 20190623 - 20190623
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addredir from.domain to.domain" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+FHOST=$1
+THOST=$2
+
+if [[ -f $C_WEB/sites-enabled/__$FHOST ]]; then
+    echo "Warning: $C_WEB/sites-enabled/__$FHOST already exists"
+else
+    echo "Create $C_WEB/sites-enabled/__$FHOST"
+    cat << EOS > $C_WEB/sites-enabled/__$FHOST
+server {
+    listen                      80;
+    server_name                 $FHOST www.$FHOST;
+    location                    / { return 301 https://$THOST\$request_uri; }
+}
+server {
+    listen                      443 ssl http2;
+    server_name                 $FHOST www.$FHOST;
+    ssl_certificate             /etc/ssl/$FHOST/fullchain.pem;
+    ssl_certificate_key         /etc/ssl/$FHOST/privkey.pem;
+    return 301                  https://$THOST\$request_uri;
+}
+EOS
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
