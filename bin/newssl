@@ -64,8 +64,8 @@ fi
 
 ./dehydrated -c -d $VHOST$SUBDS
 
-if [[ -z $NOCFG ]]; then
-    if [[ $? -eq 0 ]]; then
+if [[ $? -eq 0 ]]; then
+    if [[ -z $NOCFG ]]; then
         if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
             if grep -q autoconfig. <<< "$SUBDS"; then
@@ -151,13 +151,9 @@ EOS
         chmod 755 $C_SSL/$VHOST
         [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
             && rm $C_WEB/sites-enabled/*.selfsigned
-
-# To much overhead, do manually
-#        [[ -d /etc/nginx ]] && serva reload nginx
-#        [[ -d /etc/postfix ]] && serva reload mail
+    else
+        echo "Warning: not creating $C_WEB/sites-enabled/$VHOST"
     fi
-else
-    echo "Warning: not creating $C_WEB/sites-enabled/$VHOST"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
