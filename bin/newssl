@@ -152,8 +152,9 @@ EOS
         [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
             && rm $C_WEB/sites-enabled/*.selfsigned
 
-        [[ -d /etc/nginx ]] && serva reload nginx
-        [[ -d /etc/postfix ]] && serva reload mail
+# To much overhead, do manually
+#        [[ -d /etc/nginx ]] && serva reload nginx
+#        [[ -d /etc/postfix ]] && serva reload mail
     fi
 else
     echo "Warning: not creating $C_WEB/sites-enabled/$VHOST"
