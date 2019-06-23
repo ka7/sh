@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/allssl 20170304 - 20190502
+# .sh/bin/allssl 20170304 - 20190623
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
@@ -25,7 +25,6 @@ ALL=$(/bin/ls -1 $C_SSL/*/fullchain.pem)
 for i in $ALL; do
     ALTCN=$(openssl x509 -noout -text -in $i | awk -F' DNS:' '/DNS:/ {print $2$3$4$5$6}')
     VHOST=$(basename $(dirname $i))
-#    WPATH=/home/u/$VHOST/var/www
     WPATH=/home/u/$AHOST/var/www
     VACME=$WPATH/.well-known/acme-challenge
 
@@ -40,12 +39,7 @@ for i in $ALL; do
 
     ./dehydrated -c -d $VHOST $D $FORCE
 
-    cat $C_SSL/$VHOST/privkey.pem $C_SSL/$VHOST/fullchain.pem \
-        > $C_SSL/$VHOST/mailserver.pem
-
-    chmod 644 $C_SSL/$VHOST/mailserver.pem
-
-    sleep 1
+    sleep 2
 done
 
 [[ -d /etc/nginx ]] && ~/.sh/bin/serva reload web
