@@ -29,4 +29,7 @@ server {
 EOS
 fi
 
+echo
+cat $C_WEB/sites-enabled/__$FHOST
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
