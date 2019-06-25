@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20190602
+# .sh/bin/addvip 20190602 - 20190625
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mx]" && exit 1
@@ -9,7 +9,7 @@ set -x
 VHOST=$1
 IP4_0=$2
 MHOST=${3:-"mail.$VHOST"}
-M_OUT=$(echo $VHOST|sed 's/\./-/')
+M_OUT=$(echo $VHOST|sed 's/\./-/g')
 
 if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
     echo "Warning: /etc/postfix/vhosts/$VHOST already exists"
@@ -61,10 +61,10 @@ EOS
     grep -q "^@$VHOST" /etc/postfix/sender_transport
     if [[ $? -ne 0 ]]; then
         echo "@$VHOST    $M_OUT-out:" >> /etc/postfix/sender_transport
-        postmap /etc/postfix/sender_transport
+        postmap hash:/etc/postfix/sender_transport
     fi
     mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
-    cat /etc/postfix/vhosts/* >> /etc/postfix/master.cf
+    cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
     postfix reload
 fi
 

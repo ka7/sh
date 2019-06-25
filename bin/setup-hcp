@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20190619
+# .sh/bin/setup-hcp 20170519 - 20190625
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ## How to set up a swapfile in /swapfile
@@ -9,6 +9,8 @@
 # mkswap /swapfile
 # swapon /swapfile
 # echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+#
+# echo "tmpfs /tmp tmpfs size=10% 0 1" >> /etc/fstab
 
 ## Kernel fine tuning in /etc/sysctl.conf
 # net.core.default_qdisc = fq
