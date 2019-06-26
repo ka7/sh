@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20190625
+# .sh/bin/setup-hcp 20170519 - 20190626
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ## How to set up a swapfile in /swapfile
@@ -184,10 +184,38 @@ Password: $DPASS
 EOS
     fi
 elif [[ $DTYPE == sqlite ]]; then
-     if [[ -f $WPATH/hcp/adminer.php ]]; then
-        echo "@@@ $WPATH/hcp/phpmyadmin already exists"
+     if [[ -f $WPATH/hcp/phpliteadmin.php ]]; then
+        echo "@@@ $WPATH/hcp/phpliteadmin.php already exists"
      else
-        echo "@@@ Setup adminer (TODO)"
+        echo "@@@ Setup phpliteadmin"
+        cd $WPATH/hcp/
+        wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-7-1.zip
+        unzip -l phpLiteAdmin_v1-9-7-1.zip
+        rm phpLiteAdmin_v1-9-7-1.zip readme.md
+        wget https://bitbucket.org/phpliteadmin/public/raw/27c697869f776ce3bda7e0596ceb7977c036bcec/themes/Modern/phpliteadmin.css
+        cat << EOS > phpliteadmin.config.php
+<?php
+// Auto created by NetServa HCP/SH
+\$password          = '$DPASS';
+\$directory         = '/var/lib/sqlite/sysadm/';
+\$databases         = [['path'=> 'sysadm.db', 'name'=> 'Sysadm DB']];
+\$theme             = 'phpliteadmin.css';
+\$language          = 'en';
+\$rowsNum           = 30;
+\$charsNum          = 300;
+\$maxSavedQueries   = 10;
+\$cookie_name       = 'sysadm1';
+\$debug             = false;
+\$allowed_extensions= ['db'];
+EOS
+        cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+SQLiteAdm
+=========
+
+AdminWeb: https://$VHOST/hcp/phpliteadmin.php
+Password: $DPASS
+
+EOS
      fi
 fi
 
