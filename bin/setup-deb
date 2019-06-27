@@ -145,7 +145,7 @@ $EXDEB install $DLIST > /dev/null #2>&1
 
 if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     echo "<<< Remove python and all related packages"
-    $EXDEB --purge remove $RLIST > /dev/null 2>&1
+    $EXDEB --purge remove $RLIST > /dev/null #2>&1
     # This action removes /sbin/netplan so replace it with systemd-networkd
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
     echo "<<< Create /etc/systemd/network/10-dhcp.network"
@@ -172,13 +172,13 @@ postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB install $SLIST > /dev/null 2>&1
     echo "<<< Disable pdns until actually needed"
-    systemctl stop pdns > /dev/null 2>&1
-    systemctl disable pdns > /dev/null 2>&1
+    systemctl stop pdns > /dev/null #2>&1
+    systemctl disable pdns > /dev/null #2>&1
 fi
 
 if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
     echo "<<< Installing MySQL related packages"
-    $EXDEB install $MLIST > /dev/null 2>&1
+    $EXDEB install $MLIST > /dev/null #2>&1
 
     # Change to utf8 otherwise pdns tables will not install
     sed -i \
@@ -219,6 +219,6 @@ fi
 echo "<<< Create zoneinfo for $TAREA/$TCITY"
 # cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
 timedatectl set-timezone $TAREA/$TCITY
-dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
+dpkg-reconfigure -f noninteractive tzdata > /dev/null #2>&1
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
