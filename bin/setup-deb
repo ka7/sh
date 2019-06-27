@@ -110,7 +110,7 @@ MLIST="
 "
 
 # Fix for installing mariadb 10.3 on 19.04 and 19.10
-[[ $OSREL =~ eoan|disco ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
+[[ $OSREL =~ disco|eoan ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
 
 # OpenVZ has some wierd sysctl settings
 [[ -f /proc/vz/veinfo ]] && mv /etc/sysctl.d /etc/sysctl.d.orig
