@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20190507
+# .sh/bin/setup-all 20170519 - 20190627
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.dom.ain] [(mysql)|sqlite] [mailto] [IP]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.dom.ain] [(mysql)|sqlite] [distro($OSREL)] [mailto] [IP]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+source /root/.shrc || exit 3
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-DTYPE=${2:-'mysql'}
-MAIL2=${3:-"admin@$VHOST"}
-USEIP=${4:-''}
+DTYPE=${2:-$DTYPE}
+OSREL=${3:-$OSREL}
+MAIL2=${4:-"admin@$VHOST"}
+USEIP=${5:-''}
 
 HNAME=${VHOST%%.*} # hostname
 PFQDN=${VHOST#*.*} # parent FQDN
 
-echo "### Entering setup-host as $VHOST with $DTYPE"
+echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
 setup-host $VHOST $DTYPE $USEIP
 echo "### Entering setup-deb"
 setup-deb

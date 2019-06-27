@@ -24,12 +24,12 @@ HLIST="
 "
 
 [[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-host [domain] [(mysql)|sqlite] [IP] [admin(sysadm)] [os release($OSREL)] [os mirror(archive.ubuntu.com)]" && exit 1
+    echo "Usage: setup-host [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-OSREL=${5:-$OSREL}
-OSMIR=${6:-$OSMIR}
+OSREL=${3:-$OSREL}
+OSMIR=${6:-'archive.ubuntu.com'}
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
@@ -96,8 +96,8 @@ source /root/.shrc
 VHOST=${1:-$VHOST} # Admin Host must be hostname.domainname
 _HOST=${VHOST/%\.*/}
 DTYPE=${2:-$DTYPE}
-USEIP=${3:-''}
-UUSER=${4:-$ADMIN}
+USEIP=${4:-''}
+UUSER=${5:-$ADMIN}
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
