@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20190424
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-deb 20170519 - 20190627
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-
+set -x
 EXDEB="apt-get -yqq"
 export DEBIAN_FRONTEND=noninteractive
 export TERM=linux
