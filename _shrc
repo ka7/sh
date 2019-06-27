@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20190621
+# .sh/_shrc 20130315 - 20190627
 # Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
@@ -32,7 +32,7 @@ DHOST='localhost'
 DPORT='3306'
 DTYPE='mysql'
 OSMIR='archive.ubuntu.com'
-OSREL='dingo'
+OSREL='eoan'
 TAREA='Australia'
 TCITY='Sydney'
 VPATH='/home/u'
@@ -41,13 +41,13 @@ V_PHP='7.3'
 # Import managed aliases
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
 
+# Import managed env vars
+[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
+
 # Local custom aliases and env var overrides
 [ -f ~/.myrc ] && source ~/.myrc
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
-
-# Import managed env vars
-[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
 # Import default vhost
 [[ -f ~/.vhosts/$VHOST ]] && source ~/.vhosts/$VHOST
