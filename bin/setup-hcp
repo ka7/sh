@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20190626
+# .sh/bin/setup-hcp 20170519 - 20190627
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ## How to set up a swapfile in /swapfile
@@ -12,7 +12,7 @@
 #
 # echo "tmpfs /tmp tmpfs size=10% 0 1" >> /etc/fstab
 
-## Kernel fine tuning in /etc/sysctl.conf
+## Kernel fine tuning in /etc/sysctl.conf (added below)
 # net.core.default_qdisc = fq
 # net.ipv4.tcp_congestion_control = bbr
 # net.ipv4.tcp_notsent_lowat = 16384
@@ -58,12 +58,11 @@ else
     addvhost
 fi
 
-if [[ -d $WPATH/autodiscover.php ]]; then
-    echo "@@@ $WPATH/autodiscover.php already exists"
+if [[ -d $WPATH/hcp/autodiscover.php ]]; then
+    echo "@@@ $WPATH/hcp/autodiscover.php already exists"
 else
-    echo "@@@ Setup $WPATH/autodiscover.php with $MHOST"
-    cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/autodiscover.php
-    sed -i $WPATH/autodiscover.php -e "s/_MHOST/$MHOST/g"
+    echo "@@@ Setup $WPATH/hcp/autodiscover.php with $MHOST"
+    cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/hcp/autodiscover.php
 fi
 
 if [[ -d $WPATH/hcp ]]; then
@@ -71,11 +70,7 @@ if [[ -d $WPATH/hcp ]]; then
 else
     echo "@@@ Clone Netserva HCP to $WPATH/hcp"
     git clone https://github.com/netserva/hcp $WPATH/hcp > /dev/null 2>&1
-
-    #APASS_HASH=$(doveadm pw -s SHA512-CRYPT -p $UPASS | sed 's/\$/\\\$/g')
-    #APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);" | sed 's/\$/\\\$/g')
     APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);")
-
     cat << EOS | $SQCMD
     INSERT INTO news VALUES
     (null, 'News Item 1', 'Lorem ipsum etc...', 'lib/uploads/Blank-300x150.png', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01'),
