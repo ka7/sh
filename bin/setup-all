@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-all 20170519 - 20190627
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-all [hostname.dom.ain] [(mysql)|sqlite] [distro($OSREL)] [mailto] [IP]" && exit 1
@@ -11,13 +11,13 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 source /root/.shrc || exit 3
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-DTYPE=${2:-$DTYPE}
-OSREL=${3:-$OSREL}
-MAIL2=${4:-"admin@$VHOST"}
-USEIP=${5:-''}
-
 HNAME=${VHOST%%.*} # hostname
 PFQDN=${VHOST#*.*} # parent FQDN
+
+DTYPE=${2:-$DTYPE}
+OSREL=${3:-$OSREL}
+MAIL2=${4:-"admin@$PFQDN"}
+USEIP=${5:-''}
 
 echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
 setup-host $VHOST $DTYPE $USEIP
@@ -33,9 +33,8 @@ echo "### Add parent dom.ain"
 addvhost $PFQDN
 
 source /root/.vhosts/$PFQDN
-MAIL2=${MAILTO:-$AMAIL}
 
-echo "### Send message to: $MAILTO"
-cat ~/.vhosts/$PFQDN.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $PFQDN - $(hostname -i)" -r admin@$PFQDN $MAILTO
+echo "### Send message to: $MAIL2"
+cat ~/.vhosts/$PFQDN.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $PFQDN - $(hostname -i)" -r $MAIL2 $MAIL2
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

@@ -164,6 +164,7 @@ require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
 if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
 EOS
+    cd $CIMAP/sieve && sievec retrain-as-good.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
@@ -172,6 +173,7 @@ if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
 require ["vnd.dovecot.execute"];
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
 EOS
+    cd $CIMAP/sieve && sievec retrain-as-spam.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
@@ -186,6 +188,7 @@ execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lh
 addheader :last "X-Spam" "${SCORE}";
 if header :matches "X-Spam" "SPAM*" { fileinto "Junk"; }
 EOS
+    cd $CIMAP/sieve && sievec global.sieve
 fi
 
 if [[ $DTYPE == sqlite ]]; then
