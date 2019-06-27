@@ -289,7 +289,6 @@ if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     echo "^^^ Create /etc/systemd/system/opendmarc.service"
     cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
     chmod 644 /etc/systemd/system/opendmarc.service
-#?    update-rc.d opendmarc disable
     systemctl daemon-reload > /dev/null 2>&1
     systemctl enable opendmarc > /dev/null 2>&1
     systemctl restart opendmarc
@@ -300,6 +299,7 @@ if [[ ! -f $C_FPM/common.conf ]]; then
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
+# FIXME: add all these immediately after the [opcache] setting
 if [[ ! -f $C_FPM/php.ini.orig ]]; then
     echo "^^^ Modify $C_FPM/php.ini"
     cp $C_FPM/php.ini $C_FPM/php.ini.orig
@@ -349,34 +349,25 @@ if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
     [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
     sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
-
-#    cat << EOS >> $C_WEB/sites-enabled/_default
-#server {
-#    listen                      80;
-#    server_name                 ~^$HNAME\.(?<domain>.+)$;
-#    location                    ^~ /.well-known { root /home/u/\$domain/var/www; }
-#    location                    / { return 301 https://$HNAME.\$domain\$request_uri; }
-#}
-#EOS
 fi
 
-if [[ ! -d $C_SSL/$VHOST ]]; then
-    echo "^^^ Create temporary self-signed certificate for $VHOST"
-    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
+if [[ ! -d $C_SSL/$PFQDN ]]; then
+    echo "^^^ Create temporary self-signed certificate for $PFQDN"
+    [[ ! -d $C_SSL/$PFQDN ]] && mkdir $C_SSL/$PFQDN
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
-        -keyout /etc/ssl/$VHOST/privkey.pem \
-        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$PFQDN" \
+        -keyout /etc/ssl/$PFQDN/privkey.pem \
+        -out /etc/ssl/$PFQDN/fullchain.pem > /dev/null 2>&1
 
-    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+    if [[ ! -f $C_WEB/sites-enabled/$PFQDN.selfsigned ]]; then
+        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$PFQDN.selfsigned > /dev/null
 server {
     listen                      443 ssl http2;
-    server_name                 $VHOST;
-    set                         \$domain $VHOST;
+    server_name                 $PFQDN;
+    set                         \$domain $PFQDN;
     include                     /etc/nginx/common.conf;
-    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
+    ssl_certificate             $C_SSL/$PFQDN/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$PFQDN/privkey.pem;
     ssl_stapling                off;
     ssl_stapling_verify         off;
 }
