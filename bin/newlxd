@@ -4,7 +4,7 @@
 set -x
 # No need to be run as root so we need OSREL and DTYPE
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro(bionic)] [static IP/24] [gateway IP]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro($OSREL)] [static IP/24] [gateway IP]" && exit 1
 
 VHOST=$1
 DTYPE=${3:-$DTYPE}
