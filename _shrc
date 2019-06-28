@@ -41,11 +41,11 @@ export V_PHP='7.3'
 # Import managed aliases
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
 
-# Import managed env vars
-[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
-
 # Import default vhost
 [[ -f ~/.vhosts/$VHOST ]] && source ~/.vhosts/$VHOST
+
+# Import managed env vars
+[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
 # Local custom aliases and env var overrides
 [ -f ~/.myrc ] && source ~/.myrc
