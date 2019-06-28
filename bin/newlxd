@@ -86,7 +86,7 @@ lxc exec $HNAME -- apt-get -qq -y -u dist-upgrade > /dev/null #2>&1
 
 echo "--- Make sure basic essential packages are available"
 lxc exec $HNAME -- apt-get -qq -y install --no-install-recommends \
-    ca-certificates curl git nano net-tools openssh-server rsync wget > /dev/null #2>&1
+    ca-certificates curl git nano net-tools openssh-server rsync wget pwgen > /dev/null #2>&1
 
 # Continue container setup if the HOST is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
