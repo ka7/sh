@@ -169,5 +169,24 @@ sethost ()
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
 }
+updhost ()
+{
+    if [[ -z $1 || $1 =~ -h ]]; then
+        echo "Usage: updhost vhost [(mysql)|sqlite] [IP]";
+        return 1;
+    fi
+    [[ -f /root/.vhosts/$1 ]] && source /root/.vhosts/$1 || return 2
 
+    export HNAME=${1%%.*}
+    export HDOMN=${1#*.*}
+    export DTYPE=${2:-'mysql'}
+    export IP4_0=${3:-$IP4_0}
+
+    if [[ $DTYPE == mysql ]]; then
+        export SQCMD=$EXMYS;
+    elif [[ $DTYPE == sqlite ]]; then
+        export SQCMD=$EXSQL;
+    fi
+    gethost > /root/.vhosts/$1
+}
 export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
