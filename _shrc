@@ -44,11 +44,11 @@ V_PHP='7.3'
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
-# Local custom aliases and env var overrides
-[ -f ~/.myrc ] && source ~/.myrc
-
 # Import default vhost
 [[ -f ~/.vhosts/$VHOST ]] && source ~/.vhosts/$VHOST
+
+# Local custom aliases and env var overrides
+[ -f ~/.myrc ] && source ~/.myrc
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
