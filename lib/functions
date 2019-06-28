@@ -1,5 +1,5 @@
 # .sh/lib/functions 20151231 - 20190628
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
 {
@@ -189,4 +189,4 @@ updhost ()
     fi
     gethost > /root/.vhosts/$1
 }
-export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost
+export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost updhost

@@ -40,7 +40,7 @@ export V_PHP='7.3'
 
 # Import managed aliases
 [ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
-set -x
+
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
