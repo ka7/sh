@@ -55,9 +55,6 @@ lxc launch ubuntu-minimal:bionic $HNAME -p $PNAME
 echo "--- Setup '$HNAME' hostname as $VHOST"
 lxc exec $HNAME -- bash -c "echo $HNAME > /etc/hostname; hostname $HNAME"
 
-# temporary debug
-lxc exec $HNAME -- bash -c "echo; ip a; ip r; echo"
-
 if [[ $NEWIP ]]; then
     echo "--- Setup static IP in /etc/systemd/network/00-static.network"
     lxc exec $HNAME -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"

@@ -9,7 +9,7 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 echo "### Entering $0"
-set -x
+
 source /root/.shrc || exit 3
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
@@ -22,7 +22,7 @@ MAIL2=${4:-"admin@$PFQDN"}
 USEIP=${5:-''}
 
 echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
-setup-host $VHOST $DTYPE $USEIP
+setup-host $VHOST $DTYPE $OSREL $USEIP
 echo "### Entering setup-deb"
 setup-deb
 echo "### Entering setup-db"
