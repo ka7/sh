@@ -175,17 +175,25 @@ updhost ()
         echo "Usage: updhost vhost [(mysql)|sqlite] [IP]";
         return 1;
     fi
-    [[ -f /root/.vhosts/$1 ]] && source /root/.vhosts/$1 || return 2
+
+    if [[ -f /root/.vhosts/$1 ]]; then
+        source /root/.vhosts/$1
+    else
+        sethost $1
+    fi
+    source /root/.shrc
 
     export HNAME=${1%%.*}
     export HDOMN=${1#*.*}
-    export DTYPE=${2:-'mysql'}
+    export DTYPE=${2:-$DTYPE}
     export IP4_0=${3:-$IP4_0}
 
     if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
     elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
+    else
+        echo "!!! ERROR: unknown database type '$DTYPE'";
     fi
     gethost > /root/.vhosts/$1
 }
