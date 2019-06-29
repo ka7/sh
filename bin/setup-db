@@ -14,7 +14,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "##### Entering $0 $*"
+echo "######## $0 $*"
 
 source /root/.shrc || exit 3
 

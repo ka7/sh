@@ -6,6 +6,8 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+echo "######## $0 $*"
+
 source /root/.shrc
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 3

@@ -6,13 +6,13 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "*** Entering $0 $*"
+echo "######## $0 $*"
 
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 
 source /root/.vhosts/$VHOST || exit 3 # for VPATH and SQCMD
-
+gethost
 EPASS=${2:-$(newpw 1)}
 VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$VPATH/$VHOST/home"

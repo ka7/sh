@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-echo "##### Entering $0 $*"
+echo "######## $0 $*"
 
 OSREL=${3:-$OSREL}
 OSMIR=${6:-'archive.ubuntu.com'}

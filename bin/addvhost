@@ -8,7 +8,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "!!! Entering $0 $*"
+echo "######## $0 $*"
 
 # for DTYPE and VPATH
 source /root/.shrc || exit 3
@@ -16,7 +16,7 @@ source /root/.shrc || exit 3
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
 gethost
-set -x
+
 YMD=$(date +"%Y-%m-%d")
 UUTMP=""
 DOCMS=${2:-''}
@@ -311,6 +311,6 @@ if [[ -d $WPATH && $DOCMS == wp ]]; then
 fi
 
 logging $VHOST update
-set +x
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
 
