@@ -119,13 +119,4 @@ chperms $VHOST
 serva restart web
 serva restart mail
 
-if [[ -d $CIMAP/sieve ]]; then
-    echo "@@@ Create sieve binaries"
-    cd $CIMAP/sieve
-    sievec global.sieve
-    sievec retrain-as-spam.sieve
-    sievec retrain-as-good.sieve
-    /bin/ls -l
-fi
-
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
