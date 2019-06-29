@@ -8,7 +8,7 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "### Entering $0"
+echo "##### Entering $0 $*"
 
 source /root/.shrc || exit 3
 
@@ -22,18 +22,13 @@ USEIP=${5:-''}
 sethost sysadm@mail.$VHOST $DTYPE $OSREL $USEIP > /root/.vhosts/mail.$VHOST
 chmod 600 /root/.vhosts/*
 
-echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
 setup-host "mail.$VHOST" $DTYPE $OSREL $USEIP
-echo "### Entering setup-deb"
 setup-deb
-echo "### Entering setup-db"
 setup-db
-echo "### Entering setup-etc"
 setup-etc
-echo "### Entering setup-hcp"
 setup-hcp
 
-echo "### Send message to: $MAIL2"
+echo "##### Send message to: $MAIL2"
 cat ~/.vhosts/$VHOST.conf | mail -s "Setup $VHOST - $(hostname -i)" -r $MAIL2 $MAIL2
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

@@ -6,6 +6,8 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+echo "##### Entering $0 $*"
+
 source /root/.shrc || exit 3
 
 # Temporary self-signed SSL certificate defaults (not needed anymore?)
@@ -167,14 +169,16 @@ elif [[ $DTYPE == mysql ]]; then
     fi
 fi
 
-if [[ ! -d $CIMAP/sieve ]]; then
-    echo "^^^ Create $CIMAP/sieve"
-    mkdir $CIMAP/sieve
-fi
-
 if [[ ! -d $CIMAP/vhosts ]]; then
     echo "^^^ Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
+fi
+
+if [[ ! -d $CIMAP/sieve ]]; then
+    echo "^^^ Create $CIMAP/sieve"
+    mkdir $CIMAP/sieve
+    echo "^^^ Restart dovecot for sieve extensions"
+    systemctl reload dovecot
 fi
 
 if [[ ! -L $CIMAP/sieve/spamprobe ]]; then

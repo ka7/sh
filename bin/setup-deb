@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20190627
+# .sh/bin/setup-deb 20170519 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+echo "##### Entering $0 $*"
 
 source /root/.shrc || exit 3
 
