@@ -131,7 +131,7 @@ elif [[ $DTYPE == mysql ]]; then
 fi
 
 ##### dovecot
-set -x
+
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
@@ -147,7 +147,7 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
     fi
     # This is so sievec will work
-    systemctl reload dovecot
+#    systemctl reload dovecot
 fi
 
 if [[ $DTYPE == sqlite ]]; then
@@ -177,8 +177,8 @@ fi
 if [[ ! -d $CIMAP/sieve ]]; then
     echo "^^^ Create $CIMAP/sieve"
     mkdir $CIMAP/sieve
-    echo "^^^ Restart dovecot for sieve extensions"
-    systemctl reload dovecot
+#    echo "^^^ Restart dovecot for sieve extensions"
+#    systemctl reload dovecot
 fi
 
 if [[ ! -L $CIMAP/sieve/spamprobe ]]; then
@@ -194,7 +194,7 @@ require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
 if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
 EOS
-    cd $CIMAP/sieve && sievec retrain-as-good.sieve
+#    cd $CIMAP/sieve && sievec retrain-as-good.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
@@ -203,7 +203,7 @@ if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
 require ["vnd.dovecot.execute"];
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
 EOS
-    cd $CIMAP/sieve && sievec retrain-as-spam.sieve
+#    cd $CIMAP/sieve && sievec retrain-as-spam.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
@@ -218,9 +218,9 @@ execute :pipe :output "SCORE" "spamprobe" ["-c", "-d", "/home/u/${rhs}/home/${lh
 addheader :last "X-Spam" "${SCORE}";
 if header :matches "X-Spam" "SPAM*" { fileinto "Junk"; }
 EOS
-    cd $CIMAP/sieve && sievec global.sieve
+#    cd $CIMAP/sieve && sievec global.sieve
 fi
-set +x
+
 ##### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then

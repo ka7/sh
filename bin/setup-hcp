@@ -60,13 +60,6 @@ else
     addvhost sysadm@$VHOST
 fi
 
-if [[ -d $WPATH/hcp/autodiscover.php ]]; then
-    echo "@@@ $WPATH/hcp/autodiscover.php already exists"
-else
-    echo "@@@ Setup $WPATH/hcp/autodiscover.php with $MHOST"
-    cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/hcp/autodiscover.php
-fi
-
 if [[ -d $WPATH/hcp ]]; then
     echo "@@@ $WPATH/hcp (HCP) already exists"
 else
@@ -108,6 +101,13 @@ Username: $AMAIL
 Password: $APASS
 
 EOS
+fi
+
+if [[ -d $WPATH/hcp/autodiscover.php ]]; then
+    echo "@@@ $WPATH/hcp/autodiscover.php already exists"
+else
+    echo "@@@ Setup $WPATH/hcp/autodiscover.php with $MHOST"
+    cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/hcp/autodiscover.php
 fi
 
 if [[ -d $UPATH/var/www_old/private ]]; then
@@ -297,5 +297,14 @@ fi
 chperms $VHOST
 serva restart web
 serva restart mail
+
+if [[ -d $CIMAP/sieve ]]; then
+    echo "@@@ Create sieve binaries"
+    cd $CIMAP/sieve
+    sievec global.sieve
+    sievec retrain-as-spam.sieve
+    sievec retrain-as-good.sieve
+    /bin/ls -l
+fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
