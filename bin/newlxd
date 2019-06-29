@@ -63,9 +63,11 @@ else
     lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 fi
 
-echo "--- Wait 40 secs for network to become available..."
+echo "--- Wait 50 secs for network to become available..."
 lxc exec $HNAME -- systemctl restart systemd-networkd
 
+sleep 10
+echo "--- Wait another 40 secs..."
 sleep 10
 echo "--- Wait another 30 secs..."
 sleep 10
@@ -75,8 +77,8 @@ echo "--- Wait another 10 secs..."
 sleep 10
 
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
-LXDIP=$(lxc exec $HNAME -- hostname -i)
-lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' > /etc/hosts"
+LXDIP=$(lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1")
+lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
 
 echo "--- Update current package list"
 lxc exec $HNAME -- apt-get -qq update
@@ -98,7 +100,6 @@ if [[ -d ~/.sh ]]; then
     }
     lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     lxc exec $HNAME -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
-    LXDIP=$(lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1")
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
 
