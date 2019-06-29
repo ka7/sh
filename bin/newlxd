@@ -2,9 +2,11 @@
 # .sh/bin/newlxd 20171013 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# No need to be run as root so we need OSREL and DTYPE
+# No need to be run as root
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro($OSREL)] [static IP/24] [gateway IP]" && exit 1
+
+[[ -n $5 && -z $6 ]] && echo "ERROR: you must provide a gateway IP" && exit 2
 
 VHOST=$1
 DTYPE=${3:-$DTYPE}
