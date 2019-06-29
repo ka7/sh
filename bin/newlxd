@@ -52,7 +52,6 @@ fi
 lxc launch ubuntu-minimal:bionic $HNAME -p $PNAME
 
 echo "--- Setup '$HNAME' hostname as $VHOST"
-#lxc exec $HNAME -- bash -c "echo $HNAME > /etc/hostname; hostname $HNAME"
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
 
 if [[ $NEWIP ]]; then
@@ -63,16 +62,20 @@ else
     lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 fi
 
-echo "--- Wait 50 secs for network to become available..."
+echo "--- Wait 30 secs for network to become available..."
 lxc exec $HNAME -- systemctl restart systemd-networkd
 
 sleep 10
+lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 40 secs..."
 sleep 10
+lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 30 secs..."
 sleep 10
+lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 20 secs..."
 sleep 10
+lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 10 secs..."
 sleep 10
 
@@ -81,14 +84,13 @@ LXDIP=$(lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1")
 lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
 
 echo "--- Update current package list"
-lxc exec $HNAME -- apt-get -qq update
+lxc exec $HNAME -- bash -c "apt-get -qq update"
 
 echo "--- Upgrade current packages"
-lxc exec $HNAME -- DEBIAN_FRONTEND=noninteractive apt-get -qq -y -u dist-upgrade # > /dev/null #2>&1
+lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y -u dist-upgrade"
 
 echo "--- Make sure basic essential packages are available"
-lxc exec $HNAME -- DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends \
-    ca-certificates curl git nano net-tools openssh-server rsync wget pwgen # > /dev/null #2>&1
+lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync wget pwgen"
 
 # Continue container setup if the HOST is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
@@ -99,6 +101,7 @@ if [[ -d ~/.sh ]]; then
         lxc exec $HNAME -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
     }
     lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+    lxc exec $HNAME -- bash -c
     lxc exec $HNAME -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
