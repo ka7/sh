@@ -34,7 +34,7 @@ HLIST="
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
-    echo "!!! Warning: giving preference to IPv4 over IPv6 (Ubuntu default)"
+    echo "!!! Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
     sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 

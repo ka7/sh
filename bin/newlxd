@@ -18,17 +18,7 @@ HNAME=${VHOST%%.*} # hostname
 HDOMN=${VHOST#*.*} # parent FQDN
 
 # Essential package list
-ELIST="
-  ca-certificates
-  curl
-  git
-  nano
-  net-tools
-  openssh-server
-  pwgen
-  rsync
-  wget
-"
+ELIST="ca-certificates curl git nano net-tools openssh-server pwgen rsync wget"
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then

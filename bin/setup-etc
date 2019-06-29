@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20190607
+# .sh/bin/setup-etc 20151231 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -7,10 +7,6 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
-
-DTYPE=${1:-$DTYPE}
-HNAME=${VHOST%%.*} # hostname
-PFQDN=${VHOST#*.*} # parent FQDN
 
 # Temporary self-signed SSL certificate defaults (not needed anymore?)
 C="AU"
@@ -32,11 +28,13 @@ if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     userdel -rf ubuntu > /dev/null 2>&1
 fi
 
+##### postfix
+
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "^^^ Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
 
-    sed -e "s/_VHOST/$PFQDN/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+    sed -e "s/_VHOST/$VHOST/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
         ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
 
     if [[ $DTYPE == sqlite ]]; then
@@ -130,11 +128,13 @@ elif [[ $DTYPE == mysql ]]; then
      fi
 fi
 
+##### dovecot
+
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
 
-    sed -e "s/_VHOST/$PFQDN/" \
+    sed -e "s/_VHOST/$VHOST/" \
         ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
 
     if [[ $DTYPE == sqlite ]]; then
@@ -144,11 +144,37 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
         echo "^^^ Append MySQL details to $CIMAP/dovecot.conf"
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
     fi
+    # This is so sievec will work
+    systemctl reload dovecot
+fi
+
+if [[ $DTYPE == sqlite ]]; then
+    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
+        echo "^^^ Create $CIMAP/user-sqlite.conf"
+        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
+            > $CIMAP/user-sqlite.conf
+    fi
+
+elif [[ $DTYPE == mysql ]]; then
+
+    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
+        echo "^^^ Create $CIMAP/user-mysql.conf"
+        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
+            > $CIMAP/user-mysql.conf
+    fi
 fi
 
 if [[ ! -d $CIMAP/sieve ]]; then
     echo "^^^ Create $CIMAP/sieve"
     mkdir $CIMAP/sieve
+fi
+
+if [[ ! -d $CIMAP/vhosts ]]; then
+    echo "^^^ Create $CIMAP/vhosts"
+    mkdir $CIMAP/vhosts
 fi
 
 if [[ ! -L $CIMAP/sieve/spamprobe ]]; then
@@ -191,24 +217,7 @@ EOS
     cd $CIMAP/sieve && sievec global.sieve
 fi
 
-if [[ $DTYPE == sqlite ]]; then
-    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
-        echo "^^^ Create $CIMAP/user-sqlite.conf"
-        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
-            > $CIMAP/user-sqlite.conf
-    fi
-
-elif [[ $DTYPE == mysql ]]; then
-
-    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
-        echo "^^^ Create $CIMAP/user-mysql.conf"
-        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
-            > $CIMAP/user-mysql.conf
-    fi
-fi
+##### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then
     echo "^^^ Create $C_WEB/common.conf"
@@ -255,7 +264,7 @@ EOS
     sysctl -p
 fi
 
-
+##### opendkim
 
 if [[ ! -d /etc/opendkim ]]; then
     echo "^^^ Create /etc/opendkim"
@@ -279,6 +288,8 @@ if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     systemctl restart opendkim
 fi
 
+##### opendmarc
+
 if [[ ! -f /etc/opendmarc.conf.orig ]]; then
     echo "^^^ Create /etc/opendmarc.conf"
     mv /etc/opendmarc.conf /etc/opendmarc.conf.orig
@@ -293,6 +304,8 @@ if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     systemctl enable opendmarc > /dev/null 2>&1
     systemctl restart opendmarc
 fi
+
+##### php
 
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "^^^ Create $C_FPM/common.conf"
@@ -351,23 +364,23 @@ if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
     sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
 fi
 
-if [[ ! -d $C_SSL/$PFQDN ]]; then
-    echo "^^^ Create temporary self-signed certificate for $PFQDN"
-    [[ ! -d $C_SSL/$PFQDN ]] && mkdir $C_SSL/$PFQDN
+if [[ ! -d $C_SSL/$VHOST ]]; then
+    echo "^^^ Create temporary self-signed certificate for $VHOST"
+    [[ ! -d $C_SSL/$VHOST ]] && mkdir $C_SSL/$VHOST
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$PFQDN" \
-        -keyout /etc/ssl/$PFQDN/privkey.pem \
-        -out /etc/ssl/$PFQDN/fullchain.pem > /dev/null 2>&1
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
+        -keyout /etc/ssl/$VHOST/privkey.pem \
+        -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
 
-    if [[ ! -f $C_WEB/sites-enabled/$PFQDN.selfsigned ]]; then
-        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$PFQDN.selfsigned > /dev/null
+    if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
+        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
     listen                      443 ssl http2;
-    server_name                 $PFQDN;
-    set                         \$domain $PFQDN;
+    server_name                 $VHOST;
+    set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
-    ssl_certificate             $C_SSL/$PFQDN/fullchain.pem;
-    ssl_certificate_key         $C_SSL/$PFQDN/privkey.pem;
+    ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
     ssl_stapling                off;
     ssl_stapling_verify         off;
 }
