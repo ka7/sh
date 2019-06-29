@@ -11,11 +11,24 @@
 VHOST=$1
 DTYPE=${3:-$DTYPE}
 OSREL=${4:-$OSREL}
-NEWIP=${5:-''}
+NEWIP=${5:-''} # TODO: take into account optional /24
 NEWGW=${6:-''}
 
 HNAME=${VHOST%%.*} # hostname
 HDOMN=${VHOST#*.*} # parent FQDN
+
+# Essential package list
+ELIST="
+  ca-certificates
+  curl
+  git
+  nano
+  net-tools
+  openssh-server
+  pwgen
+  rsync
+  wget
+"
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
@@ -77,7 +90,7 @@ sleep 10
 
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
 LXDIP=$(lxc exec $HNAME -- bash -c "hostname -i|cut -d' ' -f -1")
-lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
+lxc exec $HNAME -- bash -c "cp /etc/hosts /etc/hosts.orig; echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
 
 echo "--- Update current package list"
 lxc exec $HNAME -- bash -c "apt-get -qq update"
@@ -86,7 +99,7 @@ echo "--- Upgrade current packages"
 lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y -u dist-upgrade"
 
 echo "--- Make sure basic essential packages are available"
-lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync wget pwgen"
+lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
 
 # Continue container setup if the HOST is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
@@ -98,7 +111,7 @@ if [[ -d ~/.sh ]]; then
     }
     lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
     lxc exec $HNAME -- bash -c "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
-    echo "--- setup-ssh $VHOST $LXDIP"
+    echo "--- setup-ssh $VHOST $LXDIP # optional"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
