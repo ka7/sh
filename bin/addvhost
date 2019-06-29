@@ -32,7 +32,7 @@ fi
 
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create /root/.vhosts/$VHOST config file"
-    sethost $UUTMP$VHOST $DTYPE $USEIP
+    sethost $UUTMP$VHOST
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*

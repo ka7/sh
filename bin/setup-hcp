@@ -46,16 +46,16 @@
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
+set -x
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 
-source ~/.vhosts/$VHOST || exit 3
+source /root/.vhosts/$VHOST || exit 3
 
 if [[ -d $WPATH ]]; then
     echo "@@@ $WPATH already exists"
 else
     echo "@@@ Create $VHOST with $DTYPE"
-    addvhost
+    addvhost sysadm@$VHOST
 fi
 
 if [[ -d $WPATH/hcp/autodiscover.php ]]; then

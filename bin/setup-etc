@@ -129,7 +129,7 @@ elif [[ $DTYPE == mysql ]]; then
 fi
 
 ##### dovecot
-
+set -x
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "^^^ Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
@@ -216,7 +216,7 @@ if header :matches "X-Spam" "SPAM*" { fileinto "Junk"; }
 EOS
     cd $CIMAP/sieve && sievec global.sieve
 fi
-
+set +x
 ##### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then
