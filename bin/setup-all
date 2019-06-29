@@ -21,8 +21,8 @@ USEIP=${5:-''}
 [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
 sethost sysadm@mail.$VHOST $DTYPE $OSREL $USEIP > /root/.vhosts/mail.$VHOST
 chmod 600 /root/.vhosts/*
-
-setup-host "mail.$VHOST" $DTYPE $OSREL $USEIP
+gethost
+setup-host $VHOST $DTYPE $OSREL $USEIP
 setup-deb
 setup-db
 setup-etc

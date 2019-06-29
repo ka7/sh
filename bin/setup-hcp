@@ -159,7 +159,7 @@ else
 \$config['plugins'] = ['archive','zipdownload','ident_switch','carddav','managesieve','password',];
 EOS
 
-    cat << EOS > www/composer.json
+    cat << EOS > composer.json
 {
     "name": "roundcube/roundcubemail",
     "description": "The Roundcube Webmail suite",
@@ -196,8 +196,8 @@ EOS
     }
 }
 EOS
-
-    php composer.phar install
+    chperms $VHOST
+    su - $UUSER -c "cd var/www; php composer.phar install"
 
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf
 RoundCube
@@ -206,6 +206,9 @@ RoundCube
 Webmail: https://$MHOST/
 
 EOS
+    echo
+    echo "##### TODO: SETUP ROUNDCUBE DATABASE"
+    echo
 fi
 
 if [[ $DTYPE == mysql ]]; then
