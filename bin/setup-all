@@ -12,7 +12,7 @@ echo "### Entering $0"
 
 source /root/.shrc || exit 3
 
-set
+gethost
 exit
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}

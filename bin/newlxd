@@ -12,11 +12,8 @@ OSREL=${4:-$OSREL}
 NEWIP=${5:-''}
 NEWGW=${6:-''}
 
-HNAME=mail # hostname
-HDOMN=$VHOST # parent FQDN
-
-#HNAME=${VHOST%%.*} # hostname
-#HDOMN=${VHOST#*.*} # parent FQDN
+HNAME=${VHOST%%.*} # hostname
+HDOMN=${VHOST#*.*} # parent FQDN
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
@@ -52,7 +49,6 @@ if [[ $? -eq 1 ]]; then
     lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
 fi
 
-#lxc launch ubuntu-minimal:$OSREL $HNAME -p $PNAME
 lxc launch ubuntu-minimal:bionic $HNAME -p $PNAME
 
 echo "--- Setup '$HNAME' hostname as $VHOST"
@@ -79,15 +75,18 @@ sleep 10
 echo "--- Wait another 10 secs..."
 sleep 10
 
+lxc exec $HNAME -- export DEBIAN_FRONTEND=noninteractive
+lxc exec $HNAME -- export TERM=linux
+
 echo "--- Update current package list"
 lxc exec $HNAME -- apt-get -qq update
 
 echo "--- Upgrade current packages"
-lxc exec $HNAME -- apt-get -qq -y -u dist-upgrade > /dev/null #2>&1
+lxc exec $HNAME -- apt-get -qq -y -u dist-upgrade # > /dev/null #2>&1
 
 echo "--- Make sure basic essential packages are available"
 lxc exec $HNAME -- apt-get -qq -y install --no-install-recommends \
-    ca-certificates curl git nano net-tools openssh-server rsync wget pwgen > /dev/null #2>&1
+    ca-certificates curl git nano net-tools openssh-server rsync wget pwgen # > /dev/null #2>&1
 
 # Continue container setup if the HOST is using the netserva/sh repo
 if [[ -d ~/.sh ]]; then
