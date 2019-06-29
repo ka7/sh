@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20190628
+# .sh/bin/setup-all 20170519 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -12,17 +12,20 @@ echo "### Entering $0"
 
 source /root/.shrc || exit 3
 
+set
+exit
+
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 HNAME=${VHOST%%.*} # hostname
-PFQDN=${VHOST#*.*} # parent FQDN
+HDOMN=${VHOST#*.*} # parent FQDN
 
 DTYPE=${2:-$DTYPE}
 OSREL=${3:-$OSREL}
-MAIL2=${4:-"admin@$PFQDN"}
+MAIL2=${4:-"admin@$HDOMN"}
 USEIP=${5:-''}
 
 echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
-setup-host $VHOST $DTYPE $OSREL $USEIP
+setup-host "mail.$VHOST" $DTYPE $OSREL $USEIP
 echo "### Entering setup-deb"
 setup-deb
 echo "### Entering setup-db"
@@ -32,11 +35,11 @@ setup-etc
 echo "### Entering setup-hcp"
 setup-hcp
 echo "### Add parent dom.ain"
-addvhost $PFQDN
+addvhost $HDOMN
 
-source /root/.vhosts/$PFQDN
+source /root/.vhosts/$HDOMN
 
 echo "### Send message to: $MAIL2"
-cat ~/.vhosts/$PFQDN.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $PFQDN - $(hostname -i)" -r $MAIL2 $MAIL2
+cat ~/.vhosts/$HDOMN.conf ~/.vhosts/$VHOST.conf | mail -s "Setup $HDOMN - $(hostname -i)" -r $MAIL2 $MAIL2
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

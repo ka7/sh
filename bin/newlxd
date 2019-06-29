@@ -12,8 +12,11 @@ OSREL=${4:-$OSREL}
 NEWIP=${5:-''}
 NEWGW=${6:-''}
 
-HNAME=${VHOST%%.*} # hostname
-PFQDN=${VHOST#*.*} # parent FQDN
+HNAME=mail # hostname
+HDOMN=$VHOST # parent FQDN
+
+#HNAME=${VHOST%%.*} # hostname
+#HDOMN=${VHOST#*.*} # parent FQDN
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
@@ -53,12 +56,13 @@ fi
 lxc launch ubuntu-minimal:bionic $HNAME -p $PNAME
 
 echo "--- Setup '$HNAME' hostname as $VHOST"
-lxc exec $HNAME -- bash -c "echo $HNAME > /etc/hostname; hostname $HNAME"
+#lxc exec $HNAME -- bash -c "echo $HNAME > /etc/hostname; hostname $HNAME"
+lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
 
 if [[ $NEWIP ]]; then
     echo "--- Setup static IP in /etc/systemd/network/00-static.network"
     lxc exec $HNAME -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
-    lxc exec $HNAME -- bash -c "echo -e '\n$NEWIP\t$VHOST $PFQDN $HNAME\n' > /etc/hosts"
+    lxc exec $HNAME -- bash -c "echo -e '\n$NEWIP\t$VHOST $HDOMN $HNAME\n' > /etc/hosts"
 else
     echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
     lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
