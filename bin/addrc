@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# .sh/bin/addrc 20190630 - 20190630
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: addrc [domain]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+echo "######## $0 $*"
+
+VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+
+source /root/.vhosts/$VHOST || exit 3
+gethost
+
+if [[ -d $WPATH/vendor/roundcube/ ]]; then
+    echo "@@@ $WPATH/roundcube already exists"
+else
+    echo "@@@ Setup RoundCube in $WPATH"
+    cd $UPATH/var
+    wget -q https://github.com/roundcube/roundcubemail/releases/download/1.4-rc1/roundcubemail-1.4-rc1-complete.tar.gz
+    tar xf roundcubemail-1.4-rc1-complete.tar.gz
+    mv roundcubemail-1.4-rc1/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
+    cd www
+    mkdir data
+    wget https://getcomposer.org/composer.phar
+
+    cat << EOS > config/config.inc.php
+<?php
+// Auto created by NetServa HCP/SH on $(date +%Y%m%d)
+\$config = [];
+\$config['db_dsnw'] = 'sqlite:////home/u/$MHOST/var/roundcubemail.db?mode=0646';
+\$config['default_host'] = 'ssl://$MHOST';
+\$config['smtp_server'] = 'ssl://$MHOST';
+\$config['smtp_port'] = 465;
+\$config['smtp_user'] = '%u';
+\$config['smtp_pass'] = '%p';
+\$config['support_url'] = 'https://PFQDN';
+\$config['product_name'] = 'Webmail';
+\$config['des_key'] = '$(pwgen -sB 24 1)';
+\$config['managesieve_host'] = 'tls://$MHOST';
+\$config['skin'] = 'elastic';
+\$config['plugins'] = ['archive','zipdownload','ident_switch','carddav','managesieve','password',];
+EOS
+
+    cat << EOS > composer.json
+{
+    "name": "roundcube/roundcubemail",
+    "description": "The Roundcube Webmail suite",
+    "license": "GPL-3.0+",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://plugins.roundcube.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "pear/pear-core-minimal": "~1.10.1",
+        "pear/auth_sasl": "~1.1.0",
+        "pear/net_idna2": "~0.2.0",
+        "pear/mail_mime": "~1.10.0",
+        "pear/net_smtp": "~1.8.1",
+        "pear/crypt_gpg": "~1.6.3",
+        "pear/net_sieve": "~1.4.3",
+        "roundcube/plugin-installer": "~0.1.6",
+        "masterminds/html5": "~2.3.0",
+        "endroid/qr-code": "~1.6.5",
+        "johndoh/contextmenu": "~2.3",
+        "boressoft/ident_switch": "~4.0.1",
+        "roundcube/carddav": "~3.0.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8.36 || ^5.7.21"
+    },
+    "suggest": {
+        "pear/net_ldap2": "~2.2.0 required for connecting to LDAP",
+        "kolab/net_ldap3": "~1.0.6 required for connecting to LDAP",
+        "mkopinsky/zxcvbn-php": "^4.4.2 required for Zxcvbn password strength driver"
+    }
+}
+EOS
+    chperms $VHOST
+    su - $UUSER -c "cd var/www; php composer.phar install"
+
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+RoundCube
+=========
+
+Webmail: https://$MHOST/
+
+EOS
+    echo
+    echo "##### TODO: SETUP ROUNDCUBE DATABASE"
+    echo
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
