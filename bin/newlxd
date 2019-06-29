@@ -58,7 +58,6 @@ lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
 if [[ $NEWIP ]]; then
     echo "--- Setup static IP in /etc/systemd/network/00-static.network"
     lxc exec $HNAME -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
-    lxc exec $HNAME -- bash -c "echo -e '\n$NEWIP\t$VHOST $HDOMN $HNAME\n' > /etc/hosts"
 else
     echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
     lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
@@ -75,17 +74,18 @@ sleep 10
 echo "--- Wait another 10 secs..."
 sleep 10
 
-lxc exec $HNAME -- export DEBIAN_FRONTEND=noninteractive
-lxc exec $HNAME -- export TERM=linux
+lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
+LXDIP=$(lxc exec $HNAME -- hostname -i)
+lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' > /etc/hosts"
 
 echo "--- Update current package list"
 lxc exec $HNAME -- apt-get -qq update
 
 echo "--- Upgrade current packages"
-lxc exec $HNAME -- apt-get -qq -y -u dist-upgrade # > /dev/null #2>&1
+lxc exec $HNAME -- DEBIAN_FRONTEND=noninteractive apt-get -qq -y -u dist-upgrade # > /dev/null #2>&1
 
 echo "--- Make sure basic essential packages are available"
-lxc exec $HNAME -- apt-get -qq -y install --no-install-recommends \
+lxc exec $HNAME -- DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends \
     ca-certificates curl git nano net-tools openssh-server rsync wget pwgen # > /dev/null #2>&1
 
 # Continue container setup if the HOST is using the netserva/sh repo
