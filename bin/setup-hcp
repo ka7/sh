@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20190627
+# .sh/bin/setup-hcp 20170519 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ## How to set up a swapfile in /swapfile
@@ -110,12 +110,6 @@ Password: $APASS
 EOS
 fi
 
-# No longer needed
-#if [[ -d $UPATH/var/www_old/.well-known ]]; then
-#    echo "@@@ Move $UPATH/var/www_old/.well-known to www"
-#    mv $UPATH/var/www_old/.well-known $WPATH
-#fi
-
 if [[ -d $UPATH/var/www_old/private ]]; then
     echo "@@@ Move $UPATH/var/www_old/private to www"
     mv $UPATH/var/www_old/private $WPATH
@@ -136,14 +130,18 @@ else
 fi
 
 if [[ -d $WPATH/vendor/roundcube/ ]]; then
-    echo "@@@ $WPATH/rounfcube already exists"
+    echo "@@@ $WPATH/roundcube already exists"
 else
     echo "@@@ Setup RoundCube in $WPATH"
     cd $UPATH/var
     wget -q https://github.com/roundcube/roundcubemail/releases/download/1.4-rc1/roundcubemail-1.4-rc1-complete.tar.gz
     tar xf roundcubemail-1.4-rc1-complete.tar.gz
-    mv roundcubemail-1.4-rc1/{config,data,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
-    cat << EOS > www/config/config.inc.php
+    mv roundcubemail-1.4-rc1/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
+    cd www
+    mkdir data
+    wget https://getcomposer.org/composer.phar
+
+    cat << EOS > config/config.inc.php
 <?php
 // Auto created by NetServa HCP/SH on $(date +%Y%m%d)
 \$config = [];
@@ -198,7 +196,8 @@ EOS
     }
 }
 EOS
-    cd www && php composer.phar install
+
+    php composer.phar install
 
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf
 RoundCube
