@@ -13,20 +13,16 @@ echo "### Entering $0"
 source /root/.shrc || exit 3
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+DTYPE=${2:-$DTYPE}
+OSREL=${3:-$OSREL}
+MAIL2=${4:-"admin@$VHOST"}
+USEIP=${5:-''}
+
 [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts
-sethost sysadm@mail.$VHOST > /root/.vhosts/mail.$VHOST
+sethost sysadm@mail.$VHOST $DTYPE $OSREL $USEIP > /root/.vhosts/mail.$VHOST
 
 gethost
 exit
-
-VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-HNAME=${VHOST%%.*} # hostname
-HDOMN=${VHOST#*.*} # parent FQDN
-
-DTYPE=${2:-$DTYPE}
-OSREL=${3:-$OSREL}
-MAIL2=${4:-"admin@$HDOMN"}
-USEIP=${5:-''}
 
 echo "### Entering setup-host for '$VHOST' with '$OSREL' and '$DTYPE'"
 setup-host "mail.$VHOST" $DTYPE $OSREL $USEIP
