@@ -66,21 +66,16 @@ echo "--- Wait 30 secs for network to become available..."
 lxc exec $HNAME -- systemctl restart systemd-networkd
 
 sleep 10
-lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
-echo "--- Wait another 40 secs..."
-sleep 10
-lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
-echo "--- Wait another 30 secs..."
-sleep 10
-lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
+lxc exec $HNAME -- bash -lc "mesg no; hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 20 secs..."
 sleep 10
-lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1"
+lxc exec $HNAME -- bash -lc "mesg no; hostname -i|cut -d' ' -f -1"
 echo "--- Wait another 10 secs..."
 sleep 10
+lxc exec $HNAME -- bash -lc "mesg no; hostname -i|cut -d' ' -f -1"
 
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
-LXDIP=$(lxc exec $HNAME -- bash -lc "hostname -i|cut -d' ' -f -1")
+LXDIP=$(lxc exec $HNAME -- bash -lc "mesg no;hostname -i|cut -d' ' -f -1")
 lxc exec $HNAME -- bash -c "echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
 
 echo "--- Update current package list"
@@ -101,7 +96,6 @@ if [[ -d ~/.sh ]]; then
         lxc exec $HNAME -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
     }
     lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    lxc exec $HNAME -- bash -c
     lxc exec $HNAME -- bash -lc "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
     echo "--- setup-ssh $VHOST $LXDIP"
 fi
