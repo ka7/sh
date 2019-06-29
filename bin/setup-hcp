@@ -2,47 +2,6 @@
 # .sh/bin/setup-hcp 20170519 - 20190629
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-## How to set up a swapfile in /swapfile
-# fallocate -l 512M /swapfile
-# dd if=/dev/zero of=/swapfile bs=1024 count=524288
-# chmod 600 /swapfile
-# mkswap /swapfile
-# swapon /swapfile
-# echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
-#
-# echo "tmpfs /tmp tmpfs size=10% 0 1" >> /etc/fstab
-
-## Kernel fine tuning in /etc/sysctl.conf (added below)
-# net.core.default_qdisc = fq
-# net.ipv4.tcp_congestion_control = bbr
-# net.ipv4.tcp_notsent_lowat = 16384
-# vm.swappiness = 1
-# net.core.somaxconn = 512
-
-## Opcache for a 2GB ram VPS in /etc/php/7.3/fpm/php.ini
-# [opcache]
-# opcache.enable = 1
-# opcache.enable_cli=1
-# opcache.fast_shutdown = 1
-# opcache.interned_strings_buffer = 16
-# opcache.max_accelerated_files = 25000
-# opcache.memory_consumption = 512
-# opcache.revalidate_freq = 120
-# opcache.save_comments=1
-# opcache.validate_timestamps = 1
-## For Nextcloud
-# memory_limit = 512M
-
-## Tweaks for MariaDB in /etc/mysql/mariadb.conf.d/50-server.cnf
-# [mysqld]
-# innodb_buffer_pool_size = 512M
-# (more innodb settings here)
-## 20180930 https://bugs.mysql.com/bug.php?id=42041
-# table_open_cache        = 16384
-# table_definition_cache  = 16384
-# tmp_table_size          = 64M
-# join_buffer_size        = 512k
-
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
@@ -129,147 +88,6 @@ else
     echo $DPASS > $WPATH/hcp/lib/.ht_pw
 fi
 
-if [[ -d $WPATH/vendor/roundcube/ ]]; then
-    echo "@@@ $WPATH/roundcube already exists"
-else
-    echo "@@@ Setup RoundCube in $WPATH"
-    cd $UPATH/var
-    wget -q https://github.com/roundcube/roundcubemail/releases/download/1.4-rc1/roundcubemail-1.4-rc1-complete.tar.gz
-    tar xf roundcubemail-1.4-rc1-complete.tar.gz
-    mv roundcubemail-1.4-rc1/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
-    cd www
-    mkdir data
-    wget https://getcomposer.org/composer.phar
-
-    cat << EOS > config/config.inc.php
-<?php
-// Auto created by NetServa HCP/SH on $(date +%Y%m%d)
-\$config = [];
-\$config['db_dsnw'] = 'sqlite:////home/u/$MHOST/var/roundcubemail.db?mode=0646';
-\$config['default_host'] = 'ssl://$MHOST';
-\$config['smtp_server'] = 'ssl://$MHOST';
-\$config['smtp_port'] = 465;
-\$config['smtp_user'] = '%u';
-\$config['smtp_pass'] = '%p';
-\$config['support_url'] = 'https://PFQDN';
-\$config['product_name'] = 'Webmail';
-\$config['des_key'] = '$(pwgen -sB 24 1)';
-\$config['managesieve_host'] = 'tls://$MHOST';
-\$config['skin'] = 'elastic';
-\$config['plugins'] = ['archive','zipdownload','ident_switch','carddav','managesieve','password',];
-EOS
-
-    cat << EOS > composer.json
-{
-    "name": "roundcube/roundcubemail",
-    "description": "The Roundcube Webmail suite",
-    "license": "GPL-3.0+",
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://plugins.roundcube.net"
-        }
-    ],
-    "require": {
-        "php": ">=5.4.0",
-        "pear/pear-core-minimal": "~1.10.1",
-        "pear/auth_sasl": "~1.1.0",
-        "pear/net_idna2": "~0.2.0",
-        "pear/mail_mime": "~1.10.0",
-        "pear/net_smtp": "~1.8.1",
-        "pear/crypt_gpg": "~1.6.3",
-        "pear/net_sieve": "~1.4.3",
-        "roundcube/plugin-installer": "~0.1.6",
-        "masterminds/html5": "~2.3.0",
-        "endroid/qr-code": "~1.6.5",
-        "johndoh/contextmenu": "~2.3",
-        "boressoft/ident_switch": "~4.0.1",
-        "roundcube/carddav": "~3.0.3"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^4.8.36 || ^5.7.21"
-    },
-    "suggest": {
-        "pear/net_ldap2": "~2.2.0 required for connecting to LDAP",
-        "kolab/net_ldap3": "~1.0.6 required for connecting to LDAP",
-        "mkopinsky/zxcvbn-php": "^4.4.2 required for Zxcvbn password strength driver"
-    }
-}
-EOS
-    chperms $VHOST
-    su - $UUSER -c "cd var/www; php composer.phar install"
-
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
-RoundCube
-=========
-
-Webmail: https://$MHOST/
-
-EOS
-    echo
-    echo "##### TODO: SETUP ROUNDCUBE DATABASE"
-    echo
-fi
-
-if [[ $DTYPE == mysql ]]; then
-    if [[ -d $WPATH/hcp/phpmyadmin ]]; then
-        echo "@@@ $WPATH/hcp/phpmyadmin already exists"
-    else
-        echo "@@@ Setup phpmyadmin to $WPATH/hcp/phpmyadmin"
-        cd $UPATH/var
-        wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
-        tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
-        mv phpMyAdmin-*/ www/hcp/phpmyadmin
-        mv www/hcp/phpmyadmin/config.sample.inc.php www/hcp/phpmyadmin/config.inc.php
-        ENCPW=$(newpw 4 | tr ' ' _)
-        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/hcp/phpmyadmin/config.inc.php
-        rm phpMyAdmin-latest-english.tar.gz
-        cat << EOS | tee -a /root/.vhosts/$VHOST.conf
-PhpMyadmin
-=========
-
-AdminWeb: https://$VHOST/hcp/phpmyadmin
-Username: $ADMIN
-Password: $DPASS
-
-EOS
-    fi
-elif [[ $DTYPE == sqlite ]]; then
-     if [[ -f $WPATH/hcp/phpliteadmin.php ]]; then
-        echo "@@@ $WPATH/hcp/phpliteadmin.php already exists"
-     else
-        echo "@@@ Setup phpliteadmin"
-        cd $WPATH/hcp/
-        wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-7-1.zip
-        unzip -l phpLiteAdmin_v1-9-7-1.zip
-        rm phpLiteAdmin_v1-9-7-1.zip readme.md
-        wget https://bitbucket.org/phpliteadmin/public/raw/27c697869f776ce3bda7e0596ceb7977c036bcec/themes/Modern/phpliteadmin.css
-        cat << EOS > phpliteadmin.config.php
-<?php
-// Auto created by NetServa HCP/SH on $(date +%Y%m%d)
-\$password          = '$DPASS';
-\$directory         = '/var/lib/sqlite/sysadm/';
-\$databases         = [['path'=> 'sysadm.db', 'name'=> 'Sysadm DB']];
-\$theme             = 'phpliteadmin.css';
-\$language          = 'en';
-\$rowsNum           = 30;
-\$charsNum          = 300;
-\$maxSavedQueries   = 10;
-\$cookie_name       = 'sysadm1';
-\$debug             = false;
-\$allowed_extensions= ['db'];
-EOS
-        cat << EOS | tee -a /root/.vhosts/$VHOST.conf
-SQLiteAdm
-=========
-
-AdminWeb: https://$VHOST/hcp/phpliteadmin.php
-Password: $DPASS
-
-EOS
-     fi
-fi
-
 if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
     echo "@@@ $WPATH/hcp/lib/.ht_conf.php already exists"
 else
@@ -293,6 +111,9 @@ return [
 ];
 " > $WPATH/hcp/lib/.ht_conf.php
 fi
+
+echo "!!!!!!! TODO: addpma (add phpmyadmin/phpliteadmin)"
+echo "!!!!!!! TODO: addrc (add roundcube)"
 
 chperms $VHOST
 serva restart web
