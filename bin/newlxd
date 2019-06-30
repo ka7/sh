@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20190629
+# .sh/bin/newlxd 20171013 - 20190630
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root
@@ -33,8 +33,8 @@ elif [[ $2 == medium ]]; then
     P_CPU=2
 else
     PNAME=small
-    PSIZE=2000MB
-    P_MEM=200MB
+    PSIZE=2500MB
+    P_MEM=250MB
     P_CPU=1
 fi
 
