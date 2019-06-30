@@ -150,6 +150,11 @@ echo "<<< Installing default package set, yet more patience..."
 $EXDEB install $DLIST > /dev/null #2>&1
 
 if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
+    if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
+        echo "<<< Remove unattended-upgrades"
+        systemctl stop unattended-upgrades
+        systemctl disable unattended-upgrades
+    fi
     echo "<<< Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null #2>&1
     # This action removes /sbin/netplan so replace it with systemd-networkd
