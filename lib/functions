@@ -159,7 +159,7 @@ sethost ()
     export WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
 
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
-    export MHOST="mail.$(hostname -d|tr 'A-Z' 'a-z')"
+    export MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DUSER=$UUSER;
     export MPATH=$VPATH/$VHOST/home;

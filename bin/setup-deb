@@ -110,7 +110,7 @@ MLIST="
   php$V_PHP-mysql
   postfix-mysql
 "
-
+set -x
 # Fix for installing mariadb 10.3 on 19.04 and 19.10
 [[ $OSREL =~ disco|eoan ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
 
