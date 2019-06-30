@@ -26,7 +26,7 @@ if [[ $2 == large ]]; then
     PSIZE=20000MB
     P_MEM=2000MB
     P_CPU=4
-if [[ $2 == medium ]]; then
+elif [[ $2 == medium ]]; then
     PNAME=medium
     PSIZE=10000MB
     P_MEM=1000MB
