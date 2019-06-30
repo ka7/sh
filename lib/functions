@@ -136,7 +136,14 @@ sethost ()
     [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
 
     export OSREL=${3:-$OSREL}
-    export IP4_0=${4:-$(hostname -i|cut -d ' ' -f -1)};
+
+    if [[ -z $4 ]]; then
+        export IP4_0=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
+    elif [[ $4 =~ "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" ]]; then
+        export IP4_0=$4
+    else
+        export IP4_0=$(hostname -i|cut -d ' ' -f -1)
+    fi
 
     export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
     export EXMYS="mysql -BN $ADMIN";
