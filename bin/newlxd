@@ -4,7 +4,7 @@
 
 # No need to be run as root
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(small)|medium|large] [(mysql)|sqlite] [distro($OSREL)] [static IP/24] [gateway IP]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: newlxd FQDN [(tiny)|small|medium|large] [(mysql)|sqlite] [distro($OSREL)] [static IP/24] [gateway IP]" && exit 1
 
 [[ -n $5 && -z $6 ]] && echo "ERROR: you must provide a gateway IP" && exit 2
 
@@ -23,16 +23,21 @@ ELIST="ca-certificates curl git nano net-tools openssh-server pwgen rsync wget"
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
     PNAME=large
+    PSIZE=20000MB
+    P_MEM=2000MB
+    P_CPU=4
+if [[ $2 == medium ]]; then
+    PNAME=medium
     PSIZE=10000MB
     P_MEM=1000MB
     P_CPU=3
-elif [[ $2 == medium ]]; then
-    PNAME=medium
+elif [[ $2 == small ]]; then
+    PNAME=small
     PSIZE=5000MB
     P_MEM=500MB
     P_CPU=2
 else
-    PNAME=small
+    PNAME=tiny
     PSIZE=2500MB
     P_MEM=250MB
     P_CPU=1
