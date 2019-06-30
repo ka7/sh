@@ -278,7 +278,7 @@ fi
 
 addvmail $VUSER@$VHOST
 chshpw $UUSER $UPASS
-set -x
+
 MID=$(cat << EOS | $SQCMD
  SELECT id FROM vmails
   WHERE user = '$VUSER@$VHOST'
@@ -296,7 +296,7 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
 )
 EOS
 )
-set +x
+
 if [[ -d $WPATH && $DOCMS == wp ]]; then
     if [[ $DTYPE == mysql ]]; then
         addwp $VHOST
