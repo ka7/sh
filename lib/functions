@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20190628
+# .sh/lib/functions 20151231 - 20190630
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -151,11 +151,12 @@ sethost ()
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
-    export APASS=$(pwgen -sB 16 1);
-    export DPASS=$(pwgen -sB 16 1);
-    export EPASS=$(pwgen -sB 16 1);
-    export UPASS=$(pwgen -sB 16 1);
-    export WPASS=$(pwgen -sB 16 1);
+    # was pwgen -sB 16 1
+    export APASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    export DPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    export EPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    export UPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    export WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
 
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     export MHOST="mail.$(hostname -d|tr 'A-Z' 'a-z')"
@@ -166,7 +167,7 @@ sethost ()
     export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
     export VUSER='admin';
     export WPATH=$VPATH/$VHOST/var/www;
-    export WPUSR=$(pwgen -sB0A 6 1);
+    export WPUSR=$(head /dev/urandom|tr -dc a-z|head -c6);
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
 }
