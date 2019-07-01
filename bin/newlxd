@@ -82,7 +82,7 @@ echo "--- Wait another 20 secs..."
 sleep 10
 echo "--- Wait another 10 secs..."
 sleep 10
-
+set -x
 echo "--- Make sure basic essential packages are available"
 lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
 
