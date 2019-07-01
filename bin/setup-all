@@ -10,7 +10,11 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 echo "######## $0 $*"
 
-setup-host ${1:-$(hostname -f|tr 'A-Z' 'a-z')} ${2:-'mysql'} ${3:-'disco'}
+VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+DTYPE=${2:-'mysql'}
+OSREL=${3:-'disco'}
+
+setup-host $VHOST $DTYPE $OSREL
 setup-deb
 setup-db
 setup-etc
