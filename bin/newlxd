@@ -89,7 +89,7 @@ lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq update; a
 
 echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
 lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-lxc exec $HNAME -- bash -c "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
+lxc exec $HNAME -- bash -c "exec /root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
 echo "--- setup-ssh $VHOST $LXDIP # optional"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
