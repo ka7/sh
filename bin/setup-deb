@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20190629
+# .sh/bin/setup-deb 20170519 - 20190701
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
@@ -110,7 +110,7 @@ MLIST="
   php$V_PHP-mysql
   postfix-mysql
 "
-set -x
+
 # Fix for installing mariadb 10.3 on 19.04 and 19.10
 [[ $OSREL =~ disco|eoan ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
 
