@@ -20,6 +20,8 @@ setup-db
 setup-etc
 setup-hcp
 
+gethost
+
 echo "######## Send message to: admin@$VHOST"
 cat ~/.vhosts/$VHOST.conf | mail -s "Setup $VHOST - $(hostname -i)" -r admin@$VHOST admin@$VHOST
 
