@@ -91,9 +91,9 @@ if [[ ! -d /root/.sh ]]; then
     /root/.sh/bin/shm install > /dev/null
     /root/.sh/bin/shm perms
 fi
-
+gethost
 source /root/.shrc
-
+gethost
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
@@ -111,7 +111,7 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*
 fi
-
+gethost
 source /root/.vhosts/$VHOST
 gethost
 [[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
