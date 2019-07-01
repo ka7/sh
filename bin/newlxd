@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20190630
+# .sh/bin/newlxd 20171013 - 20190701
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root
@@ -83,30 +83,12 @@ sleep 10
 echo "--- Wait another 10 secs..."
 sleep 10
 
-lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
-LXDIP=$(lxc exec $HNAME -- bash -c "hostname -i|cut -d' ' -f -1")
-lxc exec $HNAME -- bash -c "cp /etc/hosts /etc/hosts.orig; echo -e '\n$LXDIP\tmail.$VHOST $VHOST mail\n' >> /etc/hosts"
-
-echo "--- Update current package list"
-lxc exec $HNAME -- bash -c "apt-get -qq update"
-
-echo "--- Upgrade current packages"
-lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y -u dist-upgrade"
-
 echo "--- Make sure basic essential packages are available"
 lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
 
-# Continue container setup if the HOST is using the netserva/sh repo
-if [[ -d ~/.sh ]]; then
-    echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
-    lxc exec $HNAME -- bash -c "[[ ! -d /root/.ssh ]] && mkdir /root/.ssh && chmod 0700 /root/.ssh"
-    [[ -f ~/.ssh/id_rsa.pub ]] && {
-        lxc file push --mode=600 ~/.ssh/id_rsa.pub $HNAME/root/.ssh/authorized_keys
-        lxc exec $HNAME -- bash -c "chown 0:0 /root/.ssh/authorized_keys"
-    }
-    lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-    lxc exec $HNAME -- bash -c "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
-    echo "--- setup-ssh $VHOST $LXDIP # optional"
-fi
+echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
+lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
+lxc exec $HNAME -- bash -c "/root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
+echo "--- setup-ssh $VHOST $LXDIP # optional"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
