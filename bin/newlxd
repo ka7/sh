@@ -18,7 +18,7 @@ HNAME=${VHOST%%.*} # hostname
 HDOMN=${VHOST#*.*} # parent FQDN
 
 # Essential package list
-ELIST="ca-certificates curl git nano net-tools openssh-server pwgen rsync wget"
+ELIST="apt-utils ca-certificates curl git nano net-tools openssh-server pwgen rsync wget"
 
 # Modify these container profiles to suit your needs
 if [[ $2 == large ]]; then
@@ -84,7 +84,8 @@ echo "--- Wait another 10 secs..."
 sleep 10
 set -x
 echo "--- Make sure basic essential packages are available"
-lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
+
+lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq update; apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
 
 echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
 lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"

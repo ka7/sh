@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20190630
+# .sh/bin/setup-host 20170524 - 20190701
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -90,8 +90,9 @@ if [[ ! -d /root/.sh ]]; then
     git clone -q https://github.com/netserva/sh .sh > /dev/null
     /root/.sh/bin/shm install > /dev/null
     /root/.sh/bin/shm perms
-    source /root/.shrc
 fi
+
+source /root/.shrc
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
