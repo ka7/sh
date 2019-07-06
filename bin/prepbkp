@@ -23,6 +23,6 @@
  chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new; \
  mv .spamprobe spamprobe-old; \
  mv spamprobe-new .spamprobe; \
- rm -rf spamprobe-bkp; done
+ rm -rf spamprobe-bkp spamprobe-old; done
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
