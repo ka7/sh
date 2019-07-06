@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-/usr/bin/mysql -BNe "show databases" | while read i; do \
+/usr/bin/mysql -BNe "show databases" | grep -v _schema | while read i; do \
  echo $i; \
  sleep 2; \
  mysqldump $i | gzip > /home/mysql/$i.sql.gz; done
