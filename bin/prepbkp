@@ -19,7 +19,7 @@
  cp -a .spamprobe spamprobe-bkp; \
  spamprobe -d spamprobe-bkp cleanup 2 14; \
  spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
- chown 1:1 -R spamprobe-new; \
+ chown $(stat -c "%u:%g" $i) -R spamprobe-new; \
  mv .spamprobe spamprobe-old; \
  mv spamprobe-new .spamprobe; \
  rm -rf spamprobe-bkp; done
