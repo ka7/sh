@@ -6,10 +6,12 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-/usr/bin/mysql -BNe "show databases" | grep -v _schema | while read i; do \
+if [[ -f /var/run/mysqld/mysqld.sock ]]; then
+    /usr/bin/mysql -BNe "show databases" | grep -v _schema | while read i; do \
  echo $i; \
  sleep 2; \
  mysqldump $i | gzip > /home/mysql/$i.sql.gz; done
+fi
 
 /bin/ls -1d /home/u/*/home/*/.spamprobe | while read i; do \
  echo $i; \
