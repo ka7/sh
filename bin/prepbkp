@@ -15,7 +15,7 @@ if [[ -S /var/run/mysqld/mysqld.sock ]]; then
 fi
 
 #/bin/ls -1d /home/u/*/home/*/.spamprobe | while read i; do \
-find /home/u/*/home/* -type d -name .spamprobe | while read i; do \
+find /home/u -type d -name .spamprobe | while read i; do \
  echo $i; \
  sleep 2; \
  HPATH=$(dirname $i); \
