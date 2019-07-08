@@ -8,13 +8,14 @@ set -x
 
 if [[ -S /var/run/mysqld/mysqld.sock ]]; then
     [[ ! -d /home/mysql ]] && mkdir /home/mysql
-    /usr/bin/mysql -BNe "show databases" | grep -v _schema | while read i; do \
+    mysql -BNe "show databases" | grep -v _schema | while read i; do \
  echo $i; \
  sleep 2; \
  mysqldump $i | gzip > /home/mysql/$i.sql.gz; done
 fi
 
-/bin/ls -1d /home/u/*/home/*/.spamprobe | while read i; do \
+#/bin/ls -1d /home/u/*/home/*/.spamprobe | while read i; do \
+find /home/u/*/home/* -type d -name .spamprobe | while read i; do \
  echo $i; \
  sleep 2; \
  HPATH=$(dirname $i); \
