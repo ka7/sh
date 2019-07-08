@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/prepbkp 20190706 - 20190706
+# .sh/bin/prepbkp 20190706 - 20190708
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: prepbkp" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-if [[ -S! /var/run/mysqld/mysqld.sock ]]; then
+if [[ -S /var/run/mysqld/mysqld.sock ]]; then
     /usr/bin/mysql -BNe "show databases" | grep -v _schema | while read i; do \
  echo $i; \
  sleep 2; \
