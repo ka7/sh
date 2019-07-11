@@ -1,9 +1,9 @@
 <?php
-// .well-know/autodiscover.php 20190430 - 20190610
+// .well-know/autodiscover.php 20190430 - 20190711
 // Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 $pfqdn = str_replace(['autoconfig.', 'autodiscover.'], '', $_SERVER['HTTP_HOST']);
-$mhost = dns_get_record($pfqdn, DNS_MX);
+$mhost = dns_get_record($pfqdn, DNS_MX)[0]['target'];
 
 $configXML = explode('?', $_SERVER['REQUEST_URI']);
 $configXML = $configXML[0];
