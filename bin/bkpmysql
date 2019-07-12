@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# .sh/bin/bkpmysql 20190712 - 20190712
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: bkpmysql" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+if [[ -S /var/run/mysqld/mysqld.sock ]]; then
+    [[ ! -d /home/mysql ]] && mkdir /home/mysql
+    mysql -BNe "show databases" | grep -v _schema | while read i; do \
+ echo $i; \
+ sleep 2; \
+ mysqldump $i | gzip > /home/mysql/$i.sql.gz; done
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
