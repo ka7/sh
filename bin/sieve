@@ -23,7 +23,7 @@ fi
 cd $MPATH
 
 if [[ ! -d sieve ]]; then
-    mkidr -p sieve/tmp
+    mkdir -p sieve/tmp
     chown $(stat -c "%u:%g" $MPATH) -R sieve
 fi
 
