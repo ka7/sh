@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# .sh/bin/sieve 20100713 - 20190713
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: sieve user@domain [(sh)|redirect|copy|rm|edit] [target]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+[[ ! $1 =~ "@" ]] && echo "ERROR: must be an email address" && exit 2
+
+EMAIL=${1,,} # lowercase user@domain
+VHOST=${EMAIL#*@} # userid @ $VHOST
+VUSER=${EMAIL%@*} # $VUSER @ domain
+VPATH="/home/u"
+HPATH="$VPATH/$VHOST/home"
+MPATH="$HPATH/$VUSER"
+
+if [[ ! -d $MPATH/Maildir ]]; then
+    echo "Warning: Maildir directory does not exist: $MPATH/Maildir"
+    exit 3
+fi
+
+cd $MPATH
+
+if [[ $2 == edit ]]; then
+    nano -t -x -c sieve/Default.sieve
+    sievec .dovecot.sieve
+    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+elif [[ $2 == rm ]]; then
+    rm .dovecot* sieve/Default.sieve
+elif [[ $2 == redirect ]]; then
+    [[ ! $3 =~ "@" ]] && echo "ERROR: need target email address" && exit 2
+    echo "redirect \"$3\";" > sieve/Default.sieve
+    [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
+    ln -s sieve/Default.sieve .dovecot.sieve
+    sievec .dovecot.sieve
+    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+elif [[ $2 == copy ]]; then
+    [[ ! $3 =~ "@" ]] && echo "ERROR: need target email address" && exit 3
+    echo "require \"copy\";" > sieve/Default.sieve
+    echo "redirect :copy \"$3\";" >> sieve/Default.sieve
+    [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
+    ln -s sieve/Default.sieve .dovecot.sieve
+    sievec .dovecot.sieve
+    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+fi
+
+ls -al
+ls -al sieve
+[[ -f .dovecot.sieve ]] && cat .dovecot.sieve
+echo
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
