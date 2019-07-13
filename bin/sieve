@@ -22,10 +22,15 @@ fi
 
 cd $MPATH
 
+if [[ ! -d sieve ]]; then
+    mkidr -p sieve/tmp
+    chown $(stat -c "%u:%g" $MPATH) -R sieve
+fi
+
 if [[ $2 == edit ]]; then
     nano -t -x -c sieve/Default.sieve
     sievec .dovecot.sieve
-    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+    chown $(stat -c "%u:%g" $MPATH) -R sieve .dovecot*
 elif [[ $2 == rm ]]; then
     rm .dovecot* sieve/Default.sieve
 elif [[ $2 == redirect ]]; then
@@ -34,7 +39,7 @@ elif [[ $2 == redirect ]]; then
     [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
     ln -s sieve/Default.sieve .dovecot.sieve
     sievec .dovecot.sieve
-    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+    chown $(stat -c "%u:%g" $MPATH) -R sieve .dovecot*
 elif [[ $2 == copy ]]; then
     [[ ! $3 =~ "@" ]] && echo "ERROR: need target email address" && exit 3
     echo "require \"copy\";" > sieve/Default.sieve
@@ -42,7 +47,7 @@ elif [[ $2 == copy ]]; then
     [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
     ln -s sieve/Default.sieve .dovecot.sieve
     sievec .dovecot.sieve
-    chown $(stat -c "%u:%g" $MPATH) -R $MPATH/sieve $MPATH/.dovecot*
+    chown $(stat -c "%u:%g" $MPATH) -R sieve .dovecot*
 fi
 
 ls -al
