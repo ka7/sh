@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20190630
+# .sh/_shrc 20130315 - 20190714
 # Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
@@ -54,4 +54,4 @@ PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 export PATH SUDO MAILTO EDITOR TERM DEBIAN_FRONTEND PS1
 export AHOST AMAIL APASS C_FPM DNAME DPASS DPATH DUSER EPASS EXMYS EXSQL
 export HNAME HDOMN IP4_0 MHOST MPATH SQCMD UPASS UPATH UUSER U_GID U_SHL
-export U_UID VHOST VUSER WPASS WPATH WPUSR
+export U_UID VHOST VPATH VUSER WPASS WPATH WPUSR
