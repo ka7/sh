@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/spamprep 20190706 - 20190719
+# .sh/bin/cleanspam 20190706 - 20190720
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: spamprep" && exit 1
+# TODO: add per mailbox option and use VPATH instead of /home/u
+
+[[ $1 =~ -h ]] && echo "Usage: cleanspam" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-if [[ -S /var/run/mysqld/mysqld.sock ]]; then
-    [[ ! -d /home/mysql ]] && mkdir /home/mysql
-    mysql -BNe "show databases" | grep -v _schema | while read i; do \
- echo $i; \
- sleep 2; \
- mysqldump $i | gzip > /home/mysql/$i.sql.gz; done
-fi
-
-#/bin/ls -1d /home/u/*/home/*/.spamprobe | while read i; do \
 find /home/u -type d -name .spamprobe | while read i; do \
  echo $i; \
  sleep 2; \
