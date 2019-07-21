@@ -12,6 +12,7 @@ if [[ ! -z $1 ]]; then
         if [[ ! -d $TPATH ]]; then
             echo "ERROR: '$TPATH' does not exist"
             exit 3
+        fi
     else
         echo "ERROR: please provide a valid email address"
         exit 4
