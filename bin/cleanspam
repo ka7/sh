@@ -31,7 +31,7 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
  mkdir spamprobe-new; \
  cp -a .spamprobe spamprobe-bkp; \
- spamprobe -d spamprobe-bkp cleanup 2 14; \
+ spamprobe -d spamprobe-bkp cleanup 2 31; \
  spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
  chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new; \
  mv .spamprobe spamprobe-old; \
