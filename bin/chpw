@@ -17,7 +17,7 @@ mysql -ve "UPDATE sysadm.vmails SET password='$EPASS' WHERE user='$EMAIL'"
 
 if [[ -f $VCONF ]]; then
     grep -q $EMAIL $VCONF
-    if [[ $? -eq 0 ]] then
+    if [[ $? -eq 0 ]]; then
         sed -i "/Username: $EMAIL/{n;s/.*/Password: $EPASS/}" $VCONF
     else
         cat << EOS | tee -a $VCONF
