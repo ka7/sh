@@ -25,8 +25,8 @@ else
 fi
 
 if [[ -d $MPATH ]]; then
-    echo "rsync -vrltD $RPATH/ $MPATH --exclude *courier* --exclude maildirsize --exclude .IsSpam/ --exclude .IsGood/ --exclude maildirfolder/ --dry-run"
-    echo "chown $(stat -c '%u:%g' $HPATH) -R $MPATH"
+    rsync -vrltD $RPATH/ $MPATH --exclude *courier* --exclude maildirsize --exclude .IsSpam/ --exclude .IsGood/ --exclude maildirfolder/
+    chown $(stat -c '%u:%g' $HPATH) -R $MPATH
 else
     echo "!!! '$MPATH' does not exist"
 fi
