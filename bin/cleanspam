@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
-# .sh/bin/cleanspam 20190706 - 20190720
+# .sh/bin/cleanspam 20190706 - 20190721
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# TODO: add per mailbox option and use VPATH instead of /home/u
-
-[[ $1 =~ -h ]] && echo "Usage: cleanspam" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: cleanspam [email]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-find /home/u -type d -name .spamprobe | while read i; do \
+if [[ $1 ]]; then
+    if [[ ! $1 =~ @ ]] && echo "Please provide a valid email address" && exit 3
+    TPATH=$VPATH/${1#*@}/home/${1%@*}
+else
+    TPATH=$VPATH
+fi
+echo $TPATH
+exit
+find $TPATH -type d -name .spamprobe | while read i; do \
  echo $i; \
  sleep 2; \
  HPATH=$(dirname $i); \
