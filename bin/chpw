@@ -13,7 +13,7 @@ CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
 
-mysql -ve "UPDATE sysadm.vmails SET password='$CRYPT' WHERE user='$EMAIL'"
+mysql -e "UPDATE sysadm.vmails SET password='$CRYPT' WHERE user='$EMAIL'"
 
 if [[ -f $VCONF ]]; then
     grep -q $EMAIL $VCONF
@@ -31,6 +31,7 @@ Password: $NEWPW
 
 EOS
     fi
+    echo
     echo "New Password"
     grep -A1 "^Username: $EMAIL" $VCONF
 else
