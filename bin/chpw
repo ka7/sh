@@ -13,6 +13,13 @@ CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
 
+ISUSR=$(mysql -BNe "SELECT id FROM sysadm.vmails WHERE user='$EMAIL'")
+
+if [[ -z $ISUSR ]]; then
+    echo "ERROR: '$EMAIL' does not exist in sysadm.vmails"
+    exit 3
+fi
+
 mysql -e "UPDATE sysadm.vmails SET password='$CRYPT' WHERE user='$EMAIL'"
 
 if [[ -f $VCONF ]]; then
