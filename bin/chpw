@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/chpw 20190603 - 20190721
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 [[ -z $2 || $1 =~ '-h' ]] && echo "Usage: chpw user@domain pw" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
@@ -9,27 +9,30 @@ set -x
 EMAIL=${1,,} # lowercase user@domain
 shift
 NEWPW=$@
-EPASS=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
+CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
 
-mysql -ve "UPDATE sysadm.vmails SET password='$EPASS' WHERE user='$EMAIL'"
+mysql -ve "UPDATE sysadm.vmails SET password='$CRYPT' WHERE user='$EMAIL'"
 
 if [[ -f $VCONF ]]; then
     grep -q $EMAIL $VCONF
     if [[ $? -eq 0 ]]; then
-        sed -i "/Username: $EMAIL/{n;s/.*/Password: $EPASS/}" $VCONF
+        echo "Old Password"
+        grep -A1 "^Username: $EMAIL" $VCONF
+        sed -i "/^Username: $EMAIL/{n;s/.*/Password: $NEWPW/}" $VCONF
     else
         cat << EOS | tee -a $VCONF
 Mail
 =========
 
 Username: $EMAIL
-Password: $EPASS
+Password: $NEWPW
 
 EOS
     fi
-    grep -A1 "Username: $EMAIL" $VCONF | grep Password: | sed 's/Password: //'
+    echo "New Password"
+    grep -A1 "^Username: $EMAIL" $VCONF
 else
     echo "ERROR: $VCONF does not exist"
 fi
