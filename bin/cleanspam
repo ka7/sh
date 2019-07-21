@@ -7,8 +7,9 @@ set -x
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ ! -z $1 ]]; then
-    if [[ $1 =~ @ ]]; then
-        TPATH="$VPATH/${1#*@}/home/${1%@*}"
+    if [[ $1 =~ '(.+)@(.+)' ]]; then
+        TPATH="$VPATH/${BASH_REMATCH[2]}/home/${BASH_REMATCH[1]}"
+#        TPATH="$VPATH/${1#*@}/home/${1%@*}"
     else
         echo "Please provide a valid email address"
         exit 3
