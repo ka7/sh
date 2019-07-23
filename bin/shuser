@@ -38,7 +38,7 @@ elif [[ $RESULT -eq 1 ]]; then
    FROM $ADMIN.$PWTBL
   WHERE user LIKE '$QRY'
   LIMIT 1" | tail -n +2
-    shpw $1
+    echo "   pw: $(shpw $1)"
 else
     echo "No matching users"
 fi
