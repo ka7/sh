@@ -6,7 +6,7 @@
 
 # FIXME should be dynamic
 #ADMIN=sysadm
-#PWTBL=vmails
+PWTBL=vmails
 
 if [[ $DTYPE == sqlite ]]; then
     echo "Sorry, this script does not work with sqlite yet"
