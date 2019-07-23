@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/shuser 20160130 - 20190712
+# .sh/bin/shuser 20160130 - 20190723
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shuser uid*|all" && exit 1
 
 # FIXME should be dynamic
-ADMIN=sysadm
-PWTBL=vmails
+#ADMIN=sysadm
+#PWTBL=vmails
 
 if [[ $DTYPE == sqlite ]]; then
     echo "Sorry, this script does not work with sqlite yet"
@@ -23,7 +23,7 @@ RESULT=$(mysql -BNe "
 if [[ $RESULT -gt 1 ]]; then
     mysql -BNe "
  SELECT concat('u', uid),
-        rpad(user,length(user)+(32-length(user)),' '),
+        rpad(user,length(user)+(42-length(user)),' '),
         home
    FROM $ADMIN.$PWTBL
   WHERE user LIKE '$QRY'
@@ -38,6 +38,7 @@ elif [[ $RESULT -eq 1 ]]; then
    FROM $ADMIN.$PWTBL
   WHERE user LIKE '$QRY'
   LIMIT 1" | tail -n +2
+    shpw $1
 else
     echo "No matching users"
 fi
