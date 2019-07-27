@@ -43,7 +43,7 @@ elif [[ $RESULT -eq 1 ]]; then
         quota,
         home
    FROM $ADMIN.$PWTBL
-  WHERE user = '$EMAIL'" | tail -n +2)
+  WHERE user = '$EMAIL'" | tail -n +2
 
     echo "   pw: $(shpw $EMAIL)"
 else
