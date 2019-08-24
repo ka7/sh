@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20180826
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/logging 20170417 - 20190824
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
 
@@ -8,7 +8,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.shrc || exit 3
+source ~/.vhosts/$(hostname -f) || exit 3
 
 [[ $2 == update ]] && UPD=1 || UPD=
 

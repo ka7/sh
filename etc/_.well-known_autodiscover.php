@@ -18,7 +18,7 @@ switch(strtolower($configXML)) {
         break;
     }
     case '/mail/config-v1.1.xml':
-    case '/well-known/autoconfig/mail/config-v1.1.xml': {
+    case '/.well-known/autoconfig/mail/config-v1.1.xml': {
         $output = autoconfig(@$_GET['emailaddress'], $mhost, $pfqdn);
         break;
     }

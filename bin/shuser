@@ -8,6 +8,7 @@
 #ADMIN=sysadm
 PWTBL=vmails
 
+# FIXME TODO
 if [[ $DTYPE == sqlite ]]; then
     echo "Sorry, this script does not work with sqlite yet"
     exit 3
