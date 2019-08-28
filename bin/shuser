@@ -18,11 +18,13 @@ RESULT=$(echo "
   WHERE user LIKE '$QRY'" | $SQCMD)
 
 if [[ $RESULT -gt 1 ]]; then
+
     echo "
- SELECT printf('u%d  %-42s %s', uid, user, home)
+ SELECT uid, user, home
    FROM $PWTBL
   WHERE user LIKE '$QRY'
-  ORDER BY uid" | $SQCMD
+  ORDER BY uid" | $SQCMD | \
+    awk -F '[| ]' '{printf "u%d  %-42s %s\n", $1, $2, $3}'
 
 elif [[ $RESULT -eq 1 ]]; then
 
