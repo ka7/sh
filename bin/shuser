@@ -24,7 +24,7 @@ if [[ $RESULT -gt 1 ]]; then
    FROM $PWTBL
   WHERE user LIKE '$QRY'
   ORDER BY uid" | $SQCMD | \
-    awk -F '[| ]' '{printf "u%d  %-42s %s\n", $1, $2, $3}'
+    awk -F '[|\t]' '{printf "u%d  %-42s %s\n", $1, $2, $3}'
 
 elif [[ $RESULT -eq 1 ]]; then
 
@@ -34,13 +34,10 @@ elif [[ $RESULT -eq 1 ]]; then
   WHERE user LIKE '$QRY' LIMIT 1" | $SQCMD)
 
     echo "
- SELECT user,
-        uid,
-        gid,
-        quota,
-        home
-   FROM $ADMIN.$PWTBL
-  WHERE user = '$EMAIL'" | $SQCMD
+ SELECT user, uid, gid, quota, home
+   FROM $PWTBL
+  WHERE user = '$EMAIL'" | $SQCMD | \
+    awk -F '[|\t]' '{printf "user %s\nuid %s\ngid %s\nquota %s\nhome %s\n", $1, $2, $3, $4, $5}'
 
     echo "   pw: $(shpw $EMAIL)"
 else
