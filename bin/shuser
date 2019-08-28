@@ -2,6 +2,8 @@
 # .sh/bin/shuser 20160130 - 20190828
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+# TODO: if uid == 1000 then uid = sysadm else uid= u####
+
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shuser email*|all" && exit 1
 
 source /root/.vhosts/$(hostname -f) || exit 3 # only needed for SQCMD
@@ -32,10 +34,10 @@ elif [[ $RESULT -eq 1 ]]; then
   WHERE user LIKE '$QRY' LIMIT 1" | $SQCMD)
 
     echo "
- SELECT user, uid, home
+ SELECT uid, user, home
    FROM $PWTBL
   WHERE user = '$EMAIL'" | $SQCMD | \
-    awk -F '[|\t]' '{printf " user: %s\n uuid: u%s\n home: %s\n", $1, $2, $3}'
+    awk -F '[|\t]' '{printf " user: %s\n uuid: u%s\n home: %s\n", $2, $1, $3}'
 
     echo "   pw: $(shpw $EMAIL)"
 else
