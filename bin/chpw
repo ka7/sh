@@ -15,14 +15,14 @@ CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
 
-ISUSR=$(cat "SELECT id FROM sysadm.vmails WHERE user='$EMAIL'" | $SQCMD)
+ISUSR=$(cat "SELECT id FROM vmails WHERE user='$EMAIL'" | $SQCMD)
 
 if [[ -z $ISUSR ]]; then
-    echo "ERROR: '$EMAIL' does not exist in sysadm.vmails"
+    echo "ERROR: '$EMAIL' does not exist in vmails"
     exit 3
 fi
 
-cat "UPDATE sysadm.vmails SET password='$CRYPT' WHERE user='$EMAIL'" | $SQCMD
+cat "UPDATE vmails SET password='$CRYPT' WHERE user='$EMAIL'" | $SQCMD
 
 if [[ -f $VCONF ]]; then
     grep -q $EMAIL $VCONF
