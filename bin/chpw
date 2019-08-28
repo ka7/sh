@@ -14,7 +14,7 @@ NEWPW=$@
 CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
-
+set -x
 ISUSR=$(cat "SELECT id FROM vmails WHERE user='$EMAIL'" | $SQCMD)
 
 if [[ -z $ISUSR ]]; then
