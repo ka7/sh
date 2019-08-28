@@ -34,10 +34,10 @@ elif [[ $RESULT -eq 1 ]]; then
   WHERE user LIKE '$QRY' LIMIT 1" | $SQCMD)
 
     echo "
- SELECT user, uid, gid, quota, home
+ SELECT user, uid, home
    FROM $PWTBL
   WHERE user = '$EMAIL'" | $SQCMD | \
-    awk -F '[|\t]' '{printf "user %s\nuid %s\ngid %s\nquota %s\nhome %s\n", $1, $2, $3, $4, $5}'
+    awk -F '[|\t]' '{printf " user: %s\n uuid: u%s\n home: %s\n", $1, $2, $3}'
 
     echo "   pw: $(shpw $EMAIL)"
 else
