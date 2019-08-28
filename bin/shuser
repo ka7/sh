@@ -10,7 +10,7 @@ source /root/.vhosts/$(hostname -f) || exit 3 # only needed for SQCMD
 
 PWTBL=vmails
 
-[[ $1 == all ]] && QRY="%" || QRY="%$1%"
+[[ $1 == all ]] && QRY="%" || QRY="$1%"
 
 RESULT=$(echo "
  SELECT count(*)
