@@ -12,27 +12,26 @@ PWTBL=vmails
 
 [[ $1 == all ]] && QRY="%" || QRY="%$1%"
 
-RESULT=$(cat "
+RESULT=$(echo "
  SELECT count(*)
-   FROM $ADMIN.$PWTBL
+   FROM $PWTBL
   WHERE user LIKE '$QRY'" | $SQCMD)
 
 if [[ $RESULT -gt 1 ]]; then
-    cat "
- SELECT concat('u', uid),
-        rpad(user,length(user)+(42-length(user)),' '),
-        home
-   FROM $ADMIN.$PWTBL
+    echo "
+ SELECT printf('u%d  %-42s %s', uid, user, home)
+   FROM $PWTBL
   WHERE user LIKE '$QRY'
   ORDER BY uid" | $SQCMD
+
 elif [[ $RESULT -eq 1 ]]; then
 
-    EMAIL=$(cat "
+    EMAIL=$(echo "
  SELECT user
-   FROM $ADMIN.$PWTBL
+   FROM $PWTBL
   WHERE user LIKE '$QRY' LIMIT 1" | $SQCMD)
 
-    cat "
+    echo "
  SELECT user,
         uid,
         gid,
