@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20190430
+# .sh/bin/setup-lxd 20170519 - 20190905
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -10,18 +10,29 @@
 LSTOR=zfs # btrfs, zfs, lvm, dir
 
 PSIZE=${1:-'25'}
-APASS=${2:-$(newpw 1)}
+APASS=${2:-$(newpw)}
 IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 
-if [[ -e /usr/bin/lxd ]]; then
+if [[ -e /snap/bin/lxd ]]; then
     echo "--- Warning: lxd already installed"
 else
     echo "--- Install packages for basic lxd, install criu manually if needed"
-    apt-get -qq update > /dev/null
-    # criu requires python so leave out until actually needed
-    DEBIAN_FRONTEND=noninteractive \
-        apt-get -yqq install --no-install-recommends \
-        lxd lxd-client bridge-utils btrfs-progs btrfs-tools zfsutils-linux > /dev/null
+    if [[ -f /etc/pacman.conf ]]; then
+        pacman -Syu --noconfirm
+        pacman -S bridge-utils btrfs-progs zfs-utils
+        if [[ ! -L /snap ]]; then
+            pacman -S snapd
+        fi
+        snap install lxd
+        systemctl start snapd
+        systemctl enable snapd
+    else
+        apt-get -qq update > /dev/null
+        # criu requires python so leave out until actually needed
+        DEBIAN_FRONTEND=noninteractive \
+            apt-get -yqq install --no-install-recommends \
+            lxd lxd-client bridge-utils btrfs-progs btrfs-tools zfsutils-linux > /dev/null
+    fi
 fi
 
 lxc storage list | grep lxd-pool > /dev/null
