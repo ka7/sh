@@ -18,14 +18,14 @@ if [[ -e /snap/bin/lxd ]]; then
 else
     echo "--- Install packages for basic lxd, install criu manually if needed"
     if [[ -f /etc/pacman.conf ]]; then
-        pacman -Syu --noconfirm
-        pacman -S bridge-utils btrfs-progs zfs-utils
+        pacman -Syu --noconfirm > /dev/null
+        pacman -S --noconfirm --needed bridge-utils btrfs-progs zfs-utils > /dev/null
         if [[ ! -L /snap ]]; then
             pacman -S snapd
         fi
-        snap install lxd
-        systemctl start snapd
-        systemctl enable snapd
+        snap install lxd > /dev/null
+        systemctl start snapd > /dev/null
+        systemctl enable snapd > /dev/null
     else
         apt-get -qq update > /dev/null
         # criu requires python so leave out until actually needed

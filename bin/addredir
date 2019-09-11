@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addredir 20190623 - 20190623
+# .sh/bin/addredir 20190623 - 20190911
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addredir from.domain to.domain" && exit 1
@@ -9,8 +9,97 @@
 FHOST=$1
 THOST=$2
 
+source /root/.vhost/$THOST || exit 3
+
+V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
+
+IS_FHOST=$(cat << EOS | $SQCMD
+ SELECT COUNT(id)
+   FROM vhosts
+  WHERE domain = '$FHOST'
+EOS
+)
+
+[[ $IS_FHOST -gt 0 ]] && echo "!!! ERROR: '$FHOST' vhost already exists in database" && exit 4
+
+IS_THOST=$(cat << EOS | $SQCMD
+ SELECT COUNT(id)
+   FROM vhosts
+  WHERE domain = '$THOST'
+EOS
+)
+
+[[ $IS_THOST -eq 0 ]] && echo "!!! ERROR: '$THOST' vhost does not exist in database" && exit 5
+
+echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
+DO_FHOST=$(cat << EOS | $SQCMD
+ INSERT INTO vhosts (
+        active,
+        aliases,
+        created,
+        diskquota,
+        domain,
+        gid,
+        mailboxes,
+        mailquota,
+        uid,
+        uname,
+        updated
+) VALUES (
+        1,
+        0,
+        '$V_CREATED',
+        0,
+        '$FHOST',
+        $U_GID,
+        0,
+        0,
+        $U_UID,
+        '$UUSER',
+        '$V_CREATED'
+)
+EOS
+)
+
+HID=$(cat << EOS | $SQCMD
+ SELECT id
+   FROM vhosts
+  WHERE domain = '$THOST'
+EOS
+)
+
+[[ -z $HID ]] && echo "*** ERROR: '$THOST' does not exist in $ADMIN.vhosts" && exit 6
+
+USRID=$(cat << EOS | $SQCMD
+ SELECT id
+   FROM valias
+  WHERE source = '@$FHOST'
+EOS
+)
+
+[[ $USRID ]] && echo "!!! ERROR: '@$FHOST' already exists in $ADMIN.valias" && exit 4
+
+echo "*** Create $ADMIN.valias entry ($DTYPE)"
+DO_VALIAS=$(cat << EOS | $SQCMD
+ INSERT INTO valias (
+        hid,
+        source,
+        target,
+        updated,
+        created
+) VALUES (
+        $HID,
+        '@$FHOST',
+        '@$THOST',
+        '$V_CREATED',
+        '$V_CREATED'
+)
+EOS
+)
+
 if [[ -f $C_WEB/sites-enabled/__$FHOST ]]; then
     echo "Warning: $C_WEB/sites-enabled/__$FHOST already exists"
+    cat $C_WEB/sites-enabled/__$FHOST
 else
     echo "Create $C_WEB/sites-enabled/__$FHOST"
     cat << EOS > $C_WEB/sites-enabled/__$FHOST
@@ -29,7 +118,6 @@ server {
 EOS
 fi
 
-echo
-cat $C_WEB/sites-enabled/__$FHOST
+newssl $FHOST www
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
