@@ -118,6 +118,6 @@ server {
 EOS
 fi
 
-newssl $FHOST www
+newssl $FHOST www --nocfg
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
