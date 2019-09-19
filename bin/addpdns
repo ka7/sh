@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addpdns 20180709 - 20190617
+# .sh/bin/addpdns 20180709 - 20190919
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [mx] [spfip(or custom string)] [sshkey]" && exit 1
@@ -49,7 +49,7 @@ echo "$SPFIP" | grep -q 'v=spf1'
 pdnsutil add-record $VHOST @ TXT \""$SPFIP"\" > /dev/null 2>&1
 
 # Add DMARC record
-pdnsutil add-record $VHOST @ TXT \""$DMARC"\" > /dev/null 2>&1
+pdnsutil add-record _dmarc.$VHOST @ TXT \""$DMARC"\" > /dev/null 2>&1
 
 # Change zone type from NATIVE to MASTER
 pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1
@@ -66,7 +66,7 @@ else
     fi
     _DKIM=$($DOSSH $IP4_0 ". .shrc; dkim show $VHOST" | grep "v=DKIM1")
     if [[ $_DKIM ]]; then
-        pdnsutil add-record $VHOST mail._domainkey TXT \""v=DKIM1; k=rsa; p=$_DKIM"\"
+        pdnsutil add-record $VHOST mail._domainkey TXT \""$_DKIM"\"
     fi
 fi
 
