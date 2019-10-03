@@ -1,14 +1,15 @@
-# .sh/_shrc 20130315 - 20190714
+# .sh/_shrc 20130315 - 20191003
 # Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
-VHOST=$(hostname -f|tr 'A-Z' 'a-z')
+MHOST=$(hostname -f|tr 'A-Z' 'a-z')
+VHOST=${VHOST/%\.*/}
 MAILTO=admin@$VHOST
 EDITOR=nano
 
 COLOR=31
-LABEL=$(id -un)@${VHOST/%\.*/}
+LABEL=$(id -un)@$VHOST
 
 # Let's try these here, may not be needed
 export TERM=linux
@@ -20,34 +21,39 @@ export DEBIAN_FRONTEND=readline
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
 
-# Global static shell variables
-ADMIN='sysadm'
-ANAME='System Administrator'
-A_GID='1000'
-A_UID='1000'
-BPATH='/home/backups'
-CIMAP='/etc/dovecot'
-CSMTP='/etc/postfix'
-C_DNS='/etc/powerdns'
-C_SQL='/etc/mysql'
-C_SSL='/etc/ssl'
-C_WEB='/etc/nginx'
-DBMYS='/var/lib/mysql'
-DBSQL='/var/lib/sqlite'
-DHOST='localhost'
-DPORT='3306'
-DTYPE='mysql'
-OSMIR='archive.ubuntu.com'
-OSREL='disco'
-TAREA='Australia'
-TCITY='Sydney'
-VPATH='/home/u'
-V_PHP='7.2'
+if [[ -f ~/.vhosts/$MHOST ]]; then
+    # Load primary root profile if exists
+    source ~/.vhosts/$MHOST
+else
+    # Global static shell variables
+    ADMIN='sysadm'
+    ANAME='System Administrator'
+    A_GID='1000'
+    A_UID='1000'
+    BPATH='/home/backups'
+    CIMAP='/etc/dovecot'
+    CSMTP='/etc/postfix'
+    C_DNS='/etc/powerdns'
+    C_SQL='/etc/mysql'
+    C_SSL='/etc/ssl'
+    C_WEB='/etc/nginx'
+    DBMYS='/var/lib/mysql'
+    DBSQL='/var/lib/sqlite'
+    DHOST='localhost'
+    DPORT='3306'
+    DTYPE='mysql'
+    OSMIR='archive.ubuntu.com'
+    OSREL='disco'
+    TAREA='Australia'
+    TCITY='Sydney'
+    VPATH='/home/u'
+    V_PHP='7.2'
 
-# Local custom aliases and env var overrides
-[ -f ~/.myrc ] && source ~/.myrc
+    # Local custom aliases and env var overrides
+    [ -f ~/.myrc ] && source ~/.myrc
 
-sethost $VHOST
+    sethost $MHOST
+fi
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
