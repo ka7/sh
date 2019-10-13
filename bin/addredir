@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addredir 20190623 - 20190911
+# .sh/bin/addredir 20190623 - 20191013
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addredir from.domain to.domain" && exit 1
@@ -103,11 +103,6 @@ if [[ -f $C_WEB/sites-enabled/__$FHOST ]]; then
 else
     echo "Create $C_WEB/sites-enabled/__$FHOST"
     cat << EOS > $C_WEB/sites-enabled/__$FHOST
-server {
-    listen                      80;
-    server_name                 $FHOST www.$FHOST;
-    location                    / { return 301 https://$THOST\$request_uri; }
-}
 server {
     listen                      443 ssl http2;
     server_name                 $FHOST www.$FHOST;
