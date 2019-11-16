@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20191006
+# .sh/_shrc 20130315 - 20191116
 # Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
@@ -44,11 +44,11 @@ else
     DPORT='3306'
     DTYPE='mysql'
     OSMIR='archive.ubuntu.com'
-    OSREL='disco'
+    OSREL='eoan'
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
-    V_PHP='7.2'
+    V_PHP='7.3'
 
     # Local custom aliases and env var overrides
     [ -f ~/.myrc ] && source ~/.myrc
