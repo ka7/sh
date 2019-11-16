@@ -15,7 +15,7 @@ source /root/.shrc || exit 3
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
-YMD=$(date +"%Y-%m-%d")
+Y_M_D=$(date +"%Y-%m-%d")
 UUTMP=""
 DOCMS=${2:-''}
 DOSSL=${3:-''}
@@ -295,7 +295,7 @@ DO_VMAILLOG=$(cat << EOS | $SQCMD
         ymd
 ) VALUES (
         $MID,
-        '$YMD'
+        '$Y_M_D'
 )
 EOS
 )
