@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20190630
+# .sh/bin/addvhost 20170217 - 20191116
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -273,6 +273,9 @@ EOS
     fi
     serva restart nginx
 elif [[ $DOSSL == le ]]; then
+    [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
+        && rm $C_WEB/sites-enabled/*.selfsigned
+
     newssl $VHOST mail www autoconfig autodiscover $USEIP > /dev/null 2>&1
 fi
 
