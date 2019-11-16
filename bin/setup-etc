@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20190630
+# .sh/bin/setup-etc 20151231 - 20191116
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -327,7 +327,8 @@ if [[ ! -f $C_FPM/php.ini.orig ]]; then
         -e 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/' \
         -e 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/' \
         -e 's/;opcache.save_comments=1/opcache.save_comments=1/' \
-        -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/'
+        -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/' \
+        -e 's/memory_limit = 128M/memory_limit = 512M/'
 fi
 
 # TODO switch between mysql/sqlite for DNS
