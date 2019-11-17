@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20190701
+# .sh/bin/setup-host 20170524 - 20191117
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -74,6 +74,17 @@ deb http://$OSMIR/ubuntu $OSREL-updates main universe
 deb http://$OSMIR/ubuntu $OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
+    fi
+    sleep 5
+    ps -C apt,apt-get,dpkg >/dev/null
+    if [[ $? -eq 0 ]]; then
+        echo "!!! Apt is active, wait 10 secs..."
+        sleep 10
+        ps -C apt,apt-get,dpkg >/dev/null
+        if [[ $? -eq 0 ]]; then
+            echo "!!! Apt is still active, wait another 20 secs..."
+            sleep 20
+        fi
     fi
     echo "!!! Updating $OSREL package list, patience please..."
     apt-get -yqq update > /dev/null
