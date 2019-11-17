@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvdns 20180709 - 20180909
+# .sh/bin/addvdns 20180709 - 20191117
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.com
@@ -9,8 +9,8 @@
 
 if [[ ! -f /usr/local/bin/vultr ]]; then
     cd /tmp
-    wget -q https://github.com/JamesClonk/vultr/releases/download/1.15.0/vultr_1.15.0_Linux-64bit.tar.gz
-    tar xf vultr_1.15.0_Linux-64bit.tar.gz
+    wget -q https://github.com/JamesClonk/vultr/releases/download/v2.0.1/vultr_2.0.1_Linux-64bit.tar.gz
+    tar xf vultr_2.0.1_Linux-64bit.tar.gz
     sudo mv vultr /usr/local/bin/vultr
     echo "+++ Looks like a first time setup, get you API key and setup SCRIPTID/SSHKEYID at https://my.vultr.com"
     if [[ ! -e /usr/bin/php ]]; then
@@ -65,6 +65,10 @@ echo "+++ Add www.$VHOST and mail.$VHOST pointing to $IP4_0"
 vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null
 vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null
 
+echo "+++ Add autoconfig.$VHOST and autodiscover.$VHOST pointing to $IP4_0"
+vultr dns record create -d $VHOST -n autoconfig -t A -D $IP4_0 > /dev/null
+vultr dns record create -d $VHOST -n autodiscover -t A -D $IP4_0 > /dev/null
+
 echo "+++ Add SPF record for $VHOST"
 vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null
 
@@ -74,11 +78,13 @@ vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=1
 echo "+++ Add $VHOST CAA record for letsencrypt.org"
 vultr dns record create -d $VHOST -n $VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
 
-echo "+++ Add mail.$VHOST CAA record for letsencrypt.org"
+echo "+++ Add mail.$VHOST and www.$VHOST CAA records for letsencrypt.org"
 vultr dns record create -d $VHOST -n mail.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
-
-echo "+++ Add www.$VHOST CAA record for letsencrypt.org"
 vultr dns record create -d $VHOST -n www.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
+
+echo "+++ Add autoconfig.$VHOST and autodiscover.$VHOST CAA records for letsencrypt.org"
+vultr dns record create -d $VHOST -n autoconfig.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
+vultr dns record create -d $VHOST -n autodiscover.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
 
 echo "+++ Update SOA record for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \

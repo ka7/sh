@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20191116
+# .sh/bin/setup-all 20170519 - 20191117
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -19,8 +19,6 @@ setup-deb
 setup-db
 setup-etc
 setup-hcp
-
-gethost
 
 echo "######## Send message to: admin@$VHOST"
 cat ~/.vhosts/$VHOST.conf | mail -s "Setup $VHOST - $(hostname -i)" -r admin@$VHOST admin@$VHOST
