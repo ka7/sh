@@ -4,7 +4,7 @@
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
 MHOST=$(hostname -f|tr 'A-Z' 'a-z')
-VHOST=${MHOST/%\.*/}
+VHOST=${MHOST#*.*}
 MAILTO=admin@$VHOST
 EDITOR=nano
 
