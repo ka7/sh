@@ -4,11 +4,11 @@
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
 MHOST=$(hostname -f|tr 'A-Z' 'a-z')
-MAILTO=admin@${MHOST#*.*}
+MAILTO=admin@$MHOST
 EDITOR=nano
 
 COLOR=31
-LABEL=$(id -un)@${MHOST#*.*}
+LABEL=$(id -un)@$MHOST
 
 # Let's try these here, may not be needed
 export TERM=linux
