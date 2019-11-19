@@ -1,4 +1,4 @@
-# .sh/etc/_etc_cron.d_netserva 20170614 - 20190504
+# .sh/etc/_etc_cron.d_netserva 20170614 - 20191119
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/root/.sh/bin
@@ -11,7 +11,7 @@ MAILTO=_MAILTO
 
 11 * * * * root find /home/u/*/var/tmp -name 'sess_*' -type f -cmin '+240' -delete
 
-10 0 * * * root doveadm expunge -A mailbox Spam savedbefore 7d
+10 0 * * * root doveadm expunge -A mailbox Junk savedbefore 7d
 
 20 0 * * * root doveadm expunge -A mailbox Trash savedbefore 7d
 
