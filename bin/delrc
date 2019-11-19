@@ -23,6 +23,7 @@ else
     rm -rf $UPATH/var/roundcube* $UPATH/var/composer*
     find $WPATH -maxdepth 1 ! -name www ! -name hcp ! -name .well-known ! -name public ! -name private -exec rm -rf {} +
     touch $WPATH/index.html && chown $(stat -c '%u:%g' $WPATH) $WPATH/index.html
+    echo "@@@ Remove Roundcube from $WPATH ($DTYPE)"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
