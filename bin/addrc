@@ -54,8 +54,8 @@ else
 \$config['smtp_port'] = 465;
 \$config['smtp_user'] = '%u';
 \$config['smtp_pass'] = '%p';
-\$config['support_url'] = 'https://$PFQDN';
-\$config['product_name'] = 'Webmail';
+\$config['support_url'] = 'https://$HDOMN';
+\$config['product_name'] = 'Webmail for $HDOMN';
 \$config['des_key'] = '$(pwgen -sB 24 1)';
 \$config['managesieve_host'] = 'tls://$MHOST';
 \$config['skin'] = 'elastic';
