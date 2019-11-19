@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20191116
+# .sh/bin/setup-etc 20151231 - 20191118
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -316,7 +316,6 @@ if [[ ! -f $C_FPM/common.conf ]]; then
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
-# FIXME: add all these immediately after the [opcache] setting
 if [[ ! -f $C_FPM/php.ini.orig ]]; then
     echo "^^^ Modify $C_FPM/php.ini"
     cp $C_FPM/php.ini $C_FPM/php.ini.orig

@@ -117,6 +117,8 @@ wp post delete $PAGES
 
 echo 'Install Elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
+echo 'Install Happy Elementor Addons plugin'
+wp plugin --quiet install happy-elementor-addons --activate 2> /dev/null
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
 
