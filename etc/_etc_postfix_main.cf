@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20190430
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20191120
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -70,4 +70,6 @@ smtpd_tls_cert_file = /etc/ssl/_VHOST/fullchain.pem
 smtpd_tls_key_file = /etc/ssl/_VHOST/privkey.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtpd_use_tls = yes
+smtp_tls_CApath = /etc/ssl/certs
+smtpd_tls_CApath = /etc/ssl/certs
 virtual_transport = lmtp:unix:private/dovecot-lmtp
