@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20191117
+# .sh/bin/setup-hcp 20170519 - 20191125
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "######## $0 $*"
+#echo "######## $0 $*"
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 
 source /root/.vhosts/$VHOST || exit 3
-#gethost
 
 if [[ -d $WPATH ]]; then
     echo "@@@ $WPATH already exists"
@@ -67,6 +66,7 @@ if [[ -d $WPATH/.well-known/autodiscover.php ]]; then
     echo "@@@ $WPATH/.well-known/autodiscover.php already exists"
 else
     echo "@@@ Setup $WPATH/.well-known/autodiscover.php with $MHOST"
+    mkdir $WPATH/.well-known
     cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/.well-known/autodiscover.php
 fi
 
