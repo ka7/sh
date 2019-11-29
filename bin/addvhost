@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20191125
+# .sh/bin/addvhost 20170217 - 20191129
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -302,7 +302,8 @@ EOS
 
 if [[ -d $WPATH && $DOCMS == wp ]]; then
     if [[ $DTYPE == mysql ]]; then
-        addwp $VHOST#        [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
+        addwp $VHOST
+        [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
         [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
         [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
     else
