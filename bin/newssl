@@ -149,9 +149,10 @@ server {
 EOS
         fi
         # Cleanup any dangling left over self signed certificates
-        [[ -n "$(find $C_WEB/sites-enabled -maxdepth 1 -name '*.selfsigned' -print -quit)" ]] \
-            && rm  $C_WEB/sites-enabled/*.selfsigned
-
+        if [[ -n "$(find $C_WEB/sites-enabled -maxdepth 1 -name '*.selfsigned' -print -quit)" ]]; then
+            echo "Remove $C_WEB/sites-enabled/*.selfsigned"
+            rm  $C_WEB/sites-enabled/*.selfsigned
+        fi
         chmod 755 $C_SSL/$VHOST
     else
         echo "Warning: not creating $C_WEB/sites-enabled/$VHOST"
