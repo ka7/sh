@@ -1,51 +1,22 @@
 #!/usr/bin/env bash
-# .sh/bin/cfzones 20181002 - 20181007
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+# .sh/bin/cfzones 20181002 - 20191209
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
 # Create a partner account at https://partners.cloudflare.com and take
 # note of your email address and password. Once logged in then get your
 # API Key from https://partners.cloudflare.com/api-management
+set -x
+[[ $1 =~ -h ]] && echo "Usage: cfzones [cloudflare_email] [cloudflare_key]" && exit 1
 
-# See setup-cf
-
-[[ $1 =~ -h ]] && echo "Usage: cfzones [domain]" && exit 1
+CFUSR=${1:-$CFUSR}
+CFKEY=${2:-$CFKEY}
 
 [[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
 [[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
 
-if [[ $1 ]]; then
-
-    ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
-        -H "X-Auth-Email: $CFUSR" \
-        -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '{"result"}[] | .[0] | .id')
-
-    if [[ $ZONID ]]; then
-
-        CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID" \
-            -H "X-Auth-Email: $CFUSR" \
-            -H "X-Auth-Key: $CFKEY" \
-            -H "Content-Type: application/json" \
-            | jq -r '.result.name_servers | join(" ")')
-
-        echo "# Zone ID (CF Nameservers)"
-        echo -e "$ZONID\t$CF_NS"
-        echo "# Record ID"
-
-        curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
-            -H "X-Auth-Email: $CFUSR" \
-            -H "X-Auth-Key: $CFKEY" \
-            -H "Content-Type: application/json" \
-            | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
-
-    else
-        echo "ZONE $1 does not exist"
-    fi
-else
-    curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
-        -H "X-Auth-Email: $CFUSR" \
-        -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '.result[] | [.name,.id] | join("\t")'
-fi
+curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json" \
+    | jq .
+#    | jq -r '.result[] | [.name,.id] | join("\t")'

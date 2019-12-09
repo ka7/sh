@@ -104,13 +104,15 @@ export PLUGINS=$(echo $(su $UUSER -c "wp plugin list --field=name --path=$FPATH"
 export PAGES=$(su $UUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
 export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
 
+# We don't really need a child theme, leave this as a howto example
+#wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
+
     su - $UUSER -c "
 cd $FPATH
 echo 'Install and activate the Hello Elementor Child theme'
 wp theme --quiet install hello-elementor 2> /dev/null
-wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
 
-wp theme delete twentysixteen twentyseventeen
+wp theme delete twentysixteen twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES

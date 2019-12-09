@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-cf 20181002 - 20181007
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-cf 20181002 - 20191209
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Create a PARTNER account at https://partners.cloudflare.com and take
 # note of your email address and password. Once logged in then get your
 # Host API Key from https://partners.cloudflare.com/api-management
+
+# !!! This is not correct... REWRITE !!!
 
 [[ -z $3 || $1 =~ -h ]] && \
     echo "Usage: setup-cf email password host_key" && exit 1

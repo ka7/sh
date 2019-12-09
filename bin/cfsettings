@@ -1,31 +1,33 @@
 #!/usr/bin/env bash
-# .sh/bin/cfsettings 20181007 - 20181007
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/cfsettings 20181007 - 20191208
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # See setup-cf
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: cfsettings domain [key] [value]" && exit 1
 
-#[[ -z $CF_PARTNER_KEY ]] && echo "ERROR: CF_PARTNER_KEY is empty" && exit 2
 [[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 3
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 4
 
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
-    -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
-    -H "X-Auth-Key: $CF_USER_API_KEY" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
     -H "Content-Type: application/json" \
     | jq -r '{"result"}[] | .[0] | .id')
 
+echo "ZONID=$ZONID"
+exit
 [[ -z $ZONID ]] && echo "ERROR: $1 does not exist" && exit 4
 
 if [[ $3 ]]; then
     curl -s -X PATCH "https://api.cloudflare.com/client/v4/zones/$ZONID/settings/$2" \
-        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
-        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
         -H "Content-Type: application/json" \
         --data '{"value":"'$3'"}' | jq .
 else
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/settings" \
-        -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
-        -H "X-Auth-Key: $CF_USER_API_KEY" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
         -H "Content-Type: application/json" | jq -r '.result[] | [.id,.value]'
 fi
