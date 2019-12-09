@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# .sh/bin/cfdelzone 20181006 - 20181007
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# See setup-cf
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: cfdelzone domain" && exit 1
+
+[[ -z $CF_PARTNER_KEY ]] && echo "ERROR: CF_PARTNER_KEY is empty" && exit 2
+[[ -z $CF_USER_KEY ]] && echo "ERROR: CF_USER_KEY is empty" && exit 3
+
+curl -s https://api.cloudflare.com/host-gw.html \
+    -d "act=zone_delete" \
+    -d "host_key=$CF_PARTNER_KEY" \
+    -d "user_key=$CF_USER_KEY" \
+    -d "zone_name=$1" | jq .
+
+swdsdel $1
+swchangens $1 ns1.vultr.com ns2.vultr.com

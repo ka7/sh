@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# .sh/bin/cfzone 20181002 - 20191209
+# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: cfzone domain [cloudflare_email] [cloudflare_key]" && exit 1
+
+CFUSR=${2:-$CFUSR}
+CFKEY=${3:-$CFKEY}
+
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
+
+ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '{"result"}[] | .[0] | .id')
+
+if [[ $ZONID ]]; then
+
+    CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result.name_servers | join(" ")')
+
+    echo "# Zone ID (CF Nameservers)"
+    echo -e "$ZONID\t$CF_NS"
+    echo "# Record ID"
+
+    curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
+
+else
+    echo "ZONE $1 does not exist"
+fi
