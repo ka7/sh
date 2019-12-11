@@ -1,25 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/cfp_full_zone_set 20181002 - 20181126
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/cfp_full_zone_set 20181002 - 20191209
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 set -x
-# Create a partner account at https://partners.cloudflare.com and take
-# note of your email address and password. Once logged in then get your
-# API Key from https://partners.cloudflare.com/api-management
-
-# See setup-cf
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: cfp_full_zone_set domain user_key" && exit 1
 
-[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 2
+[[ -z $CFP_KEY ]] && echo "ERROR: CFP_KEY is empty" && exit 2
 
-#swdsdel $1
-
-_CURL=$(curl -s https://api.cloudflare.com/host-gw.html \
+curl -s https://api.cloudflare.com/host-gw.html \
     -d "act=full_zone_set" \
-    -d "host_key=$CFKEY" \
+    -d "host_key=$CFP_KEY" \
     -d "user_key=$2" \
-    -d "zone_name=$1")
-
-echo $_CURL | jq .
-
-#swchangens $1 $CF_NS
+    -d "zone_name=$1" | jq .
