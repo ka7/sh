@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# .sh/bin/cfdelzone 20181006 - 20191213
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: cfdelzone domain [cfusr] [cfkey] [ns1] [ns2]" && exit 1
+
+CFUSR=${2:-$CFUSR}
+CFKEY=${3:-$CFKEY}
+_NS_1=${4:-'ns1.renta.net'}
+_NS_2=${5:-'ns2.renta.net'}
+
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
+
+ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '{"result"}[] | .[0] | .id')
+
+if [[ $ZONID ]]; then
+
+    curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONID" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" | jq .
+
+    swdsdel $1
+    swchangens $1 $_NS_1 $_NS_2
+
+else
+    echo "ZONE $1 does not exist"
+fi
