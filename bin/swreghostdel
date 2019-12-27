@@ -1,0 +1,34 @@
+#!/usr/bin/php
+<?php
+// .sh/bin/swreghostdel 20191227 - 20191227
+// Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if ($argc < 3 ) { exit("Usage: swreghostdel domain host\n"); }
+
+$api_id = getenv('SW_API_ID');
+$api_key = getenv('SW_API_KEY');
+
+try {
+    $client = new SoapClient(null, [
+        'location' => 'https://api.synergywholesale.com/?wsdl',
+        'uri' => '',
+    ]);
+
+    $data = [
+        'resellerID' => $api_id,
+        'apiKey'     => $api_key,
+        'domainName' => $argv[1],
+        'host'       => $argv[2],
+    ];
+
+    $output = $client->deleteHost($data);
+
+    if ($output->status == 'OK') {
+        echo "+++ Deleted registry host $argv[2].$argv[1]\n";
+    } else {
+        print_r($output);
+    }
+
+} catch (SoapFault $fault) {
+    print_r($fault);
+}
