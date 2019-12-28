@@ -1,17 +1,18 @@
 #!/usr/bin/php
 <?php
-// .sh/bin/swreghostadd 20180619 - 20191227
+// .sh/bin/swreghostnewip 20191227 - 20191227
 // Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if ($argc < 4 ) { exit("Usage: swreghostadd domain host ipAddress\n"); }
+if ($argc < 4 ) { exit("Usage: swreghostnewip domain host ipAddress\n"); }
 
 $api_id = getenv('SW_API_ID');
 $api_key = getenv('SW_API_KEY');
 
 try {
-    $client = new SoapClient(null, [
+    $client = new \SoapClient(null, [
         'location' => 'https://api.synergywholesale.com/?wsdl',
         'uri' => '',
+//        'trace' => 1,
     ]);
 
     $data = [
@@ -19,21 +20,19 @@ try {
         'apiKey'     => $api_key,
         'domainName' => $argv[1],
         'host'       => $argv[2],
-        'ipAddress'  => $argv[3],
+        'ipAddress'  => $argv[3]
     ];
 
-    $output = $client->addHost($data);
+    $output = $client->addHostIP($data);
+
 
     if ($output->status == 'OK') {
-//        var_export($output->status);
-        echo "+++ Added registry host for $argv[1], $argv[2] => $argv[3]\n";
+        echo "+++ Updated registry host $argv[2].$argv[1] with $argv[3]\n";
     } else {
+
         print_r($output);
     }
-
 } catch (SoapFault $fault) {
-    print_r($fault);
+    echo $client->__getLastResponse()."\n";
+    var_export($fault);
 }
-
-//echo "\nREQUEST:\n" . $client->__getLastRequest() . "\n";
-//echo "\nRESPONSE:\n" . $client->__getLastResponse() . "\n";

@@ -28,7 +28,6 @@ try {
     } else {
         print_r($output);
     }
-
 } catch (SoapFault $fault) {
     print_r($fault);
 }
