@@ -12,7 +12,6 @@ try {
     $client = new \SoapClient(null, [
         'location' => 'https://api.synergywholesale.com/?wsdl',
         'uri' => '',
-//        'trace' => 1,
     ]);
 
     $data = [
@@ -25,12 +24,10 @@ try {
 
     $output = $client->addHostIP($data);
 
-
     if ($output->status == 'OK') {
         echo "+++ Updated registry host $argv[2].$argv[1] with $argv[3]\n";
     } else {
-
-        print_r($output);
+        var_export($output);
     }
 } catch (SoapFault $fault) {
     echo $client->__getLastResponse()."\n";
