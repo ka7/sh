@@ -19,7 +19,7 @@ try {
         'apiKey'     => $api_key,
         'domainName' => $argv[1],
         'host'       => $argv[2],
-        'ipAddress'  => $argv[3]
+        'ipAddress'  => [$argv[3]]
     ];
 
     $output = $client->addHostIP($data);

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# .sh/bin/newcr 20191231 - 20191231
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: newcr chroot_path" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+NEWCR=$1
+
+mount -o bind /dev $NEWCR/dev
+mount -t sysfs none $NEWCR/sys
+mount -t proc none $NEWCR/proc
+mount -t devpts none $NEWCR/dev/pts
+
+chroot $NEWCR
+
+umount $NEWCR/dev
+umount $NEWCR/sys
+umount $NEWCR/proc
+umount $NEWCR/dev/pts
