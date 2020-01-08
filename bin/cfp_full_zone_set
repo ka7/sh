@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/cfp_full_zone_set 20181002 - 20191209
+# .sh/bin/cfp_full_zone_set 20181002 - 20191213
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: cfp_full_zone_set domain user_key" && exit 1
 
