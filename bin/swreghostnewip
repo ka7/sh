@@ -1,0 +1,35 @@
+#!/usr/bin/php
+<?php
+// .sh/bin/swreghostnewip 20191227 - 20191227
+// Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+if ($argc < 4 ) { exit("Usage: swreghostnewip domain host ipAddress\n"); }
+
+$api_id = getenv('SW_API_ID');
+$api_key = getenv('SW_API_KEY');
+
+try {
+    $client = new \SoapClient(null, [
+        'location' => 'https://api.synergywholesale.com/?wsdl',
+        'uri' => '',
+    ]);
+
+    $data = [
+        'resellerID' => $api_id,
+        'apiKey'     => $api_key,
+        'domainName' => $argv[1],
+        'host'       => $argv[2],
+        'ipAddress'  => [$argv[3]]
+    ];
+
+    $output = $client->addHostIP($data);
+
+    if ($output->status == 'OK') {
+        echo "+++ Updated registry host $argv[2].$argv[1] with $argv[3]\n";
+    } else {
+        var_export($output);
+    }
+} catch (SoapFault $fault) {
+    echo $client->__getLastResponse()."\n";
+    var_export($fault);
+}

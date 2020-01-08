@@ -1,11 +1,9 @@
 #!/usr/bin/php
 <?php
-// .sh/bin/swdslist 20180619 - 20180624
-// Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+// .sh/bin/swdslist 20180619 - 20191227
+// Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if ($argc < 2 ) {
-    exit("Usage: swdslist domain\n");
-}
+if ($argc < 2 ) { exit("Usage: swdslist domain\n"); }
 
 $api_id = getenv('SW_API_ID');
 $api_key = getenv('SW_API_KEY');
@@ -15,17 +13,15 @@ try {
         null, [
             'location' => 'https://api.synergywholesale.com/?wsdl',
             'uri' => '',
-//            'trace' => 1,
+            'trace' => 1,
         ]
     );
 
-    $data = [
+    $output = $client->DNSSECListDS([
         'resellerID' => $api_id,
         'apiKey' => $api_key,
         'domainName' => $argv[1],
-    ];
-
-    $output = $client->DNSSECListDS($data);
+    ]);
 
     if ($output->status == 'OK') {
         var_export($output->DSData);
