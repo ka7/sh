@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20191211
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addwp 20160231 - 20200114
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
 
@@ -109,8 +109,8 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
     su - $UUSER -c "
 cd $FPATH
-echo 'Install and activate the Hello Elementor Child theme'
-wp theme --quiet install hello-elementor --activate 2> /dev/null
+echo 'Install and activate the Astra theme'
+wp theme --quiet install astra --activate 2> /dev/null
 
 wp theme delete twentysixteen twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
@@ -119,8 +119,6 @@ wp post delete $PAGES
 
 echo 'Install Elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
-echo 'Install Happy Elementor Addons plugin'
-wp plugin --quiet install happy-elementor-addons --activate 2> /dev/null
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
 
