@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20190905
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-lxd 20170519 - 20200120
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-lxd [pool size (25) GB] [passwd] [IP]" && exit 1
@@ -9,7 +9,7 @@
 
 LSTOR=zfs # btrfs, zfs, lvm, dir
 
-PSIZE=${1:-'25'}
+PSIZE=${1:-'30'}
 APASS=${2:-$(newpw)}
 IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 
