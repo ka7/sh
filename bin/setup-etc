@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20191118
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-etc 20151231 - 20200128
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
@@ -146,6 +146,9 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
         echo "^^^ Append MySQL details to $CIMAP/dovecot.conf"
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
     fi
+
+    openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
+
     # This is so sievec will work
 #    systemctl reload dovecot
 fi
@@ -358,7 +361,7 @@ fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "^^^ Create dhparams.pem"
-    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 2048 > /dev/null 2>&1
+    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 > /dev/null 2>&1
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
