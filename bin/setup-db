@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20190629
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/setup-db.sh 20170319 - 20200204
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
 #CREATE TABLE cookie IF NOT EXISTS(
@@ -327,40 +327,9 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
   GROUP BY vh.id, hl.size_mpath, hl.size_upath;
 EOS
 
-# Temporary BION tables
-cat << EOS | $SQCMD
-CREATE TABLE IF NOT EXISTS bion_clients (
-  id $SQLPK,
-   name varchar(63) NOT NULL,
-   login varchar(63) NOT NULL,
-   admin varchar(63) NOT NULL,
-   updated datetime NOT NULL,
-   created datetime NOT NULL
-);
-CREATE TABLE IF NOT EXISTS bion_sites (
-  id $SQLPK,
-   client varchar(63) NOT NULL,
-   name varchar(63) NOT NULL,
-   city varchar(63) NOT NULL,
-   postcode int(11) NOT NULL,
-   updated datetime NOT NULL,
-   created datetime NOT NULL
-);
-CREATE TABLE IF NOT EXISTS bion_units (
-  id $SQLPK,
-   site varchar(63) NOT NULL,
-   name varchar(63) NOT NULL,
-   port int(11) NOT NULL,
-   link_user varchar(127) NOT NULL,
-   link_admin varchar(127) NOT NULL,
-   link_files varchar(127) NOT NULL,
-   link_charts varchar(127) NOT NULL,
-   updated datetime NOT NULL,
-   created datetime NOT NULL
-);
-EOS
-
 if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
+    echo "||| Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
+    echo "PRAGMA journal_mode=DELETE" | $SQCMD
     echo "||| Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
