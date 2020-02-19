@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/addpdns 20180709 - 20191003
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addpdns 20180709 - 20200219
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [mx] [spfip(or custom string)] [sshkey]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 # Customize your DMARC record (FIXME: should not be hardwired here)
-DMARC="v=DMARC1; p=reject; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; aspf=s; adkim=s"
+DMARC="v=DMARC1;p=reject;sp=reject;pct=100;adkim=s;aspf=s;rua=mailto:dmarc@renta.net;ruf=mailto:dmarc@renta.net;fo=1"
 
 VHOST=$1
 IP4_0=$2
@@ -35,10 +35,6 @@ pdnsutil add-record $VHOST autodiscover A $IP4_0 > /dev/null 2>&1
 
 # Add SSL CAA records for letsencrypt.org
 pdnsutil add-record $VHOST @ CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
-pdnsutil add-record $VHOST www CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
-pdnsutil add-record $VHOST mail CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
-pdnsutil add-record $VHOST autoconfig CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
-pdnsutil add-record $VHOST autodiscover CAA '0 issue "letsencrypt.org"' > /dev/null 2>&1
 
 # Add MX record
 pdnsutil add-record $VHOST @ MX "10 $MXHST" > /dev/null 2>&1
