@@ -20,7 +20,7 @@ if [[ ! -d /etc/postfix/vhosts ]]; then
 fi
 
 if [[ ! -f /etc/postfix/vhosts/00_master.cf ]]; then
-    echo "Created /etc/postfix/vhosts/00_master.cf"
+    echo "Created: /etc/postfix/vhosts/00_master.cf"
 
     cat << EOS > /etc/postfix/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
@@ -58,6 +58,7 @@ policy-spf unix  -       n       n       -       -       spawn user=nobody
     -o myhostname=localhost
 
 EOS
+    chmod 600 /etc/dovecot/vhosts/00_master.cf
 fi
 
 if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
