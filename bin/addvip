@@ -14,12 +14,12 @@ M_OUT=$(echo $VHOST|sed 's/\./-/g')
 # Postfix
 
 if [[ ! -d /etc/postfix/vhosts ]]; then
-    echo "Creating: /etc/postfix/vhosts"
+    echo "Created: /etc/postfix/vhosts"
     mkdir /etc/postfix/vhosts
 fi
 
 if [[ ! -f /etc/postfix/vhosts/00_master.cf ]]; then
-    echo "Creating /etc/postfix/vhosts/00_master.cf"
+    echo "Created /etc/postfix/vhosts/00_master.cf"
 
     cat << EOS > /etc/postfix/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
@@ -122,13 +122,14 @@ EOS
     fi
     mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
     cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
-    postfix reload
+    systemctl restart postfix
+    echo "Created: /etc/postfix/vhosts/$VHOST"
 fi
 
 # Dovecot
 
 if [[ ! -d /etc/dovecot/vhosts ]]; then
-    echo "Creating: /etc/dovecot/vhosts"
+    echo "Created: /etc/dovecot/vhosts"
     mkdir /etc/dovecot/vhosts
 fi
 
@@ -149,6 +150,7 @@ local $IP4_0 {
 
 EOS
     systemctl restart dovecot
+    echo "Created: /etc/dovecot/vhosts/$VHOST"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
