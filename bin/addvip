@@ -16,6 +16,7 @@ M_OUT=$(echo $VHOST|sed 's/\./-/g')
 if [[ ! -d /etc/postfix/vhosts ]]; then
     echo "Created: /etc/postfix/vhosts"
     mkdir /etc/postfix/vhosts
+    chmod 700 /etc/postfix/vhosts
 fi
 
 if [[ ! -f /etc/postfix/vhosts/00_master.cf ]]; then
@@ -122,6 +123,7 @@ EOS
     fi
     mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
     cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
+    chmod 600 /etc/postfix/vhosts/$VHOST
     systemctl restart postfix
     echo "Created: /etc/postfix/vhosts/$VHOST"
 fi
@@ -131,6 +133,7 @@ fi
 if [[ ! -d /etc/dovecot/vhosts ]]; then
     echo "Created: /etc/dovecot/vhosts"
     mkdir /etc/dovecot/vhosts
+    chmod 700 /etc/dovecot/vhosts
 fi
 
 if [[ -f /etc/dovecot/vhosts/$VHOSTS ]]; then
@@ -149,6 +152,7 @@ local $IP4_0 {
 }
 
 EOS
+    chmod 600 /etc/dovecot/vhosts/$VHOST
     systemctl restart dovecot
     echo "Created: /etc/dovecot/vhosts/$VHOST"
 fi
