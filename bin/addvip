@@ -58,7 +58,7 @@ policy-spf unix  -       n       n       -       -       spawn user=nobody
     -o myhostname=localhost
 
 EOS
-    chmod 600 /etc/dovecot/vhosts/00_master.cf
+    chmod 600 /etc/postfix/vhosts/00_master.cf
 fi
 
 if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
