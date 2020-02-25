@@ -11,6 +11,8 @@ IP4_0=$2
 MHOST=${3:-"mail.$VHOST"}
 M_OUT=$(echo $VHOST|sed 's/\./-/g')
 
+# Postfix
+
 if [[ ! -d /etc/postfix/vhosts ]]; then
     echo "Creating: /etc/postfix/vhosts"
     mkdir /etc/postfix/vhosts
@@ -121,6 +123,13 @@ EOS
     mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
     cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
     postfix reload
+fi
+
+# Dovecot
+
+if [[ ! -d /etc/dovecot/vhosts ]]; then
+    echo "Creating: /etc/dovecot/vhosts"
+    mkdir /etc/dovecot/vhosts
 fi
 
 if [[ -f /etc/dovecot/vhosts/$VHOSTS ]]; then
