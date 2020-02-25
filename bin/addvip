@@ -54,7 +54,7 @@ policy-spf unix  -       n       n       -       -       spawn user=nobody
     -o smtp_bind_address=127.0.0.1
     -o myhostname=localhost
 
-EOF
+EOS
 fi
 
 if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
