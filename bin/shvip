@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# .sh/bin/shvip 20190602 - 20200225
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: shvip [vhost]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+VHOST=${1:-''}
+
+if [[ $VHOST ]]; then
+    cat /etc/postfix/vhosts/$VHOST
+    echo
+    cat /etc/dovecot/vhosts/$VHOST
+    echo
+    grep $VHOST /etc/postfix/sender_transport
+else
+    /bin/ls -l /etc/postfix/vhosts/
+    echo
+    /bin/ls -l /etc/dovecot/vhosts/
+    echo
+    cat /etc/postfix/sender_transport
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
