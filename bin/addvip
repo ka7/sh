@@ -69,7 +69,7 @@ else
 $IP4_0:25 inet n -       n       -       1         postscreen
     -o smtpd_service_name=smtpd_$IP4_0
     -o syslog_name=$IP4_0
-    -o postscreen_cache_map=btree:$data_directory/postscreen_cache_$IP4_0
+    -o postscreen_cache_map=btree:\$data_directory/postscreen_cache_$IP4_0
 
 smtpd_$IP4_0 pass - -      n       -       -       smtpd
     -o syslog_name=$IP4_0
