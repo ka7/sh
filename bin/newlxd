@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20200120
+# .sh/bin/newlxd 20171013 - 20200225
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root
@@ -59,7 +59,7 @@ if [[ $? -eq 1 ]]; then
     lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
 fi
 
-lxc launch ubuntu-minimal:bionic $HNAME -p $PNAME
+lxc launch ubuntu-minimal:$OSREL $HNAME -p $PNAME
 
 echo "--- Setup '$HNAME' container as $VHOST"
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
