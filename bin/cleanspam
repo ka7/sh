@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/cleanspam 20190706 - 20190721
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/cleanspam 20190706 - 201200226
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: cleanspam [email] [-v]" && exit 1
 
@@ -23,16 +23,17 @@ else
     TPATH=$VPATH
 fi
 
+# mkdir spamprobe-new; \
+# cp -a .spamprobe spamprobe-bkp; \
+# spamprobe -d spamprobe-bkp cleanup 2 31; \
+
 find $TPATH -type d -name .spamprobe | while read i; do \
  [[ DBG ]] && echo $i; \
- sleep 2; \
+ sleep 1; \
  HPATH=$(dirname $i); \
  cd $HPATH; \
  [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
- mkdir spamprobe-new; \
- cp -a .spamprobe spamprobe-bkp; \
- spamprobe -d spamprobe-bkp cleanup 2 31; \
- spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
+  spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
  chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new; \
  mv .spamprobe spamprobe-old; \
  mv spamprobe-new .spamprobe; \
