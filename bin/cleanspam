@@ -33,11 +33,12 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  HPATH=$(dirname $i); \
  cd $HPATH; \
  [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
-  spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
+ mkdir spamprobe-new; \
+ spamprobe -d .spamprobe export | spamprobe -d spamprobe-new import; \
  chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new; \
  mv .spamprobe spamprobe-old; \
  mv spamprobe-new .spamprobe; \
  [[ DBG ]] && du -sh .spamprobe | cut -f1; \
- rm -rf spamprobe-bkp spamprobe-old; done
+ rm -rf spamprobe-old; done
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
