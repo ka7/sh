@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/chperms 20151231 - 20191125
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/chperms 20151231 - 20200301
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: chperms vhost|all" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.shrc || exit 3
+if [[ $1 == all ]]; then
+    source ~/.shrc || exit 3
+else
+    source ~/.vhosts/$1 || exit 3
+fi
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 4
 
