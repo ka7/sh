@@ -1,5 +1,5 @@
-# .sh/_shrc 20130315 - 20191117
-# Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/_shrc 20130315 - 20200301
+# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
@@ -43,11 +43,11 @@ else
     DPORT='3306'
     DTYPE='mysql'
     OSMIR='archive.ubuntu.com'
-    OSREL='eoan'
+    OSREL='focal'
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
-    V_PHP='7.3'
+    V_PHP='7.4'
 
     # Local custom aliases and env var overrides
     [ -f ~/.myrc ] && source ~/.myrc
