@@ -1,22 +1,22 @@
-# .sh/lib/_chperms 20151231 - 20180824
-# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/_chperms 20151231 - 20200301
+# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 _chperms()
 {
     local UUSER=$(grepuser ":$1")
     [[ -z $UUSER ]] && echo "ERROR: $1 does not exist" && return 10
 
-    local U_UID=$(echo $UUSER | cut -d: -f3)
-    local U_GID=$(echo $UUSER | cut -d: -f4)
-    [[ $U_UID < 1000 ]] && echo "ERROR: $U_UID is less than 1000" && return 10
+    local P_UID=$(echo $UUSER | cut -d: -f3) # /etc/passwd UID
+    local U_GID=$(echo $UUSER | cut -d: -f4) # /etc/passwd GID
+    [[ $P_UID < 1000 ]] && echo "ERROR: $P_UID is less than 1000" && return 10
 
     local UPATH=$(echo $UUSER | cut -d: -f6)
     [[ ! -d $UPATH ]] && echo "ERROR: $UPATH does not exist" && return 10
 
-    chown $U_UID:$U_GID -R $UPATH
+    chown $P_UID:$U_GID -R $UPATH
     find $UPATH -type d -exec chmod 00750 {} +
     find $UPATH -type f -exec chmod 00640 {} +
-    [[ $U_UID > 1000 ]] && chown 0:0 $UPATH # exception for sysadm or uid 1000
+    [[ $P_UID > 1000 ]] && chown 0:0 $UPATH # exception for sysadm or uid 1000
     chmod 755 $UPATH
     chmod 755 $UPATH/var
     chmod 700 $UPATH/.ssh
@@ -35,7 +35,7 @@ _chperms()
     [[ ! -f $UPATH/var/log/access.log ]] && touch $UPATH/var/log/access.log
     [[ ! -f $UPATH/var/log/cache.log ]] && touch $UPATH/var/log/cache.log
 
-    chown $U_UID:33 -R $UPATH/var/*
+    chown $P_UID:$U_GID -R $UPATH/var/*
 
     chmod 660 $UPATH/var/log/access.log
     chmod 660 $UPATH/var/log/cache.log
@@ -54,7 +54,7 @@ _chperms()
         chmod 700 -R $UPATH/var/www/lib/sh/*
     }
     [[ -f $UPATH/var/www/lib/sh/index.html ]] && {
-        chown :33 $UPATH/var/www/lib/sh/index.html
+        chown :$U_GID $UPATH/var/www/lib/sh/index.html
         chmod 640 $UPATH/var/www/lib/sh/index.html
     }
 }
