@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shvip 20190602 - 20200225
+# .sh/bin/shvip 20190602 - 202000303
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: shvip [vhost]" && exit 1
@@ -7,6 +7,8 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-''}
+
+[[ ! -d /etc/postfix/vhosts/ ]] && echo "No Virtual IPs in use" && exit 3
 
 if [[ $VHOST ]]; then
     cat /etc/postfix/vhosts/$VHOST
