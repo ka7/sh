@@ -1,4 +1,4 @@
-# .sh/lib/_chperms 20151231 - 20200301
+# .sh/lib/_chperms 20151231 - 20200305
 # Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 _chperms()
@@ -35,7 +35,7 @@ _chperms()
     [[ ! -f $UPATH/var/log/access.log ]] && touch $UPATH/var/log/access.log
     [[ ! -f $UPATH/var/log/cache.log ]] && touch $UPATH/var/log/cache.log
 
-    # We may need a new W_GID=33 variable
+    # We may need a new webserver W_GID=33 variable
     chown $P_UID:33 -R $UPATH/var/*
 
     chmod 660 $UPATH/var/log/access.log
