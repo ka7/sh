@@ -35,7 +35,8 @@ _chperms()
     [[ ! -f $UPATH/var/log/access.log ]] && touch $UPATH/var/log/access.log
     [[ ! -f $UPATH/var/log/cache.log ]] && touch $UPATH/var/log/cache.log
 
-    chown $P_UID:$U_GID -R $UPATH/var/*
+    # We may need a new W_GID=33 variable
+    chown $P_UID:33 -R $UPATH/var/*
 
     chmod 660 $UPATH/var/log/access.log
     chmod 660 $UPATH/var/log/cache.log
@@ -54,7 +55,7 @@ _chperms()
         chmod 700 -R $UPATH/var/www/lib/sh/*
     }
     [[ -f $UPATH/var/www/lib/sh/index.html ]] && {
-        chown :$U_GID $UPATH/var/www/lib/sh/index.html
+        chown :33 $UPATH/var/www/lib/sh/index.html
         chmod 640 $UPATH/var/www/lib/sh/index.html
     }
 }
