@@ -13,6 +13,7 @@ source ~/.vhosts/$VHOST || exit 3
 
 VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$MPATH/$VUSER" # home path to users mailbox
+VCONF=~/.vhosts/$VHOST.conf
 
 if [[ -d $HPATH ]]; then
     [[ ! -d $BPATH ]] && mkdir -p $BPATH
@@ -21,6 +22,11 @@ if [[ -d $HPATH ]]; then
 
     echo "*** Create $HPATH/shuser_details"
     shuser $EMAIL > $HPATH/shuser_details
+
+    echo "*** Remove from $VCONF"
+    tfile=$(mktemp -q) && {
+      awk '/^Username: '$EMAIL'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $VCONF > $tfile && mv $tfile $VCONF
+    }
 
     echo "*** Create $BFILE"
     tar czf $BFILE $HPATH > /dev/null 2>&1
