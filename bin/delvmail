@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20180826
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/delvmail 20170418 - 20200328
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
@@ -12,14 +12,20 @@ VHOST=${EMAIL#*@} # userid @ $VHOST
 source ~/.vhosts/$VHOST || exit 3
 
 VUSER=${EMAIL%@*} # $VUSER @ domain
-HPATH="$VPATH/$VHOST/home"
-MPATH="$HPATH/$VUSER"
+HPATH="$MPATH/$VUSER" # home path to users mailbox
 
-if [[ -d $MPATH ]]; then
-    echo "*** Remove $MPATH"
-    rm -rf $MPATH
+if [[ -d $HPATH ]]; then
+    [[ ! -d $BPATH ]] && mkdir -p $BPATH
+    BFILE="$BPATH/$(date +'%Y%m%d')-${EMAIL//@/_}.tgz"
+    [[ -f $BFILE ]] && rm $BFILE # remove previous same-day backup
+
+    echo "*** Create $BFILE"
+    tar czf $BFILE $HPATH > /dev/null 2>&1
+
+    echo "*** Remove $HPATH"
+    rm -rf $HPATH
 else
-    echo "*** ERROR: $MPATH does not exist"
+    echo "*** ERROR: $HPATH does not exist"
     exit 4
 fi
 
