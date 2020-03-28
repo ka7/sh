@@ -16,7 +16,7 @@ HPATH="$MPATH/$VUSER" # home path to users mailbox
 
 if [[ -d $HPATH ]]; then
     [[ ! -d $BPATH ]] && mkdir -p $BPATH
-    BFILE="$BPATH/$(date +'%Y%m%d')-${EMAIL//@/_}.tgz"
+    BFILE="$BPATH/$(date +'%Y%m%d')-${EMAIL//@/--}.tgz"
     [[ -f $BFILE ]] && rm $BFILE # remove previous same-day backup
 
     echo "*** Create $BFILE"
