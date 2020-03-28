@@ -19,6 +19,9 @@ if [[ -d $HPATH ]]; then
     BFILE="$BPATH/$(date +'%Y%m%d')_${EMAIL//@/_}.tgz"
     [[ -f $BFILE ]] && rm $BFILE # remove previous same-day backup
 
+    echo "*** Create $HPATH/shuser_details"
+    shuser $EMAIL > $HPATH/shuser_details
+
     echo "*** Create $BFILE"
     tar czf $BFILE $HPATH > /dev/null 2>&1
 
