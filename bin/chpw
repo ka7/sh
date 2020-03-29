@@ -17,23 +17,10 @@ if [[ -z $(echo "SELECT id FROM vmails WHERE user='$EMAIL'" | $SQCMD) ]]; then
     exit 3
 fi
 
-if [[ ${#NEWPW} -gt 11 ]]; then
-    if [[ $NEWPW =~ [A-Z] ]]; then
-        if [[ $NEWPW =~ [a-z] ]]; then
-            if [[ $NEWPW =~ [0-9] ]]; then
-                # Bingo!
-            else
-                echo "Password must contain at least one numeral" && exit 4
-            fi
-        else
-            echo "Password must contain at least one lowercase character" && exit 4
-        fi
-    else
-        echo "Password must contain at least one uppercase character" && exit 4
-    fi
-else
-    echo "Password must be at least 12 chars long" && exit 4
-fi
+[[ ${#NEWPW} -lt 12 ]] && echo "Password must be at least 12 characters long" && exit 4
+[[ ! $NEWPW =~ [A-Z] ]] && echo "Password must contain at least one uppercase character" && exit 4
+[[ ! $NEWPW =~ [a-z] ]] && echo "Password must contain at least one lowercase character" && exit 4
+[[ ! $NEWPW =~ [0-9] ]] && echo "Password must contain at least one numeral" && exit 4
 
 CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
