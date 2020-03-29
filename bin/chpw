@@ -31,7 +31,7 @@ CRYPT=$(doveadm pw -s SHA512-CRYPT -p "$NEWPW")
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VCONF="/root/.vhosts/$VHOST.conf"
 
-echo "UPDATE vmails SET password='$CRYPT',modified='$(date '+%Y-%m-%d %H:%M:%S')' WHERE user='$EMAIL'" | $SQCMD
+echo "UPDATE vmails SET password='$CRYPT',updated='$(date '+%Y-%m-%d %H:%M:%S')' WHERE user='$EMAIL'" | $SQCMD
 
 if [[ -f $VCONF ]]; then
     grep -q $EMAIL $VCONF
