@@ -2,15 +2,20 @@
 # .sh/bin/chpw 20190603 - 20200329
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $2 || $1 =~ '-h' ]] && echo "Usage: chpw user@domain pw" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: chpw user@domain [newpw]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.vhosts/$(hostname -f) || exit 3 # only needed for SQCMD
 
 EMAIL=${1,,} # lowercase user@domain
-shift
-NEWPW=$@ # PW may contain spaces
+
+if [[ -z $2 ]]; then
+    NEWPW=$(newpw)
+else
+    shift
+    NEWPW=$@ # PW may contain spaces
+fi
 
 if [[ -z $(echo "SELECT id FROM vmails WHERE user='$EMAIL'" | $SQCMD) ]]; then
     echo "ERROR: '$EMAIL' does not exist in vmails"
