@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20190824
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/logging 20170417 - 20200304
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
 
@@ -100,7 +100,7 @@ log_vmail()
                 echo "Warning: $VUSER not in $ADMIN.vmails table"
             else
                 local TMP=$(echo "SELECT 1 FROM vmail_log WHERE mid=$MID" | $SQCMD)
-                if [[ $TMP -ne 1 ]]; then
+                if [[ $TMP && $TMP -ne 1 ]]; then
                     echo "
  INSERT INTO vmail_log (mid, ymd, size_mail, size_spam, size_home, num_inbox, num_spam, num_total)
  VALUES ($MID, '$YMD', $MDU, $SDU, $HDU, $INUM, $SNUM, $TNUM)" | $SQCMD
