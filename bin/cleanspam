@@ -30,7 +30,7 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  HPATH=$(dirname $i); \
  cd $HPATH; \
  mkdir spamprobe-bkp; \
- cp -a .spamprobe spamprobe-bkp; \
+ cp -a .spamprobe/* spamprobe-bkp; \
  [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
  mkdir spamprobe-new; \
  spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
