@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20200130
+# .sh/bin/setup-etc 20151231 - 20200609
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -188,17 +188,17 @@ fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
     echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-good.sieve $CIMAP/sieve
+    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-good.sieve $CIMAP/sieve/retrain-as-good.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
     echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-spam.sieve $CIMAP/sieve
+    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-spam.sieve $CIMAP/sieve/retrain-as-spam.sieve
 fi
 
 if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
     echo "*** Create $CIMAP/sieve/global.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve
+    cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
 fi
 
 ##### nginx

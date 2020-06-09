@@ -18,16 +18,6 @@ ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
 
 if [[ $ZONID ]]; then
 
-    CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID" \
-        -H "X-Auth-Email: $CFUSR" \
-        -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '.result.name_servers | join(" ")')
-
-    echo "# Zone ID (CF Nameservers)"
-    echo -e "$ZONID\t$CF_NS"
-    echo "# Record ID"
-
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFUSR" \
         -H "X-Auth-Key: $CFKEY" \
