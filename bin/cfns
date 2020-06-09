@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# .sh/bin/cfns 20200502 - 20200502
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: cfns domain [cloudflare_email] [cloudflare_key]" && exit 1
+
+CFUSR=${2:-$CFUSR}
+CFKEY=${3:-$CFKEY}
+
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
+
+ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '{"result"}[] | .[0] | .id')
+
+if [[ $ZONID ]]; then
+
+    CF_NS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result.name_servers | join(" ")')
+
+    echo -e "$ZONID\t$CF_NS"
+
+else
+    echo "ZONE $1 does not exist"
+fi

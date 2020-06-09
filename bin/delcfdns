@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# .sh/bin/delcfdns 20200502 - 20200502
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# See setup-cf
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: delcfdns domain" && exit 1
+
+[[ -z $CFUSR ]] && echo "ERROR: CFUSR is empty" && exit 2
+[[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
+
+ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json" \
+    | jq -r '{"result"}[] | .[0] | .id')
+
+if [[ $ZONID ]]; then
+
+    curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result[] | [.id] | join("")' \
+        | while read i; do
+            curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records/$i" \
+                -H "X-Auth-Email: $CFUSR" \
+                -H "X-Auth-Key: $CFKEY" \
+                -H "Content-Type: application/json" > /dev/null
+        done
+        
+    _JSON=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
+        -H "X-Auth-Email: $CFUSR" \
+        -H "X-Auth-Key: $CFKEY" \
+        -H "Content-Type: application/json" \
+        | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")')
+        
+    if [[ $_JSON ]]; then
+        echo $_JSON
+    else
+        echo "Deleted all DNS records for $1"
+    fi
+else
+    echo "!!! Warning: no ZONE ID for $1"
+fi
