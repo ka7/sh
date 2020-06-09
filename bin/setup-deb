@@ -82,9 +82,11 @@ SLIST="
   pdns-backend-sqlite3
   pflogsumm
   php$V_PHP
+  php$V_PHP-bcmath
   php$V_PHP-curl
   php$V_PHP-fpm
   php$V_PHP-gd
+  php$V_PHP-gmp
   php$V_PHP-imap
   php$V_PHP-intl
   php$V_PHP-mbstring
