@@ -22,7 +22,7 @@ fi
 MULTI=${2:-'install'}
 FPATH=${3:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
-[[ $MULTI == mu ]] MULTI='multisite-install --subdomains'
+[[ $MULTI == mu ]] && MULTI='multisite-install --subdomains'
 
 #[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
 [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
