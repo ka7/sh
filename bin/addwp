@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20200114
+# .sh/bin/addwp 20160231 - 20200627
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [path]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [mu] [path]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -19,8 +19,10 @@ fi
 [[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 4
 [[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 5
 
-FPATH=${2:-''}
+MULTI=${2:-'install'}
+FPATH=${3:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
+[[ $MULTI == mu ]] MULTI='multisite-install --subdomains'
 
 #[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
 [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
@@ -81,7 +83,7 @@ if [[ -f $FPATH/wp-includes/version.php ]]; then
     su - $UUSER -c "
 cd $FPATH
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core install \
+wp core $MULTI \
   --url='$WPURL' \
   --title='$TITLE' \
   --admin_user='$WPUSR' \
@@ -106,17 +108,23 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
 # We don't really need a child theme, leave this as a howto example
 #wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
+#
+# When it's available at wordpress.org
+#echo 'Install and activate the Kadence theme'
+#wp theme --quiet install kadence --activate 2> /dev/null
 
     su - $UUSER -c "
 cd $FPATH
 echo 'Install and activate the Astra theme'
 wp theme --quiet install astra --activate 2> /dev/null
 
-wp theme delete twentysixteen twentyseventeen twentynineteen
+wp theme delete twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
 
+echo 'Install Brizy plugin'
+wp plugin --quiet install brizy --activate 2> /dev/null
 echo 'Install Elementor plugin'
 wp plugin --quiet install elementor --activate 2> /dev/null
 echo 'Install Autoptimize plugin'
