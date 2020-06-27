@@ -130,14 +130,14 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
     su - $UUSER -c "
 cd $FPATH
-echo 'Install and activate the Astra theme'
-wp theme --quiet install astra 2> /dev/null
-wp theme --quiet enable astra --activate $MSNET 2> /dev/null
-
-wp theme delete twentyseventeen twentynineteen
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
+wp theme delete twentyseventeen twentynineteen
+
+echo 'Install and activate the Astra theme'
+wp theme --quiet install astra --activate 2> /dev/null
+wp theme --quiet enable astra --activate $MSNET 2> /dev/null
 
 echo 'Install Brizy plugin'
 wp plugin --quiet install brizy 2> /dev/null
