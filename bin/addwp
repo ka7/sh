@@ -104,7 +104,7 @@ wp user update '$WPUSR' \
   --user_url='$WPURL'
 
 wp option update timezone_string '$TAREA/$TCITY'
-wp option update uploads_use_yearmonth_folders'0'
+wp option update uploads_use_yearmonth_folders '0'
 wp option update thumbnail_size_w '384'
 wp option update thumbnail_size_h '216'
 wp option update medium_size_w '768'
