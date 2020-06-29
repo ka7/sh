@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-lsws 20200629 - 20200629
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+
+source /root/.shrc || exit 3
+
+SERVERROOT=/usr/local/lsws
+
+if [[ ! -d /usr/local/lsws ]]; then
+    cd
+    wget https://openlitespeed.org/packages/openlitespeed-1.6.14.tgz
+    tar xf openlitespeed-1.6.14.tgz
+    cd openlitespeed
+    cat << EOS | tee ols.conf > /dev/null
+DEFAULT_TMP_DIR=/tmp/lshttpd
+OPENLSWS_ADMIN=$ADMIN
+OPENLSWS_ADMINPORT=7080
+OPENLSWS_ADMINSSL=yes
+OPENLSWS_EMAIL=$AMAIL
+OPENLSWS_EXAMPLEPORT=8080
+OPENLSWS_GROUP=www-data
+OPENLSWS_PASSWORD=$APASS
+OPENLSWS_USER=$UUSER
+PID_FILE=/tmp/lshttpd/lshttpd.pid
+SERVERROOT=$SERVERROOT
+USE_LSPHP7=yes
+EOS
+    ./install.sh
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+LSWSAdmin
+=========
+
+OLSAdmin: https://$VHOST:7080
+Username: $UUSER
+Password: $APASS
+
+EOS
+    else
+    echo "!!! Error: OpenLiteSpeed already installed" && exit 4
+fi
+
+grep -q 'rpms.litespeedtech.com' /etc/apt/sources.list
+
+if [[ $? -gt 0 ]]; then
+    echo "!!! Append OLS packages to /etc/apt/sources.list"
+    cat << EOS | tee -a /etc/apt/sources.list > /dev/null
+deb http://rpms.litespeedtech.com/debian/ focal main
+EOS
+    wget http://rpms.litespeedtech.com/debian/lst_debian_repo.gpg -O /etc/apt/trusted.gpg.d/lst_debian_repo.gpg
+
+    apt-get update  > /dev/null
+    apt-get -y install lsphp74 lsphp74-common lsphp74-curl lsphp74-igbinary lsphp74-imagick lsphp74-imap lsphp74-intl lsphp74-json lsphp74-ldap lsphp74-mysql lsphp74-opcache lsphp74-redis lsphp74-sqlite3
+else
+    echo "!!! Warning: OLS packages already in /etc/apt/sources.list"
+fi
+
+if [[ -h $SERVERROOT/admin/conf/webadmin.key ]]; then
+    echo "!!! SSL private key already in place"
+else
+    if [[ ! -f $SERVERROOT/admin/conf/webadmin.key.orig ]]; then
+        mv $SERVERROOT/admin/conf/webadmin.key $SERVERROOT/admin/conf/webadmin.key.orig
+    fi
+    ln -sf $C_SSL/$VHOST/privkey.pem $SERVERROOT/admin/conf/webadmin.key
+fi
+
+if [[ -h $SERVERROOT/admin/conf/webadmin.crt ]]; then
+    echo "!!! SSL certificate already in place"
+else
+    if [[ ! -f $SERVERROOT/admin/conf/webadmin.crt.orig ]]; then
+        mv $SERVERROOT/admin/conf/webadmin.crt $SERVERROOT/admin/conf/webadmin.crt.orig
+    fi
+    ln -sf $C_SSL/$VHOST/fullchain.pem $SERVERROOT/admin/conf/webadmin.crt
+fi
+
