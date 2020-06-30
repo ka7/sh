@@ -10,7 +10,7 @@ source /root/.shrc || exit 3
 
 SERVERROOT=/usr/local/lsws
 
-if [[ $2 == remove ]]; then
+if [[ $1 == remove ]]; then
     echo "!!! Remove openlitespeed from $SERVERROOT"
     /usr/local/lsws/bin/lswsctrl stop
     rm -rf $SERVERROOT
