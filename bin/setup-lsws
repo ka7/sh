@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lsws 20200629 - 20200629
+# .sh/bin/setup-lsws 20200629 - 20200630
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [remove]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
@@ -10,12 +10,25 @@ source /root/.shrc || exit 3
 
 SERVERROOT=/usr/local/lsws
 
+if [[ $2 == remove ]]; then
+    echo "!!! Remove openlitespeed from $SERVERROOT"
+    /usr/local/lsws/bin/lswsctrl stop
+    rm -rf $SERVERROOT
+    if [[ -f $C_WEB/common.conf ]]; then
+        echo "!!! Restart nginx and php$V_PHP-fpm"
+        systemctl start nginx
+        systemctl start php$V_PHP-fpm
+    fi
+    exit 3
+fi
+
 if [[ ! -d /usr/local/lsws ]]; then
+    echo "!!! Installing openlitespeed to $SERVERROOT"
     cd
     wget https://openlitespeed.org/packages/openlitespeed-1.6.14.tgz
     tar xf openlitespeed-1.6.14.tgz
     cd openlitespeed
-    cat << EOS | tee ols.conf > /dev/null
+    cat << EOS | tee ols.conf
 DEFAULT_TMP_DIR=/tmp/lshttpd
 OPENLSWS_ADMIN=$ADMIN
 OPENLSWS_ADMINPORT=7080
@@ -50,10 +63,10 @@ if [[ $? -gt 0 ]]; then
     cat << EOS | tee -a /etc/apt/sources.list > /dev/null
 deb http://rpms.litespeedtech.com/debian/ focal main
 EOS
-    wget http://rpms.litespeedtech.com/debian/lst_debian_repo.gpg -O /etc/apt/trusted.gpg.d/lst_debian_repo.gpg
-
-    apt-get update  > /dev/null
-    apt-get -y install lsphp74 lsphp74-common lsphp74-curl lsphp74-igbinary lsphp74-imagick lsphp74-imap lsphp74-intl lsphp74-json lsphp74-ldap lsphp74-mysql lsphp74-opcache lsphp74-redis lsphp74-sqlite3
+    echo "!!! Add PGP keys and install lsphp74 from OLS repo"
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
+    apt-get update > /dev/null
+    apt-get -y install lsphp74 lsphp74-common lsphp74-curl lsphp74-igbinary lsphp74-imagick lsphp74-imap lsphp74-intl lsphp74-json lsphp74-ldap lsphp74-mysql lsphp74-opcache lsphp74-redis lsphp74-sqlite3 > /dev/null
 else
     echo "!!! Warning: OLS packages already in /etc/apt/sources.list"
 fi
@@ -64,6 +77,7 @@ else
     if [[ ! -f $SERVERROOT/admin/conf/webadmin.key.orig ]]; then
         mv $SERVERROOT/admin/conf/webadmin.key $SERVERROOT/admin/conf/webadmin.key.orig
     fi
+    echo "!!! Add symlink to $C_SSL/$VHOST/privkey.pem"
     ln -sf $C_SSL/$VHOST/privkey.pem $SERVERROOT/admin/conf/webadmin.key
 fi
 
@@ -73,6 +87,12 @@ else
     if [[ ! -f $SERVERROOT/admin/conf/webadmin.crt.orig ]]; then
         mv $SERVERROOT/admin/conf/webadmin.crt $SERVERROOT/admin/conf/webadmin.crt.orig
     fi
+    echo "!!! Add symlink to $C_SSL/$VHOST/fullchain.pem"
     ln -sf $C_SSL/$VHOST/fullchain.pem $SERVERROOT/admin/conf/webadmin.crt
 fi
 
+[[ -e /run/nginx.pid ]] && systemctl stop nginx && systemctl stop php$V_PHP-fpm
+
+/usr/local/lsws/bin/lswsctrl start
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
