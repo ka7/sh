@@ -2,18 +2,26 @@
 # .sh/bin/setup-lsws 20200629 - 20200630
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+# TODO: Add LROOT to canonical env vars (and bump SH version number)
+# TODO: Setup primary VHOST configs when installing
+
 [[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [remove]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
 
-SERVERROOT=/usr/local/lsws
+LROOT=/usr/local/lsws
+LSBKP="$BPATH/$(date +%Y%m%d)-lsws-conf.tgz"
 
 if [[ $1 == remove ]]; then
-    echo "!!! Remove openlitespeed from $SERVERROOT"
-    /usr/local/lsws/bin/lswsctrl stop
-    rm -rf $SERVERROOT
+    echo "!!! Backup openlitespeed configs"
+    [[ -f $LSBKP ]] && rm $LSBKP
+    tar -cf $LSBKP \
+      $LROOT/{admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
+    echo "!!! Remove openlitespeed from $LROOT"
+    $LROOT/bin/lswsctrl stop
+    rm -rf $LROOT
     if [[ -f $C_WEB/common.conf ]]; then
         echo "!!! Restart nginx and php$V_PHP-fpm"
         systemctl start nginx
@@ -22,11 +30,11 @@ if [[ $1 == remove ]]; then
     exit 3
 fi
 
-if [[ ! -d /usr/local/lsws ]]; then
-    echo "!!! Installing openlitespeed to $SERVERROOT"
+if [[ ! -d $LROOT ]]; then
+    echo "!!! Installing openlitespeed to $LROOT"
     cd
-    wget https://openlitespeed.org/packages/openlitespeed-1.6.14.tgz
-    tar xf openlitespeed-1.6.14.tgz
+    wget -q https://openlitespeed.org/packages/openlitespeed-1.6.14.tgz
+    tar -xf openlitespeed-1.6.14.tgz
     cd openlitespeed
     cat << EOS | tee ols.conf
 DEFAULT_TMP_DIR=/tmp/lshttpd
@@ -39,7 +47,7 @@ OPENLSWS_GROUP=www-data
 OPENLSWS_PASSWORD=$APASS
 OPENLSWS_USER=$UUSER
 PID_FILE=/tmp/lshttpd/lshttpd.pid
-SERVERROOT=$SERVERROOT
+SERVERROOT=$LROOT
 USE_LSPHP7=yes
 EOS
     ./install.sh
@@ -71,28 +79,28 @@ else
     echo "!!! Warning: OLS packages already in /etc/apt/sources.list"
 fi
 
-if [[ -h $SERVERROOT/admin/conf/webadmin.key ]]; then
+if [[ -h $LROOT/admin/conf/webadmin.key ]]; then
     echo "!!! SSL private key already in place"
 else
-    if [[ ! -f $SERVERROOT/admin/conf/webadmin.key.orig ]]; then
-        mv $SERVERROOT/admin/conf/webadmin.key $SERVERROOT/admin/conf/webadmin.key.orig
+    if [[ ! -f $LROOT/admin/conf/webadmin.key.orig ]]; then
+        mv $LROOT/admin/conf/webadmin.key $LROOT/admin/conf/webadmin.key.orig
     fi
     echo "!!! Add symlink to $C_SSL/$VHOST/privkey.pem"
-    ln -sf $C_SSL/$VHOST/privkey.pem $SERVERROOT/admin/conf/webadmin.key
+    ln -sf $C_SSL/$VHOST/privkey.pem $LROOT/admin/conf/webadmin.key
 fi
 
-if [[ -h $SERVERROOT/admin/conf/webadmin.crt ]]; then
+if [[ -h $LROOT/admin/conf/webadmin.crt ]]; then
     echo "!!! SSL certificate already in place"
 else
-    if [[ ! -f $SERVERROOT/admin/conf/webadmin.crt.orig ]]; then
-        mv $SERVERROOT/admin/conf/webadmin.crt $SERVERROOT/admin/conf/webadmin.crt.orig
+    if [[ ! -f $LROOT/admin/conf/webadmin.crt.orig ]]; then
+        mv $LROOT/admin/conf/webadmin.crt $LROOT/admin/conf/webadmin.crt.orig
     fi
     echo "!!! Add symlink to $C_SSL/$VHOST/fullchain.pem"
-    ln -sf $C_SSL/$VHOST/fullchain.pem $SERVERROOT/admin/conf/webadmin.crt
+    ln -sf $C_SSL/$VHOST/fullchain.pem $LROOT/admin/conf/webadmin.crt
 fi
 
 [[ -e /run/nginx.pid ]] && systemctl stop nginx && systemctl stop php$V_PHP-fpm
 
-/usr/local/lsws/bin/lswsctrl start
+$LROOT/bin/lswsctrl start
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
