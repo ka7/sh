@@ -21,6 +21,7 @@ if [[ $1 == remove ]]; then
     tar -cf $LSBKP {admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
     echo "!!! Remove openlitespeed from $LROOT"
     $LROOT/bin/lswsctrl stop
+    userdel -f -r lsadm
     rm -rf $LROOT
     if [[ -f $C_WEB/common.conf ]]; then
         echo "!!! Restart nginx and php$V_PHP-fpm"
@@ -79,25 +80,35 @@ else
     echo "!!! Warning: OLS packages already in /etc/apt/sources.list"
 fi
 
-if [[ -h $LROOT/admin/conf/webadmin.key ]]; then
-    echo "!!! SSL private key already in place"
-else
-    if [[ ! -f $LROOT/admin/conf/webadmin.key.orig ]]; then
-        mv $LROOT/admin/conf/webadmin.key $LROOT/admin/conf/webadmin.key.orig
-    fi
-    echo "!!! Add symlink to $C_SSL/$VHOST/privkey.pem"
-    ln -sf $C_SSL/$VHOST/privkey.pem $LROOT/admin/conf/webadmin.key
-fi
+cat << EOS > $LROOT/admin/conf/admin_config.conf
+enableCoreDump            1
+sessionTimeout            3600
 
-if [[ -h $LROOT/admin/conf/webadmin.crt ]]; then
-    echo "!!! SSL certificate already in place"
-else
-    if [[ ! -f $LROOT/admin/conf/webadmin.crt.orig ]]; then
-        mv $LROOT/admin/conf/webadmin.crt $LROOT/admin/conf/webadmin.crt.orig
-    fi
-    echo "!!! Add symlink to $C_SSL/$VHOST/fullchain.pem"
-    ln -sf $C_SSL/$VHOST/fullchain.pem $LROOT/admin/conf/webadmin.crt
-fi
+errorlog \$SERVER_ROOT/admin/logs/error.log {
+  useServer               0
+  logLevel                INFO
+  rollingSize             10M
+}
+
+accesslog \$SERVER_ROOT/admin/logs/access.log {
+  useServer               0
+  rollingSize             10M
+  keepDays                90
+}
+
+accessControl  {
+  allow                   ALL
+}
+
+listener adminListener {
+  address                 *:7080
+  secure                  1
+  keyFile                 /etc/ssl/$VHOST/privkey.pem
+  certFile                /etc/ssl/$VHOST/fullchain.pem
+  certChain               1
+  clientVerify            0
+}
+EOS
 
 [[ -e /run/nginx.pid ]] && systemctl stop nginx && systemctl stop php$V_PHP-fpm
 
