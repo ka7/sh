@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lsws 20200629 - 20200630
+# .sh/bin/setup-lsws 20200629 - 20200703
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: Add LROOT to canonical env vars (and bump SH version number)
@@ -17,8 +17,8 @@ LSBKP="$BPATH/$(date +%Y%m%d)-lsws-conf.tgz"
 if [[ $1 == remove ]]; then
     echo "!!! Backup openlitespeed configs"
     [[ -f $LSBKP ]] && rm $LSBKP
-    tar -cf $LSBKP \
-      $LROOT/{admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
+    cd $LROOT
+    tar -cf $LSBKP {admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
     echo "!!! Remove openlitespeed from $LROOT"
     $LROOT/bin/lswsctrl stop
     rm -rf $LROOT
