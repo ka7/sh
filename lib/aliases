@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20190430
+# .sh/lib/aliases 20151231 - 20200705
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 alias ?='bash ~/.help'
@@ -37,9 +37,9 @@ if [[ -f /etc/pacman.conf ]]; then
     alias lspkg=$SUDO'pacman -Qn | grep'
     alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
 else
-    alias i=$SUDO'apt install'
-    alias u=$SUDO'apt update && '$SUDO'apt -y full-upgrade && '$SUDO'apt-get -y autoremove'
-    alias r=$SUDO'apt remove --purge'
+    alias i=$SUDO'apt-get install'
+    alias u=$SUDO'apt-get update && '$SUDO'apt-get -y -f dist-upgrade && '$SUDO'apt-get -y autoremove'
+    alias r=$SUDO'apt-get remove --purge'
     alias s='apt-cache search'
     alias lspkg='dpkg --get-selections | awk "{print \$1}" | sort | grep'
     alias edpkg=$SUDO'nano -t -x -c /etc/apt/sources.list'

@@ -19,9 +19,10 @@ if [[ $1 == remove ]]; then
     [[ -f $LSBKP ]] && rm $LSBKP
     cd $LROOT
     tar -cf $LSBKP {admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
+    cd
     echo "!!! Remove openlitespeed from $LROOT"
     $LROOT/bin/lswsctrl stop
-    userdel -f -r lsadm
+    userdel -r lsadm
     rm -rf $LROOT
     if [[ -f $C_WEB/common.conf ]]; then
         echo "!!! Restart nginx and php$V_PHP-fpm"
