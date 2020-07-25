@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addvdns 20180709 - 20191117
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addvdns 20180709 - 20200725
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.com
 # then add "export VULTR_API_KEY=YOUR_API_KEY" to ~/.myrc (use the es alias)
@@ -77,14 +77,6 @@ vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=1
 
 echo "+++ Add $VHOST CAA record for letsencrypt.org"
 vultr dns record create -d $VHOST -n $VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
-
-echo "+++ Add mail.$VHOST and www.$VHOST CAA records for letsencrypt.org"
-vultr dns record create -d $VHOST -n mail.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
-vultr dns record create -d $VHOST -n www.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
-
-echo "+++ Add autoconfig.$VHOST and autodiscover.$VHOST CAA records for letsencrypt.org"
-vultr dns record create -d $VHOST -n autoconfig.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
-vultr dns record create -d $VHOST -n autodiscover.$VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
 
 echo "+++ Update SOA record for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \
