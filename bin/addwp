@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20200627
+# .sh/bin/addwp 20160231 - 20200725
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -106,7 +106,7 @@ wp user update '$WPUSR' \
 wp option update timezone_string '$TAREA/$TCITY'
 wp option update uploads_use_yearmonth_folders '0'
 wp option update thumbnail_size_w '384'
-wp option update thumbnail_size_h '216'
+wp option update thumbnail_size_h '0'
 wp option update medium_size_w '768'
 wp option update medium_size_h '0'
 wp option update large_size_w '0'
