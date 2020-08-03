@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# .sh/bin/addbuser 20200803 - 20200803
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: addbuser server [buser] [newpw]" && exit 1
+
+#[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+#set -x
+
+SHOST=$1
+BUSER=${2:-''}
+NEWPW=${3:-''}
+MYKEY="~/.ssh/$SHOST"
+
+[[ -f $MYKEY ]] || MYKEY=~/.ssh/id_rsa
+
+DOSSH="ssh -q -l root -p9 -i $MYKEY -o ConnectTimeout=1 -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+# Check SSH is working for this remote host
+$DOSSH $SHOST 'exit 0' || { echo "Error: can't SSH to $SHOST"; exit 0; }
+
+$DOSSH $SHOST "bash -c 'pwd;echo $SHELL'"
+
+
+#_PATH="/home/b/$BUSER"
+
+#if [[ $(grepuser ":$BUSER:") ]]; then
+#    echo "!!! Warning: $BUSER already exists"
+#else
+#    echo "!!! Create $BUSER user"
+#    echo useradd -M -U -s $U_SHL -u $U_UID -d $_PATH -c $VHOST $U_GRP $BUSER
+#fi
