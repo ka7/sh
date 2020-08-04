@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20200301
+# .sh/_shrc 20130315 - 20200804
 # Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
@@ -15,15 +15,15 @@ export TERM=linux
 export DEBIAN_FRONTEND=readline
 
 # Import managed aliases
-[ -f ~/.sh/lib/aliases ] && source ~/.sh/lib/aliases
+[ -f ~/.sh/lib/aliases ] && . ~/.sh/lib/aliases
 
 # Import managed env vars
-[ -f ~/.sh/lib/functions ] && source ~/.sh/lib/functions
+[ -f ~/.sh/lib/functions ] && . ~/.sh/lib/functions
 
-if [[ -f ~/.vhosts/$MHOST ]]; then
+if [ -f ~/.vhosts/$MHOST ]; then
     # Load primary root profile if exists
-    source ~/.vhosts/$MHOST
-    [ -f ~/.myrc ] && source ~/.myrc
+    . ~/.vhosts/$MHOST
+    [ -f ~/.myrc ] && . ~/.myrc
 else
     # Global static shell variables
     ADMIN='sysadm'
@@ -50,7 +50,7 @@ else
     V_PHP='7.4'
 
     # Local custom aliases and env var overrides
-    [ -f ~/.myrc ] && source ~/.myrc
+    [ -f ~/.myrc ] && . ~/.myrc
 
     sethost $MHOST
 fi

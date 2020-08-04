@@ -1,33 +1,100 @@
 #!/usr/bin/env bash
-# .sh/bin/addbuser 20200803 - 20200803
+# .sh/bin/addbuser 20200804 - 20200804
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: addbuser server [buser] [newpw]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addbuser [user] [pw]" && exit 1
 
-#[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-#set -x
+. ~/.shrc || exit 3
 
-SHOST=$1
-BUSER=${2:-''}
-NEWPW=${3:-''}
-MYKEY="~/.ssh/$SHOST"
+_HOST=$(hostname -f)
+_BUID=$(newuid)
 
-[[ -f $MYKEY ]] || MYKEY=~/.ssh/id_rsa
+_USER=${1:-"b$_BUID"}
+_PASS=${2:-$(newpw)}
 
-DOSSH="ssh -q -l root -p9 -i $MYKEY -o ConnectTimeout=1 -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+_HOME="/home/b/$_USER"
 
-# Check SSH is working for this remote host
-$DOSSH $SHOST 'exit 0' || { echo "Error: can't SSH to $SHOST"; exit 0; }
+[[ $_BUID = 1000 ]] && \
+  echo "!!! ERROR: $_BUID must be greater than 1000" && exit 4
 
-$DOSSH $SHOST "bash -c 'pwd;echo $SHELL'"
+[[ $(grepuser ":$_BUID:") ]] && \
+  echo "!!! ERROR: $_USER user or group already exists" && exit 5
 
+echo "!!! Create $_USER user"
+useradd -M -U -u $_BUID -d $_HOME $_USER
+echo $_USER:$_PASS | chpasswd
 
-#_PATH="/home/b/$BUSER"
+if [[ -d $_HOME ]]; then
+    echo "!!! Warning: $_HOME already exists"
+else
+    echo "!!! Create $_HOME"
+    mkdir -p $_HOME/{.ssh,bin,etc,bkp}
+fi
 
-#if [[ $(grepuser ":$BUSER:") ]]; then
-#    echo "!!! Warning: $BUSER already exists"
-#else
-#    echo "!!! Create $BUSER user"
-#    echo useradd -M -U -s $U_SHL -u $U_UID -d $_PATH -c $VHOST $U_GRP $BUSER
-#fi
+if [[ -f $_HOME/bin/busybox ]]; then
+    echo "!!! $_HOME/bin/busybox already exists"
+else
+    echo "!!! Setup busybox with sh, hostname, tail symlinks"
+    cp /bin/busybox $_HOME/bin
+    cd $_HOME/bin
+    ln -s busybox sh
+    ln -s busybox hostname
+    ln -s busybox tail
+fi
+
+if [[ -f $_HOME/.profile ]]; then
+    echo "!!! $_HOME/.profile already exists"
+else
+    echo "!!! Create $_HOME/.profile"
+    cat << EOS > $_HOME/.profile
+export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
+alias la='ls -lA -F --color'
+alias ll='ls -l -F --color'
+alias ls='ls -F --color'
+alias e='nano -t -x -c'
+EOS
+fi
+
+if [[ -f $_HOME/etc/passwd ]]; then
+    echo "!!! $_HOME/etc/passwd already exists"
+else
+    echo "!!! Create $_HOME/etc/passwd"
+    cat << EOS > $_HOME/etc/passwd
+root:x:0:0:::
+$_USER:x:$_BUID:$_BUID:::
+EOS
+fi
+
+if [[ -f $_HOME/etc/group ]]; then
+    echo "!!! $_HOME/etc/group already exists"
+else
+    echo "!!! Create $_HOME/etc/group"
+    cat << EOS > $_HOME/etc/group
+root:x:0:
+$_USER:x:$_BUID:
+EOS
+fi
+
+chown $_BUID: -R $_HOME
+find $_HOME -type d -exec chmod 00750 {} +
+find $_HOME -type f -exec chmod 00640 {} +
+chmod 755 $_HOME
+chmod 700 $_HOME/{.ssh,bin}
+chmod 600 $_HOME/.ssh/*
+[[ -f $_HOME/bin/nano ]] && chmod 750 $_HOME/bin/nano
+[[ -f $_HOME/bin/rsync ]] && chmod 750 $_HOME/bin/rsync
+[[ -f $_HOME/bin/busybox ]] && chmod 750 $_HOME/bin/busybox
+
+cat << EOS | tee -a /root/.vhosts/$_HOST.conf
+Backup
+=========
+
+Bkp Host: $_HOST
+Username: $_USER
+Password: $_PASS
+
+EOS
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
