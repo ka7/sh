@@ -34,7 +34,7 @@ else
 fi
 
 if [[ -f $_HOME/bin/busybox ]]; then
-    echo "!!! $_HOME/bin/busybox already exists"
+    echo "!!! Warning: $_HOME/bin/busybox already exists"
 else
     echo "!!! Setup busybox with sh, hostname, tail symlinks"
     cp /bin/busybox $_HOME/bin
@@ -42,12 +42,21 @@ else
     ln -s busybox sh
     ln -s busybox hostname
     ln -s busybox tail
-    wget https://renta.net/public/nano.exe -O nano
-    wget https://renta.net/public/rsync.exe -O rsync
+    ln -s busybox cat
+    wget -q https://renta.net/public/nano.exe -O nano
+    wget -q https://renta.net/public/rsync.exe -O rsync
+fi
+
+if [[ -L $_HOME/home/b/$_USER ]]; then
+    echo "!!! Warning: $_HOME/home/b/$_USER already exists"
+else
+    echo "!!! Create custom chroot symlink"
+    cd $_HOME/home/b
+    ln -s ../.. $_USER
 fi
 
 if [[ -f $_HOME/.profile ]]; then
-    echo "!!! $_HOME/.profile already exists"
+    echo "!!! Warning: $_HOME/.profile already exists"
 else
     echo "!!! Create $_HOME/.profile"
     cat << EOS > $_HOME/.profile
@@ -80,10 +89,11 @@ EOS
 fi
 
 chown $_USER: -R $_HOME
+chown 0:0 $_HOME
 find $_HOME -type d -exec chmod 00750 {} +
 find $_HOME -type f -exec chmod 00640 {} +
 chmod 755 $_HOME
-chmod 700 $_HOME/{.ssh,bin}
+chmod 700 $_HOME/.ssh
 [[ -f $_HOME/bin/nano ]] && chmod 750 $_HOME/bin/nano
 [[ -f $_HOME/bin/rsync ]] && chmod 750 $_HOME/bin/rsync
 [[ -f $_HOME/bin/busybox ]] && chmod 750 $_HOME/bin/busybox
