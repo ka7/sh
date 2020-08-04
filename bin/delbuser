@@ -2,7 +2,7 @@
 # .sh/bin/delbuser 20200804 - 20200804
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: delbuser user" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: delbuser user" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
