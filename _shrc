@@ -42,6 +42,7 @@ else
     DHOST='localhost'
     DPORT='3306'
     DTYPE='mysql'
+    LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
     OSREL='focal'
     TAREA='Australia'
