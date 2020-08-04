@@ -30,7 +30,7 @@ if [[ -d $_HOME ]]; then
     echo "!!! Warning: $_HOME already exists"
 else
     echo "!!! Create $_HOME"
-    mkdir -p $_HOME/{.ssh,bin,etc,var}
+    mkdir -p $_HOME/{.ssh,bin,etc,var,home,home/b}
 fi
 
 if [[ -f $_HOME/bin/busybox ]]; then
