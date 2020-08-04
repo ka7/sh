@@ -24,7 +24,7 @@ _HOME="/home/b/$_USER"
 
 echo "!!! Create $_USER user"
 useradd -M -U -u $_BUID -d $_HOME $_USER
-echo $_USER:$_PASS | chpasswd
+echo -n $_USER:$_PASS | chpasswd
 
 if [[ -d $_HOME ]]; then
     echo "!!! Warning: $_HOME already exists"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20200328
+# .sh/bin/delvmail 20170418 - 20200804
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
@@ -9,7 +9,7 @@
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 
-source ~/.vhosts/$VHOST || exit 3
+. ~/.vhosts/$VHOST || exit 3
 
 VUSER=${EMAIL%@*} # $VUSER @ domain
 HPATH="$MPATH/$VUSER" # home path to users mailbox
