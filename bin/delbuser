@@ -15,11 +15,11 @@ set -x
   { echo "!!! Error: $_USER user does not exist"; exit 4; }
 
 echo "!!! Remove $_USER"
-userdel -rf $_USER > /dev/null
+userdel -rf $_USER 2> /dev/null
 
 echo "!!! Remove from $_CONF"
 TFILE=$(mktemp -q) && {
-    awk '/^Username: '$_USER'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $_CONF > $TFILE && mv $TFILE $_CONF
+    awk '/^Username: '$_USER'$/{for(x=NR-4;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $_CONF > $TFILE; mv $TFILE $_CONF;
 }
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
