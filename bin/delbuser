@@ -11,7 +11,7 @@
 _USER=$1
 _CONF="~/.vhosts/$MHOST"
 
-[[ $(grepuser "$_USER:") ]] || \
+[[ $(grepuser $_USER) ]] || \
   echo "!!! Error: $_USER user does not exist" && exit 4
 
 echo "!!! Remove $_USER"
