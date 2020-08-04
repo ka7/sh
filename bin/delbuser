@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# .sh/bin/delbuser 20200804 - 20200804
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: delbuser user" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+. ~/.shrc || exit 3
+
+_USER=$1
+_CONF="~/.vhosts/$MHOST"
+
+[[ $(grepuser "$_USER:") ]] || \
+  echo "!!! Error: $_USER user does not exist" && exit 4
+
+echo "!!! Remove $_USER"
+userdel -rf $_USER > /dev/null
+
+echo "!!! Remove from $_CONF"
+TFILE=$(mktemp -q) && {
+    awk '/^Username: '$_USER'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $_CONF > $TFILE && mv $TFILE $_CONF
+}
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
