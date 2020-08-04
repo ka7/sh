@@ -9,7 +9,7 @@
 . ~/.shrc || exit 3
 
 _USER=$1
-_CONF="~/.vhosts/$MHOST"
+_CONF="~/.vhosts/$MHOST.conf"
 set -x
 [[ $(grepuser $_USER) ]] || \
   { echo "!!! Error: $_USER user does not exist"; exit 4; }
