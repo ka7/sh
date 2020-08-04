@@ -10,7 +10,7 @@
 
 _USER=$1
 _CONF="~/.vhosts/$MHOST"
-
+set -x
 [[ $(grepuser $_USER) ]] || \
   { echo "!!! Error: $_USER user does not exist"; exit 4; }
 
