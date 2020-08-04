@@ -1,4 +1,4 @@
-# .sh/etc/_etc_ssh_sshd__config 20180225 - 20190311
+# .sh/etc/_etc_ssh_sshd__config 20180225 - 20200804
 # Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # PermitRootLogin yes
@@ -15,6 +15,10 @@ MaxStartups 1
 AcceptEnv LANG LC_*
 Subsystem sftp internal-sftp -u 0027
 Match User u*
+  ChrootDirectory %h
+  X11Forwarding no
+  AllowTcpForwarding no
+Match User b*
   ChrootDirectory %h
   X11Forwarding no
   AllowTcpForwarding no

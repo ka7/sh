@@ -43,6 +43,7 @@ else
     ln -s busybox hostname
     ln -s busybox tail
     ln -s busybox cat
+    echo "!!! Fetch static nano and rsync"
     wget -q https://renta.net/public/nano.exe -O nano
     wget -q https://renta.net/public/rsync.exe -O rsync
 fi
@@ -89,6 +90,7 @@ $_USER:x:$_BUID:
 EOS
 fi
 
+echo "!!! Change permissions of $_HOME/*"
 chown $_USER: -R $_HOME
 chown 0:0 $_HOME
 find $_HOME -type d -exec chmod 00750 {} +
