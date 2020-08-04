@@ -58,7 +58,8 @@ fi
 if [[ -f $_HOME/.profile ]]; then
     echo "!!! Warning: $_HOME/.profile already exists"
 else
-    echo "!!! Create $_HOME/.profile"
+    echo "!!! Create $_HOME/.profile and .hushlogin"
+    touch $_HOME/.hushlogin
     cat << EOS > $_HOME/.profile
 export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
 alias la='ls -lA -F --color'
