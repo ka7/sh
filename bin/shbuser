@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/shbuser 20200805 - 20200805
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ $1 =~ -h ]] && echo "Usage: shbuser [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
