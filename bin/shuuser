@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# .sh/bin/shuuser 20200805 - 20200805
+# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: shuuser [uuser]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+. ~/.shrc || exit 3
+
+_USER=${1:-''}
+
+if [[ -n $_USER ]]; then
+    _PATH=$(grepuser $_USER | awk -F: '{print $6}')
+    [[ ! -d $_PATH ]] && \
+      echo "!!! Error: '$_PATH' does not exist" && exit 3
+    du -sh $_PATH
+    /bin/ls -lh $_PATH | cut -d' ' -f 5-
+else
+    grepuser | awk -F: '{printf "%-8s %-10s %40s\n", $1, $5, $6}'
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
