@@ -17,7 +17,7 @@ if [[ -n $_USER ]]; then
     du -bsh $_PATH
     du -bsh $_PATH/home/* --exclude=/home/u
     du -bsh $_PATH/var/*
-    /bin/ls -lh $_PATH/var/www/* | cut -d' ' -f 5-
+    /bin/ls -lh $_PATH/var/www | cut -d' ' -f 5-
 else
     grepuser | awk -F: '{printf "%-8s %-10s %40s\n", $1, $5, $6}'
 fi
