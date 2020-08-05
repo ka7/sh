@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delbuser 20200804 - 20200804
+# .sh/bin/delbuser 20200804 - 20200805
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delbuser user" && exit 1
@@ -10,9 +10,15 @@
 
 _USER=$1
 _CONF="/root/.vhosts/$MHOST.conf"
-set -x
+
+[[ $_USER =~ ^b ]] || \
+  { echo "!!! Error: '$_USER' user does not start with a b"; exit 4; }
+
 [[ $(grepuser $_USER) ]] || \
-  { echo "!!! Error: $_USER user does not exist"; exit 4; }
+  { echo "!!! Error: '$_USER' user does not exist"; exit 5; }
+
+[[ -d /home/b/$_USER ]] || \
+  { echo "!!! Warning: '/home/b/$_USER' does not exist"; }
 
 echo "!!! Remove $_USER"
 userdel -rf $_USER 2> /dev/null
