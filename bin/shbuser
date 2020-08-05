@@ -9,7 +9,7 @@ set -x
 _USER=${1:-''}
 
 if [[ -n $_USER ]]; then
-    [[ ! -d /home/b/$_USER ]] && echo "!!! Error: '/home/b/$_USER' does not exist" & exit 3
+    [[ ! -d /home/b/$_USER ]] && echo "!!! Error: '/home/b/$_USER' does not exist" && exit 3
     du -sh /home/b/$_USER
     /bin/ls -l /home/b/$_USER
 else
