@@ -14,8 +14,8 @@ if [[ -n $_USER ]]; then
     _PATH=$(grepuser $_USER | awk -F: '{print $6}')
     [[ ! -d $_PATH ]] && \
       echo "!!! Error: '$_PATH' does not exist" && exit 3
-    du -sh $_PATH
-    /bin/ls -lh $_PATH | cut -d' ' -f 5-
+    du -sch $_PATH/*
+#    /bin/ls -lh $_PATH/* | cut -d' ' -f 5-
 else
     grepuser | awk -F: '{printf "%-8s %-10s %40s\n", $1, $5, $6}'
 fi
