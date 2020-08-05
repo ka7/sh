@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/shuser 20160130 - 20190828
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shuser 20160130 - 20200805
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: if uid == 1000 then uid = sysadm else uid= u####
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shuser email*|all" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: shuser [email*]" && exit 1
 
-source /root/.vhosts/$(hostname -f) || exit 3 # only needed for SQCMD
+. ~/.shrc || exit 2 # only needed for SQCMD
 
 PWTBL=vmails
 
-[[ $1 == all ]] && QRY="%" || QRY="$1%"
+[[ -z $1 ]] && QRY="%" || QRY="$1%"
 
 RESULT=$(echo "
  SELECT count(*)
