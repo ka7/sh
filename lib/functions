@@ -181,12 +181,9 @@ sethost ()
 }
 sx ()
 {
-    [[ -z $2 || $1 =~ -h ]] && echo "Usage: sx server command [user] [port] [sshkey]" && return 1
-    _USER=${3:-'root'}
-    _PORT=${4:-'9'}
-    _SKEY=${5:-'id_rsa'}
-    DOSSH="ssh -q -o ConnectTimeout=1 -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-    $DOSSH $1 -l $_USER -p $_PORT -i ~/.ssh/$_SKEY ". ~/.shrc;$2"
+    [[ -z $2 || $1 =~ -h ]] && \
+      echo "Usage: sx host command (host must be in ~/.ssh/config)" && return 1
+    _HOST=$1; shift; ssh $_HOST -q -t "bash -ci '$@'"
 }
 updhost ()
 {
