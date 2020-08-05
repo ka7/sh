@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20200304
+# .sh/bin/logging 20170417 - 20200805
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: logging domain|all [update]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: logging domain|all [update]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.vhosts/$(hostname -f) || exit 3
+. ~/.shrc || exit 3
 
 [[ $2 == update ]] && UPD=1 || UPD=
 
@@ -125,7 +125,7 @@ log_vmail()
 
 [[ $UPD ]] || printf "%-48s %9s %9s %9s\n" "Vhost / Mailbox" "Mail/Box" "Web/Spam" "Disk/Home"
 
-if [[ $1 == all ]]; then
+if [[ -z $1 || $1 == all ]]; then
     VHOSTS=$(find $VPATH -mindepth 1 -maxdepth 1 -type d \! -type l | sed "s#$VPATH/##" | sort)
     for VHOST in $VHOSTS; do log_vhost $VHOST; log_vmail $VHOST; done
 else
