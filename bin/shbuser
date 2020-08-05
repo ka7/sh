@@ -13,7 +13,7 @@ if [[ -n $_USER ]]; then
     du -sh /home/b/$_USER
     /bin/ls -l /home/b/$_USER
 else
-    du -sh /home/b
+    du -csh /home/b/*
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
