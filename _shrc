@@ -1,5 +1,7 @@
-# .sh/_shrc 20130315 - 20200804
+# .sh/_shrc 20130315 - 20200805
 # Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+shopt -s expand_aliases
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
