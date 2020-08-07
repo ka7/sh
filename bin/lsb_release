@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# .sh/bin/lsb_release 20200807 - 20200807
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Manually copy to /usr/bin/lsb_release to partly satisfy missing lsb-release package
+
+[[ ! -f /etc/os-release ]] && echo "ERROR: /etc/os-release does not exist" && exit 1
+
+if [[ -z $1 || $1 = '-a' || $1 = '--all' ]]; then
+    #cat /etc/os-release
+    echo "LSB Version: Netserva 20200807"
+    echo "Distributor ID: $(grep ^NAME /etc/os-release | cut -d'"' -f2)"
+    echo "Description: $(grep ^PRETTY_NAME /etc/os-release | cut -d'"' -f2)"
+    echo "Release: $(grep ^VERSION_ID /etc/os-release | cut -d'"' -f2)"
+    echo "Codename: $(grep ^VERSION_CODENAME /etc/os-release | cut -d'=' -f2)"
+elif [[ $1 = '-c' || $1 = '--codename' ]]; then
+    echo "Codename: $(grep ^VERSION_CODENAME /etc/os-release | cut -d'=' -f2)"
+elif [[ $1 = '-d' || $1 = '--description' ]]; then
+    echo "Description: $(grep ^PRETTY_NAME /etc/os-release | cut -d'"' -f2)"
+elif [[ $1 = '-i' || $1 = '--id' ]]; then
+    echo "Distributor ID: $(grep ^NAME /etc/os-release | cut -d'"' -f2)"
+elif [[ $1 = '-r' || $1 = '--release' ]]; then
+    echo "Release: $(grep ^VERSION_ID /etc/os-release | cut -d'"' -f2)"
+elif [[ $1 = '-s' || $1 = '--short' ]]; then
+    echo "n/a"
+elif [[ $1 = '-v' || $1 = '--version' ]]; then
+    echo "n/a (Netserva specific)"
+elif [[ $1 = '-h' || $1 = '--help' ]]; then
+    echo "
+Netserva Replacement for /usr/bin/lsb_release
+
+Usage: lsb_release [OPTION]
+Options:
+  -i, --id
+    Display the string id of the distributor
+  -d, --description
+    Display the single line text description of the distribution
+  -r, --release
+    Display the release number of the distribution
+  -c, --codename
+    Display the codename according to the distribution release
+  -a, --all
+    Display all of the above information
+  -h, --help
+    Display this message
+  -v and -s do not exist"
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
