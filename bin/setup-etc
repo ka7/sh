@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20200609
+# .sh/bin/setup-etc 20151231 - 20200807
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -327,6 +327,7 @@ fi
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     echo "^^^ Create /etc/sudoers.d/99-sysadm"
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
+    chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then

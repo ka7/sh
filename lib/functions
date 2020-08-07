@@ -217,4 +217,4 @@ updhost ()
     fi
     gethost > /root/.vhosts/$1
 }
-export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost updhost
+export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost sx updhost
