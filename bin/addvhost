@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20200117
+# .sh/bin/addvhost 20170217 - 20200811
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -11,7 +11,7 @@
 #echo "######## $0 $*"
 
 # for DTYPE and VPATH
-source /root/.shrc || exit 3
+. ~/.shrc || exit 3
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
@@ -317,4 +317,3 @@ fi
 logging $VHOST update
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
-
