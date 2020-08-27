@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/addrc 20190630 - 20191123
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addrc 20190630 - 20200827
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addrc [domain] [rcver]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-RCVER=${2:-'1.4.1'}
+RCVER=${2:-'1.4.8'}
 DBTMP=${VHOST//[.-]/_}
 
 source /root/.vhosts/$VHOST || exit 3
@@ -87,12 +87,17 @@ EOS
         "masterminds/html5": "*",
         "endroid/qr-code": "*",
         "johndoh/contextmenu": "*",
-        "boressoft/ident_switch": "*",
         "roundcube/carddav": "*"
     }
 }
 EOS
+#        "boressoft/ident_switch": "*", // this seems to be outdated
+
+    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $UPATH/var/www/.well-known
+    [[ -d $UPATH/var/www_old/hcp ]] && mv $UPATH/var/www_old/hcp $UPATH/var/www/hcp
+
     chperms $VHOST
+    
     su - $UUSER -c "cd var/www; php composer.phar -n update"
     su - $UUSER -c "cd var/www; php composer.phar -n install"
 
