@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20200225
+# .sh/bin/addvip 20190602 - 20200905
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mxhost]" && exit 1
@@ -146,10 +146,10 @@ local $IP4_0 {
     ssl_cert = </etc/ssl/$VHOST/fullchain.pem
     ssl_key =  </etc/ssl/$VHOST/privkey.pem
   }
-  protocol pop3 {
-    ssl_cert = </etc/ssl/$VHOST/fullchain.pem
-    ssl_key =  </etc/ssl/$VHOST/privkey.pem
-  }
+#  protocol pop3 {
+#    ssl_cert = </etc/ssl/$VHOST/fullchain.pem
+#    ssl_key =  </etc/ssl/$VHOST/privkey.pem
+#  }
 }
 
 EOS
