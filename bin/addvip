@@ -147,10 +147,13 @@ local $IP4_0 {
     ssl_cert = </etc/ssl/$VHOST/fullchain.pem
     ssl_key =  </etc/ssl/$VHOST/privkey.pem
   }
-#  protocol pop3 {
-#    ssl_cert = </etc/ssl/$VHOST/fullchain.pem
-#    ssl_key =  </etc/ssl/$VHOST/privkey.pem
-#  }
+}
+service imap-login {
+  inet_listener imaps {
+    address = $IP4_0
+    port = 993
+    ssl = yes
+  }
 }
 
 EOS
