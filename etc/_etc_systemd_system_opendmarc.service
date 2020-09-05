@@ -1,5 +1,5 @@
-# .sh/etc/_etc_systemd_system_opendmarc.service 20180618 - 20180618
-# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/_etc_systemd_system_opendmarc.service 20180618 - 20200905
+# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [Unit]
 Description=OpenDMARC Milter
@@ -8,9 +8,9 @@ After=network.target nss-lookup.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/opendmarc/opendmarc.pid
+PIDFile=/run/opendmarc/opendmarc.pid
 User=opendmarc
-ExecStart=/usr/sbin/opendmarc -p inet:54321@127.0.0.1 -u opendmarc -P /var/run/opendmarc/opendmarc.pid
+ExecStart=/usr/sbin/opendmarc -p inet:54321@127.0.0.1 -u opendmarc -P /run/opendmarc/opendmarc.pid
 Restart=on-failure
 ExecReload=/bin/kill -USR1 $MAINPID
 
