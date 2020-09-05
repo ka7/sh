@@ -117,6 +117,7 @@ $M_OUT-out unix -      -       n       -       -   smtp
     -o myhostname=$MHOST
 
 EOS
+    [[ ! -f /etc/postfix/sender_transport ]] && touch /etc/postfix/sender_transport
     grep -q "^@$VHOST" /etc/postfix/sender_transport
     if [[ $? -ne 0 ]]; then
         echo "@$VHOST    $M_OUT-out:" >> /etc/postfix/sender_transport
