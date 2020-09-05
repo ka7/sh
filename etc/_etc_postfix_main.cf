@@ -1,5 +1,5 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20191120
-# Copyright (C) 2015-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20200905
+# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
 ### an account) then manually add a line like this to /etc/postfix/sasl_passwd
@@ -19,34 +19,22 @@
 # This may be needed in some cases
 #myhostname = _MHOST
 
-alias_database = hash:/etc/aliases
 alias_maps = hash:/etc/aliases
-append_dot_mydomain = no
 biff = no
-compatibility_level = 2
 header_checks = regexp:/etc/postfix/header_checks
 home_mailbox = Maildir/
-inet_interfaces = all
+inet_interfaces = localhost
 inet_protocols = ipv4
 mailbox_size_limit = 0
-message_size_limit = 52428800
-milter_default_action = accept
-milter_protocol = 2
-mydestination = localhost
-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
-myorigin = /etc/mailname
 non_smtpd_milters = inet:127.0.0.1:8891,inet:127.0.0.1:54321
-policy-spf_time_limit = 3600s
-postscreen_access_list = permit_mynetworks
 postscreen_dnsbl_action = enforce
 postscreen_dnsbl_sites = zen.spamhaus.org dnbsbl.sorbs.net bl.spamcop.net
 postscreen_dnsbl_threshold = 2
 postscreen_greet_action = enforce
-postscreen_greet_banner = NW networks - please wait
-readme_directory = no
 recipient_delimiter = +
+sender_dependent_default_transport_maps = hash:/etc/postfix/sender_transport
+smtp_tls_CApath = /etc/ssl/certs
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
 smtpd_client_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_unknown_client_hostname reject_rbl_client zen.spamhaus.org
     reject_rbl_client bl.spamcop.net
@@ -62,14 +50,12 @@ smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_authenticated_header = yes
 smtpd_sasl_path = private/auth
-smtpd_sasl_security_options = noanonymous
 smtpd_sasl_type = dovecot
 smtpd_sender_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_non_fqdn_sender reject_unknown_sender_domain
-smtpd_tls_cert_file = /etc/ssl/_VHOST/fullchain.pem
-smtpd_tls_key_file = /etc/ssl/_VHOST/privkey.pem
+smtpd_tls_CApath = /etc/ssl/certs
+smtpd_tls_cert_file = /etc/ssl/_MHOST/fullchain.pem
+smtpd_tls_key_file = /etc/ssl/_MHOST/privkey.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtpd_use_tls = yes
-smtp_tls_CApath = /etc/ssl/certs
-smtpd_tls_CApath = /etc/ssl/certs
 virtual_transport = lmtp:unix:private/dovecot-lmtp
