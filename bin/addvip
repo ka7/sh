@@ -149,7 +149,7 @@ local $IP4_0 {
   }
 }
 service imap-login {
-  inet_listener imaps {
+   imaps-$IP4_0 {
     address = $IP4_0
     port = 993
     ssl = yes
