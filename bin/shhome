@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/shuuser 20200805 - 20200907
+# .sh/bin/shhome 20200805 - 20200907
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: shuuser [uuser]" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: shhome [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -15,11 +15,11 @@ if [[ -n $_USER ]]; then
     [[ ! -d $_PATH ]] && \
       echo "!!! Error: '$_PATH' does not exist" && exit 3
     du -sh $_PATH
-    du -sh $_PATH/home/* --exclude=*/home/u
+    du -sh $_PATH/home/* --exclude=*/home/u --exclude=*/home/b
     du -sh $_PATH/var/*
-    /bin/ls -l --group-directories-first $_PATH/var/www
+    [[ -d $_PATH/var/www ]] && /bin/ls -l --group-directories-first $_PATH/var/www
 else
-    grepuser | awk -F: '{printf "%-8s %-30s %s\n", $1, $5, $6}'
+    grepuser | awk -F: '{printf "%-8s %-40s %s\n", $1, $5, $6}'
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
