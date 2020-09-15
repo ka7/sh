@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lsws 20200629 - 20200703
+# .sh/bin/setup-lsws 20200629 - 20200915
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: Add LROOT to canonical env vars (and bump SH version number)
 # TODO: Setup primary VHOST configs when installing
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [remove]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [ip|remove]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
 
-LROOT=/usr/local/lsws
+LSVER=1.5.0
+IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+[[ $1 =~ $IPREG ]] && IPARG=$1 || IPARG=$IP4_0
 LSBKP="$BPATH/$(date +%Y%m%d)-lsws-conf.tgz"
 
 if [[ $1 == remove ]]; then
@@ -35,8 +37,8 @@ fi
 if [[ ! -d $LROOT ]]; then
     echo "!!! Installing openlitespeed to $LROOT"
     cd
-    wget -q https://openlitespeed.org/packages/openlitespeed-1.6.14.tgz
-    tar -xf openlitespeed-1.6.14.tgz
+    wget -q https://openlitespeed.org/packages/openlitespeed-$LSVER.tgz
+    tar -xf openlitespeed-$LSVER.tgz
     cd openlitespeed
     cat << EOS | tee ols.conf
 DEFAULT_TMP_DIR=/tmp/lshttpd
@@ -102,7 +104,7 @@ accessControl  {
 }
 
 listener adminListener {
-  address                 *:7080
+  address                 $IPARG:7080
   secure                  1
   keyFile                 /etc/ssl/$VHOST/privkey.pem
   certFile                /etc/ssl/$VHOST/fullchain.pem

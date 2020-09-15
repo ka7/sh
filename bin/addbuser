@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
-# .sh/bin/addbuser 20200804 - 20200804
+# .sh/bin/addbuser 20200804 - 20200907
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addbuser [user] [pw]" && exit 1
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addbuser for_vhost [user] [pw]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 . ~/.shrc || exit 3
 
-_HOST=$(hostname -f)
+BHOST=$(hostname -f)
 _BUID=$(newuid)
 
-_USER=${1:-"b$_BUID"}
-_PASS=${2:-$(newpw)}
+_HOST=${1}
+_USER=${2:-"b$_BUID"}
+_PASS=${3:-$(newpw)}
 
 _HOME="/home/b/$_USER"
 
@@ -23,7 +24,7 @@ _HOME="/home/b/$_USER"
   echo "!!! ERROR: $_USER user or group already exists" && exit 5
 
 echo "!!! Create $_USER user"
-useradd -M -U -u $_BUID -d $_HOME $_USER
+useradd -M -U -u $_BUID -d $_HOME -c "$_HOST" $_USER
 echo -n $_USER:$_PASS | chpasswd
 
 if [[ -d $_HOME ]]; then
@@ -101,11 +102,11 @@ chmod 700 $_HOME/.ssh
 [[ -f $_HOME/bin/rsync ]] && chmod 750 $_HOME/bin/rsync
 [[ -f $_HOME/bin/busybox ]] && chmod 750 $_HOME/bin/busybox
 
-cat << EOS | tee -a /root/.vhosts/$_HOST.conf
+cat << EOS | tee -a /root/.vhosts/$BHOST.conf
 Backup
 =========
 
-Bkp Host: $_HOST
+Bkp Host: $BHOST
 Username: $_USER
 Password: $_PASS
 
