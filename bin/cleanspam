@@ -23,8 +23,6 @@ else
     TPATH=$VPATH
 fi
 
-# spamprobe -d spamprobe-bkp cleanup 2 31; \
-
 find $TPATH -type d -name .spamprobe | while read i; do \
  [[ DBG ]] && echo $i; \
  HPATH=$(dirname $i); \
