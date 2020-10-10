@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20200725
+# .sh/bin/addwp 20160231 - 20201010
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -128,6 +128,10 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 #echo 'Install and activate the Kadence theme'
 #wp theme --quiet install kadence --activate 2> /dev/null
 
+#echo 'Install Brizy plugin'
+#wp plugin --quiet install brizy 2> /dev/null
+#wp plugin --quiet activate brizy $MSNET 2> /dev/null
+
     su - $UUSER -c "
 cd $FPATH
 wp plugin delete $PLUGINS
@@ -139,10 +143,6 @@ echo 'Install and activate the Astra theme'
 wp theme --quiet install astra --activate 2> /dev/null
 wp theme --quiet enable astra --activate $MSNET 2> /dev/null
 
-echo 'Install Brizy plugin'
-wp plugin --quiet install brizy 2> /dev/null
-wp plugin --quiet activate brizy $MSNET 2> /dev/null
-
 echo 'Install Elementor plugin'
 wp plugin --quiet install elementor 2> /dev/null
 wp plugin --quiet activate elementor $MSNET 2> /dev/null
@@ -150,6 +150,10 @@ wp plugin --quiet activate elementor $MSNET 2> /dev/null
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
 wp plugin --quiet activate autoptimize $MSNET 2> /dev/null
+
+echo 'Install WPvivid plugin'
+wp plugin --quiet install wpvivid-backuprestore/ 2> /dev/null
+wp plugin --quiet activate wpvivid-backuprestore/ $MSNET 2> /dev/null
 
 wp post create --post_type=page --post_title='Home' --post_status=publish
 wp post create --post_type=page --post_title='About' --post_status=publish
