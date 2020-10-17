@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/incsoa 20190607 - 20190607
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/incsoa 20190607 - 20201017
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: incsoa domain" && exit 1
 
@@ -11,13 +11,13 @@ source /root/.vhosts/$(hostname -f)
 DID=$(echo "
  SELECT id
    FROM domains
-  WHERE name='$1'" | $SQCMD)
+  WHERE name='$1'" | $SQDNS)
 
 SOA=$(echo "
  SELECT content
    FROM records
   WHERE type='SOA'
-    AND domain_id='$DID'" | $SQCMD)
+    AND domain_id='$DID'" | $SQDNS)
 
 SER=$(echo $SOA|awk '{print $3}')
 RID=$(echo $SOA|awk '{print $1}')
@@ -33,17 +33,17 @@ echo "
         content = '$REC',
         updated = '$UPD'
   WHERE type = 'SOA'
-    AND domain_id = $DID" | $SQCMD
+    AND domain_id = $DID" | $SQDNS
 
 echo "
  UPDATE domains SET
         updated = '$UPD'
-  WHERE id = $DID" | $SQCMD
+  WHERE id = $DID" | $SQDNS
 
 echo "
  SELECT content
    FROM records
   WHERE type='SOA'
-    AND domain_id='$DID'" | $SQCMD
+    AND domain_id='$DID'" | $SQDNS
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
