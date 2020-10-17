@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20200804
+# .sh/lib/functions 20151231 - 20201017
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -48,6 +48,7 @@ MPATH='$MPATH'
 OSMIR='$OSMIR'
 OSREL='$OSREL'
 SQCMD='$SQCMD'
+SQDNS='$SQDNS'
 TAREA='$TAREA'
 TCITY='$TCITY'
 UPASS='$UPASS'
@@ -153,8 +154,10 @@ sethost ()
 
     if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
+        export SQDNS="mysql -BN pdns";
     elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
+        export SQDNS="$DBSQL/$ADMIN/pdns.db";
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
@@ -210,8 +213,10 @@ updhost ()
 
     if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
+        export SQDNS="mysql -BN pdns";
     elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
+        export SQDNS="$DBSQL/$ADMIN/pdns.db";
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi
