@@ -34,6 +34,7 @@ if [[ $DTYPE == sqlite ]]; then
     fi
     
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
+# are these next two really necessary?
     SQCMD="sqlite3 $DPATH"
     SQDNS="sqlite3 $DBSQL/pdns/pdns.db"
     
@@ -60,11 +61,14 @@ EOS
         echo "||| Create MySQL privileges"
         cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
+CREATE DATABASE IF NOT EXISTS pdns;
 GRANT ALL ON $ADMIN . * TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS';
+GRANT ALL ON pdns . * TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS';
 FLUSH PRIVILEGES;
 EOS
     fi
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
+# are these next two really necessary?
     SQCMD="mysql -BN $ADMIN"
     SQDNS="mysql -BN pdns"
 

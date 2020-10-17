@@ -310,12 +310,25 @@ if [[ ! -f $C_FPM/php.ini.orig ]]; then
         -e 's/memory_limit = 128M/memory_limit = 512M/'
 fi
 
-# TODO switch between mysql/sqlite for DNS
+##### pdns
+
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "^^^ Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
+    
+    if [[ $DTYPE == mysql ]]; then
+        echo "^^^ Create $C_DNS/pdns.d/mysql.conf"
+        sed -e "s/_PDNS_USER/$DUSER/" -e "s/_PDNS_PASS/$DPASS/" \
+            ~/.sh/etc/_etc_powerdns_pdns_mysql.conf \
+            > $C_DNS/pdns.d/mysql.conf
+    elif [[ $DTYPE == sqlite ]]; then
+        echo "^^^ Create $C_DNS/pdns.d/sqlite.conf"
+        cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
+    fi
 fi
+
+##### CRON
 
 if [[ ! -f /etc/cron.d/netserva ]]; then
     echo "^^^ Create /etc/cron.d/netserva"
@@ -329,6 +342,8 @@ if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
+
+##### SSH
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "^^^ Create new /etc/ssh/sshd_config"
