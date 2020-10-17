@@ -35,7 +35,7 @@ if [[ $DTYPE == sqlite ]]; then
     
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
     SQCMD="sqlite3 $DPATH"
-    SQDNS="sqlite3 $DBSQL/pdns"
+    SQDNS="sqlite3 $DBSQL/pdns/pdns.db"
     
 elif [[ $DTYPE == mysql ]]; then
 
