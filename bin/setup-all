@@ -20,7 +20,7 @@ setup-db
 setup-etc
 setup-hcp
 
-echo "######## Send message to: $AMAIL"
-cat ~/.vhosts/$VHOST.conf | mail -s "Setup $VHOST - $(hostname -i)" -r $AMAIL $AMAIL
+echo "######## Send message to: admin@$MHOST"
+cat ~/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $(hostname -i)" -r admin@$MHOST admin@$MHOST
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

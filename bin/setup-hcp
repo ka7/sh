@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20200919
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-hcp 20170519 - 20201017
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
@@ -35,17 +35,18 @@ EOS
     if [[ -f $WPATH/hcp/.htpasswd ]]; then
         echo "@@@ $WPATH/hcp/.htpasswd already exists"
     else
-        PIN=$RANDOM
-        echo "@@@ Create $WPATH/hcp/.htpasswd $ADMIN/$PIN"
-        htpasswd -b -c $WPATH/hcp/.htpasswd $ADMIN $PIN
-        echo "# HTTP auth for https://$VHOST/hcp -> $ADMIN / $PIN" >> ~/.my.cnf
+        HUSER=$(pwgen -sB 8 1)
+        HPASS=$(pwgen -sB 8 1)
+        echo "@@@ Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
+        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS
+        echo "# HTTP auth for https://$VHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
         cat << EOS | tee -a /root/.vhosts/$VHOST.conf
 HTTP Auth
 =========
 
 AdminWeb: https://$VHOST/hcp
-Username: $ADMIN
-Password: $PIN
+Username: $HUSER
+Password: $HPASS
 
 EOS
     fi
