@@ -197,39 +197,6 @@ CREATE TABLE IF NOT EXISTS vmails (
 );
 
 
-CREATE VIEW IF NOT EXISTS records_view AS
- SELECT r.id id,
-        r.domain_id AS did,
-        r.name, r.type,
-        r.content,
-        r.ttl,
-        r.prio,
-        r.disabled AS active,
-        r.updated,
-        d.name AS domain
-   FROM (records r JOIN domains d)
-  WHERE ((d.id = r.domain_id) AND (r.type <> 'SOA'));
-
-CREATE VIEW IF NOT EXISTS news_view AS
- SELECT n.*, u.id as uid, u.login, u.fname, u.lname
-   FROM news n
-        JOIN accounts u
-            ON n.author = u.id;
-
-CREATE VIEW IF NOT EXISTS domains_view1 AS
- SELECT D.id,D.name,D.type,D.updated,count(R.domain_id) AS records
-   FROM domains D
-   LEFT OUTER JOIN records R ON D.id = R.domain_id
-          GROUP BY D.id, D.name, D.type, D.updated
-         HAVING (D.name LIKE '' OR 1)
-            AND (D.type='' OR 1);
-
-CREATE VIEW IF NOT EXISTS domains_view2 AS
- SELECT *, (SELECT DISTINCT content as soa
-              FROM records
-             WHERE type = 'SOA' AND domain_id = T.id) AS soa
-   FROM domains_view1 T;
-
 CREATE VIEW IF NOT EXISTS valias_view AS
  SELECT va.id,
         va.source,
@@ -335,6 +302,39 @@ CREATE TABLE IF NOT EXISTS records (
   updated datetime NULL DEFAULT '2018-01-01 00:00:01',
   created datetime NULL DEFAULT '2018-01-01 00:00:01'
 );
+
+CREATE VIEW IF NOT EXISTS records_view AS
+ SELECT r.id id,
+        r.domain_id AS did,
+        r.name, r.type,
+        r.content,
+        r.ttl,
+        r.prio,
+        r.disabled AS active,
+        r.updated,
+        d.name AS domain
+   FROM (records r JOIN domains d)
+  WHERE ((d.id = r.domain_id) AND (r.type <> 'SOA'));
+
+CREATE VIEW IF NOT EXISTS news_view AS
+ SELECT n.*, u.id as uid, u.login, u.fname, u.lname
+   FROM news n
+        JOIN accounts u
+            ON n.author = u.id;
+
+CREATE VIEW IF NOT EXISTS domains_view1 AS
+ SELECT D.id,D.name,D.type,D.updated,count(R.domain_id) AS records
+   FROM domains D
+   LEFT OUTER JOIN records R ON D.id = R.domain_id
+          GROUP BY D.id, D.name, D.type, D.updated
+         HAVING (D.name LIKE '' OR 1)
+            AND (D.type='' OR 1);
+
+CREATE VIEW IF NOT EXISTS domains_view2 AS
+ SELECT *, (SELECT DISTINCT content as soa
+              FROM records
+             WHERE type = 'SOA' AND domain_id = T.id) AS soa
+   FROM domains_view1 T;
 EOS
 
 if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
