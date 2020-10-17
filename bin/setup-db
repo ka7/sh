@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20200204
+# .sh/etc/setup-db.sh 20170319 - 20201017
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
@@ -26,15 +26,17 @@ if [[ $DTYPE == sqlite ]]; then
         echo "||| $DBSQL already exists"
     else
         echo "||| Create $DBSQL"
-        mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
+        mkdir -p $DBSQL/{dovecot,postfix,$ADMIN,pdns}
         chown dovecot:dovecot $DBSQL/dovecot
         chown postfix:postfix $DBSQL/postfix
-        chown $A_UID:$A_GID $DBSQL/$ADMIN
+        chown $A_UID:$A_GID $DBSQL/$ADMIN $DBSQL/pdns
         chmod 700 $DBSQL/*
     fi
+    
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
     SQCMD="sqlite3 $DPATH"
-
+    SQDNS="sqlite3 $DBSQL/pdns"
+    
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ -f ~/.my.cnf ]]; then
@@ -64,6 +66,7 @@ EOS
     fi
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
     SQCMD="mysql -BN $ADMIN"
+    SQDNS="mysql -BN pdns"
 
 else
     echo "ERROR: unknown argument '$DTYPE'" && exit 2
@@ -190,67 +193,6 @@ CREATE TABLE IF NOT EXISTS vmails (
 );
 
 
-CREATE TABLE IF NOT EXISTS comments (
-  id $SQLPK,
-  domain_id int(11) NOT NULL,
-  name varchar(255) NOT NULL,
-  type varchar(15) NOT NULL,
-  modified_at int(11) NOT NULL,
-  account varchar(40) DEFAULT NULL,
-  comment text NOT NULL
-);
-CREATE TABLE IF NOT EXISTS cryptokeys (
-  id $SQLPK,
-  domain_id int NOT NULL,
-  flags int(11) NOT NULL,
-  active bool,
-  content text
-);
-CREATE TABLE IF NOT EXISTS domainmetadata (
-  id $SQLPK,
-  domain_id int(11) NOT NULL,
-  kind varchar(31),
-  content text
-);
-CREATE TABLE IF NOT EXISTS domains (
-  id $SQLPK,
-  name varchar(63) NOT NULL DEFAULT '',
-  master varchar(63) NULL,
-  last_check int(11) NULL,
-  type varchar(63) NOT NULL DEFAULT 'master',
-  notified_serial int(11) NULL,
-  account varchar(63) NULL,
-  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
-  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
-);
-CREATE TABLE IF NOT EXISTS supermasters (
-  id $SQLPK,
-  ip varchar(63) NOT NULL,
-  nameserver varchar(255) NOT NULL,
-  account varchar(63) NOT NULL
-);
-CREATE TABLE IF NOT EXISTS tsigkeys (
-  id $SQLPK,
-  name varchar(255),
-  algorithm varchar(63),
-  secret varchar(255)
-);
-CREATE TABLE IF NOT EXISTS records (
-  id $SQLPK,
-  domain_id int(11) NULL,
-  name varchar(63) NULL,
-  type varchar(63) NULL,
-  content text NULL,
-  ttl int(11) NULL,
-  prio int(11) NULL,
-  change_date int(11) NULL,
-  disabled int(11) NULL DEFAULT '0',
-  ordername varchar(63) NULL,
-  auth int(11) NULL DEFAULT '1',
-  updated datetime NULL DEFAULT '2018-01-01 00:00:01',
-  created datetime NULL DEFAULT '2018-01-01 00:00:01'
-);
-
 CREATE VIEW IF NOT EXISTS records_view AS
  SELECT r.id id,
         r.domain_id AS did,
@@ -327,6 +269,70 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
   GROUP BY vh.id, hl.size_mpath, hl.size_upath;
 EOS
 
+
+cat << EOS | $SQDNS
+CREATE TABLE IF NOT EXISTS comments (
+  id $SQLPK,
+  domain_id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  type varchar(15) NOT NULL,
+  modified_at int(11) NOT NULL,
+  account varchar(40) DEFAULT NULL,
+  comment text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS cryptokeys (
+  id $SQLPK,
+  domain_id int NOT NULL,
+  flags int(11) NOT NULL,
+  active bool,
+  content text
+);
+CREATE TABLE IF NOT EXISTS domainmetadata (
+  id $SQLPK,
+  domain_id int(11) NOT NULL,
+  kind varchar(31),
+  content text
+);
+CREATE TABLE IF NOT EXISTS domains (
+  id $SQLPK,
+  name varchar(63) NOT NULL DEFAULT '',
+  master varchar(63) NULL,
+  last_check int(11) NULL,
+  type varchar(63) NOT NULL DEFAULT 'master',
+  notified_serial int(11) NULL,
+  account varchar(63) NULL,
+  updated datetime NOT NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NOT NULL DEFAULT '2018-01-01 00:00:01'
+);
+CREATE TABLE IF NOT EXISTS supermasters (
+  id $SQLPK,
+  ip varchar(63) NOT NULL,
+  nameserver varchar(255) NOT NULL,
+  account varchar(63) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tsigkeys (
+  id $SQLPK,
+  name varchar(255),
+  algorithm varchar(63),
+  secret varchar(255)
+);
+CREATE TABLE IF NOT EXISTS records (
+  id $SQLPK,
+  domain_id int(11) NULL,
+  name varchar(63) NULL,
+  type varchar(63) NULL,
+  content text NULL,
+  ttl int(11) NULL,
+  prio int(11) NULL,
+  change_date int(11) NULL,
+  disabled int(11) NULL DEFAULT '0',
+  ordername varchar(63) NULL,
+  auth int(11) NULL DEFAULT '1',
+  updated datetime NULL DEFAULT '2018-01-01 00:00:01',
+  created datetime NULL DEFAULT '2018-01-01 00:00:01'
+);
+EOS
+
 if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
     echo "||| Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
     echo "PRAGMA journal_mode=DELETE" | $SQCMD
@@ -339,7 +345,7 @@ if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
 fi
 
 # Put create indexes last because when rerun it will fail
-cat << EOS | $SQCMD
+cat << EOS | $SQDNS
 CREATE UNIQUE INDEX name_index ON domains (name);
 CREATE INDEX rec_name_index ON records (name);
 CREATE INDEX nametype_index ON records (name,type);
@@ -352,7 +358,9 @@ CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
 CREATE INDEX domainmetaidindex ON domainmetadata (domain_id);
 CREATE INDEX domainidindex ON cryptokeys (domain_id);
 CREATE UNIQUE INDEX namealgoindex ON tsigkeys (name, algorithm);
+EOS
 
+cat << EOS | $SQCMD
 CREATE INDEX accounts_grp ON accounts (grp);
 CREATE INDEX accounts_acl ON accounts (acl);
 CREATE UNIQUE INDEX accounts_login ON accounts (login);
