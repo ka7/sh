@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20191117
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-host 20170524 - 202-1017
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-host [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
@@ -101,6 +101,9 @@ if [[ ! -d /root/.sh ]]; then
     git clone -q https://github.com/netserva/sh .sh > /dev/null
     /root/.sh/bin/shm install > /dev/null
     /root/.sh/bin/shm perms
+    
+    echo "!!! Tweak git for updates"
+    git config --global pull.rebase false
 fi
 
 #gethost
