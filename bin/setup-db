@@ -238,6 +238,13 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
             LEFT JOIN vmails vm ON vh.id = vm.hid
                 LEFT JOIN valias va ON vh.id = va.hid
   GROUP BY vh.id, hl.size_mpath, hl.size_upath;
+  
+CREATE VIEW IF NOT EXISTS news_view AS
+ SELECT n.*, u.id as uid, u.login, u.fname, u.lname
+   FROM news n
+        JOIN accounts u
+            ON n.author = u.id;
+
 EOS
 
 
@@ -315,12 +322,6 @@ CREATE VIEW IF NOT EXISTS records_view AS
         d.name AS domain
    FROM (records r JOIN domains d)
   WHERE ((d.id = r.domain_id) AND (r.type <> 'SOA'));
-
-CREATE VIEW IF NOT EXISTS news_view AS
- SELECT n.*, u.id as uid, u.login, u.fname, u.lname
-   FROM news n
-        JOIN accounts u
-            ON n.author = u.id;
 
 CREATE VIEW IF NOT EXISTS domains_view1 AS
  SELECT D.id,D.name,D.type,D.updated,count(R.domain_id) AS records
