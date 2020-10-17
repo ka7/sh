@@ -187,9 +187,9 @@ postfix postfix/mailname string $VHOST
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB install $SLIST > /dev/null 2>&1
-    echo "<<< Disable pdns until actually needed"
-    systemctl stop pdns > /dev/null #2>&1
-    systemctl disable pdns > /dev/null #2>&1
+#    echo "<<< Disable pdns until actually needed"
+#    systemctl stop pdns > /dev/null #2>&1
+#    systemctl disable pdns > /dev/null #2>&1
 fi
 
 if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
@@ -233,8 +233,7 @@ EOS
 fi
 
 echo "<<< Create zoneinfo for $TAREA/$TCITY"
-# cp /usr/share/zoneinfo/$TAREA/$TCITY /etc/localtime
 timedatectl set-timezone $TAREA/$TCITY
-dpkg-reconfigure -f noninteractive tzdata > /dev/null #2>&1
+dpkg-reconfigure -f noninteractive tzdata > /dev/null
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
