@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20200805
+# .sh/_shrc 20130315 - 20201017
 # Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
@@ -45,7 +45,7 @@ else
     DTYPE='mysql'
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
-    OSREL='focal'
+    OSREL='groovy'
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'

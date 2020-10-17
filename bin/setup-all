@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20191117
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-all 20170519 - 20201017
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
@@ -12,7 +12,7 @@ echo "######## $0 $*"
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-${DTYPE:-'mysql'}}
-OSREL=${3:-${OSREL:-'focal'}}
+OSREL=${3:-${OSREL:-'groovy'}}
 
 setup-host $VHOST $DTYPE $OSREL
 setup-deb
