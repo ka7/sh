@@ -157,7 +157,7 @@ sethost ()
         export SQDNS="mysql -BN pdns";
     elif [[ $DTYPE == sqlite ]]; then
         export SQCMD=$EXSQL;
-        export SQDNS="$DBSQL/$ADMIN/pdns.db";
+        export SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db";
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
