@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20200905
+# .sh/bin/addvip 20190602 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mxhost]" && exit 1
@@ -10,19 +10,21 @@ VHOST=$1
 IP4_0=$2
 MHOST=${3:-"mail.$VHOST"}
 M_OUT=$(echo $VHOST|sed 's/\./-/g')
+CSMTP="/etc/postfix"
+CIMAP="/etc/dovecot"
 
 # Postfix
 
-if [[ ! -d /etc/postfix/vhosts ]]; then
-    echo "Created: /etc/postfix/vhosts"
-    mkdir /etc/postfix/vhosts
-    chmod 700 /etc/postfix/vhosts
+if [[ ! -d $CSMTP/vhosts ]]; then
+    echo "Created: $CSMTP/vhosts"
+    mkdir $CSMTP/vhosts
+    chmod 700 $CSMTP/vhosts
 fi
 
-if [[ ! -f /etc/postfix/vhosts/00_master.cf ]]; then
-    echo "Created: /etc/postfix/vhosts/00_master.cf"
+if [[ ! -f $CSMTP/vhosts/00_master.cf ]]; then
+    echo "Created: $CSMTP/vhosts/00_master.cf"
 
-    cat << EOS > /etc/postfix/vhosts/00_master.cf
+    cat << EOS > $CSMTP/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
 tlsproxy   unix  -       -       y       -       0       tlsproxy
 pickup     unix  n       -       y       60      1       pickup
@@ -58,13 +60,13 @@ policy-spf unix  -       n       n       -       -       spawn user=nobody
     -o myhostname=localhost
 
 EOS
-    chmod 600 /etc/postfix/vhosts/00_master.cf
+    chmod 600 $CSMTP/vhosts/00_master.cf
 fi
 
-if [[ -f /etc/postfix/vhosts/$VHOST ]]; then
-    echo "Warning: /etc/postfix/vhosts/$VHOST already exists"
+if [[ -f $CSMTP/vhosts/$VHOST ]]; then
+    echo "Warning: $CSMTP/vhosts/$VHOST already exists"
 else
-    cat << EOS > /etc/postfix/vhosts/$VHOST
+    cat << EOS > $CSMTP/vhosts/$VHOST
 
 # master.cf section for $VHOST at $IP4_0
 
@@ -117,31 +119,31 @@ $M_OUT-out unix -      -       n       -       -   smtp
     -o myhostname=$MHOST
 
 EOS
-    [[ ! -f /etc/postfix/sender_transport ]] && touch /etc/postfix/sender_transport
-    grep -q "^@$VHOST" /etc/postfix/sender_transport
+    [[ ! -f $CSMTP/sender_transport ]] && touch $CSMTP/sender_transport
+    grep -q "^@$VHOST" $CSMTP/sender_transport
     if [[ $? -ne 0 ]]; then
-        echo "@$VHOST    $M_OUT-out:" >> /etc/postfix/sender_transport
-        postmap hash:/etc/postfix/sender_transport
+        echo "@$VHOST    $M_OUT-out:" >> $CSMTP/sender_transport
+        postmap hash:$CSMTP/sender_transport
     fi
-    mv /etc/postfix/master.cf /etc/postfix/master.cf.bkp
-    cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
-    chmod 600 /etc/postfix/vhosts/$VHOST
+    mv $CSMTP/master.cf $CSMTP/master.cf.bkp
+    cat $CSMTP/vhosts/* > $CSMTP/master.cf
+    chmod 600 $CSMTP/vhosts/$VHOST
     systemctl restart postfix
-    echo "Created: /etc/postfix/vhosts/$VHOST"
+    echo "Created: $CSMTP/vhosts/$VHOST"
 fi
 
 # Dovecot
 
-if [[ ! -d /etc/dovecot/vhosts ]]; then
-    echo "Created: /etc/dovecot/vhosts"
-    mkdir /etc/dovecot/vhosts
-    chmod 700 /etc/dovecot/vhosts
+if [[ ! -d $CIMAP/vhosts ]]; then
+    echo "Created: $CIMAP/vhosts"
+    mkdir $CIMAP/vhosts
+    chmod 700 $CIMAP/vhosts
 fi
 
-if [[ -f /etc/dovecot/vhosts/$VHOSTS ]]; then
-    echo "Warning: /etc/dovecot/vhosts/$VHOSTS already exists"
+if [[ -f $CIMAP/vhosts/$VHOSTS ]]; then
+    echo "Warning: $CIMAP/vhosts/$VHOSTS already exists"
 else
-    cat << EOS > /etc/dovecot/vhosts/$VHOST
+    cat << EOS > $CIMAP/vhosts/$VHOST
 local $IP4_0 {
   protocol imap {
     ssl_cert = </etc/ssl/$VHOST/fullchain.pem
@@ -157,9 +159,14 @@ service imap-login {
 }
 
 EOS
-    chmod 600 /etc/dovecot/vhosts/$VHOST
+    chmod 600 $CIMAP/vhosts/$VHOST
     systemctl restart dovecot
-    echo "Created: /etc/dovecot/vhosts/$VHOST"
+    echo "Created: $CIMAP/vhosts/$VHOST"
 fi
+
+mv $CSMTP/master.cf $CSMTP/master.cf.orig
+cat $CSMTP/vhosts/* > $CSMTP/master.cf
+
+serva restart mail
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
