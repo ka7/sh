@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20200807
+# .sh/bin/setup-etc 20151231 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -378,6 +378,7 @@ server {
     listen                      443 ssl http2;
     server_name                 $VHOST;
     set                         \$domain $VHOST;
+    include                     /etc/nginx/hcp.conf;
     include                     /etc/nginx/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;
