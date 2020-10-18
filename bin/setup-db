@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20201017
+# .sh/etc/setup-db.sh 20170319 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
@@ -26,10 +26,11 @@ if [[ $DTYPE == sqlite ]]; then
         echo "||| $DBSQL already exists"
     else
         echo "||| Create $DBSQL"
-        mkdir -p $DBSQL/{dovecot,postfix,$ADMIN,pdns}
+        mkdir -p $DBSQL/{dovecot,postfix,pdns,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
         chown postfix:postfix $DBSQL/postfix
-        chown $A_UID:$A_GID $DBSQL/$ADMIN $DBSQL/pdns
+        chown pdns:pdns $DBSQL/pdns
+        chown $A_UID:$A_GID $DBSQL/$ADMIN
         chmod 700 $DBSQL/*
     fi
     
