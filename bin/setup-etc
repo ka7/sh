@@ -397,9 +397,6 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     chmod 644 /usr/share/nginx/html/50x.html
 fi
 
-serva restart web
-serva restart mail
-
 if [[ -d $CIMAP/sieve ]]; then
     echo "@@@ Create sieve binaries"
     cd $CIMAP/sieve
@@ -408,5 +405,9 @@ if [[ -d $CIMAP/sieve ]]; then
     sievec retrain-as-good.sieve
     /bin/ls -l
 fi
+
+addvip $MHOST IP4_0
+
+serva restart web
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
