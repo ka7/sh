@@ -2,13 +2,15 @@
 # .sh/bin/setup-first 20201018 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# Needs /etc/cron.d/setup-first to work
+### cp ~/.sh/etc/_etc_cron.d_setup-first /etc/cron.d/setup-first
 
 if [[ ! -f /root/.vhosts/$(hostname -f) ]]; then                                                                                                                                                                                    
-    sleep 15 # for networking to settle                                                                                                                                                                                                                   
-    /root/.sh/bin/setup-all # $(hostname -f) sqlite
+    sleep 15 # for network to settle                                                                                                                                                                                                                   
+    /root/.sh/bin/setup-all > /tmp/setup-first.log
     [[ -f /etc/cron.d/setup-first ]] && rm /etc/cron.d/setup-first
-    sleep 5
+    sleep 1
     . /root/.vhosts/$(hostname -f)
     echo "ssh sysadm@$(hostname -i) / $UPASS (or shconf $(hostname -f))"
+    echo $UPASS > $WPATH/1234.txt
+    chown $U_UID:www-data $WPATH/1234.txt
 fi                                                                                                                                                                                                                              

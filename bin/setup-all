@@ -4,13 +4,13 @@
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [vhost] [dtype] [osrel]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [dtype] [osrel]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-DTYPE=${2:-${DTYPE:-'mysql'}}
-OSREL=${3:-${OSREL:-'groovy'}}
+VHOST=$(hostname -f|tr 'A-Z' 'a-z')
+DTYPE=${1:-${DTYPE:-'mysql'}}
+OSREL=${2:-${OSREL:-'groovy'}}
 
 setup-host $VHOST $DTYPE $OSREL
 setup-deb

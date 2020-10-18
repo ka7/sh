@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newlxd 20171013 - 20200225
+# .sh/bin/newlxd 20171013 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # No need to be run as root
@@ -44,7 +44,7 @@ else
 fi
 
 if [[ -z $(lxc profile list | grep "| $PNAME" | awk '{print $2}') ]]; then
-    echo "--- Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
+    echo "Create $PNAME profile with $P_MEM mem, $P_CPU cpu, $PSIZE size"
     lxc profile create $PNAME
     lxc profile set $PNAME limits.memory $P_MEM
     lxc profile set $PNAME limits.cpu $P_CPU
@@ -61,35 +61,35 @@ fi
 
 lxc launch ubuntu-minimal:$OSREL $HNAME -p $PNAME
 
-echo "--- Setup '$HNAME' container as $VHOST"
+echo "Setup '$HNAME' container as $VHOST"
 lxc exec $HNAME -- bash -c "echo mail > /etc/hostname; hostname mail"
 
 if [[ $NEWIP ]]; then
-    echo "--- Setup static IP in /etc/systemd/network/00-static.network"
+    echo "Setup static IP in /etc/systemd/network/00-static.network"
     lxc exec $HNAME -- bash -c "echo -e '[Match]\nName=e*\n\n[Network]\nAddress=$NEWIP\nGateway=$NEWGW\nDNS=1.1.1.1\n' > /etc/systemd/network/00-static.network"
 else
-    echo "--- Check for /etc/systemd/network/20-dhcp.network and add if missing"
+    echo "Check for /etc/systemd/network/20-dhcp.network and add if missing"
     lxc exec $HNAME -- bash -c "[[ ! -f /etc/systemd/network/20-dhcp.network ]] && echo -e '[Match]\nName=e*\n\n[Network]\nDHCP=yes' > /etc/systemd/network/20-dhcp.network"
 fi
 
-echo "--- Wait 40 secs for network to become available..."
+echo "Wait 40 secs for network to become available..."
 lxc exec $HNAME -- systemctl restart systemd-networkd
 
 sleep 10
-echo "--- Wait another 30 secs..."
+echo "Wait another 30 secs..."
 sleep 10
-echo "--- Wait another 20 secs..."
+echo "Wait another 20 secs..."
 sleep 10
-echo "--- Wait another 10 secs..."
+echo "Wait another 10 secs..."
 sleep 10
 
-echo "--- Make sure basic essential packages are available"
+echo "Make sure basic essential packages are available"
 
 lxc exec $HNAME -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qq update; apt-get -qq -y install --no-install-recommends $ELIST" > /dev/null
 
-echo "--- Setting up NetServa SH/HCP in '$HNAME' container"
+echo "Setting up NetServa SH/HCP in '$HNAME' container"
 lxc exec $HNAME -- bash -c "curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash"
-lxc exec $HNAME -- bash -c "exec /root/.sh/bin/setup-all $VHOST $DTYPE $OSREL"
-echo "--- setup-ssh $VHOST $LXDIP # optional"
+lxc exec $HNAME -- bash -c "exec /root/.sh/bin/setup-all $DTYPE $OSREL"
+echo "setup-ssh $VHOST $LXDIP # optional"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
