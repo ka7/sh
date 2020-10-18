@@ -94,12 +94,34 @@ if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
     echo "@@@ $WPATH/hcp/lib/.ht_conf.php already exists"
 else
     echo "@@@ Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
+    TPDNS=
+    TMPDB=
     if [[ $DTYPE == mysql ]]; then
         TMPDB="['type' => 'mysql', 'pass' => '$DPASS']"
+        TPDNS="
+    'dns' => [
+        'db' => [
+            'host'  => '127.0.0.1',
+            'name'  => 'pdns',
+            'pass'  => '$DPASS',
+            'path'  => '',
+            'port'  => '3306',
+            'sock'  => '',
+            'type'  => 'mysql',
+            'user'  => 'sysadm',
+        ],
+    ]"
     elif [[ $DTYPE == sqlite ]]; then
         TMPDB="['type' => 'sqlite']"
-    else
-        TMPDB=
+        TPDNS="
+    'dns' => [
+        'db' => [
+            'pass'  => '',
+            'path'  => '/var/lib/sqlite/sysadm/pdns.db',
+            'type'  => 'sqlite',
+            'user'  => '',
+        ],
+    ]"
     fi
     [[ $TMPDB ]] && echo "<?php
 return [
@@ -109,7 +131,7 @@ return [
         'doc'   => '$VHOST',
         'head'  => '$VHOST',
         'foot'  => 'Copyright (C) 2020 $VHOST',
-    ],
+    ],$TPDNS
 ];
 " > $WPATH/hcp/lib/.ht_conf.php
 fi
