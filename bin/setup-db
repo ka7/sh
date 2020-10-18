@@ -14,8 +14,6 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "######## $0 $*"
-
 source /root/.shrc || exit 3
 
 DTYPE=${1:-$DTYPE}
@@ -23,28 +21,27 @@ DTYPE=${1:-$DTYPE}
 if [[ $DTYPE == sqlite ]]; then
 
     if [[ -d $DBSQL ]]; then
-        echo "||| $DBSQL already exists"
+        echo "$DBSQL already exists"
     else
-        echo "||| Create $DBSQL"
-        mkdir -p $DBSQL/{dovecot,postfix,pdns,$ADMIN}
+        echo "Create $DBSQL"
+        mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
         chown postfix:postfix $DBSQL/postfix
-        chown pdns:pdns $DBSQL/pdns
-        chown $A_UID:$A_GID $DBSQL/$ADMIN
+        chown $A_UID:$A_GID -R $DBSQL/$ADMIN
         chmod 700 $DBSQL/*
     fi
     
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
 # are these next two really necessary?
     SQCMD="sqlite3 $DPATH"
-    SQDNS="sqlite3 $DBSQL/pdns/pdns.db"
+    SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db"
     
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ -f ~/.my.cnf ]]; then
-        echo "||| ~/.my.cnf (MySQL) already exists"
+        echo "~/.my.cnf (MySQL) already exists"
     else
-        echo "||| Create ~/.my.cnf"
+        echo "Create ~/.my.cnf"
         cat << EOS | tee ~/.my.cnf > /dev/null
 # Autocreated by setup-db
 [client]
@@ -57,9 +54,9 @@ EOS
     fi
 
     if [[ -d $DBMYS/$ADMIN ]]; then
-        echo "||| $DBMYS/$ADMIN already exists"
+        echo "$DBMYS/$ADMIN already exists"
     else
-        echo "||| Create MySQL privileges"
+        echo "Create MySQL privileges"
         cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 CREATE DATABASE IF NOT EXISTS pdns;
@@ -341,9 +338,9 @@ CREATE VIEW IF NOT EXISTS domains_view2 AS
 EOS
 
 if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
-    echo "||| Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
+    echo "Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
     echo "PRAGMA journal_mode=DELETE" | $SQCMD
-    echo "||| Create hardlinks for dovecot/postfix"
+    echo "Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
     chmod 644 $DPATH
