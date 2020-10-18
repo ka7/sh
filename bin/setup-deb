@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-deb 20170519 - 20200609
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-deb 20170519 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-deb [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
-#echo "######## $0 $*"
 
 source /root/.shrc || exit 3
 
@@ -123,7 +121,7 @@ MLIST="
 [[ -f /proc/vz/veinfo ]] && mv /etc/sysctl.d /etc/sysctl.d.orig
 
 if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
-    echo "<<< Create /etc/apt/apt.conf.d/20local"
+    echo "Create /etc/apt/apt.conf.d/20local"
     cat << EOS | tee /etc/apt/apt.conf.d/20local > /dev/null
 APT::Install-Recommends "false";
 Dpkg::Options {
@@ -134,7 +132,7 @@ EOS
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "<<< Setup apt sources list for $OSREL"
+    echo "Setup apt sources list for $OSREL"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
@@ -147,24 +145,24 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
 EOS
 fi
 
-echo "<<< Updating packages list for $OSREL, patience please..."
+echo "Updating packages list for $OSREL, patience please..."
 $EXDEB update > /dev/null #2>&1
-echo "<<< Upgrading packages for $OSREL, more patience..."
+echo "Upgrading packages for $OSREL, more patience..."
 $EXDEB -u dist-upgrade > /dev/null #2>&1
-echo "<<< Installing default package set, yet more patience..."
+echo "Installing default package set, yet more patience..."
 $EXDEB install $DLIST > /dev/null #2>&1
 
 if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
-        echo "<<< Remove unattended-upgrades"
+        echo "Remove unattended-upgrades"
         systemctl stop unattended-upgrades
         systemctl disable unattended-upgrades
     fi
-    echo "<<< Remove python and all related packages"
+    echo "Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null #2>&1
     # This action removes /sbin/netplan so replace it with systemd-networkd
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
-    echo "<<< Create /etc/systemd/network/10-dhcp.network"
+    echo "Create /etc/systemd/network/10-dhcp.network"
     cat << EOS > /etc/systemd/network/10-dhcp.network
 [Match]
 Name=e*
@@ -180,20 +178,20 @@ EOS
 fi
 
 if [[ ! -e /usr/sbin/nginx ]]; then
-    echo "<<< Installing NetServa packages, still more patience..."
+    echo "Installing NetServa packages, still more patience..."
     cat << EOS | debconf-set-selections
 postfix postfix/destinations string 'localhost'
 postfix postfix/mailname string $VHOST
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
     $EXDEB install $SLIST > /dev/null 2>&1
-#    echo "<<< Disable pdns until actually needed"
+#    echo "Disable pdns until actually needed"
 #    systemctl stop pdns > /dev/null #2>&1
 #    systemctl disable pdns > /dev/null #2>&1
 fi
 
 if [[ $DTYPE == mysql && ! -d $DBMYS ]]; then
-    echo "<<< Installing MySQL related packages"
+    echo "Installing MySQL related packages"
     $EXDEB install $MLIST > /dev/null #2>&1
 
     # Change to utf8 otherwise pdns tables will not install
@@ -205,7 +203,7 @@ fi
 
 if [[ $DTYPE == mysql ]]; then
     if [[ ! -f ~/.my.cnf ]]; then
-        echo "<<< Create ~/.my.cnf ($DPASS)"
+        echo "Create ~/.my.cnf ($DPASS)"
         cat << EOS | tee ~/.my.cnf > /dev/null
 # Autocreated by setup-deb
 [client]
@@ -218,7 +216,7 @@ EOS
     fi
 
     # Give up on preseeding, just make the changes directly
-    echo "<<< Create MySQL database defaults"
+    echo "Create MySQL database defaults"
     cat << EOS | mysql
 UPDATE mysql.user SET plugin='';
 UPDATE mysql.user SET Password=PASSWORD('$DPASS') WHERE User='root';
@@ -232,7 +230,7 @@ EOS
     systemctl restart mysql
 fi
 
-echo "<<< Create zoneinfo for $TAREA/$TCITY"
+echo "Create zoneinfo for $TAREA/$TCITY"
 timedatectl set-timezone $TAREA/$TCITY
 dpkg-reconfigure -f noninteractive tzdata > /dev/null
 

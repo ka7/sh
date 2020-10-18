@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/bkpwww 20180205 - 20180909
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/bkpwww 20180205 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: bkpwww domain [dbname]" && exit 1
 
@@ -11,20 +11,20 @@ source ~/.vhosts/$1 || exit 4
 DNAME=${2:-$DNAME}
 TARNM="$(date +'%Y%m%d')-$VHOST.tgz"
 
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
+[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
 
 cd $UPATH/var
 
 if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
-    [[ -f $DNAME.sql ]] && echo "!!! Warning: removing old $DNAME.sql" && rm $DNAME.sql
+    [[ -f $DNAME.sql ]] && echo "Warning: removing old $DNAME.sql" && rm $DNAME.sql
     mysqldump $DNAME > $DNAME.sql
     chown $(stat -c "%u:%g" www) $DNAME.sql
     chmod 640 $DNAME.sql
 else
-    echo "!!! Warning: $DNAME database does not exist"
+    echo "Warning: $DNAME database does not exist"
 fi
 
-[[ -f $TARNM ]] && echo "!!! Warning: removing old $TARNM" && rm $TARNM
+[[ -f $TARNM ]] && echo "Warning: removing old $TARNM" && rm $TARNM
 
 [[ -f $DNAME.sql ]] && TARUP="www $DNAME.sql" || TARUP="www"
 
@@ -35,6 +35,6 @@ tar --exclude={public/*,private/*} -czf $TARNM $TARUP
 chown $(stat -c "%u:%g" www) $TARNM
 chmod 640 $TARNM
 
-echo "!!! Created $(du -bh $TARNM)"
+echo "Created $(du -bh $TARNM)"
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

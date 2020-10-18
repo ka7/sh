@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addrc 20190630 - 20200930
+# .sh/bin/addrc 20190630 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addrc [domain] [rcver]" && exit 1
@@ -13,9 +13,9 @@ DBTMP=${VHOST//[.-]/_}
 source /root/.vhosts/$VHOST || exit 3
 
 if [[ -d $WPATH/vendor/roundcube/ ]]; then
-    echo "@@@ $WPATH/roundcube already exists"
+    echo "$WPATH/roundcube already exists"
 else
-    echo "@@@ Setup RoundCube in $WPATH"
+    echo "Setup RoundCube in $WPATH"
     cd $UPATH/var
     [[ ! -f roundcubemail-$RCVER-complete.tar.gz ]] && \
         wget -q https://github.com/roundcube/roundcubemail/releases/download/$RCVER/roundcubemail-$RCVER-complete.tar.gz
@@ -101,7 +101,7 @@ EOS
     su - $UUSER -c "cd var/www; php composer.phar -n update"
     su - $UUSER -c "cd var/www; php composer.phar -n install"
 
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 RoundCube
 =========
 

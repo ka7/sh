@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vultr 20180619 - 20181002
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-vultr 20180619 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # First obtain your API key from your account section at https://my.vultr.common
 # Add "export VULTR_API_KEY=YOUR_API_KEY" to ~/.myrc (use the es alias)
@@ -41,7 +41,7 @@ if [[ ! -f /usr/local/bin/vultr ]]; then
     wget -q https://github.com/JamesClonk/vultr/releases/download/1.15.0/vultr_1.15.0_Linux-64bit.tar.gz
     tar xf vultr_1.15.0_Linux-64bit.tar.gz
     sudo mv vultr /usr/local/bin/vultr
-    echo "+++ Looks like a first time setup, get you API key and setup SCRIPTID/SSHKEYID at https://my.vultr.com"
+    echo "Looks like a first time setup, get you API key and setup SCRIPTID/SSHKEYID at https://my.vultr.com"
     exit 2
 fi
 
@@ -76,27 +76,27 @@ NS2IP='173.199.96.97'
 vultr servers | grep -q $AHOST
 [[ $? -eq 0 ]] && echo "ERROR: $AHOST already exists" && exit 4
 
-echo "+++ Create server instance for $AHOST"
+echo "Create server instance for $AHOST"
 vultr server create -n $AHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$AHOST --notify-activate=false > /dev/null 2>&1
 
-echo "+++ Wait 15 seconds for server to become active"
+echo "Wait 15 seconds for server to become active"
 sleep 15
 
 VULTR=($(vultr servers | awk '/'$AHOST'/ {printf $1" "$3}'))
 SUBID=${VULTR[0]}
 IP4_0=${VULTR[1]}
-echo "+++ Server IP is $IP4_0 and SUBID is $SUBID"
+echo "Server IP is $IP4_0 and SUBID is $SUBID"
 
 vultr dns domain list | grep -q $VHOST
 if [[ $? -eq 0 ]];then
-    echo "+++ Delete old DNS records for $VHOST"
+    echo "Delete old DNS records for $VHOST"
     vultr dns domain delete -d $VHOST
 fi
 
-#echo "+++ Reset nameserver records for $VHOST to ns1/ns2.vultr.com"
+#echo "Reset nameserver records for $VHOST to ns1/ns2.vultr.com"
 #swchangens $VHOST ns1.vultr.com ns2.vultr.com
 
-echo "+++ Add DNS records for $VHOST"
+echo "Add DNS records for $VHOST"
 vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null 2>&1
 swchangens $VHOST ns1.vultr.com ns2.vultr.com
 #RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
@@ -118,25 +118,25 @@ vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null 2>&1
 vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$VHOST > /dev/null 2>&1
 
 # 5 mins should be enough but sometimes the *buntu repos can be slow
-echo "+++ Wait 15 mins until NetServa packages have been installed"
-sleep 60; echo "+++ 14 mins to go"
-sleep 60; echo "+++ 13 mins to go"
-sleep 60; echo "+++ 12 mins to go"
-sleep 60; echo "+++ 11 mins to go"
-sleep 60; echo "+++ 10 mins to go"
-sleep 60; echo "+++ 9 mins to go"
-sleep 60; echo "+++ 8 mins to go"
-sleep 60; echo "+++ 7 mins to go"
-sleep 60; echo "+++ 6 mins to go"
-sleep 60; echo "+++ 5 mins to go"
-sleep 60; echo "+++ 4 mins to go"
-sleep 60; echo "+++ 3 mins to go"
-sleep 60; echo "+++ 2 mins to go"
-sleep 60; echo "+++ 1 minute to go!"
+echo "Wait 15 mins until NetServa packages have been installed"
+sleep 60; echo "14 mins to go"
+sleep 60; echo "13 mins to go"
+sleep 60; echo "12 mins to go"
+sleep 60; echo "11 mins to go"
+sleep 60; echo "10 mins to go"
+sleep 60; echo "9 mins to go"
+sleep 60; echo "8 mins to go"
+sleep 60; echo "7 mins to go"
+sleep 60; echo "6 mins to go"
+sleep 60; echo "5 mins to go"
+sleep 60; echo "4 mins to go"
+sleep 60; echo "3 mins to go"
+sleep 60; echo "2 mins to go"
+sleep 60; echo "1 minute to go!"
 sleep 60
 
 if [[ ! -d $LECFG ]]; then
-    echo "+++ Installing dehydrated to manage LetsEncrypt SSL certificates"
+    echo "Installing dehydrated to manage LetsEncrypt SSL certificates"
     git clone --depth 1 https://github.com/lukas2511/dehydrated.git $LECFG
     chmod +x $LECFG/dehydrated
     [[ ! -d $LECFG/hooks ]] && mkdir $LECFG/hooks
@@ -155,11 +155,11 @@ cd $LECFG
 [[ ! -f accounts/*/account_key.pem ]] && \
     ./dehydrated --register --accept-terms > /dev/null 2>&1
 
-echo "+++ Install or update LetsEncrypt SSL certificates for $VHOST"
+echo "Install or update LetsEncrypt SSL certificates for $VHOST"
 [[ $_HOST != mail ]] && TMP="-d mail.$VHOST -d $_HOST.$VHOST" || TMP="-d $_HOST.$VHOST"
 ./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $VHOST $TMP -d www.$VHOST > /dev/null 2>&1
 
-echo "+++ Create local SSL enabled nginx config for $VHOST"
+echo "Create local SSL enabled nginx config for $VHOST"
 if [[ $_HOST != mail ]]; then
     cat << EOS > $LECFG/nginx/$VHOST
 server {
@@ -203,46 +203,46 @@ EOS
 # TODO remove the need for this by not installing a self-signed certificate in the first place?
 $DOSSH $IP4_0 "bash -c \"[[ -f $C_WEB/sites-enabled/$AHOST.selfsigned ]] && rm $C_WEB/sites-enabled/$AHOST.selfsigned\""
 
-echo "+++ Upload SSL certificates to $IP4_0"
+echo "Upload SSL certificates to $IP4_0"
 rsync -q -e "$DOSSH" -a $LECFG/certs/$VHOST/ $IP4_0:$C_SSL/$VHOST
 
-echo "+++ Upload nginx SSL config to $IP4_0"
+echo "Upload nginx SSL config to $IP4_0"
 rsync -q -e "$DOSSH" $LECFG/nginx/$VHOST $IP4_0:$C_WEB/sites-enabled/$VHOST
 
-echo "+++ Add and create DKIM record for $VHOST"
+echo "Add and create DKIM record for $VHOST"
 DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $VHOST; dkim show $VHOST"|grep "v=DKIM1")
 vultr dns record create -d $VHOST -n mail._domainkey -t TXT -D "\"$DKIM\""
 
-echo "+++ Make sure postfix has current host details"
+echo "Make sure postfix has current host details"
 $DOSSH $IP4_0 "cp /etc/hosts /var/spool/postfix/etc/; cp /etc/resolv.conf /var/spool/postfix/etc/"
 
-echo "+++ Restart web, mail and related services"
+echo "Restart web, mail and related services"
 $DOSSH $IP4_0 ". .shrc; serva restart all"
 
-echo "+++ Update SOA record"
+echo "Update SOA record"
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/soa_update \
  --data "domain=$VHOST" \
  --data "nsprimary=ns1.$VHOST" \
  --data "email=admin@$VHOST"
 
-echo "+++ Enable DNSSEC"
+echo "Enable DNSSEC"
 # It seems dnssec is not part of the vultr binary, have to make raw API calls
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/dnssec_enable \
  --data "domain=$VHOST" \
  --data "enable=yes"
 
-echo "+++ Add DNSSEC DS records"
+echo "Add DNSSEC DS records"
 curl -s -H "API-Key: $VULTR_API_KEY" \
  https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST | \
  jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
  while read DS; do swdsadd $VHOST $DS; done
 
-echo "+++ Setup vanity nameservers"
+echo "Setup vanity nameservers"
 swreghostadd $VHOST ns1.$VHOST $NS1IP
 swreghostadd $VHOST ns2.$VHOST $NS2IP
 swchangens $VHOST ns1.$VHOST ns2.$VHOST
 
-echo "+++ SSH to $IP4_0 and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
+echo "SSH to $IP4_0 and confirm setup is finished via 'tail -f /tmp/firstboot.log'"
 $DOSSH $IP4_0

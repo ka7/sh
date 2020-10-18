@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20200811
+# .sh/bin/addvhost 20170217 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -13,7 +13,7 @@
 # for DTYPE and VPATH
 . ~/.shrc || exit 3
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
+[[ ! -d $VPATH ]] && echo "ERROR: setup server first" && exit 4
 
 Y_M_D=$(date +"%Y-%m-%d")
 UUTMP=""
@@ -31,7 +31,7 @@ if [[ $1 ]]; then
 fi
 
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
-    echo "!!! Create /root/.vhosts/$VHOST config file"
+    echo "Create /root/.vhosts/$VHOST config file"
     sethost $UUTMP$VHOST $DTYPE $OSREL
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
@@ -56,19 +56,19 @@ IS_VHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ $IS_VHOST -gt 0 ]] && echo "!!! ERROR: $VHOST already exists in database" && exit 6
+[[ $IS_VHOST -gt 0 ]] && echo "ERROR: $VHOST already exists in database" && exit 6
 
 if [[ $(grepuser ":$VHOST:") ]]; then
-    echo "!!! Warning: $UUSER for $VHOST already exists"
+    echo "Warning: $UUSER for $VHOST already exists"
 else
-    echo "!!! Create $UUSER user"
+    echo "Create $UUSER user"
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
     TMPIP=$([[ -n $USEIP ]] && echo ",$USEIP")
     useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c "$VHOST$TMPIP" $U_GRP $UUSER
     [[ -n $UPASS && $UPASS != $APASS ]] && { echo $UUSER:$UPASS | chpasswd; }
 fi
 
-echo "!!! Create entry in $ADMIN.vhosts ($DTYPE)"
+echo "Create entry in $ADMIN.vhosts ($DTYPE)"
 DO_VHOST=$(cat << EOS | $SQCMD
  INSERT INTO vhosts (
         active,
@@ -100,9 +100,9 @@ EOS
 
 if [[ -d $C_FPM ]]; then
     if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
-        echo "!!! $C_FPM/pool.d/$VHOST.conf already exists"
+        echo "$C_FPM/pool.d/$VHOST.conf already exists"
     else
-        echo "!!! Create $C_FPM/pool.d/$VHOST.conf"
+        echo "Create $C_FPM/pool.d/$VHOST.conf"
         cat << EOS > $C_FPM/pool.d/$VHOST.conf
 [$VHOST]
 user = $U_UID
@@ -110,46 +110,46 @@ group = $U_GID
 include = $C_FPM/common.conf
 EOS
         if [ -f $C_FPM/pool.d/www.conf ]; then
-            echo "!!! Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
+            echo "Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
             mv $C_FPM/pool.d/www.conf $C_FPM
         fi
     fi
 fi
 
 if [[ -d $UPATH ]]; then
-    echo "!!! Warning: $UPATH already exists"
+    echo "Warning: $UPATH already exists"
 else
-    echo "!!! Create $UPATH"
+    echo "Create $UPATH"
     mkdir -p $UPATH/{.cache,.ssh,.nano,.wp-cli,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
 fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
-    echo "!!! $UPATH/.ssh/authorized_keys already exists"
+    echo "$UPATH/.ssh/authorized_keys already exists"
 else
     if [[ -f /root/.ssh/id_rsa.pub ]]; then
-        echo "!!! Setup $UPATH/.ssh/authorized_keys with /root/.ssh/id_rsa.pub"
+        echo "Setup $UPATH/.ssh/authorized_keys with /root/.ssh/id_rsa.pub"
         cp /root/.ssh/id_rsa.pub $UPATH/.ssh/authorized_keys
     elif [[ -f /root/.ssh/authorized_keys ]]; then
-        echo "!!! Setup $UPATH/.ssh/authorized_keys with /root/.ssh/authorized_keys"
+        echo "Setup $UPATH/.ssh/authorized_keys with /root/.ssh/authorized_keys"
         cp /root/.ssh/authorized_keys $UPATH/.ssh/authorized_keys
     else
-        echo "!!! Warning: no /root/.ssh/authorized_keys or /root/.ssh/id_rsa.pub"
+        echo "Warning: no /root/.ssh/authorized_keys or /root/.ssh/id_rsa.pub"
     fi
     [[ ! -f $UPATH/.hushlogin ]] && touch $UPATH/.hushlogin
 fi
 
 if [[ -L $UPATH/home/u/$VHOST ]]; then
-    echo "!!! $UPATH/home/u/$VHOST already exists"
+    echo "$UPATH/home/u/$VHOST already exists"
 else
-    echo "!!! Create custom chroot symlink"
+    echo "Create custom chroot symlink"
     cd $UPATH/home/u
     ln -s ../.. $VHOST
 fi
 
 if [[ -f $UPATH/bin/busybox ]]; then
-    echo "!!! $UPATH/bin/busybox already exists"
+    echo "$UPATH/bin/busybox already exists"
 else
-    echo "!!! Setup busybox with sh, hostname, tail symlinks"
+    echo "Setup busybox with sh, hostname, tail symlinks"
     cp /bin/busybox $UPATH/bin
     cd $UPATH/bin
     ln -s busybox sh
@@ -158,9 +158,9 @@ else
 fi
 
 if [[ -f $UPATH/.profile ]]; then
-    echo "!!! $UPATH/.profile already exists"
+    echo "$UPATH/.profile already exists"
 else
-    echo "!!! Create $UPATH/.profile"
+    echo "Create $UPATH/.profile"
     cat << EOS > $UPATH/.profile
 export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
 alias la='ls -lA -F --color'
@@ -172,9 +172,9 @@ EOS
 fi
 
 if [[ -f $UPATH/etc/passwd ]]; then
-    echo "!!! $UPATH/etc/passwd already exists"
+    echo "$UPATH/etc/passwd already exists"
 else
-    echo "!!! Create $UPATH/etc/passwd"
+    echo "Create $UPATH/etc/passwd"
     cat << EOS > $UPATH/etc/passwd
 root:x:0:0:::
 $WWWUSER:x:33:33:::
@@ -183,9 +183,9 @@ EOS
 fi
 
 if [[ -f $UPATH/etc/group ]]; then
-    echo "!!! $UPATH/etc/group already exists"
+    echo "$UPATH/etc/group already exists"
 else
-    echo "!!! Create $UPATH/etc/group"
+    echo "Create $UPATH/etc/group"
     cat << EOS > $UPATH/etc/group
 root:x:0:
 www-data:x:33:
@@ -194,28 +194,28 @@ EOS
 fi
 
 if [[ -f $WPATH/index.html || -f $WPATH/index.php ]]; then
-    [[ -f $WPATH/index.html ]] && echo "!!! $WPATH/index.html already exists"
-    [[ -f $WPATH/index.php ]] && echo "!!! $WPATH/index.php already exists"
+    [[ -f $WPATH/index.html ]] && echo "$WPATH/index.html already exists"
+    [[ -f $WPATH/index.php ]] && echo "$WPATH/index.php already exists"
 else
-    echo "!!! Create $WPATH/index.html"
+    echo "Create $WPATH/index.html"
     echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $WPATH/index.html
 fi
 
 if [[ -f $WPATH/phpinfo.php ]]; then
-    echo "!!! $WPATH/phpinfo.php already exists"
+    echo "$WPATH/phpinfo.php already exists"
 else
-    echo "!!! Create $WPATH/phpinfo.php"
+    echo "Create $WPATH/phpinfo.php"
     echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" > $WPATH/phpinfo.php
 fi
 
 if [[ -f $WPATH/private/.htpasswd ]]; then
-    echo "!!! $WPATH/private/.htpasswd already exists"
+    echo "$WPATH/private/.htpasswd already exists"
 else
     PIN=$RANDOM
-    echo "!!! Create $WPATH/private/.htpasswd (guest/$PIN)"
+    echo "Create $WPATH/private/.htpasswd (guest/$PIN)"
     htpasswd -b -c $WPATH/private/.htpasswd guest $PIN > /dev/null 2>&1
     [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 Private
 =========
 
@@ -258,7 +258,7 @@ if [[ $DOSSL == self ]]; then
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         echo "*** Create $C_WEB/sites-enabled/$VHOST.selfsigned"
         [[ $USEIP ]] && USEIP="$USEIP:"
-        cat << EOS | $SUDO tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
 server {
     listen                      ${USEIP}443 ssl http2;
     server_name                 $VHOST;
@@ -288,7 +288,7 @@ MID=$(cat << EOS | $SQCMD
 EOS
 )
 
-echo "!!! Create $VUSER@$VHOST entry in $ADMIN.vmail_log ($DTYPE)"
+echo "Create $VUSER@$VHOST entry in $ADMIN.vmail_log ($DTYPE)"
 DO_VMAILLOG=$(cat << EOS | $SQCMD
  INSERT INTO vmail_log (
         mid,
@@ -307,7 +307,7 @@ if [[ -d $WPATH && $DOCMS == wp ]]; then
         [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
         [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
     else
-        echo "!!! ERROR: WordPress requires MySQL"
+        echo "ERROR: WordPress requires MySQL"
     fi
 fi
 

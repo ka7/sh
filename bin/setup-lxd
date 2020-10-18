@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lxd 20170519 - 20200120
+# .sh/bin/setup-lxd 20170519 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -14,9 +14,9 @@ APASS=${2:-$(newpw)}
 IP4_0=${3:-$(hostname -i|cut -d ' ' -f -1)}
 
 if [[ -e /snap/bin/lxd ]]; then
-    echo "--- Warning: lxd already installed"
+    echo "Warning: lxd already installed"
 else
-    echo "--- Install packages for basic lxd, install criu manually if needed"
+    echo "Install packages for basic lxd, install criu manually if needed"
     if [[ -f /etc/pacman.conf ]]; then
         pacman -Syu --noconfirm > /dev/null
         pacman -S --noconfirm --needed bridge-utils btrfs-progs zfs-utils > /dev/null
@@ -38,9 +38,9 @@ fi
 lxc storage list | grep lxd-pool > /dev/null
 
 if [[ $? -eq 0 ]]; then
-    echo "--- Warning: lxd-pool already installed"
+    echo "Warning: lxd-pool already installed"
 else
-    echo "--- Install lxd with $PSIZE GB $LSTOR lxd-pool at $IP4_0 with pw $APASS"
+    echo "Install lxd with $PSIZE GB $LSTOR lxd-pool at $IP4_0 with pw $APASS"
     TMP=$([[ $LSTOR != dir ]] && echo "--storage-create-loop $PSIZE --storage-pool lxd-pool")
     lxd init --auto \
       --network-address $IP4_0 \

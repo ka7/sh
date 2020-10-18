@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addnc 20180829 - 20190606
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addnc 20180829 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addnc domain [path]" && exit 1
 
@@ -18,21 +18,21 @@ else
     FPATH=$WPATH
 fi
 
-[[ -f $FPATH/wp-config.php ]] && echo "!!! Wordpress installed, use delwp" && exit 4
+[[ -f $FPATH/wp-config.php ]] && echo "Wordpress installed, use delwp" && exit 4
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
-    echo "!!! '$DNAME' database already exists"
+    echo "'$DNAME' database already exists"
 else
-    echo "!!! Create $DNAME database"
+    echo "Create $DNAME database"
     mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
     mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
     mysql -e "FLUSH PRIVILEGES"
 fi
 
 if [[ -f $FPATH/occ ]]; then
-    echo "!!! Nextcloud already installed"
+    echo "Nextcloud already installed"
 else
-    echo "!!! Download Nextcloud"
+    echo "Download Nextcloud"
     cd $UPATH/var
     if [[ ! -f latest.tar.bz2 ]]; then
         wget -nv --no-check-certificate https://download.nextcloud.com/server/releases/latest.tar.bz2
@@ -48,7 +48,7 @@ else
 fi
 
 if [[ -f $FPATH/occ ]]; then
-    echo "!!! Setting up Nextcloud"
+    echo "Setting up Nextcloud"
     su - $UUSER -c "
 cd $FPATH
 php occ maintenance:install \
@@ -63,7 +63,7 @@ php occ config:system:set trusted_domains 1 --value=$VHOST
 "
 fi
 
-cat << EOS | tee -a /root/.vhosts/$vhost.conf
+cat << EOS | tee -a /root/.vhosts/$vhost.conf > /dev/null
 
 Nextcloud
 =========

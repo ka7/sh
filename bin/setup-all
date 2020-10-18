@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20201017
+# .sh/bin/setup-all 20170519 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -7,8 +7,6 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 [[ $1 =~ '-h' ]] && echo "Usage: setup-all [vhost] [dtype] [osrel]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
-echo "######## $0 $*"
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 DTYPE=${2:-${DTYPE:-'mysql'}}
@@ -20,7 +18,7 @@ setup-db
 setup-etc
 setup-hcp
 
-echo "######## Send message to: admin@$MHOST"
-cat ~/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $(hostname -i)" -r admin@$MHOST admin@$MHOST
+echo "### Send message to: admin@$MHOST"
+cat /root/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $(hostname -i)" -r admin@$MHOST admin@$MHOST
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

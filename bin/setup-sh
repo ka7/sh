@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-sh 20170319 - 20170528
+# .sh/bin/setup-sh 20170319 - 20201018
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ -d ~/.sh ]]; then
-    echo ">>> Update NetServa SH scripts"
+    echo "Update NetServa SH scripts"
     ~/.sh/bin/shm pull > /dev/null
     source ~/.shrc
 else
-    echo ">>> Setup NetServa SH scripts"
+    echo "Setup NetServa SH scripts"
     cd
     git clone -q https://github.com/netserva/sh .sh > /dev/null
     ~/.sh/bin/shm install > /dev/null

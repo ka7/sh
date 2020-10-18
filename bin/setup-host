@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 202-1017
+# .sh/bin/setup-host 20170524 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-host [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
 
-[[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 echo "######## $0 $*"
 
@@ -36,14 +36,14 @@ HLIST="
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
-    echo "!!! Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
+    echo "Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
     sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     if [[ -d /usr/share/xsessions ]]; then
-        echo "!!! Setup apt sources list for $OSREL DESKTOP"
+        echo "Setup apt sources list for $OSREL DESKTOP"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
@@ -64,7 +64,7 @@ deb http://security.ubuntu.com/ubuntu $OSREL-security main universe multiverse r
 #deb http://ppa.launchpad.net/mozillateam/thunderbird-next/ubuntu $OSREL main
 EOS
     else
-        echo "!!! Setup apt sources list for $OSREL SERVER"
+        echo "Setup apt sources list for $OSREL SERVER"
         cat << EOS | tee /etc/apt/sources.list > /dev/null
 # apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
 # apt-get install --no-install-recommends packages
@@ -78,31 +78,31 @@ EOS
     sleep 5
     ps -C apt,apt-get,dpkg >/dev/null
     if [[ $? -eq 0 ]]; then
-        echo "!!! Apt is active, wait 10 secs..."
+        echo "Apt is active, wait 10 secs..."
         sleep 10
         ps -C apt,apt-get,dpkg >/dev/null
         if [[ $? -eq 0 ]]; then
-            echo "!!! Apt is still active, wait another 20 secs..."
+            echo "Apt is still active, wait another 20 secs..."
             sleep 20
         fi
     fi
-    echo "!!! Updating $OSREL package list, patience please..."
+    echo "Updating $OSREL package list, patience please..."
     apt-get -yqq update > /dev/null
-    echo "!!! Upgrading $OSREL package list, more patience please..."
+    echo "Upgrading $OSREL package list, more patience please..."
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
-    echo "!!! Installing default package set, even more patience..."
+    echo "Installing default package set, even more patience..."
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
 fi
 
 # We now have git available so install the essential SH scripts
 if [[ ! -d /root/.sh ]]; then
-    echo "!!! Setup NetServa SH scripts"
+    echo "Setup NetServa SH scripts"
     cd
     git clone -q https://github.com/netserva/sh .sh > /dev/null
     /root/.sh/bin/shm install > /dev/null
     /root/.sh/bin/shm perms
     
-    echo "!!! Tweak git for updates"
+    echo "Tweak git for updates"
     git config --global pull.rebase false
 fi
 
@@ -112,7 +112,7 @@ source /root/.shrc
 
 # Setup default admin vhost if not exists
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
-    echo "!!! Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
+    echo "Create initial vhost config /root/.vhosts/$VHOST with $DTYPE"
     [[ ! -d /root/.vhosts ]] && mkdir /root/.vhosts && chmod 700 /root/.vhosts
 
     # override any static defaults in .shrc
@@ -132,7 +132,7 @@ fi
 source /root/.vhosts/$VHOST
 #gethost
 
-[[ ! -d $VPATH ]] && echo "!!! Create $VPATH" && mkdir $VPATH
+[[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
@@ -141,14 +141,14 @@ if [[ ! -f /etc/hosts.orig ]]; then
     else
         R_IP4=$USEIP
     fi
-    echo "!!! Get the default route IP: $R_IP4"
-    echo "!!! Rewrite a sane /etc/hosts"
+    echo "Get the default route IP: $R_IP4"
+    echo "Rewrite a sane /etc/hosts"
     sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
     echo -e "\n$R_IP4\t$VHOST $HNAME" >> /etc/hosts
 
-    echo "!!! Change /etc/resolv.conf to talk directly to 1.1.1.1"
+    echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
     cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
-    echo "!!! Change /etc/systemd/resolved.conf to 1.1.1.1"
+    echo "Change /etc/systemd/resolved.conf to 1.1.1.1"
     sed -i -e 's/^#DNS=.*/DNS=1.1.1.1/' -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' -e "s/^#Domains=/Domains=$VHOST/" /etc/systemd/resolved.conf
     systemctl restart systemd-resolved
 
@@ -158,27 +158,27 @@ if [[ ! -f /etc/hosts.orig ]]; then
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo "!!! Create new /etc/ssh/sshd_config"
+    echo "Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart ssh
 fi
 
 if [[ ! -d /root/.ssh ]]; then
-    echo "!!! Create host /root/.ssh dir"
+    echo "Create host /root/.ssh dir"
     mkdir /root/.ssh
     chmod 700 /root/.ssh
 fi
 
 if [[ ! -f /root/.ssh/id_rsa ]]; then
-    echo "!!! Create host /root/.ssh/id_rsa key"
+    echo "Create host /root/.ssh/id_rsa key"
     ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
     chmod 600 /root/.ssh/*
 fi
 
 if [[ ! -f /root/.ssh/config ]]; then
-    echo "!!! Create host /root/.ssh/config"
+    echo "Create host /root/.ssh/config"
     cat << EOS | tee -a /root/.ssh/config > /dev/null
 # Host example.org
 #   Hostname example.org (or 12.34.56.78)

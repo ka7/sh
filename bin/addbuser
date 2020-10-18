@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addbuser 20200804 - 20201008
+# .sh/bin/addbuser 20200804 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addbuser for_vhost [user] [pw]" && exit 1
@@ -18,49 +18,49 @@ _PASS=${3:-$(newpw)}
 _HOME="/home/b/$_USER"
 
 [[ $_BUID = 1000 ]] && \
-  echo "!!! ERROR: $_BUID must be greater than 1000" && exit 4
+  echo "ERROR: $_BUID must be greater than 1000" && exit 4
 
 [[ $(grepuser ":$_BUID:") ]] && \
-  echo "!!! ERROR: $_USER user or group already exists" && exit 5
+  echo "ERROR: $_USER user or group already exists" && exit 5
 
-echo "!!! Create $_USER user"
+echo "Create $_USER user"
 useradd -M -U -u $_BUID -d $_HOME -c "$_HOST" $_USER
 echo -n $_USER:$_PASS | chpasswd
 
 if [[ -d $_HOME ]]; then
-    echo "!!! Warning: $_HOME already exists"
+    echo "Warning: $_HOME already exists"
 else
-    echo "!!! Create $_HOME"
+    echo "Create $_HOME"
     mkdir -p $_HOME/{.ssh,bin,etc,var,home,home/b}
 fi
 
 if [[ -f $_HOME/bin/busybox ]]; then
-    echo "!!! Warning: $_HOME/bin/busybox already exists"
+    echo "Warning: $_HOME/bin/busybox already exists"
 else
-    echo "!!! Setup busybox with sh, hostname, tail symlinks"
+    echo "Setup busybox with sh, hostname, tail symlinks"
     cp /bin/busybox $_HOME/bin
     cd $_HOME/bin
     ln -s busybox sh
     ln -s busybox hostname
     ln -s busybox tail
     ln -s busybox cat
-    echo "!!! Fetch static nano and rsync"
+    echo "Fetch static nano and rsync"
     wget -q https://renta.net/public/nano.exe -O nano
     wget -q https://renta.net/public/rsync.exe -O rsync
 fi
 
 if [[ -L $_HOME/home/b/$_USER ]]; then
-    echo "!!! Warning: $_HOME/home/b/$_USER already exists"
+    echo "Warning: $_HOME/home/b/$_USER already exists"
 else
-    echo "!!! Create custom chroot symlink"
+    echo "Create custom chroot symlink"
     cd $_HOME/home/b
     ln -s ../.. $_USER
 fi
 
 if [[ -f $_HOME/.profile ]]; then
-    echo "!!! Warning: $_HOME/.profile already exists"
+    echo "Warning: $_HOME/.profile already exists"
 else
-    echo "!!! Create $_HOME/.profile and .hushlogin"
+    echo "Create $_HOME/.profile and .hushlogin"
     touch $_HOME/.hushlogin
     cat << EOS > $_HOME/.profile
 export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
@@ -72,9 +72,9 @@ EOS
 fi
 
 if [[ -f $_HOME/etc/passwd ]]; then
-    echo "!!! $_HOME/etc/passwd already exists"
+    echo "$_HOME/etc/passwd already exists"
 else
-    echo "!!! Create $_HOME/etc/passwd"
+    echo "Create $_HOME/etc/passwd"
     cat << EOS > $_HOME/etc/passwd
 root:x:0:0:::
 $_USER:x:$_BUID:$_BUID:::
@@ -82,16 +82,16 @@ EOS
 fi
 
 if [[ -f $_HOME/etc/group ]]; then
-    echo "!!! $_HOME/etc/group already exists"
+    echo "$_HOME/etc/group already exists"
 else
-    echo "!!! Create $_HOME/etc/group"
+    echo "Create $_HOME/etc/group"
     cat << EOS > $_HOME/etc/group
 root:x:0:
 $_USER:x:$_BUID:
 EOS
 fi
 
-echo "!!! Change permissions of $_HOME/*"
+echo "Change permissions of $_HOME/*"
 chown $_USER: -R $_HOME
 chown 0:0 $_HOME
 find $_HOME -type d -exec chmod 00750 {} +

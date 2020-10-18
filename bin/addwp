@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20201010
+# .sh/bin/addwp 20160231 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -9,15 +9,15 @@
 if [[ -f /root/.vhosts/$1 ]]; then
     source /root/.vhosts/$1
 else
-    echo "!!! ERROR: set up vhost config first, ie;"
+    echo "ERROR: set up vhost config first, ie;"
     echo "    sethost $1 [mysql] [IP]"
     echo "    gethost > ~/.vhosts/$1"
     echo "    chmod 600 ~/.vhosts/$1"
     exit 3
 fi
 
-[[ ! -d $VPATH ]] && echo "!!! ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 4
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 5
+[[ ! -d $VPATH ]] && echo "ERROR: $VPATH does NOT exist, run 'setup-host' first" && exit 4
+[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 5
 
 MULTI=${2:-''}
 FPATH=${3:-''}
@@ -46,7 +46,7 @@ fi
 [[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
 
 if [[ ! -x /usr/local/bin/wp ]]; then
-    echo "!!! Install wp-cli as /usr/local/bin/wp"
+    echo "Install wp-cli as /usr/local/bin/wp"
     curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod +x wp-cli.phar
     mv wp-cli.phar /usr/local/bin/wp
@@ -58,18 +58,18 @@ if [[ $DNAME == $ADMIN ]]; then
 fi
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
-    echo "!!! '$DNAME' database already exists"
+    echo "'$DNAME' database already exists"
 else
-    echo "!!! Create $DNAME database"
+    echo "Create $DNAME database"
     mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
     mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'"
     mysql -e "FLUSH PRIVILEGES"
 fi
 
 if [[ -f $FPATH/wp-config.php ]]; then
-    echo "!!! Wordpress already installed"
+    echo "Wordpress already installed"
 else
-    echo "!!! Download Wordpress"
+    echo "Download Wordpress"
     cd $UPATH/var
     if [[ ! -f latest.tar.gz ]]; then
         wget -nv --no-check-certificate https://wordpress.org/latest.tar.gz
@@ -86,7 +86,7 @@ fi
 
 # Add 2> /dev/null to remove wp-cli permission warnings
 if [[ -f $FPATH/wp-includes/version.php ]]; then
-    echo "!!! Setting up Wordpress"
+    echo "Setting up Wordpress"
     su - $UUSER -c "
 cd $FPATH
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
@@ -189,7 +189,7 @@ wp option update show_on_front page
 #EOS
 
     chperms $VHOST
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 WordPress
 =========
 

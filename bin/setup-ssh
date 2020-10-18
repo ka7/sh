@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-ssh 20170521 - 20181102
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-ssh 20170521 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
     echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkeyname]" && exit 1
@@ -12,16 +12,16 @@ SPORT=${4:-'9'}
 S_KEY=${5:-'id_rsa'}
 
 if [[ ! -d ~/.ssh ]]; then
-    echo ">>> Create local ~/.ssh dir"
+    echo "Create local ~/.ssh dir"
     mkdir ~/.ssh
     chmod 700 ~/.ssh
 fi
 
 if [[ ! -f ~/.ssh/$S_KEY ]]; then
-    echo ">>> Create local ~/.ssh/$S_KEY key"
+    echo "Create local ~/.ssh/$S_KEY key"
     ssh-keygen -b 2048 -t rsa -f ~/.ssh/$S_KEY -N '' > /dev/null
     chmod 600 ~/.ssh/$S_KEY*
-    echo ">>> Copy public key to $SUSER@$VHOST:.ssh/authorized_keys and chmod 600"
+    echo "Copy public key to $SUSER@$VHOST:.ssh/authorized_keys and chmod 600"
     echo
     cat ~/.ssh/$S_KEY.pub
     echo
@@ -29,7 +29,7 @@ fi
 
 grep -q -E "^Host $VHOST\$" ~/.ssh/config
 if [[ $? -eq 1 ]]; then
-    echo ">>> Create SSH config entry"
+    echo "Create SSH config entry"
     echo "Host $VHOST
   User $SUSER
   Port $SPORT
