@@ -263,6 +263,7 @@ CREATE TABLE IF NOT EXISTS cryptokeys (
   domain_id int NOT NULL,
   flags int(11) NOT NULL,
   active bool,
+  published bool DEFAULT 1,
   content text
 );
 CREATE TABLE IF NOT EXISTS domainmetadata (
