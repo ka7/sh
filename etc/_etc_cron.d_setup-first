@@ -1,0 +1,8 @@
+# .sh/etc/_etc_cron.d_setup-first 20201018 - 20201018
+# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/root/.sh/bin
+
+MAILTO=_MAILTO
+
+@reboot root setup-first
