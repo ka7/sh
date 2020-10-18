@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/serva 20170417 - 20180621
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/serva 20170417 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 == '-h' ]] && \
     echo "Usage: serva start|stop|restart|reload all|dns|mail|web|php|nginx" && exit 1
@@ -9,24 +9,36 @@ source ~/.shrc || exit 2
 
 serva_mail()
 {
-    [[ $($SUDO /usr/sbin/postfix check) -eq 0 ]] && $SUDO systemctl $1 postfix
-    [[ $($SUDO /usr/bin/doveconf check) -eq 0 ]] && $SUDO systemctl $1 dovecot
+    if [[ -f /usr/sbin/postfix ]]; then
+        [[ $($SUDO /usr/sbin/postfix check) -eq 0 ]] && $SUDO systemctl $1 postfix
+    fi
+    if [[ -f /usr/sbin/doveconf ]]; then
+        [[ $($SUDO /usr/bin/doveconf check) -eq 0 ]] && $SUDO systemctl $1 dovecot
+    fi
 }
 
 serva_dns()
 {
-    $SUDO systemctl $1 pdns
-    $SUDO systemctl $1 pdns-recursor
+    if [[ -f /usr/sbin/pdns_server ]]; then
+        $SUDO systemctl $1 pdns
+    fi
+    if [[ -f /usr/sbin/pdns_recursor ]]; then
+        $SUDO systemctl $1 pdns-recursor
+    fi
 }
 
 serva_php()
 {
-    [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 php$V_PHP-fpm
+    if [[ -f /usr/sbin/php-fpm$V_PHP ]]; then
+        [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 php$V_PHP-fpm
+    fi
 }
 
 serva_nginx()
 {
-    [[ $($SUDO /usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 nginx
+    if [[ -f /usr/sbin/nginx ]]; then
+        [[ $($SUDO /usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && $SUDO systemctl $1 nginx
+    fi
 }
 
 if [[ $2 == all ]]; then
