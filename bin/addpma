@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
-# .sh/bin/addpma 20190630 - 20190630
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addpma 20190630 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addpma [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "######## $0 $*"
-
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+PHPLA=phpLiteAdmin_v1-9-8-2.zip
 
 source /root/.vhosts/$VHOST || exit 3
-gethost
 
 if [[ $DTYPE == mysql ]]; then
     if [[ -d $WPATH/hcp/phpmyadmin ]]; then
@@ -42,7 +40,7 @@ elif [[ $DTYPE == sqlite ]]; then
      else
         echo "@@@ Setup phpliteadmin"
         cd $WPATH/hcp/
-        wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-7-1.zip
+        wget https://bitbucket.org/phpliteadmin/public/downloads/$PHPLA
         unzip -l phpLiteAdmin_v1-9-7-1.zip
         rm phpLiteAdmin_v1-9-7-1.zip readme.md
         wget https://bitbucket.org/phpliteadmin/public/raw/27c697869f776ce3bda7e0596ceb7977c036bcec/themes/Modern/phpliteadmin.css

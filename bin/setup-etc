@@ -399,16 +399,18 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     chmod 644 /usr/share/nginx/html/50x.html
 fi
 
+addvip $MHOST $IP4_0
+
+serva restart mail
+
 if [[ -d $CIMAP/sieve ]]; then
     echo "@@@ Create sieve binaries"
     cd $CIMAP/sieve
     sievec global.sieve
     sievec retrain-as-spam.sieve
     sievec retrain-as-good.sieve
-    /bin/ls -l
+#    /bin/ls -l
 fi
-
-addvip $MHOST IP4_0
 
 serva restart web
 
