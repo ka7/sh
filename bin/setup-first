@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-first 20201018 - 20201018
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Needs /etc/cron.d/setup-first to work
+
+if [[ ! -f /root/.vhosts/$(hostname -f) ]]; then                                                                                                                                                                                    
+    sleep 15 # for networking to settle                                                                                                                                                                                                                   
+    /root/.sh/bin/setup-all # $(hostname -f) sqlite
+    [[ -f /etc/cron.d/setup-first ]] && rm /etc/cron.d/setup-first
+    sleep 5
+    . /root/.vhosts/$(hostname -f)
+    echo "ssh sysadm@$(hostname -i) / $UPASS (or shconf $(hostname -f))"
+fi                                                                                                                                                                                                                              
