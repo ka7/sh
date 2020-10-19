@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20201018
+# .sh/bin/setup-host 20170524 - 20201019
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-echo "######## $0 $*"
+echo "### $0 $*"
 
 OSREL=${3:-$OSREL}
 OSMIR=${6:-'archive.ubuntu.com'}
@@ -89,7 +89,7 @@ EOS
     echo "Updating $OSREL package list, patience please..."
     apt-get -yqq update > /dev/null
     echo "Upgrading $OSREL package list, more patience please..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade > /dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade #> /dev/null
     echo "Installing default package set, even more patience..."
     DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
 fi
