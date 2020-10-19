@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20201018
+# .sh/bin/setup-etc 20151231 - 20201019
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -404,12 +404,12 @@ addvip $MHOST $IP4_0
 serva restart mail
 
 if [[ -d $CIMAP/sieve ]]; then
-    echo "@@@ Create sieve binaries"
+    echo "Create sieve binaries"
     cd $CIMAP/sieve
     sievec global.sieve
     sievec retrain-as-spam.sieve
     sievec retrain-as-good.sieve
-#    /bin/ls -l
+    chmod 644 *.sieve *.svbin
 fi
 
 serva restart web
