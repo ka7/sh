@@ -409,7 +409,7 @@ if [[ -d $CIMAP/sieve ]]; then
     sievec global.sieve
     sievec retrain-as-spam.sieve
     sievec retrain-as-good.sieve
-    chmod 644 *.sieve *.svbin
+    chmod 644 *.svbin
 fi
 
 serva restart web
