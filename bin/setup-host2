@@ -1,0 +1,277 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-host2 20170524 - 20201022
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+### TEMP WIP
+# This will replace setup-host once working. The idea is to extract all the
+# non-identity names and vhost core setup code and add it here so that a
+# primary VM image can be cloned. Ie; so as much preliminary setup can be
+# done without actually adding any custom IPs, users or vhosts. Anything
+# to do with setting up IPs, users or vhosts needs to be done in a
+# separate followup setup-guest script to create the primary vhost.
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-host2 [(mysql)|sqlite]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+echo "### $0 $*"
+
+
+EXDEB="apt-get -yqq"
+export DEBIAN_FRONTEND=noninteractive
+export TERM=linux
+
+# Default core list of required Netserva packages
+DLIST="
+  apt-utils
+  bash
+  bc
+  bind9-host
+  bsd-mailx
+  busybox-static
+  ca-certificates
+  curl
+  deborphan
+  dnsutils
+  gawk
+  git
+  iptables
+  ebtables
+  iputils-ping
+  jq
+  mtr-tiny
+  mutt
+  nano
+  net-tools
+  openssh-server
+  pwgen
+  rsync
+  sqlite3
+  msmtp
+  sudo
+  time
+  unzip
+  wget
+  whois
+"
+
+# Default remove list (RLIST="" to ignore removal)
+RLIST="
+  *golang*
+  *python*
+  accountsservice
+  apache2
+  at
+  bind9
+  cloud*
+  install-info
+  lxcfs
+  man*
+  open-iscsi
+  rpcbind
+  sasl2-bin
+  ttf-*
+  ubuntu-advantage-tools
+  vi*
+  xinetd
+"
+
+# Basic SQLite packages
+SLIST="
+  apache2-utils
+  dovecot-imapd
+  dovecot-lmtpd
+  dovecot-managesieved
+  dovecot-sqlite
+  fcgiwrap
+  jq
+  libxml2-utils
+  mailgraph
+  mutt
+  nginx-light
+  opendkim
+  opendkim-tools
+  opendmarc
+  pdns-backend-sqlite3
+  pflogsumm
+  php$V_PHP
+  php$V_PHP-bcmath
+  php$V_PHP-curl
+  php$V_PHP-fpm
+  php$V_PHP-gd
+  php$V_PHP-gmp
+  php$V_PHP-imap
+  php$V_PHP-intl
+  php$V_PHP-mbstring
+  php$V_PHP-soap
+  php$V_PHP-sqlite3
+  php$V_PHP-xml
+  php$V_PHP-xmlrpc
+  php$V_PHP-zip
+  php-imagick
+  php-redis
+  postfix-policyd-spf-perl
+  postfix-sqlite
+  redis-server
+  spamprobe
+"
+
+# Additional and optional MySQL packages
+MLIST="
+  dovecot-mysql
+  mariadb-common
+  mariadb-client
+  mariadb-server
+  pdns-backend-mysql
+  php$V_PHP-mysql
+  postfix-mysql
+"
+
+# Make sure that IP4 is the default
+grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
+if [[ $? -eq 0 ]]; then
+    echo "Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
+    sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
+fi
+
+
+if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
+    echo "Create /etc/apt/apt.conf.d/20local"
+    cat << EOS | tee /etc/apt/apt.conf.d/20local > /dev/null
+APT::Install-Recommends "false";
+Dpkg::Options {
+    "--force-confdef";
+    "--force-confold";
+}
+EOS
+fi
+
+if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    echo "Setup apt sources list for $OSREL"
+    mv /etc/apt/sources.list /etc/apt/sources.list.orig
+    cat << EOS | tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe
+deb http://$OSMIR/ubuntu $OSREL-updates main universe
+deb http://$OSMIR/ubuntu $OSREL-backports main universe
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+EOS
+fi
+
+echo "Updating packages list for $OSREL, patience please..."
+$EXDEB update > /dev/null #2>&1
+echo "Upgrading packages for $OSREL, more patience..."
+$EXDEB -u dist-upgrade > /dev/null #2>&1
+echo "Installing default package set, yet more patience..."
+$EXDEB install $DLIST > /dev/null #2>&1
+
+if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
+    if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
+        echo "Remove unattended-upgrades"
+        systemctl stop unattended-upgrades
+        systemctl disable unattended-upgrades
+    fi
+    echo "Remove python and all related packages"
+    $EXDEB --purge remove $RLIST > /dev/null #2>&1
+    # This action removes /sbin/netplan so replace it with systemd-networkd
+    [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
+    if [[ -f /etc/systemd/network/10-dhcp.network ]]; then
+        echo "/etc/systemd/network/10-dhcp.network already exists"
+    else
+        echo "Create /etc/systemd/network/10-dhcp.network"
+        cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
+        systemctl enable systemd-networkd > /dev/null 2>&1
+    fi
+fi
+
+if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    echo "Setup apt sources list for '$OSREL' using '$OSMIR'"
+    cat << EOS | tee /etc/apt/sources.list > /dev/null
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://$OSMIR/ubuntu $OSREL main universe
+deb http://$OSMIR/ubuntu $OSREL-updates main universe
+deb http://$OSMIR/ubuntu $OSREL-backports main universe
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+EOS
+    sleep 5
+    ps -C apt,apt-get,dpkg >/dev/null
+    if [[ $? -eq 0 ]]; then
+        echo "Apt is active, wait 10 secs..."
+        sleep 10
+        ps -C apt,apt-get,dpkg >/dev/null
+        if [[ $? -eq 0 ]]; then
+            echo "Apt is still active, wait another 20 secs..."
+            sleep 20
+        fi
+    fi
+    echo "Updating $OSREL package list, patience please..."
+    apt-get -yqq update > /dev/null
+    echo "Upgrading $OSREL package list, more patience please..."
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade #> /dev/null
+    echo "Installing default package set, even more patience..."
+    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
+fi
+
+# We now have git available so install the essential SH scripts
+if [[ ! -d /root/.sh ]]; then
+    echo "Setup NetServa SH scripts"
+    cd
+    git clone -q https://github.com/netserva/sh .sh > /dev/null
+    /root/.sh/bin/shm install > /dev/null
+    /root/.sh/bin/shm perms
+    
+    echo "Tweak git for updates"
+    git config --global pull.rebase false
+fi
+
+# Debug for testing
+gethost
+source /root/.shrc
+gethost
+
+[[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
+
+fi [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+    echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
+    cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+    sed -i /etc/systemd/resolved.conf \
+     -e 's/^#DNS=.*/DNS=1.1.1.1/' \
+     -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
+     -e "s/^#Domains=/Domains=$VHOST/"
+    systemctl restart systemd-resolved
+fi
+
+if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
+    echo "Create new /etc/ssh/sshd_config"
+    mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+    cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
+    systemctl restart ssh
+fi
+
+if [[ ! -d /root/.ssh ]]; then
+    echo "Create host /root/.ssh dir"
+    mkdir /root/.ssh
+    chmod 700 /root/.ssh
+fi
+
+if [[ ! -f /root/.ssh/config ]]; then
+    echo "Create host /root/.ssh/config"
+    cat << EOS | tee -a /root/.ssh/config > /dev/null
+# Host example.org
+#   Hostname example.org (or 12.34.56.78)
+
+Host *
+  TCPKeepAlive yes
+  ServerAliveInterval 30
+  IdentityFile /root/.ssh/id_rsa
+  Port 9
+  User root
+EOS
+    chmod 600 /root/.ssh/*
+fi
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
