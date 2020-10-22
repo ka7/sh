@@ -1,0 +1,7 @@
+# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
+# apt-get install --no-install-recommends packages
+
+deb http://_OSMIR/ubuntu _OSREL main universe
+deb http://_OSMIR/ubuntu _OSREL-updates main universe
+deb http://_OSMIR/ubuntu _OSREL-backports main universe
+deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
