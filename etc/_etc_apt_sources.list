@@ -4,4 +4,4 @@
 deb http://_OSMIR/ubuntu _OSREL main universe
 deb http://_OSMIR/ubuntu _OSREL-updates main universe
 deb http://_OSMIR/ubuntu _OSREL-backports main universe
-deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
+deb http://security.ubuntu.com/ubuntu _OSREL-security main universe
