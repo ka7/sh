@@ -137,7 +137,7 @@ fi
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "Setup apt sources list for $OSREL"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    sed ~/.sh/etc/_etc_apt_sources.list \    
+    sed ~/.sh/etc/_etc_apt_sources.list \
      -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
      
     export DEBIAN_FRONTEND=noninteractive
