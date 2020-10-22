@@ -1,0 +1,9 @@
+[Match]
+Name=e*
+
+[Network]
+DHCP=ipv4
+
+[DHCP]
+UseMTU=true
+RouteMetric=100
