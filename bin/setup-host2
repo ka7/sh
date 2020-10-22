@@ -212,7 +212,7 @@ fi
 
 if [[ ! -f /root/.ssh/config ]]; then
     echo "Create host /root/.ssh/config"
-    cp ~/.sh/etc/_.ssh/config ~/.ssh/config
+    cp ~/.sh/etc/_.ssh_config ~/.ssh/config
     chmod 600 /root/.ssh/*
 fi
 
