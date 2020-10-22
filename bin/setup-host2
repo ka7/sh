@@ -16,11 +16,6 @@
 
 echo "### $0 $*"
 
-
-EXDEB="apt-get -yqq"
-export DEBIAN_FRONTEND=noninteractive
-export TERM=linux
-
 # Default core list of required Netserva packages
 DLIST="
   apt-utils
@@ -142,23 +137,19 @@ fi
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
     echo "Setup apt sources list for $OSREL"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
-    cat << EOS | tee /etc/apt/sources.list > /dev/null
-# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
-# apt-get install --no-install-recommends packages
-
-deb http://$OSMIR/ubuntu $OSREL main universe
-deb http://$OSMIR/ubuntu $OSREL-updates main universe
-deb http://$OSMIR/ubuntu $OSREL-backports main universe
-deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
-EOS
+    sed ~/.sh/etc/_etc_apt_sources.list \    
+     -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
+     
+    export DEBIAN_FRONTEND=noninteractive
+    export TERM=linux
+    
+    echo "Updating packages list for $OSREL, patience please..."
+    apt-get -yqq update > /dev/null #2>&1
+    echo "Upgrading packages for $OSREL, more patience..."
+    apt-get -yqq -u dist-upgrade > /dev/null #2>&1
+    echo "Installing default package set, yet more patience..."
+    apt-get -yqq install $DLIST > /dev/null #2>&1
 fi
-
-echo "Updating packages list for $OSREL, patience please..."
-$EXDEB update > /dev/null #2>&1
-echo "Upgrading packages for $OSREL, more patience..."
-$EXDEB -u dist-upgrade > /dev/null #2>&1
-echo "Installing default package set, yet more patience..."
-$EXDEB install $DLIST > /dev/null #2>&1
 
 if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
@@ -179,41 +170,10 @@ if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     fi
 fi
 
-if [[ ! -f /etc/apt/sources.list.orig ]]; then
-    echo "Setup apt sources list for '$OSREL' using '$OSMIR'"
-    cat << EOS | tee /etc/apt/sources.list > /dev/null
-# apt-key adv --recv-keys --keyserver keyserver.ubuntu.com KEY
-# apt-get install --no-install-recommends packages
-
-deb http://$OSMIR/ubuntu $OSREL main universe
-deb http://$OSMIR/ubuntu $OSREL-updates main universe
-deb http://$OSMIR/ubuntu $OSREL-backports main universe
-deb http://security.ubuntu.com/ubuntu $OSREL-security main universe
-EOS
-    sleep 5
-    ps -C apt,apt-get,dpkg >/dev/null
-    if [[ $? -eq 0 ]]; then
-        echo "Apt is active, wait 10 secs..."
-        sleep 10
-        ps -C apt,apt-get,dpkg >/dev/null
-        if [[ $? -eq 0 ]]; then
-            echo "Apt is still active, wait another 20 secs..."
-            sleep 20
-        fi
-    fi
-    echo "Updating $OSREL package list, patience please..."
-    apt-get -yqq update > /dev/null
-    echo "Upgrading $OSREL package list, more patience please..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends -u dist-upgrade #> /dev/null
-    echo "Installing default package set, even more patience..."
-    DEBIAN_FRONTEND=noninteractive apt-get -yqq --no-install-recommends install $HLIST > /dev/null
-fi
-
 # We now have git available so install the essential SH scripts
 if [[ ! -d /root/.sh ]]; then
     echo "Setup NetServa SH scripts"
-    cd
-    git clone -q https://github.com/netserva/sh .sh > /dev/null
+    cd && git clone -q https://github.com/netserva/sh .sh > /dev/null
     /root/.sh/bin/shm install > /dev/null
     /root/.sh/bin/shm perms
     
