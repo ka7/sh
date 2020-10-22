@@ -1,0 +1,9 @@
+# Host example.org
+#   Hostname example.org (or 12.34.56.78)
+
+Host *
+  TCPKeepAlive yes
+  ServerAliveInterval 30
+  IdentityFile /root/.ssh/id_rsa
+  Port 9
+  User root
