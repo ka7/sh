@@ -13,7 +13,7 @@ VHOST=$1
 
 vultr dns domain list | cut -f1 | grep -q -E "^$VHOST$"
 if [[ $? -eq 1 ]];then
-    echo "+++ DNS for $VHOST does not exist at Vultr"
+    echo "DNS for $VHOST does not exist at Vultr"
     exit 3
 fi
 

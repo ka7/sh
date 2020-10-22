@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/delvmail 20170418 - 20200804
+# .sh/bin/delvmail 20170418 - 20201020
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvmail user@domain" && exit 1
 
-[[ $EUID -gt 0 ]] && echo "*** ERROR: must be root (use sudo -i)" && exit 2
+[[ $EUID -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 EMAIL=${1,,} # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
@@ -20,21 +20,21 @@ if [[ -d $HPATH ]]; then
     BFILE="$BPATH/$(date +'%Y%m%d')_${EMAIL//@/_}.tgz"
     [[ -f $BFILE ]] && rm $BFILE # remove previous same-day backup
 
-    echo "*** Create $HPATH/shuser_details"
+    echo "Create $HPATH/shuser_details"
     shuser $EMAIL > $HPATH/shuser_details
 
-    echo "*** Create $BFILE"
+    echo "Create $BFILE"
     tar czf $BFILE $HPATH > /dev/null 2>&1
 
-    echo "*** Remove from $VCONF"
+    echo "Remove from $VCONF"
     TFILE=$(mktemp -q) && {
       awk '/^Username: '$EMAIL'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $VCONF > $TFILE && mv $TFILE $VCONF
     }
 
-    echo "*** Remove $HPATH"
+    echo "Remove $HPATH"
     rm -rf $HPATH
 else
-    echo "*** ERROR: $HPATH does not exist"
+    echo "ERROR: $HPATH does not exist"
     exit 4
 fi
 
@@ -45,9 +45,9 @@ EOS
 )
 
 if [[ -z $MID ]]; then
-    echo "*** Warning: '$EMAIL' does not exist in $ADMIN.vmails"
+    echo "Warning: '$EMAIL' does not exist in $ADMIN.vmails"
 else
-    echo "*** Remove '$EMAIL' from $ADMIN.vmails ($DTYPE)"
+    echo "Remove '$EMAIL' from $ADMIN.vmails ($DTYPE)"
     cat << EOS | $SQCMD
  DELETE FROM vmails
   WHERE id = $MID
@@ -61,9 +61,9 @@ EOS
 )
 
 if [[ -z $AID ]]; then
-    echo "*** Warning: '$EMAIL' does not exist in $ADMIN.valias"
+    echo "Warning: '$EMAIL' does not exist in $ADMIN.valias"
 else
-    echo "*** Remove '$EMAIL' from $ADMIN.valias ($DTYPE)"
+    echo "Remove '$EMAIL' from $ADMIN.valias ($DTYPE)"
     cat << EOS | $SQCMD
  DELETE FROM valias
   WHERE target = '$EMAIL'
@@ -77,9 +77,9 @@ EOS
 )
 
 if [[ -z $LID ]]; then
-    echo "*** Warning: '$EMAIL' does not exist in $ADMIN.vmail_log"
+    echo "Warning: '$EMAIL' does not exist in $ADMIN.vmail_log"
 else
-    echo "*** Remove '$EMAIL' from $ADMIN.vmail_log ($DTYPE)"
+    echo "Remove '$EMAIL' from $ADMIN.vmail_log ($DTYPE)"
     cat << EOS | $SQCMD
  DELETE FROM vmail_log
   WHERE mid = '$MID'

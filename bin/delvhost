@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delvhost 20170216 - 20200328
+# .sh/bin/delvhost 20170216 - 20201020
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delvhost domain" && exit 1
@@ -10,86 +10,86 @@ VHOST=$1
 
 source ~/.vhosts/$VHOST || exit 3
 
-[[ ! -d $VPATH/$VHOST ]] && echo "!!! ERROR: '$VPATH/$VHOST' does not exist" && exit 4
+[[ ! -d $VPATH/$VHOST ]] && echo "ERROR: '$VPATH/$VHOST' does not exist" && exit 4
 
 if [[ $DTYPE == mysql ]]; then
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$ADMIN'") ]]; then
         HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'"|$SQCMD)
 
-        echo "!!! Create backup of (id=$HID) $ADMIN entries"
+        echo "Create backup of (id=$HID) $ADMIN entries"
         mysqldump sysadm vhosts vmails valias vhost_log vhost_log_bkp vmail_log vmail_log_bkp \
           --where="id=$HID" --compact --no-create-info > $UPATH/etc/mysql-$ADMIN.sql
 
-        echo "!!! Remove entries from vhosts, vmails and valias"
+        echo "Remove entries from vhosts, vmails and valias"
         echo "DELETE FROM vhosts WHERE id = $HID" | $SQCMD
         echo "DELETE FROM vmails WHERE hid = $HID" | $SQCMD
         echo "DELETE FROM valias WHERE hid = $HID" | $SQCMD
     else
-        echo "!!! Warning: $ADMIN ($DTYPE) database does not exist"
+        echo "Warning: $ADMIN ($DTYPE) database does not exist"
     fi
 
-    echo "!!! Create MySQL backup of $DNAME"
+    echo "Create MySQL backup of $DNAME"
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
         if [[ $DNAME == $ADMIN ]];then
-            echo "!!! Leaving '$DNAME' database"
+            echo "Leaving '$DNAME' database"
         else
-            echo "!!! Backup '$DNAME' database"
+            echo "Backup '$DNAME' database"
             mysqldump $DNAME > $UPATH/etc/$DNAME.sql
             chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
             chmod 640 $UPATH/etc/$DNAME.sql
-            echo "!!! Remove '$DNAME' database"
+            echo "Remove '$DNAME' database"
             mysql -BNe "DROP DATABASE $DNAME"
         fi
     else
-        echo "!!! Warning: $DNAME database does not exist"
+        echo "Warning: $DNAME database does not exist"
     fi
 elif [[ $DTYPE == sqlite ]]; then
     if [[ -f $DPATH ]]; then
         HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'"|$SQCMD)
 
-        echo "!!! Create backup of (id=$HID) $ADMIN entries"
+        echo "Create backup of (id=$HID) $ADMIN entries"
         echo "SELECT * vhosts WHERE hid = $HID" | $SQCMD > $UPATH/etc/sqlite-$ADMIN.sql
         echo "SELECT * vmails WHERE hid = $HID" | $SQCMD >> $UPATH/etc/sqlite-$ADMIN.sql
         echo "SELECT * valias WHERE hid = $HID" | $SQCMD >> $UPATH/etc/sqlite-$ADMIN.sql
     else
-        echo "!!! Warning: $ADMIN ($DTYPE) database does not exist"
+        echo "Warning: $ADMIN ($DTYPE) database does not exist"
     fi
-    echo "!!! TODO: Dump '$DNAME' from $DPATH"
+    echo "TODO: Dump '$DNAME' from $DPATH"
 fi
 
 if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
-    echo "!!! Remove $C_WEB/sites-enabled/$VHOST"
+    echo "Remove $C_WEB/sites-enabled/$VHOST"
     cp $C_WEB/sites-enabled/$VHOST $UPATH/etc/_etc_nginx_sites-enabled_$VHOST
     rm $C_WEB/sites-enabled/$VHOST
 fi
 
 if [[ -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
-    echo "!!! Remove $C_WEB/sites-enabled/$VHOST.selfsigned"
+    echo "Remove $C_WEB/sites-enabled/$VHOST.selfsigned"
     cp $C_WEB/sites-enabled/$VHOST.selfsigned $UPATH/etc/_etc_nginx_sites-enabled_$VHOST.selfsigned
     rm $C_WEB/sites-enabled/$VHOST.selfsigned
 fi
 
 if [[ -d $C_SSL/$VHOST ]]; then
-    echo "!!! Remove $C_SSL/$VHOST"
+    echo "Remove $C_SSL/$VHOST"
     cp -a $C_SSL/$VHOST $UPATH/etc/_etc_ssl_$VHOST
     rm -rf $C_SSL/$VHOST
 fi
 
 if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
-    echo "!!! Remove $C_FPM/pool.d/$VHOST.conf"
+    echo "Remove $C_FPM/pool.d/$VHOST.conf"
     cp $C_FPM/pool.d/$VHOST.conf $UPATH/etc/_etc_php_${V_PHP}_pool.d_$VHOST.conf
     rm $C_FPM/pool.d/$VHOST.conf
 fi
 
 if [[ -f /root/.vhosts/$VHOST ]]; then
     if [[ $VHOST == $(hostname -f|tr 'A-Z' 'a-z') ]];then
-        echo "!!! Leaving /root/.vhosts/$VHOST"
+        echo "Leaving /root/.vhosts/$VHOST"
     else
-        echo "!!! Remove /root/.vhosts/$VHOST"
+        echo "Remove /root/.vhosts/$VHOST"
         cp ~/.vhosts/$VHOST $UPATH/_root_.vhosts_$VHOST
         rm ~/.vhosts/$VHOST
         if [[ -f /root/.vhosts/$VHOST.conf ]]; then
-            echo "!!! Remove /root/.vhosts/$VHOST.conf"
+            echo "Remove /root/.vhosts/$VHOST.conf"
             cp ~/.vhosts/$VHOST.conf $UPATH/_root_.vhosts_$VHOST.conf
             rm ~/.vhosts/$VHOST.conf
         fi
@@ -100,21 +100,21 @@ fi
 BFILE="$BPATH/$(date +'%Y%m%d')_$VHOST.tgz"
 [[ -f $BFILE ]] && rm $BFILE
 
-echo "!!! Create $BFILE"
+echo "Create $BFILE"
 tar czf $BFILE $UPATH > /dev/null 2>&1
 
 # check for VHOST,IP
 UUSER=$(getent passwd | awk -F: "/:$VHOST[,:]/ {print \$1}")
 
 if [[ -z $UUSER ]]; then
-    echo "!!! Warning: '$UUSER' does not exist"
+    echo "Warning: '$UUSER' does not exist"
 else
-    echo "!!! Remove $UUSER"
+    echo "Remove $UUSER"
     userdel -rf $UUSER > /dev/null 2>&1
 fi
 
 if [[ -d $UPATH ]]; then
-    echo "!!! Remove $UPATH"
+    echo "Remove $UPATH"
     rm -rf $UPATH
 fi
 
