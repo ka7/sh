@@ -16,8 +16,9 @@
 
 echo "### $0 $*"
 
-# Default core list of required Netserva packages
+# Default List of required core Netserva packages
 DLIST="
+  apache2-utils
   apt-utils
   bash
   bc
@@ -28,26 +29,72 @@ DLIST="
   curl
   deborphan
   dnsutils
+  dovecot-imapd
+  dovecot-lmtpd
+  dovecot-managesieved
+  dovecot-sqlite
+  ebtables
+  fcgiwrap
   gawk
   git
   iptables
-  ebtables
   iputils-ping
   jq
+  jq
+  libxml2-utils
+  mailgraph
+  msmtp
   mtr-tiny
+  mutt
   mutt
   nano
   net-tools
+  nginx-light
+  opendkim
+  opendkim-tools
+  opendmarc
   openssh-server
+  pdns-backend-sqlite3
+  pflogsumm
+  php$V_PHP
+  php$V_PHP-bcmath
+  php$V_PHP-curl
+  php$V_PHP-fpm
+  php$V_PHP-gd
+  php$V_PHP-gmp
+  php$V_PHP-imap
+  php$V_PHP-intl
+  php$V_PHP-mbstring
+  php$V_PHP-soap
+  php$V_PHP-sqlite3
+  php$V_PHP-xml
+  php$V_PHP-xmlrpc
+  php$V_PHP-zip
+  php-imagick
+  php-redis
+  postfix-policyd-spf-perl
+  postfix-sqlite
   pwgen
+  redis-server
   rsync
+  spamprobe
   sqlite3
-  msmtp
   sudo
   time
   unzip
   wget
   whois
+"
+
+# Optional MySQL packages (not need if using SQLite)
+MLIST="
+  dovecot-mysql
+  mariadb-common
+  mariadb-client
+  mariadb-server
+  pdns-backend-mysql
+  php$V_PHP-mysql
+  postfix-mysql
 "
 
 # Default remove list (RLIST="" to ignore removal)
@@ -71,57 +118,6 @@ RLIST="
   xinetd
 "
 
-# Basic SQLite packages
-SLIST="
-  apache2-utils
-  dovecot-imapd
-  dovecot-lmtpd
-  dovecot-managesieved
-  dovecot-sqlite
-  fcgiwrap
-  jq
-  libxml2-utils
-  mailgraph
-  mutt
-  nginx-light
-  opendkim
-  opendkim-tools
-  opendmarc
-  pdns-backend-sqlite3
-  pflogsumm
-  php$V_PHP
-  php$V_PHP-bcmath
-  php$V_PHP-curl
-  php$V_PHP-fpm
-  php$V_PHP-gd
-  php$V_PHP-gmp
-  php$V_PHP-imap
-  php$V_PHP-intl
-  php$V_PHP-mbstring
-  php$V_PHP-soap
-  php$V_PHP-sqlite3
-  php$V_PHP-xml
-  php$V_PHP-xmlrpc
-  php$V_PHP-zip
-  php-imagick
-  php-redis
-  postfix-policyd-spf-perl
-  postfix-sqlite
-  redis-server
-  spamprobe
-"
-
-# Additional and optional MySQL packages
-MLIST="
-  dovecot-mysql
-  mariadb-common
-  mariadb-client
-  mariadb-server
-  pdns-backend-mysql
-  php$V_PHP-mysql
-  postfix-mysql
-"
-
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
 if [[ $? -eq 0 ]]; then
@@ -143,12 +139,28 @@ if [[ ! -f /etc/apt/sources.list.orig ]]; then
     export DEBIAN_FRONTEND=noninteractive
     export TERM=linux
     
-    echo "Updating packages list for $OSREL, patience please..."
+    # For bionic (18.04)
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
+    # For openlitespeed
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
+    
+    echo "Updating package list for $OSREL, patience please..."
     apt-get -yqq update > /dev/null #2>&1
+    
     echo "Upgrading packages for $OSREL, more patience..."
     apt-get -yqq -u dist-upgrade > /dev/null #2>&1
+    
     echo "Installing default package set, yet more patience..."
     apt-get -yqq install $DLIST > /dev/null #2>&1
+    
+    if [[ $DTYPE == mysql ]]; then
+        echo "Installing MYSQL package set, even more patience..."
+        apt-get -yqq install $MLIST > /dev/null #2>&1
+    fi
+    
+    # Special case for bionic spamprobe (the focal spamprobe crashes)
+    apt-get install spamprobe=1.4d-14build1 > /dev/null #2>&1
+    apt-mark hold spamprobe
 fi
 
 if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
@@ -159,6 +171,7 @@ if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     fi
     echo "Remove python and all related packages"
     $EXDEB --purge remove $RLIST > /dev/null #2>&1
+    
     # This action removes /sbin/netplan so replace it with systemd-networkd
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
     if [[ -f /etc/systemd/network/10-dhcp.network ]]; then
@@ -182,9 +195,9 @@ if [[ ! -d /root/.sh ]]; then
 fi
 
 # Debug for testing
-gethost
+#gethost
 source /root/.shrc
-gethost
+#gethost
 
 [[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
 
