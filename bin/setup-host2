@@ -134,16 +134,9 @@ if [[ $? -eq 0 ]]; then
     sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
 fi
 
-
 if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
     echo "Create /etc/apt/apt.conf.d/20local"
-    cat << EOS | tee /etc/apt/apt.conf.d/20local > /dev/null
-APT::Install-Recommends "false";
-Dpkg::Options {
-    "--force-confdef";
-    "--force-confold";
-}
-EOS
+    cp ~/.sh/etc/_etc_apt_apt.conf.d_20local /etc/apt/apt.conf.d/20local
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
@@ -235,13 +228,12 @@ gethost
 
 [[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
 
-fi [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
     echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
     cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
     sed -i /etc/systemd/resolved.conf \
      -e 's/^#DNS=.*/DNS=1.1.1.1/' \
-     -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
-     -e "s/^#Domains=/Domains=$VHOST/"
+     -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/'
     systemctl restart systemd-resolved
 fi
 
@@ -260,17 +252,7 @@ fi
 
 if [[ ! -f /root/.ssh/config ]]; then
     echo "Create host /root/.ssh/config"
-    cat << EOS | tee -a /root/.ssh/config > /dev/null
-# Host example.org
-#   Hostname example.org (or 12.34.56.78)
-
-Host *
-  TCPKeepAlive yes
-  ServerAliveInterval 30
-  IdentityFile /root/.ssh/id_rsa
-  Port 9
-  User root
-EOS
+    cp ~/.sh/etc/_.ssh/config ~/.ssh/config
     chmod 600 /root/.ssh/*
 fi
 
