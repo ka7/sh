@@ -17,106 +17,26 @@
 echo "### $0 $*"
 
 # Default List of required core Netserva packages
-DLIST="
-  apache2-utils
-  apt-utils
-  bash
-  bc
-  bind9-host
-  bsd-mailx
-  busybox-static
-  ca-certificates
-  curl
-  deborphan
-  dnsutils
-  dovecot-imapd
-  dovecot-lmtpd
-  dovecot-managesieved
-  dovecot-sqlite
-  ebtables
-  fcgiwrap
-  gawk
-  git
-  iptables
-  iputils-ping
-  jq
-  jq
-  libxml2-utils
-  mailgraph
-  msmtp
-  mtr-tiny
-  mutt
-  mutt
-  nano
-  net-tools
-  nginx-light
-  opendkim
-  opendkim-tools
-  opendmarc
-  openssh-server
-  pdns-backend-sqlite3
-  pflogsumm
-  php$V_PHP
-  php$V_PHP-bcmath
-  php$V_PHP-curl
-  php$V_PHP-fpm
-  php$V_PHP-gd
-  php$V_PHP-gmp
-  php$V_PHP-imap
-  php$V_PHP-intl
-  php$V_PHP-mbstring
-  php$V_PHP-soap
-  php$V_PHP-sqlite3
-  php$V_PHP-xml
-  php$V_PHP-xmlrpc
-  php$V_PHP-zip
-  php-imagick
-  php-redis
-  postfix-policyd-spf-perl
-  postfix-sqlite
-  pwgen
-  redis-server
-  rsync
-  spamprobe
-  sqlite3
-  sudo
-  time
-  unzip
-  wget
-  whois
-"
+DLIST=" apache2-utils apt-utils bash bc bind9-host bsd-mailx 
+busybox-static ca-certificates curl deborphan dnsutils dovecot-imapd 
+dovecot-lmtpd dovecot-managesieved dovecot-sqlite ebtables fcgiwrap gawk 
+git iptables iputils-ping jq jq libxml2-utils mailgraph msmtp mtr-tiny 
+mutt mutt nano net-tools nginx-light opendkim opendkim-tools opendmarc 
+openssh-server pdns-backend-sqlite3 pflogsumm php$V_PHP php$V_PHP-bcmath 
+php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp php$V_PHP-imap 
+php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap php$V_PHP-sqlite3 
+php$V_PHP-xml php$V_PHP-xmlrpc php$V_PHP-zip php-imagick php-redis 
+postfix-policyd-spf-perl postfix-sqlite pwgen redis-server rsync 
+spamprobe sqlite3 sudo time unzip wget whois"
 
 # Optional MySQL packages (not need if using SQLite)
-MLIST="
-  dovecot-mysql
-  mariadb-common
-  mariadb-client
-  mariadb-server
-  pdns-backend-mysql
-  php$V_PHP-mysql
-  postfix-mysql
-"
+MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server 
+pdns-backend-mysql php$V_PHP-mysql postfix-mysql"
 
 # Default remove list (RLIST="" to ignore removal)
-RLIST="
-  *golang*
-  *python*
-  accountsservice
-  apache2
-  at
-  bind9
-  cloud*
-  install-info
-  lxcfs
-  man*
-  open-iscsi
-  rpcbind
-  sasl2-bin
-  ttf-*
-  ubuntu-advantage-tools
-  vi*
-  xinetd
-"
+RLIST="*golang* *python* accountsservice apache2 at bind9 cloud* 
+install-info lxcfs man* open-iscsi rpcbind sasl2-bin ttf-* 
+ubuntu-advantage-tools vi* xinetd"
 
 # Make sure that IP4 is the default
 grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
