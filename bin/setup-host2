@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 20201022
+# .sh/bin/setup-host2 20170524 - 20201023
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -27,7 +27,7 @@ php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp php$V_PHP-imap
 php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap php$V_PHP-sqlite3 
 php$V_PHP-xml php$V_PHP-xmlrpc php$V_PHP-zip php-imagick php-redis 
 postfix-policyd-spf-perl postfix-sqlite pwgen redis-server rsync 
-spamprobe sqlite3 sudo time unzip wget whois"
+sqlite3 sudo time unzip wget whois"
 
 # Optional MySQL packages (not need if using SQLite)
 MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server 
