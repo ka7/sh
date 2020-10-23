@@ -28,7 +28,7 @@ if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     userdel -rf ubuntu > /dev/null 2>&1
 fi
 
-##### postfix
+#### postfix
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "Create $CSMTP/main.cf for $DTYPE"
@@ -128,7 +128,7 @@ elif [[ $DTYPE == mysql ]]; then
      fi
 fi
 
-##### dovecot
+#### dovecot
 
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "Create $CIMAP/dovecot.conf for $DTYPE"
@@ -201,7 +201,7 @@ if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
     cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
 fi
 
-##### nginx
+#### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then
     echo "Create $C_WEB/common.conf"
@@ -248,7 +248,7 @@ EOS
     sysctl -p
 fi
 
-##### opendkim
+#### opendkim
 
 if [[ ! -d /etc/opendkim ]]; then
     echo "Create /etc/opendkim"
@@ -272,7 +272,7 @@ if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     systemctl restart opendkim
 fi
 
-##### opendmarc
+#### opendmarc
 
 if [[ ! -f /etc/opendmarc.conf.orig ]]; then
     echo "Create /etc/opendmarc.conf"
@@ -289,7 +289,7 @@ if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     systemctl restart opendmarc
 fi
 
-##### php
+#### php
 
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "Create $C_FPM/common.conf"
@@ -310,7 +310,7 @@ if [[ ! -f $C_FPM/php.ini.orig ]]; then
         -e 's/memory_limit = 128M/memory_limit = 512M/'
 fi
 
-##### pdns
+#### pdns
 
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "Create $C_DNS/pdns.conf"
@@ -330,7 +330,7 @@ if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     fi
 fi
 
-##### CRON
+#### CRON
 
 if [[ ! -f /etc/cron.d/netserva ]]; then
     echo "Create /etc/cron.d/netserva"
@@ -345,7 +345,7 @@ if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
-##### SSH
+#### SSH
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "Create new /etc/ssh/sshd_config"

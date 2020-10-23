@@ -21,4 +21,39 @@ setup-hcp
 echo "### Send message to: admin@$MHOST"
 cat /root/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $(hostname -i)" -r admin@$MHOST admin@$MHOST
 
+echo "Setup plan for v2
+
+setup-host      : everything except whatever might identify this server
+
+setup-sysadm    : initial sysadm user setup using the primary domain
+
+setup-sqlite    : mandatory
+setup-mysql     : optional but default
+
+and
+
+setup-mail      : setup-postfix and setup-dovecot
+setup-web       : setup-nginx and setup-lsws
+setup-dns       : setup-pdns
+
+or separate services (or both, above call below)
+
+setup-postfix   : SMTP
+setup-dovecot   : IMAP
+setup-nginx     : nginx
+setup-lsws      : openlitespeed
+setup-php       : php7-fpm
+setup-pdns      : powerdns
+
+then
+
+setup-hcp       : Hosting Control Panel
+setup-sqladmin  : phpmyadmin (mysql) and phpliteadmin (sqlite)
+setup-roundcube : webmail
+setup-nextcloud : carddav, caldav, storage server
+
+"
+
+
+
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
