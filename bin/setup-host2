@@ -121,6 +121,7 @@ if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     else
         echo "Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
+        chmod 644 /etc/systemd/network/10-dhcp.network
         systemctl enable systemd-networkd > /dev/null 2>&1
     fi
 fi
