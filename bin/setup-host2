@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 20201023
+# .sh/bin/setup-host2 20170524 - 20201024
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -8,7 +8,7 @@
 # primary VM image can be cloned. Ie; so as much preliminary setup can be
 # done without actually adding any custom IPs, users or vhosts. Anything
 # to do with setting up IPs, users or vhosts needs to be done in a
-# separate followup setup-guest script to create the primary vhost.
+# separate followup setup-sysadm script to create the primary vhost.
 
 [[ $1 =~ '-h' ]] && \
   echo "Usage: setup-host2 [(mysql)|sqlite] [php version] [os release] [os mirror]" && exit 1
@@ -26,14 +26,14 @@ OSMIR=${4:-$OSMIR}
 DLIST=" apache2-utils apt-utils bash bc bind9-host bsd-mailx 
 busybox-static ca-certificates curl deborphan dnsutils dovecot-imapd 
 dovecot-lmtpd dovecot-managesieved dovecot-sqlite ebtables fcgiwrap gawk 
-git iptables iputils-ping jq jq libxml2-utils mailgraph msmtp mtr-tiny 
-mutt mutt nano net-tools nginx-light opendkim opendkim-tools opendmarc 
+git iptables iputils-ping jq libxml2-utils mailgraph msmtp mtr-tiny 
+mutt nano net-tools nginx-light opendkim opendkim-tools opendmarc 
 openssh-server pdns-backend-sqlite3 pflogsumm php$V_PHP php$V_PHP-bcmath 
 php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp php$V_PHP-imap 
 php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap php$V_PHP-sqlite3 
 php$V_PHP-xml php$V_PHP-xmlrpc php$V_PHP-zip php-imagick php-redis 
-postfix-policyd-spf-perl postfix-sqlite pwgen redis-server rsync 
-sqlite3 sudo time unzip wget whois"
+postfix-policyd-spf-perl postfix-sqlite pwgen redis-server rsyslog
+rsync sqlite3 sudo time unzip wget whois"
 
 # Mysql List of packages (not need if using SQLite)
 MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server 
@@ -57,20 +57,25 @@ if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
 fi
 
 if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    export DEBIAN_FRONTEND=noninteractive
+    export TERM=linux
+    
     echo "Setup apt sources list for $OSREL"
     mv /etc/apt/sources.list /etc/apt/sources.list.orig
     sed ~/.sh/etc/_etc_apt_sources.list \
      -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
      
-    export DEBIAN_FRONTEND=noninteractive
-    export TERM=linux
+    cat << EOS | debconf-set-selections
+postfix postfix/destinations string 'localhost'
+postfix postfix/mailname string 'localhost'
+postfix postfix/main_mailer_type string 'Internet Site'
+EOS
     
-    # For bionic (18.04)
-    echo "Adding key for bionic repo"
-    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null
-    # For openlitespeed
+    echo "Adding key for bionic (18.04) repo"
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null 2>&1
+
     echo "Adding key for openlitespeed repo"
-    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null 2>&1
     
     echo "Updating package list for $OSREL, patience please..."
     apt-get -yqq update > /dev/null #2>&1
@@ -84,9 +89,18 @@ if [[ ! -f /etc/apt/sources.list.orig ]]; then
     if [[ $DTYPE == mysql ]]; then
         echo "Installing MYSQL package set, even more patience..."
         apt-get -yqq install $MLIST > /dev/null #2>&1
+        
+        echo "Change Mysql to utf8 otherwise pdns tables will not install"
+        sed -i /etc/mysql/mariadb.conf.d/50-server.cnf \
+          -e "/^character-set-server/ s/utf8mb4/utf8/" \
+          -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/"
     fi
     
-    # Special case for bionic spamprobe (the focal spamprobe crashes)
+    echo "Disable pdns until actually needed"
+    systemctl stop pdns > /dev/null #2>&1
+    systemctl disable pdns > /dev/null #2>&1
+    
+    echo "Install bionic spamprobe (the focal spamprobe crashes)"
     apt-get install spamprobe=1.4d-14build1 > /dev/null #2>&1
     apt-mark hold spamprobe > /dev/null
 fi
@@ -100,7 +114,7 @@ if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
     echo "Remove python and all related packages"
     apt-get -yqq --purge remove $RLIST > /dev/null #2>&1
     
-    # This action removes /sbin/netplan so replace it with systemd-networkd
+    echo "Replace /sbin/netplan with systemd-networkd"
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
     if [[ -f /etc/systemd/network/10-dhcp.network ]]; then
         echo "/etc/systemd/network/10-dhcp.network already exists"
