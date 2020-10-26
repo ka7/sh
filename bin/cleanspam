@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/cleanspam 20190706 - 20200927
+# .sh/bin/cleanspam 20190706 - 20201026
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: cleanspam [email] [-v]" && exit 1
@@ -29,6 +29,7 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  cd $HPATH; \
  mkdir spamprobe-bkp; \
  cp -a .spamprobe/* spamprobe-bkp; \
+ db5.3_recover -h spamprobe-bkp; \
  spamprobe -d spamprobe-bkp cleanup 2 366; \
  [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
  mkdir spamprobe-new; \
