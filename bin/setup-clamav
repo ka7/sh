@@ -10,18 +10,20 @@ echo "Install clamav clamav-freshclam clamsmtp"
 apt-get install -y clamav clamav-freshclam clamsmtp > /dev/null
 
 echo "Enable systemd startup files"
-systemctl enable clamsmtp
-systemctl enable clamav-freshclam
-systemctl enable clamav-daemon # not sure if this one is needed ?
+systemctl enable clamsmtp > /dev/null
+systemctl enable clamav-freshclam > /dev/null
+systemctl enable clamav-daemon > /dev/null # not sure if this one is needed ?
 
 echo "Modify /etc/clamsmtpd.conf"
 sed -i /etc/clamsmtpd.conf \
   -e 's/OutAddress: 10025/OutAddress: 127.0.0.1:10026/' \
   -e 's/Listen: 127.0.0.1:10026/Listen: 127.0.0.1:10025/'
 
+echo "Restart systemd startup files"
+systemctl start clamav-daemon
+sleep 2
 systemctl restart clamsmtp
 systemctl restart clamav-freshclam
-systemctl restart clamav-daemon
 
 echo "Modify /etc/postfix/main.cf"
 cat << EOS >> /etc/postfix/main.cf
