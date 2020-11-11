@@ -10,9 +10,9 @@ echo "Install clamav clamav-freshclam clamsmtp"
 apt-get install -y clamav clamav-freshclam clamsmtp > /dev/null
 
 echo "Enable systemd startup files"
-systemctl enable clamsmtp > /dev/null
-systemctl enable clamav-freshclam > /dev/null
-systemctl enable clamav-daemon > /dev/null # not sure if this one is needed ?
+systemctl enable clamsmtp > /dev/null 2>&1
+systemctl enable clamav-freshclam > /dev/null 2>&1
+systemctl enable clamav-daemon > /dev/null 2>&1 # not sure if this one is needed ?
 
 echo "Modify /etc/clamsmtpd.conf"
 sed -i /etc/clamsmtpd.conf \
@@ -21,7 +21,8 @@ sed -i /etc/clamsmtpd.conf \
 
 echo "Restart systemd startup files"
 systemctl start clamav-daemon
-sleep 2
+echo "Wait for clamav-daemon to initialize"
+sleep 10
 systemctl restart clamsmtp
 systemctl restart clamav-freshclam
 
