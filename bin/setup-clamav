@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-clamav 20201111 - 20201111
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-clamav" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+apt-get install -y clamav clamav-freshclam clamsmtp
+
+systemctl enable clamsmtp
+systemctl enable clamav-freshclam
+#systemctl enable clamav-daemon # not sure if this one is needed ?
+
+sed -i /etc/clamsmtpd.conf \
+  -e 's/OutAddress: 10025/OutAddress: 10026/' \
+  -e 's/Listen: 127.0.0.1:10026/Listen: 127.0.0.1:10025/'
+
+systemctl restart clamsmtp
+
+cat << EOS >> /etc/postfix/main.cf
+
+content_filter = scan:127.0.0.1:10025
+receive_override_options = no_address_mappings
+EOS
+
+cat << EOS >> /etc/postfix/vhosts/00_master.cf
+
+scan       unix  -       -       n       -       16      smtp
+    -o smtp_send_xforward_command=yes
+127.0.0.1:10026 inet n   -       n       -       16      smtpd
+    -o content_filter=
+    -o receive_override_options=no_unknown_recipient_checks,no_header_body_checks
+    -o smtpd_helo_restrictions=
+    -o smtpd_client_restrictions=
+    -o smtpd_sender_restrictions=
+    -o smtpd_recipient_restrictions=permit_mynetworks,reject
+    -o mynetworks_style=host
+    -o smtpd_authorized_xforward_hosts=127.0.0.0/8
+EOS
+
+mv /etc/postfix/master.cf /etc/postfix/master.old
+cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
+
+systemctl restart postfix
+
+cat << EOS >> /etc/cron.d/netserva
+20 0 * * * freshclam --quiet 
+EOS
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
