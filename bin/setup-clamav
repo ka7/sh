@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-clamav 20201111 - 20201111
+# .sh/bin/setup-clamav 20201111 - 20201115
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-clamav" && exit 1
@@ -53,10 +53,10 @@ cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
 
 systemctl restart postfix
 
-echo "Append freshclam job to /etc/cron.d/netserva"
-cat << EOS >> /etc/cron.d/netserva
-
-20 0 * * * root freshclam --quiet 
-EOS
+#echo "Append freshclam job to /etc/cron.d/netserva"
+#cat << EOS >> /etc/cron.d/netserva
+#
+#20 0 * * * root freshclam --quiet 
+#EOS
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
