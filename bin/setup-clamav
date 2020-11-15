@@ -20,7 +20,7 @@ sed -i /etc/clamsmtpd.conf \
   -e 's/Listen: 127.0.0.1:10026/Listen: 127.0.0.1:10025/'
 
 echo "Restart systemd startup files"
-systemctl start clamav-daemon
+systemctl restart clamav-daemon
 echo "Wait for clamav-daemon to initialize"
 sleep 10
 systemctl restart clamsmtp
@@ -33,8 +33,8 @@ content_filter = scan:127.0.0.1:10025
 receive_override_options = no_address_mappings
 EOS
 
-echo "Modify /etc/postfix/vhosts/00_master.cf"
-cat << EOS >> /etc/postfix/vhosts/00_master.cf
+echo "Modify /etc/postfix/vhosts/00-master.cf"
+cat << EOS >> /etc/postfix/vhosts/00-master.cf
 scan       unix  -       -       n       -       16      smtp
     -o smtp_send_xforward_command=yes
 127.0.0.1:10026 inet n   -       n       -       16      smtpd
