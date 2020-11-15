@@ -33,8 +33,8 @@ content_filter = scan:127.0.0.1:10025
 receive_override_options = no_address_mappings
 EOS
 
-echo "Modify /etc/postfix/vhosts/00-master.cf"
-cat << EOS >> /etc/postfix/vhosts/00-master.cf
+echo "Modify /etc/postfix/vhosts/00_master.cf"
+cat << EOS >> /etc/postfix/vhosts/00_master.cf
 scan       unix  -       -       n       -       16      smtp
     -o smtp_send_xforward_command=yes
 127.0.0.1:10026 inet n   -       n       -       16      smtpd
