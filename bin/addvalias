@@ -32,7 +32,6 @@ EOS
 
 [[ $USRID ]] && echo "ERROR: '$FMAIL' already exists in $ADMIN.valias" && exit 4
 
-echo "Create $ADMIN.valias entry ($DTYPE)"
 cat << EOS | $SQCMD
  INSERT INTO valias (
         hid,
@@ -48,5 +47,7 @@ cat << EOS | $SQCMD
         '$V_CREATED'
 )
 EOS
+
+shalias $FMAIL
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
