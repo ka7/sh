@@ -6,8 +6,8 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-FMAIL=${1,,} # lowercase user@domain
-TMAIL=${2,,} # lowercase user@domain
+FMAIL=${1,,} # lowercase source
+TMAIL=${2,,} # lowercase target
 VHOST=${TMAIL#*@} # userid @ $VHOST
 
 source /root/.vhosts/$VHOST || exit 3
@@ -30,10 +30,10 @@ USRID=$(cat << EOS | $SQCMD
 EOS
 )
 
-[[ $USRID ]] && echo "ERROR: '@$FMAIL' already exists in $ADMIN.valias" && exit 4
+[[ $USRID ]] && echo "ERROR: '$FMAIL' already exists in $ADMIN.valias" && exit 4
 
 echo "Create $ADMIN.valias entry ($DTYPE)"
-DO_VALIAS=$(cat << EOS | $SQCMD
+cat << EOS | $SQCMD
  INSERT INTO valias (
         hid,
         source,
@@ -48,6 +48,5 @@ DO_VALIAS=$(cat << EOS | $SQCMD
         '$V_CREATED'
 )
 EOS
-)
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
