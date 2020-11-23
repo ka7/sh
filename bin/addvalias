@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# .sh/bin/addvalias 20201123 - 20201123
+# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $2 || $1 =~ '-h' ]] && echo "Usage: addvalias source target" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+FMAIL=${1,,} # lowercase user@domain
+TMAIL=${2,,} # lowercase user@domain
+VHOST=${TMAIL#*@} # userid @ $VHOST
+
+source /root/.vhosts/$VHOST || exit 3
+
+V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
+
+HID=$(cat << EOS | $SQCMD
+ SELECT id
+   FROM vhosts
+  WHERE domain = '$VHOST'
+EOS
+)
+
+[[ -z $HID ]] && echo "ERROR: '$VHOST' does not exist in $ADMIN.vhosts" && exit 3
+
+USRID=$(cat << EOS | $SQCMD
+ SELECT id
+   FROM valias
+  WHERE source = '$FMAIL'
+EOS
+)
+
+[[ $USRID ]] && echo "ERROR: '@$FMAIL' already exists in $ADMIN.valias" && exit 4
+
+echo "Create $ADMIN.valias entry ($DTYPE)"
+DO_VALIAS=$(cat << EOS | $SQCMD
+ INSERT INTO valias (
+        hid,
+        source,
+        target,
+        updated,
+        created
+) VALUES (
+        $HID,
+        '$FMAIL',
+        '$TMAIL',
+        '$V_CREATED',
+        '$V_CREATED'
+)
+EOS
+)
+
+systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
