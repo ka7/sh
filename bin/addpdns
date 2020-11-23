@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addpdns 20180709 - 20201018
+# .sh/bin/addpdns 20180709 - 20201123
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $4 || $1 =~ -h ]] && echo "Usage: addpdns domain ip ns1 ns2 [mx] [spfip(or custom string)] [sshkey]" && exit 1
@@ -51,20 +51,28 @@ pdnsutil add-record $VHOST _dmarc TXT \""$DMARC"\" > /dev/null 2>&1
 pdnsutil set-kind $VHOST MASTER > /dev/null 2>&1
 
 # Add DKIM record to server then update DNS
-if [[ ! -f $MYKEY ]]; then
-    echo "ERROR: $MYKEY missing, can't proceed with DKIM record"
-else
-    DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-    _DKEY=$($DOSSH $IP4_0 ". .shrc; dkim list | grep mail._domainkey.$VHOST")
-    if [[ $_DKEY != mail._domainkey.$VHOST ]]; then
-        echo "Adding DKIM record to $IP4_0"
-        $DOSSH $IP4_0 ". .shrc; dkim add $VHOST"
-    fi
-    _DKIM=$($DOSSH $IP4_0 ". .shrc; dkim show $VHOST" | grep "v=DKIM1")
-    if [[ $_DKIM ]]; then
-        pdnsutil add-record $VHOST mail._domainkey TXT \""$_DKIM"\"
-    fi
+echo "Adding DKIM record to $IP4_0"
+dkim add $VHOST
+_DKIM=$(dkim show $VHOST | grep "v=DKIM1")
+if [[ $_DKIM ]]; then
+    pdnsutil add-record $VHOST mail._domainkey TXT "\"$_DKIM\""
 fi
+
+## Remote DKIM generation needs more thought
+#if [[ ! -f $MYKEY ]]; then
+#    echo "ERROR: $MYKEY missing, can't proceed with DKIM record"
+#else
+#    DOSSH="ssh -l root -p9 -i $MYKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+#    _DKEY=$($DOSSH $IP4_0 ". .shrc; dkim list | grep mail._domainkey.$VHOST")
+#    if [[ $_DKEY != mail._domainkey.$VHOST ]]; then
+#        echo "Adding DKIM record to $IP4_0"
+#        $DOSSH $IP4_0 ". .shrc; dkim add $VHOST"
+#    fi
+#    _DKIM=$($DOSSH $IP4_0 ". .shrc; dkim show $VHOST" | grep "v=DKIM1")
+#    if [[ $_DKIM ]]; then
+#        pdnsutil add-record $VHOST mail._domainkey TXT \""$_DKIM"\"
+#    fi
+#fi
 
 # Show the resulting zone entries
 pdnsutil list-zone $VHOST 2> /dev/null
