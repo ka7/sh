@@ -127,8 +127,9 @@ wp post delete $POSTS
 wp post delete $PAGES
 wp theme delete twentyseventeen twentynineteen
 
-echo 'Install and activate the Kadence theme'
+echo 'Install Kadence theme'
 wp theme --quiet install kadence 2> /dev/null
+echo 'Create and active kadence-child theme'
 wp scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
 wp theme --quiet activate kadence-child $MSNET 2> /dev/null
 
@@ -136,7 +137,7 @@ echo 'Install Kadence Blocks plugin'
 wp plugin --quiet install kadence-blocks 2> /dev/null
 wp plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
 
-echo 'Install Kadence STarter Templates plugin'
+echo 'Install Kadence Starter Templates plugin'
 wp plugin --quiet install kadence-starter-templates 2> /dev/null
 wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
 
