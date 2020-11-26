@@ -115,6 +115,10 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 
 # We don't really need a child theme, leave this as a howto example
 #wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
+#wp theme --quiet enable kadence-child --activate $MSNET 2> /dev/null # not working?
+#echo 'Install Elementor plugin'
+#wp plugin --quiet install elementor 2> /dev/null
+#wp plugin --quiet activate elementor $MSNET 2> /dev/null
 
     su - $UUSER -c "
 cd $FPATH
@@ -126,19 +130,23 @@ wp theme delete twentyseventeen twentynineteen
 echo 'Install and activate the Kadence theme'
 wp theme --quiet install kadence 2> /dev/null
 wp scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
-wp theme --quiet enable kadence-child --activate $MSNET 2> /dev/null
+wp plugin --quiet activate kadence-child $MSNET 2> /dev/null
 
-echo 'Install Elementor plugin'
-wp plugin --quiet install elementor 2> /dev/null
-wp plugin --quiet activate elementor $MSNET 2> /dev/null
+echo 'Install Kadence Blocks plugin'
+wp plugin --quiet install kadence-blocks 2> /dev/null
+wp plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
+
+echo 'Install Kadence STarter Templates plugin'
+wp plugin --quiet install kadence-starter-templates 2> /dev/null
+wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
 
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
 wp plugin --quiet activate autoptimize $MSNET 2> /dev/null
 
 echo 'Install WPvivid plugin'
-wp plugin --quiet install wpvivid-backuprestore/ 2> /dev/null
-wp plugin --quiet activate wpvivid-backuprestore/ $MSNET 2> /dev/null
+wp plugin --quiet install wpvivid-backuprestore 2> /dev/null
+wp plugin --quiet activate wpvivid-backuprestore $MSNET 2> /dev/null
 
 wp post create --post_type=page --post_title='Home' --post_status=publish
 wp post create --post_type=page --post_title='About' --post_status=publish
