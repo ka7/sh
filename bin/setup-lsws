@@ -52,7 +52,7 @@ OPENLSWS_PASSWORD=$APASS
 OPENLSWS_USER=$UUSER
 PID_FILE=/tmp/lshttpd/lshttpd.pid
 SERVERROOT=$LROOT
-USE_LSPHP7=yes
+USE_LSPHP8=yes
 EOS
     ./install.sh
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf
@@ -75,10 +75,10 @@ if [[ $? -gt 0 ]]; then
     cat << EOS | tee -a /etc/apt/sources.list > /dev/null
 deb http://rpms.litespeedtech.com/debian/ focal main
 EOS
-    echo "Add PGP keys and install lsphp74 from OLS repo"
+    echo "Add PGP keys and install lsphp80 from OLS repo"
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
     apt-get update > /dev/null
-    apt-get -y install lsphp74 lsphp74-common lsphp74-curl lsphp74-igbinary lsphp74-imagick lsphp74-imap lsphp74-intl lsphp74-json lsphp74-ldap lsphp74-mysql lsphp74-opcache lsphp74-redis lsphp74-sqlite3 > /dev/null
+    apt-get -y install lsphp80 lsphp80-common lsphp80-curl lsphp80-igbinary lsphp80-imagick lsphp80-imap lsphp80-intl lsphp80-json lsphp80-ldap lsphp80-mysql lsphp80-opcache lsphp80-redis lsphp80-sqlite3 > /dev/null
 else
     echo "Warning: OLS packages already in /etc/apt/sources.list"
 fi
