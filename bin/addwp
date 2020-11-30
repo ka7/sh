@@ -113,9 +113,6 @@ export PLUGINS=$(echo $(su $UUSER -c "wp plugin list --field=name --path=$FPATH"
 export PAGES=$(su $UUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
 export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
 
-# We don't really need a child theme, leave this as a howto example
-#wp scaffold --quiet child-theme hello-elementor-child --parent_theme=hello-elementor --activate 2> /dev/null
-#wp theme --quiet enable kadence-child --activate $MSNET 2> /dev/null # not working?
 #echo 'Install Elementor plugin'
 #wp plugin --quiet install elementor 2> /dev/null
 #wp plugin --quiet activate elementor $MSNET 2> /dev/null
