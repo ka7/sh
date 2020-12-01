@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-clamav 20201111 - 20201115
+# .sh/bin/setup-clamav 20201111 - 20201201
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-clamav" && exit 1
@@ -46,6 +46,7 @@ scan       unix  -       -       n       -       16      smtp
     -o smtpd_recipient_restrictions=permit_mynetworks,reject
     -o mynetworks_style=host
     -o smtpd_authorized_xforward_hosts=127.0.0.0/8
+    -o smtpd_milters=
 EOS
 
 mv /etc/postfix/master.cf /etc/postfix/master.old
