@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20201126
+# .sh/bin/addwp 20160231 - 20201202
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -117,6 +117,10 @@ export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$
 #wp plugin --quiet install elementor 2> /dev/null
 #wp plugin --quiet activate elementor $MSNET 2> /dev/null
 
+#echo 'Install Kadence Starter Templates plugin' # OPTIONAL
+#wp plugin --quiet install kadence-starter-templates 2> /dev/null
+#wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
+
     su - $UUSER -c "
 cd $FPATH
 wp plugin delete $PLUGINS
@@ -133,10 +137,6 @@ wp theme --quiet activate kadence-child $MSNET 2> /dev/null
 echo 'Install Kadence Blocks plugin'
 wp plugin --quiet install kadence-blocks 2> /dev/null
 wp plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
-
-echo 'Install Kadence Starter Templates plugin'
-wp plugin --quiet install kadence-starter-templates 2> /dev/null
-wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
 
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null
