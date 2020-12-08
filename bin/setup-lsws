@@ -394,12 +394,12 @@ virtualHostConfig  {
   realm HCP {
 
     userDB  {
-      location            $VH_ROOT/www/hcp/.htpasswd
+      location            \$VH_ROOT/www/hcp/.htpasswd
     }
   }
 
   context /hcp/ {
-    location              $VH_ROOT/www/hcp/
+    location              \$VH_ROOT/www/hcp/
     allowBrowse           1
     realm                 HCP
 $TXTIP
