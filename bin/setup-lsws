@@ -83,7 +83,7 @@ EOS
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
     apt-get update > /dev/null
     apt-get -y install libicu66 > /dev/null
-    apt-get -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-igbinary lsphp$LSPHP-imagick lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-redis lsphp$LSPHP-sqlite3 > /dev/null
+    apt-get -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-sqlite3 > /dev/null
 
 # PHP 7.4 list
 #    apt-get -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-igbinary lsphp$LSPHP-imagick lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-json lsphp$LSPHP-ldap lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-redis lsphp$LSPHP-sqlite3 > /dev/null
