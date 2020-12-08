@@ -5,7 +5,7 @@
 # TODO: Add LROOT to canonical env vars (and bump SH version number)
 # TODO: Setup primary VHOST configs when installing
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [ip|remove]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [ip|remove] [src ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -15,6 +15,8 @@ LSVER=1.7.6
 LSPHP=80
 IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
 [[ $1 =~ $IPREG ]] && IPARG=$1 || IPARG=$IP4_0
+SRCIP=${2:-''}
+TXTIP=
 LSBKP="$BPATH/$(date +%Y%m%d)-lsws-conf.tgz"
 
 if [[ $1 == remove ]]; then
@@ -85,6 +87,16 @@ else
     echo "Warning: OLS packages already in /etc/apt/sources.list"
 fi
 
+if [[ $SRCIP ]]; then
+    TXTIP="
+
+    accessControl  {
+      allow               $SRCIP
+      deny                ALL
+    }
+"
+fi
+
 cat << EOS > $LROOT/admin/conf/admin_config.conf
 enableCoreDump            1
 sessionTimeout            3600
@@ -100,10 +112,7 @@ accesslog \$SERVER_ROOT/admin/logs/access.log {
   rollingSize             10M
   keepDays                90
 }
-
-accessControl  {
-  allow                   ALL
-}
+$TXTIP
 
 listener adminListener {
   address                 $IPARG:7080
@@ -374,6 +383,34 @@ virtualHostConfig  {
     add                   lsapi:php$LSPHP php
   }
 
+  accessControl  {
+    allow                 ALL
+  }
+
+  realm HCP {
+
+    userDB  {
+      location            $VH_ROOT/www/hcp/.htpasswd
+    }
+  }
+
+  context /hcp/ {
+    location              $VH_ROOT/www/hcp/
+    allowBrowse           1
+    realm                 HCP
+$TXTIP
+
+    rewrite  {
+
+    }
+    addDefaultCharset     off
+
+    phpIniOverride  {
+
+    }
+  }
+  
+
   context exp:^.*(css|gif|ico|jpeg|jpg|js|png|webp|woff|woff2|fon|fot|ttf)$ {
     location              \$DOC_ROOT/\$0
     allowBrowse           1
@@ -399,7 +436,6 @@ set Access-Control-Allow-Origin: *
   context / {
     allowBrowse           1
     extraHeaders          <<<END_extraHeaders
-Content-Security-Policy default-src 'self' data: 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com
 X-XSS-Protection 1;mode=block
 X-Frame-Options SAMEORIGIN
 Referrer-Policy strict-origin-when-cross-origin
@@ -411,7 +447,7 @@ Public-Key-Pins 'pin-sha256="pin1"; pin-sha256="pin2"; max-age=2592000'
 
     rewrite  {
       enable              1
-RewriteRule ^index\.php$ - [L]
+RewriteRule ^index\.php\$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
