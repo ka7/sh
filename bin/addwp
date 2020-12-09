@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20201202
+# .sh/bin/addwp 20160231 - 20201209
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -113,10 +113,6 @@ export PLUGINS=$(echo $(su $UUSER -c "wp plugin list --field=name --path=$FPATH"
 export PAGES=$(su $UUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
 export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
 
-#echo 'Install Elementor plugin'
-#wp plugin --quiet install elementor 2> /dev/null
-#wp plugin --quiet activate elementor $MSNET 2> /dev/null
-
 #echo 'Install Kadence Starter Templates plugin' # OPTIONAL
 #wp plugin --quiet install kadence-starter-templates 2> /dev/null
 #wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
@@ -126,7 +122,7 @@ cd $FPATH
 wp plugin delete $PLUGINS
 wp post delete $POSTS
 wp post delete $PAGES
-wp theme delete twentyseventeen twentynineteen
+wp theme delete twentynineteen twentytwenty
 
 echo 'Install Kadence theme'
 wp theme --quiet install kadence 2> /dev/null
@@ -137,6 +133,10 @@ wp theme --quiet activate kadence-child $MSNET 2> /dev/null
 echo 'Install Kadence Blocks plugin'
 wp plugin --quiet install kadence-blocks 2> /dev/null
 wp plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
+
+echo 'Install Elementor plugin'
+wp plugin --quiet install elementor 2> /dev/null
+wp plugin --quiet activate elementor $MSNET 2> /dev/null
 
 echo 'Install Autoptimize plugin'
 wp plugin --quiet install autoptimize 2> /dev/null

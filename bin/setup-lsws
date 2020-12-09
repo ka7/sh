@@ -38,12 +38,13 @@ if [[ $1 == remove ]]; then
 fi
 
 if [[ ! -d $LROOT ]]; then
-    echo "Installing openlitespeed to $LROOT"
+    echo "Fetch openlitespeed-$LSVER.tgz"
     cd
-    wget -q https://openlitespeed.org/packages/openlitespeed-$LSVER.tgz
-    tar -xf openlitespeed-$LSVER.tgz
+    wget -q https://openlitespeed.org/packages/openlitespeed-$LSVER.tgz > /dev/null
+    echo "Extract openlitespeed-$LSVER.tgz"
+    tar -xf openlitespeed-$LSVER.tgz > /dev/null
     cd openlitespeed
-    cat << EOS | tee ols.conf
+    cat << EOS | tee ols.conf > /dev/null
 DEFAULT_TMP_DIR=/tmp/lshttpd
 OPENLSWS_ADMIN=$ADMIN
 OPENLSWS_ADMINPORT=7080
@@ -51,14 +52,15 @@ OPENLSWS_ADMINSSL=yes
 OPENLSWS_EMAIL=$AMAIL
 OPENLSWS_EXAMPLEPORT=8080
 OPENLSWS_GROUP=www-data
-OPENLSWS_PASSWORD=$APASS
+OPENLSWS_PASSWORD=$APASS > /dev/null
 OPENLSWS_USER=$UUSER
 PID_FILE=/tmp/lshttpd/lshttpd.pid
 SERVERROOT=$LROOT
-USE_LSPHP8=yes
+USE_LSPHP7=no
 EOS
-    ./install.sh
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf
+    echo "Installing openlitespeed to $LROOT"
+    ./install.sh > /dev/null
+    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 LSWSAdmin
 =========
 
@@ -80,6 +82,10 @@ deb http://rpms.litespeedtech.com/debian/ focal main
 deb http://archive.ubuntu.com/ubuntu focal main universe
 EOS
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
+    
+    if [[ -f /etc/apt/sources.list.d/lst_debian_repo.list ]]; then
+        rm /etc/apt/sources.list.d/lst_debian_repo.list
+    fi
 fi
 
 echo "Install lsphp$LSPHP from OLS repo"
