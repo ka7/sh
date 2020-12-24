@@ -6,7 +6,7 @@ _MESG="Thank you for your email. The office of Power & Cartwright will be closed
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: vacation email [subject]" && exit 1
 
-#[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 . ~/.shrc || exit 3
 
