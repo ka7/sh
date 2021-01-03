@@ -43,7 +43,7 @@ sudo time minizip wget which whois"
     [[ $DTYPE == mysql ]] && pacman -S $MLIST --needed --noconfirm
     pacman -Qsq python | pacman -Rcns --noconfirm -
 
-else [[ -f /etc/apt/sources.list ]]; then
+elif [[ -f /etc/apt/sources.list ]]; then
 
     echo "Install Debian/Ubuntu base packages"
     
