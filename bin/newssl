@@ -41,7 +41,7 @@ C_WEB="/etc/nginx"
 [[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
 
 [[ ! -d $LECFG ]] && \
-    mkdir $LECFG \
+    mkdir $LECFG && \
     git clone --depth 1 $LEGIT $LECFG && \
     chmod +x $LECFG/dehydrated && \
     ln -s $C_SSL $LECFG/certs
