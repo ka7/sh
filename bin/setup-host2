@@ -11,7 +11,7 @@
 # separate followup setup-sysadm script to create the primary vhost.
 
 # ADDED THE START OF ARCH/MANJARO SUPPORT
-set -x
+
 [[ $1 =~ '-h' ]] && \
   echo "Usage: setup-host2 [(mysql)|sqlite] [php version] [os release] [os mirror]" && exit 1
 
@@ -178,7 +178,8 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
-    systemctl restart ssh
+    [[ -f /etc/pacman.conf ]] && SSH=sshd || SSH=ssh
+    systemctl restart $SSH
 fi
 
 if [[ ! -d /root/.ssh ]]; then
