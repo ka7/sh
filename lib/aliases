@@ -31,7 +31,7 @@ if [[ -L /bin/ash ]]; then
     alias s=$SUDO'apk search -v'
     alias lspkg=$SUDO'apk info'
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
-    alias ram=$SUDO'ps -o rss,vsz,comm | grep -v '   0' | sort -n'
+    alias ram=$SUDO'ps -o rss,vsz,comm | grep -v "   0" | sort -n'
     alias sc=$SUDO'rc-service'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
