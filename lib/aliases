@@ -1,5 +1,5 @@
-# .sh/lib/aliases 20151231 - 20200705
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/aliases 20151231 - 20210110
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 alias ?='bash ~/.help'
 alias c='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
@@ -29,6 +29,13 @@ alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 #alias clr='courier clear'
 #alias csg='courier show all | grep'
 
+if [[ -L /bin/ash ]]; then
+    alias i=$SUDO'apk add'
+    alias u=$SUDO'apk update'
+#    alias r=$SUDO''
+#    alias s=$SUDO''
+#    alias lspkg=$SUDO''
+#    alias edpkg=$SUDO''
 if [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
