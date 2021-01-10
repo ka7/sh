@@ -36,7 +36,7 @@ if [[ -L /bin/ash ]]; then
 #    alias s=$SUDO''
 #    alias lspkg=$SUDO''
 #    alias edpkg=$SUDO''
-if [[ -f /etc/pacman.conf ]]; then
+elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
     alias r=$SUDO'pacman -Rns'
