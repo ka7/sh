@@ -24,7 +24,7 @@ alias sn='[ -f ~/.note ] && cat ~/.note'
 alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
 alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
-if [[ -L /bin/ash ]]; then
+if [[ -f /etc/alpine-release ]]; then
     alias i=$SUDO'apk add'
     alias u=$SUDO'apk update && '$SUDO'apk upgrade'
     alias r=$SUDO'apk del'
@@ -33,6 +33,7 @@ if [[ -L /bin/ash ]]; then
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
     alias ram=$SUDO'ps -o rss,vsz,comm | grep -v "   0" | sort -n'
     alias sc=$SUDO'rc-service'
+    alias l=$SUDO'tail -f /var/log/messages'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
