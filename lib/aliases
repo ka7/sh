@@ -24,18 +24,15 @@ alias sn='[ -f ~/.note ] && cat ~/.note'
 alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
 alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
-# change to postfix equiv
-#alias cs='courier show all'
-#alias clr='courier clear'
-#alias csg='courier show all | grep'
-
 if [[ -L /bin/ash ]]; then
     alias i=$SUDO'apk add'
-    alias u=$SUDO'apk update'
-#    alias r=$SUDO''
-#    alias s=$SUDO''
-#    alias lspkg=$SUDO''
-#    alias edpkg=$SUDO''
+    alias u=$SUDO'apk update && '$SUDO'apk upgrade'
+    alias r=$SUDO'apk del'
+    alias s=$SUDO'apk search -v'
+    alias lspkg=$SUDO'apk info'
+    alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
+    alias ram=$SUDO'ps -o rss,vsz,comm | grep -v '   0' | sort -n'
+    alias sc=$SUDO'rc-service'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
