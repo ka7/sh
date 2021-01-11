@@ -182,7 +182,6 @@ sethost ()
         export C_FPM="/etc/php/$V_PHP/fpm";
     fi
 
-    export C_FPM="/etc/php/$V_PHP/fpm";
     export DUSER=$UUSER;
     export MPATH=$VPATH/$VHOST/home;
     export UPATH=$VPATH/$VHOST;
