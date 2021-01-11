@@ -1,5 +1,5 @@
-# .sh/lib/functions 20151231 - 20201017
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/functions 20151231 - 20210111
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
 {
@@ -128,7 +128,7 @@ sethost ()
     else
         export VHOST=$1;
         export U_UID=$(newuid);
-        export UUSER="u$U_UID";
+        export UUSER=$([[ $U_UID = 1000 ]] && echo "sysadm" || echo "u$U_UID");
     fi;
     export U_GID=$U_UID;
 
@@ -171,6 +171,17 @@ sethost ()
 
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     export MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
+
+    # OS dependant overrides
+    if [[ -f /etc/alpine-release ]]; then
+        export C_DNS='/etc/pdns'
+        export C_FPM='/etc/php7/php-fpm.d'
+    elif [[ -f /etc/pacman.conf ]]; then
+        export C_FPM='/etc/php/php-fpm.d'
+    else
+        export C_FPM="/etc/php/$V_PHP/fpm";
+    fi
+
     export C_FPM="/etc/php/$V_PHP/fpm";
     export DUSER=$UUSER;
     export MPATH=$VPATH/$VHOST/home;
