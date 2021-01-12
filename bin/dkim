@@ -46,7 +46,11 @@ add)
         echo "*@$DOMAIN       $ID" >> /etc/opendkim/SigningTable
         echo "$DOMAIN" >> /etc/opendkim/TrustedHosts
         echo "*.$DOMAIN" >> /etc/opendkim/TrustedHosts
-        systemctl reload opendkim
+        if [[ -f /etc/alpine-release ]]; then
+            rc-service opendkim restart
+        else
+            systemctl reload opendkim
+        fi
         echo "Added DKIM keys for $DOMAIN using a selector of '$SELECT' and a key length of $KEYLEN"
     fi
     ;;
@@ -59,7 +63,11 @@ del)
         sed -i "/$DELID/d" /etc/opendkim/KeyTable 2> /dev/null
         sed -i "/$DELID/d" /etc/opendkim/SigningTable 2> /dev/null
         sed -i "/${DOMAIN}$/d" /etc/opendkim/TrustedHosts 2> /dev/null
-        systemctl reload opendkim
+        if [[ -f /etc/alpine-release ]]; then
+            rc-service opendkim restart
+        else
+            systemctl reload opendkim
+        fi
         echo "Removed DKIM key for $DOMAIN"
     fi
     ;;
