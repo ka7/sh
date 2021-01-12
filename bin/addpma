@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addpma 20190630 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addpma 20190630 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addpma [domain]" && exit 1
 
@@ -70,4 +70,4 @@ EOS
      fi
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

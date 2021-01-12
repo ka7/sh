@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-hcp 20170519 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
@@ -140,4 +140,4 @@ chperms $VHOST
 serva restart web
 serva restart mail
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

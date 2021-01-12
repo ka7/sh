@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addrc 20190630 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addrc 20190630 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addrc [domain] [rcver]" && exit 1
 
@@ -10,7 +10,7 @@ VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 RCVER=${2:-'1.4.9'}
 DBTMP=${VHOST//[.-]/_}
 
-source /root/.vhosts/$VHOST || exit 3
+. /root/.vhosts/$VHOST || exit 3
 
 if [[ -d $WPATH/vendor/roundcube/ ]]; then
     echo "$WPATH/roundcube already exists"
@@ -50,6 +50,7 @@ else
 \$config = [];
 \$config['db_dsnw'] = '$_DNSW';
 \$config['default_host'] = 'ssl://$MHOST';
+\$config['default_port'] = 993;
 \$config['smtp_server'] = 'ssl://$MHOST';
 \$config['smtp_port'] = 465;
 \$config['smtp_user'] = '%u';
@@ -97,7 +98,7 @@ EOS
     [[ -d $UPATH/var/www_old/hcp ]] && mv $UPATH/var/www_old/hcp $UPATH/var/www/hcp
 
     chperms $VHOST
-    
+
     su - $UUSER -c "cd var/www; php composer.phar -n update"
     su - $UUSER -c "cd var/www; php composer.phar -n install"
 
@@ -111,4 +112,4 @@ EOS
 
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
