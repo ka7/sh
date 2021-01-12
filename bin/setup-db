@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/setup-db.sh 20170319 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
 #CREATE TABLE cookie IF NOT EXISTS(
@@ -30,12 +30,12 @@ if [[ $DTYPE == sqlite ]]; then
         chown $A_UID:$A_GID -R $DBSQL/$ADMIN
         chmod 700 $DBSQL/*
     fi
-    
+
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
 # are these next two really necessary?
     SQCMD="sqlite3 $DPATH"
     SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db"
-    
+
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ -f ~/.my.cnf ]]; then
@@ -236,7 +236,7 @@ CREATE VIEW IF NOT EXISTS vhosts_view AS
             LEFT JOIN vmails vm ON vh.id = vm.hid
                 LEFT JOIN valias va ON vh.id = va.hid
   GROUP BY vh.id, hl.size_mpath, hl.size_upath;
-  
+
 CREATE VIEW IF NOT EXISTS news_view AS
  SELECT n.*, u.id as uid, u.login, u.fname, u.lname
    FROM news n
@@ -380,4 +380,4 @@ CREATE INDEX virtual_aliases_hid ON valias (hid);
 CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
