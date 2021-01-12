@@ -15,6 +15,7 @@ if [[ ! -d /etc/opendkim ]]; then
     touch /etc/opendkim/SigningTable
     echo -e "127.0.0.1\nlocalhost\n" > /etc/opendkim/TrustedHosts
     chown opendkim:opendkim -R /etc/opendkim
+    # mv into /etc/opendkim for Alpine
     chown opendkim:opendkim /etc/opendkim.conf
     find /etc/opendkim -type d -exec chmod 700 {} +
     find /etc/opendkim -type f -exec chmod 600 {} +
@@ -39,7 +40,7 @@ add)
         mv "/tmp/$SELECT.txt" "$DNSTXT"
         mv "/tmp/$SELECT.private" "$KFILES"
         sed -i "s/ ; ----- DKIM key $SELECT for $DOMAIN//g" "$DNSTXT"
-        chown www-data: /etc/opendkim/dnstxt/*
+        chown $WUGID: /etc/opendkim/dnstxt/*
         chown opendkim: "$KFILES"
         chmod 600 "$KFILES"
         echo "$ID     $DOMAIN:$SELECT:$KFILES" >> /etc/opendkim/KeyTable
