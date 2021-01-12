@@ -41,7 +41,7 @@ if [[ ! -f /etc/hosts.orig ]]; then
 
     if [[ -f /etc/alpine-release ]]; then
         echo "Update static /etc/resolv.conf"
-        echo << EOS > /etc/resolv.conf
+        cat << EOS > /etc/resolv.conf
 nameserver 1.1.1.1
 nameserver 8.8.8.8
 domain $HDOMN
@@ -58,4 +58,4 @@ EOS
     hostname $HNAME # Just in case
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
