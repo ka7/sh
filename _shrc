@@ -50,6 +50,7 @@ else
     TCITY='Sydney'
     VPATH='/home/u'
     V_PHP='7.4'
+    WUGID='www-data'
 
     # Local custom aliases and env var overrides
     [ -f ~/.myrc ] && . ~/.myrc

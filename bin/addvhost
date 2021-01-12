@@ -61,7 +61,7 @@ if [[ $(grepuser ":$VHOST:") ]]; then
 else
     echo "Create $UUSER user"
     if [[ -f /etc/alpine-release ]]; then
-        addgroup -S sudo
+        [[ $(getent group sudo) ]] || addgroup -S sudo
     fi
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
     TMPIP=$([[ -n $USEIP ]] && echo ",$USEIP")

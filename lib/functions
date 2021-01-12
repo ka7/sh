@@ -63,7 +63,8 @@ VUSER='$VUSER'
 V_PHP='$V_PHP'
 WPASS='$WPASS'
 WPATH='$WPATH'
-WPUSR='$WPUSR'";
+WPUSR='$WPUSR'
+WUGID='$WUGID'";
 }
 getusers ()
 {
@@ -177,6 +178,7 @@ sethost ()
         export C_DNS='/etc/pdns'
         export C_FPM='/etc/php7/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
+        export WUGID='nginx'
     elif [[ -f /etc/pacman.conf ]]; then
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
