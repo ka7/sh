@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-conf 20170524 - 20210111
+# .sh/bin/setup-conf 20170524 - 20210112
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-admin [domain] [(mysql)|sqlite]" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && \
+    echo "Usage: setup-conf host.domain [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -39,12 +39,20 @@ if [[ ! -f /etc/hosts.orig ]]; then
     sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
     echo -e "\n$R_IP4\t$VHOST $HNAME" >> /etc/hosts
 
-    echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
-    cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
-    echo "Change /etc/systemd/resolved.conf to 1.1.1.1"
-    sed -i -e 's/^#DNS=.*/DNS=1.1.1.1/' -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' -e "s/^#Domains=/Domains=$VHOST/" /etc/systemd/resolved.conf
-    systemctl restart systemd-resolved
-
+    if [[ -f /etc/alpine-release ]]; then
+        echo "Update static /etc/resolv.conf"
+        echo << EOS > /etc/resolv.conf
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+domain $HDOMN
+EOS
+    else
+        echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
+        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+        echo "Change /etc/systemd/resolved.conf to 1.1.1.1"
+        sed -i -e 's/^#DNS=.*/DNS=1.1.1.1/' -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' -e "s/^#Domains=/Domains=$VHOST/" /etc/systemd/resolved.conf
+        systemctl restart systemd-resolved
+    fi
     echo $HNAME > /etc/hostname
     echo $VHOST > /etc/mailname
     hostname $HNAME # Just in case
