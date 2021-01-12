@@ -176,9 +176,11 @@ if [[ -f $UPATH/etc/passwd ]]; then
     echo "$UPATH/etc/passwd already exists"
 else
     echo "Create $UPATH/etc/passwd"
+    W_UID=$(id -u $WUGID)
+    W_GID=$(id -g $WUGID)
     cat << EOS > $UPATH/etc/passwd
 root:x:0:0:::
-$WWWUSER:x:33:33:::
+$WUGID:x:$W_UID:$W_GID:::
 $UUSER:x:$U_UID:$U_GID:::
 EOS
 fi
@@ -187,9 +189,10 @@ if [[ -f $UPATH/etc/group ]]; then
     echo "$UPATH/etc/group already exists"
 else
     echo "Create $UPATH/etc/group"
+    W_GID=$(id -g $WUGID)
     cat << EOS > $UPATH/etc/group
 root:x:0:
-www-data:x:33:
+$WUGID:x:$W_GID:
 $UUSER:x:$U_GID:
 EOS
 fi
