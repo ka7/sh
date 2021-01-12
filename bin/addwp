@@ -13,7 +13,7 @@ FPATH=${3:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 MSITE=''
 MSNET=''
-SCHEME="https://"
+WPAPP='/usr/local/bin/wp'
 
 if [[ $MULTI =~ ^mu ]]; then
     MSITE='multisite-install --subdomains'
@@ -23,21 +23,21 @@ else
 fi
 
 if [[ $FPATH ]]; then
-    WPURL=$SCHEME$VHOST/$FPATH
-    FPATH=$WPATH/$FPATH
+    WPURL="https://$VHOST/$FPATH"
+    FPATH="$WPATH/$FPATH"
 else
-    WPURL=$SCHEME$VHOST
-    FPATH=$WPATH
+    WPURL="https://$VHOST"
+    FPATH="$WPATH"
 fi
 
 [[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
 [[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
 
-if [[ ! -x /usr/local/bin/wp ]]; then
-    echo "Install wp-cli as /usr/local/bin/wp"
+if [[ ! -x $WPAPP ]]; then
+    echo "Install wp-cli as $WPAPP"
     curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
+    mv wp-cli.phar $WPAPP
 fi
 
 # Exception: keep wp-* tables out of $ADMIN (sysadm) database
@@ -77,93 +77,93 @@ if [[ -f $FPATH/wp-includes/version.php ]]; then
     echo "Setting up Wordpress"
     su - $UUSER -c "
 cd $FPATH
-wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
-wp core $MSITE \
+$WPAPP core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
+$WPAPP core $MSITE \
   --url='$WPURL' \
   --title='$TITLE' \
   --admin_user='$WPUSR' \
   --admin_password='$WPASS' \
   --admin_email='$AMAIL'
 
-wp user update '$WPUSR' \
+$WPAPP user update '$WPUSR' \
   --first_name='${ANAME% *}' \
   --last_name='${ANAME#* }' \
   --display_name='$ANAME' \
   --user_url='$WPURL'
 
-wp option update timezone_string '$TAREA/$TCITY'
-wp option update uploads_use_yearmonth_folders '0'
-wp option update thumbnail_size_w '384'
-wp option update thumbnail_size_h '0'
-wp option update medium_size_w '768'
-wp option update medium_size_h '0'
-wp option update large_size_w '0'
-wp option update large_size_h '0'
-wp option update medium_large_size_w '0'
-wp option update medium_large_size_h '0'
-wp option update permalink_structure '/%postname%/'
-wp option set default_comment_status closed
+$WPAPP option update timezone_string '$TAREA/$TCITY'
+$WPAPP option update uploads_use_yearmonth_folders '0'
+$WPAPP option update thumbnail_size_w '384'
+$WPAPP option update thumbnail_size_h '0'
+$WPAPP option update medium_size_w '768'
+$WPAPP option update medium_size_h '0'
+$WPAPP option update large_size_w '0'
+$WPAPP option update large_size_h '0'
+$WPAPP option update medium_large_size_w '0'
+$WPAPP option update medium_large_size_h '0'
+$WPAPP option update permalink_structure '/%postname%/'
+$WPAPP option set default_comment_status closed
 "
 
-export PLUGINS=$(echo $(su $UUSER -c "wp plugin list --field=name --path=$FPATH"))
-export PAGES=$(su $UUSER -c "wp post list --post_type=page --format=ids --path=$FPATH")
-export POSTS=$(su $UUSER -c "wp post list --post_type=post --format=ids --path=$FPATH")
+export PLUGINS=$(echo $(su $UUSER -c "$WPAPP plugin list --field=name --path=$FPATH"))
+export PAGES=$(su $UUSER -c "$WPAPP post list --post_type=page --format=ids --path=$FPATH")
+export POSTS=$(su $UUSER -c "$WPAPP post list --post_type=post --format=ids --path=$FPATH")
 
 #echo 'Install Kadence Starter Templates plugin' # OPTIONAL
-#wp plugin --quiet install kadence-starter-templates 2> /dev/null
-#wp plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
+#$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
+#$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
 
     su - $UUSER -c "
 cd $FPATH
-wp plugin delete $PLUGINS
-wp post delete $POSTS
-wp post delete $PAGES
-wp theme delete twentynineteen twentytwenty
+$WPAPP plugin delete $PLUGINS
+$WPAPP post delete $POSTS
+$WPAPP post delete $PAGES
+$WPAPP theme delete twentynineteen twentytwenty
 
 echo 'Install Kadence theme'
-wp theme --quiet install kadence 2> /dev/null
+$WPAPP theme --quiet install kadence 2> /dev/null
 echo 'Create and active kadence-child theme'
-wp scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
-wp theme --quiet activate kadence-child $MSNET 2> /dev/null
+$WPAPP scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
+$WPAPP theme --quiet activate kadence-child $MSNET 2> /dev/null
 
 echo 'Install Kadence Blocks plugin'
-wp plugin --quiet install kadence-blocks 2> /dev/null
-wp plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
+$WPAPP plugin --quiet install kadence-blocks 2> /dev/null
+$WPAPP plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
 
 echo 'Install Elementor plugin'
-wp plugin --quiet install elementor 2> /dev/null
-wp plugin --quiet activate elementor $MSNET 2> /dev/null
+$WPAPP plugin --quiet install elementor 2> /dev/null
+$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
 
 echo 'Install Autoptimize plugin'
-wp plugin --quiet install autoptimize 2> /dev/null
-wp plugin --quiet activate autoptimize $MSNET 2> /dev/null
+$WPAPP plugin --quiet install autoptimize 2> /dev/null
+$WPAPP plugin --quiet activate autoptimize $MSNET 2> /dev/null
 
 echo 'Install WPvivid plugin'
-wp plugin --quiet install wpvivid-backuprestore 2> /dev/null
-wp plugin --quiet activate wpvivid-backuprestore $MSNET 2> /dev/null
+$WPAPP plugin --quiet install wpvivid-backuprestore 2> /dev/null
+$WPAPP plugin --quiet activate wpvivid-backuprestore $MSNET 2> /dev/null
 
-wp post create --post_type=page --post_title='Home' --post_status=publish
-wp post create --post_type=page --post_title='About' --post_status=publish
-wp post create --post_type=page --post_title='News' --post_status=publish
-wp post create --post_type=page --post_title='Contact' --post_status=publish
+$WPAPP post create --post_type=page --post_title='Home' --post_status=publish
+$WPAPP post create --post_type=page --post_title='About' --post_status=publish
+$WPAPP post create --post_type=page --post_title='News' --post_status=publish
+$WPAPP post create --post_type=page --post_title='Contact' --post_status=publish
 "
 
-export HOMEPAGE=$(su $UUSER -c "wp post list --post_type=page --name=home --format=ids --path=$FPATH")
-export NEWSPAGE=$(su $UUSER -c "wp post list --post_type=page --name=news --format=ids --path=$FPATH")
-export ABOUTPAGE=$(su $UUSER -c "wp post list --post_type=page --name=about --format=ids --path=$FPATH")
-export CONTACTPAGE=$(su $UUSER -c "wp post list --post_type=page --name=contact --format=ids --path=$FPATH")
+export HOMEPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=home --format=ids --path=$FPATH")
+export NEWSPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=news --format=ids --path=$FPATH")
+export ABOUTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=about --format=ids --path=$FPATH")
+export CONTACTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=contact --format=ids --path=$FPATH")
 
     su - $UUSER -c "
 cd $FPATH
-wp menu create 'Primary Menu'
-wp menu item add-post primary-menu $HOMEPAGE
-wp menu item add-post primary-menu $ABOUTPAGE
-wp menu item add-post primary-menu $NEWSPAGE
-wp menu item add-post primary-menu $CONTACTPAGE
-wp menu location assign primary-menu primary
-wp option update page_on_front $HOMEPAGE
-wp option update page_for_posts $NEWSPAGE
-wp option update show_on_front page
+$WPAPP menu create 'Primary Menu'
+$WPAPP menu item add-post primary-menu $HOMEPAGE
+$WPAPP menu item add-post primary-menu $ABOUTPAGE
+$WPAPP menu item add-post primary-menu $NEWSPAGE
+$WPAPP menu item add-post primary-menu $CONTACTPAGE
+$WPAPP menu location assign primary-menu primary
+$WPAPP option update page_on_front $HOMEPAGE
+$WPAPP option update page_for_posts $NEWSPAGE
+$WPAPP option update show_on_front page
 "
     cat << EOS >> $FPATH/wp-content/themes/kadence-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
