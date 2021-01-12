@@ -23,10 +23,18 @@ else
     echo "ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
 fi
 
+### Create missing directories
+
 # For Alpine
 if [[ ! -d $C_WEB/sites-enabled ]]; then
     echo "Create $C_WEB/sites-enabled"
     mkdir $C_WEB/sites-enabled
+fi
+
+if [[ ! -d /etc/opendkim ]]; then
+    echo "Create /etc/opendkim"
+    # mkdir and move to opendkim section
+    dkim list
 fi
 
 if [[ ! -d $CIMAP/vhosts ]]; then
@@ -266,59 +274,60 @@ EOS
     sysctl -p
 fi
 
-### opendkim
-
-if [[ ! -d /etc/opendkim ]]; then
-    echo "Create /etc/opendkim"
-    dkim list
-fi
+### opendkim and opendmarc
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
     echo "Create /etc/opendkim.conf"
-    mv /etc/opendkim.conf /etc/opendkim.conf.orig
+    touch /etc/opendkim.conf.orig
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
     chown opendkim:opendkim /etc/opendkim.conf
 fi
 
-if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
-    echo "Create /etc/systemd/system/opendkim.service"
-    cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
-    chmod 644 /etc/systemd/system/opendkim.service
-fi
-
-### opendmarc
-
 if [[ ! -f /etc/opendmarc.conf.orig ]]; then
     echo "Create /etc/opendmarc.conf"
-    mv /etc/opendmarc.conf /etc/opendmarc.conf.orig
+    touch /etc/opendmarc.conf.orig
     cp ~/.sh/etc/_etc_opendmarc.conf /etc/opendmarc.conf
 fi
 
-if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
-    echo "Create /etc/systemd/system/opendmarc.service"
-    cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
-    chmod 644 /etc/systemd/system/opendmarc.service
+if [[ ! -f /etc/alpine-release ]]; then
+
+    if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
+        echo "Create /etc/systemd/system/opendkim.service"
+        cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
+        chmod 644 /etc/systemd/system/opendkim.service
+    fi
+
+    if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
+        echo "Create /etc/systemd/system/opendmarc.service"
+        cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
+        chmod 644 /etc/systemd/system/opendmarc.service
+    fi
 fi
 
 ### php
 
-if [[ ! -f $C_FPM/common.conf ]]; then
-    echo "Create $C_FPM/common.conf"
-    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
-fi
+if [[ -f /etc/alpine-release ]]; then
+    echo "Create $C_FPM/common.conf (TODO)"
+    echo "Modify $C_FPM/php.ini (TODO)"
+else
+    if [[ ! -f $C_FPM/common.conf ]]; then
+        echo "Create $C_FPM/common.conf"
+        cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
+    fi
 
-if [[ ! -f $C_FPM/php.ini.orig ]]; then
-    echo "Modify $C_FPM/php.ini"
-    cp $C_FPM/php.ini $C_FPM/php.ini.orig
-    sed -i $C_FPM/php.ini \
-        -e 's/;opcache.enable=1/opcache.enable=1/' \
-        -e 's/;opcache.enable_cli=0/opcache.enable_cli=1/' \
-        -e 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=8/' \
-        -e 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/' \
-        -e 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/' \
-        -e 's/;opcache.save_comments=1/opcache.save_comments=1/' \
-        -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/' \
-        -e 's/memory_limit = 128M/memory_limit = 512M/'
+    if [[ ! -f $C_FPM/php.ini.orig ]]; then
+        echo "Modify $C_FPM/php.ini"
+        cp $C_FPM/php.ini $C_FPM/php.ini.orig
+        sed -i $C_FPM/php.ini \
+            -e 's/;opcache.enable=1/opcache.enable=1/' \
+            -e 's/;opcache.enable_cli=0/opcache.enable_cli=1/' \
+            -e 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=8/' \
+            -e 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/' \
+            -e 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/' \
+            -e 's/;opcache.save_comments=1/opcache.save_comments=1/' \
+            -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/' \
+            -e 's/memory_limit = 128M/memory_limit = 512M/'
+    fi
 fi
 
 ### pdns

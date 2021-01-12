@@ -24,7 +24,9 @@ V_PHP=${2:-$V_PHP}
 OSREL=${3:-$OSREL}
 OSMIR=${4:-$OSMIR}
 
-if [[ -f /etc/pacman.conf ]]; then
+if [[ -f /etc/alpine-release ]]; then
+# TODO
+elif [[ -f /etc/pacman.conf ]]; then
 
     echo "Install Arch/Manjaro base packages"
 
