@@ -7,10 +7,8 @@
 [[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [cms(none|wp)] [ssl(none|le|self)] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
-#echo "######## $0 $*"
-
-# for DTYPE and VPATH
+set -x
+# Only for DTYPE and VPATH
 . ~/.shrc || exit 3
 
 [[ ! -d $VPATH ]] && echo "ERROR: setup server first" && exit 4
@@ -62,6 +60,9 @@ if [[ $(grepuser ":$VHOST:") ]]; then
     echo "Warning: $UUSER for $VHOST already exists"
 else
     echo "Create $UUSER user"
+    if [[ -f /etc/alpine-release ]]; then
+        addgroup -S sudo
+    fi
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
     TMPIP=$([[ -n $USEIP ]] && echo ",$USEIP")
     useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c "$VHOST$TMPIP" $U_GRP $UUSER
