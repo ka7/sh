@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/shuser 20160130 - 20200805
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shuser 20160130 - 20210121
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: if uid == 1000 then uid = sysadm else uid= u####
 
@@ -44,4 +44,4 @@ else
     echo "No matching users"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
