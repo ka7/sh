@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20190601
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shmail 20150529 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
 
@@ -25,7 +25,7 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
         [[ -z $dir ]] && continue
         N1=0; N2=0; N1STR=""; N2STR=""
         cd "$dir"
-        N1=$(du -sb|cut -f1)
+        N1=$(du -s|cut -f1)
         N2=$(find -type f|wc -l)
         cd - >/dev/null
         NTOTAL=$(($NTOTAL+$N2))
@@ -33,7 +33,7 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
         [[ $N2 -eq 0 ]] && N2STR=" " || N2STR=$N2
         printf "%-40s %6s %11s\n" "$(echo $dir|cut -c 3-)" "$N2STR" "$N1STR"
     done
-    STOTAL=$(du -sb $MPATH/Maildir|cut -f1)
+    STOTAL=$(du -s $MPATH/Maildir|cut -f1)
     echo "-----------------------------------------------------------"
     printf "%-40s %6s %'10.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
     echo "-----------------------------------------------------------"
@@ -42,4 +42,4 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
 find -L . -xtype l
 [ -d $MPATH/.spamprobe ] && du -h $MPATH/.spamprobe | awk '{printf "%-52s %6s\n", $2, $1}'
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
