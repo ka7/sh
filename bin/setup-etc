@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20201019
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-etc 20151231 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
@@ -23,12 +23,29 @@ else
     echo "ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
 fi
 
+# For Alpine
+if [[ ! -d $C_WEB/sites-enabled ]]; then
+    echo "Create $C_WEB/sites-enabled"
+    mkdir $C_WEB/sites-enabled
+fi
+
+if [[ ! -d $CIMAP/vhosts ]]; then
+    echo "Create $CIMAP/vhosts"
+    mkdir $CIMAP/vhosts
+fi
+
+if [[ ! -d $CIMAP/sieve ]]; then
+    echo "Create $CIMAP/sieve"
+    mkdir $CIMAP/sieve
+fi
+
+# For stock ubuntu install, replace with sysadm
 if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
     echo "Remove default ubuntu user"
     userdel -rf ubuntu > /dev/null 2>&1
 fi
 
-#### postfix
+### postfix
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "Create $CSMTP/main.cf for $DTYPE"
@@ -128,7 +145,7 @@ elif [[ $DTYPE == mysql ]]; then
      fi
 fi
 
-#### dovecot
+### dovecot
 
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "Create $CIMAP/dovecot.conf for $DTYPE"
@@ -146,12 +163,10 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     fi
 
     openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
-
-    # This is so sievec will work
-#    systemctl reload dovecot
 fi
 
 if [[ $DTYPE == sqlite ]]; then
+
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "Create $CIMAP/user-sqlite.conf"
         sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
@@ -170,38 +185,41 @@ elif [[ $DTYPE == mysql ]]; then
     fi
 fi
 
-if [[ ! -d $CIMAP/vhosts ]]; then
-    echo "Create $CIMAP/vhosts"
-    mkdir $CIMAP/vhosts
+### Spamprobe
+
+if [[ -e /usr/bin/spamprobe ]]; then
+    if [[ ! -L $CIMAP/sieve/spamprobe ]]; then
+        echo "Create $CIMAP/sieve/spamprobe symlink"
+        cd $CIMAP/sieve
+        ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
+    fi
+
+    if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
+        echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
+        cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-good.sieve $CIMAP/sieve/retrain-as-good.sieve
+    fi
+
+    if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
+        echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
+        cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-spam.sieve $CIMAP/sieve/retrain-as-spam.sieve
+    fi
+
+    if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
+        echo "*** Create $CIMAP/sieve/global.sieve"
+        cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
+    fi
+
+    if [[ -d $CIMAP/sieve ]]; then
+        echo "Create sieve binaries"
+        cd $CIMAP/sieve
+        sievec global.sieve
+        sievec retrain-as-spam.sieve
+        sievec retrain-as-good.sieve
+        chmod 644 *.svbin
+    fi
 fi
 
-if [[ ! -d $CIMAP/sieve ]]; then
-    echo "Create $CIMAP/sieve"
-    mkdir $CIMAP/sieve
-fi
-
-if [[ ! -L $CIMAP/sieve/spamprobe ]]; then
-    echo "Create $CIMAP/sieve/spamprobe symlink"
-    cd $CIMAP/sieve
-    ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
-fi
-
-if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
-    echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-good.sieve $CIMAP/sieve/retrain-as-good.sieve
-fi
-
-if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
-    echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-spam.sieve $CIMAP/sieve/retrain-as-spam.sieve
-fi
-
-if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
-    echo "*** Create $CIMAP/sieve/global.sieve"
-    cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
-fi
-
-#### nginx
+### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then
     echo "Create $C_WEB/common.conf"
@@ -248,7 +266,7 @@ EOS
     sysctl -p
 fi
 
-#### opendkim
+### opendkim
 
 if [[ ! -d /etc/opendkim ]]; then
     echo "Create /etc/opendkim"
@@ -266,13 +284,9 @@ if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
     echo "Create /etc/systemd/system/opendkim.service"
     cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
     chmod 644 /etc/systemd/system/opendkim.service
-#?    update-rc.d opendkim disable
-    systemctl daemon-reload > /dev/null 2>&1
-    systemctl enable opendkim > /dev/null 2>&1
-    systemctl restart opendkim
 fi
 
-#### opendmarc
+### opendmarc
 
 if [[ ! -f /etc/opendmarc.conf.orig ]]; then
     echo "Create /etc/opendmarc.conf"
@@ -284,12 +298,9 @@ if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
     echo "Create /etc/systemd/system/opendmarc.service"
     cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
     chmod 644 /etc/systemd/system/opendmarc.service
-    systemctl daemon-reload > /dev/null 2>&1
-    systemctl enable opendmarc > /dev/null 2>&1
-    systemctl restart opendmarc
 fi
 
-#### php
+### php
 
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "Create $C_FPM/common.conf"
@@ -310,7 +321,7 @@ if [[ ! -f $C_FPM/php.ini.orig ]]; then
         -e 's/memory_limit = 128M/memory_limit = 512M/'
 fi
 
-#### pdns
+### pdns
 
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "Create $C_DNS/pdns.conf"
@@ -330,13 +341,22 @@ if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     fi
 fi
 
-#### CRON
+### CRON
 
-if [[ ! -f /etc/cron.d/netserva ]]; then
-    echo "Create /etc/cron.d/netserva"
-    cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
-    MTEMP=${MAILTO:-$AMAIL}
-    sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
+if [[ -f /etc/alpine-release ]]; then
+    if [[ ! -f /etc/etc/periodic/daily/netserva ]]; then
+        echo "Create /etc/etc/periodic/daily/netserva"
+        cp ~/.sh/etc/_etc_cron.d_netserva /etc/etc/periodic/daily/netserva
+        MTEMP=${MAILTO:-$AMAIL}
+        sed -i "s/_MAILTO/$MTEMP/" /etc/etc/periodic/daily/netserva
+    fi
+else
+    if [[ ! -f /etc/cron.d/netserva ]]; then
+        echo "Create /etc/cron.d/netserva"
+        cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
+        MTEMP=${MAILTO:-$AMAIL}
+        sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
+    fi
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
@@ -345,13 +365,12 @@ if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
-#### SSH
+### SSH
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
-    systemctl restart ssh
 fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
@@ -401,17 +420,19 @@ fi
 
 addvip $MHOST $IP4_0
 
-serva restart mail
+if [[ -f /etc/alpine-release ]]; then
+    # restart alpine services
+else
+    systemctl daemon-reload > /dev/null 2>&1
 
-if [[ -d $CIMAP/sieve ]]; then
-    echo "Create sieve binaries"
-    cd $CIMAP/sieve
-    sievec global.sieve
-    sievec retrain-as-spam.sieve
-    sievec retrain-as-good.sieve
-    chmod 644 *.svbin
+    systemctl restart ssh
+    systemctl enable opendkim > /dev/null 2>&1
+    systemctl restart opendkim
+    systemctl enable opendmarc > /dev/null 2>&1
+    systemctl restart opendmarc
+
+    serva restart web
+    serva restart mail
 fi
 
-serva restart web
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
