@@ -128,7 +128,7 @@ EOS
     mv $CSMTP/master.cf $CSMTP/master.cf.bkp
     cat $CSMTP/vhosts/* > $CSMTP/master.cf
     chmod 600 $CSMTP/vhosts/$VHOST
-    systemctl restart postfix
+#    systemctl restart postfix
     echo "Created: $CSMTP/vhosts/$VHOST"
 fi
 
@@ -160,7 +160,6 @@ service imap-login {
 
 EOS
     chmod 600 $CIMAP/vhosts/$VHOST
-#    systemctl restart dovecot
     echo "Created: $CIMAP/vhosts/$VHOST"
 fi
 

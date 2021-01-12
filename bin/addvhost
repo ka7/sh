@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addvhost 20170217 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
 
@@ -316,4 +316,4 @@ fi
 
 logging $VHOST update
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
