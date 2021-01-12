@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20201210
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addwp 20160231 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
 
@@ -13,6 +13,7 @@ FPATH=${3:-''}
 TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
 MSITE=''
 MSNET=''
+SCHEME="https://"
 
 if [[ $MULTI =~ ^mu ]]; then
     MSITE='multisite-install --subdomains'
@@ -20,11 +21,6 @@ if [[ $MULTI =~ ^mu ]]; then
 else
     MSITE='install'
 fi
-
-# Not needed in 2021+
-#[[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
-
-SCHEME="https://"
 
 if [[ $FPATH ]]; then
     WPURL=$SCHEME$VHOST/$FPATH
@@ -188,4 +184,4 @@ Password: $WPASS
 EOS
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
