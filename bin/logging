@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20200805
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/logging 20170417 - 20210112
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
 
@@ -12,7 +12,9 @@
 
 [[ $2 == update ]] && UPD=1 || UPD=
 
-DU="/usr/bin/du -sb"
+# busybox does not like -b
+#DU="/usr/bin/du -sb"
+DU="/usr/bin/du -s"
 YMD=$(date +%Y-%m-%d)
 FIND="/usr/bin/find"
 
@@ -133,4 +135,4 @@ else
     log_vmail $1
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

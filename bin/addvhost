@@ -100,19 +100,24 @@ EOS
 )
 
 if [[ -d $C_FPM ]]; then
-    if [ -f $C_FPM/pool.d/$VHOST.conf ]; then
-        echo "$C_FPM/pool.d/$VHOST.conf already exists"
+    if [[ -f /etc/alpine-release ]]; then
+        _POOL=$C_FPM
     else
-        echo "Create $C_FPM/pool.d/$VHOST.conf"
-        cat << EOS > $C_FPM/pool.d/$VHOST.conf
+        _POOL=$C_FPM/pool.d
+    fi
+    if [ -f $_POOL/$VHOST.conf ]; then
+        echo "$_POOL/$VHOST.conf already exists"
+    else
+        echo "Create $_POOL/$VHOST.conf"
+        cat << EOS > $_POOL/$VHOST.conf
 [$VHOST]
 user = $U_UID
 group = $U_GID
 include = $C_FPM/common.conf
 EOS
-        if [ -f $C_FPM/pool.d/www.conf ]; then
-            echo "Rename $C_FPM/pool.d/www.conf $C_FPM/www.conf"
-            mv $C_FPM/pool.d/www.conf $C_FPM
+        if [ -f $_POOL/www.conf ]; then
+            echo "Rename $_POOL/www.conf $C_FPM/www.conf"
+            mv $_POOL/www.conf $C_FPM
         fi
     fi
 fi
