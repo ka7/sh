@@ -222,8 +222,20 @@ updhost ()
     export OSREL=${3:-$OSREL}
     export IP4_0=${4:-$IP4_0}
     export V_PHP=${5:-$V_PHP}
-    export C_FPM="/etc/php/$V_PHP/fpm"
     export LROOT="/usr/local/lsws"
+
+    # OS dependant overrides
+    if [[ -f /etc/alpine-release ]]; then
+        export C_DNS='/etc/pdns'
+        export C_FPM='/etc/php7/php-fpm.d'
+        export C_SQL='/etc/my.cnf.d'
+        export WUGID='nginx'
+    elif [[ -f /etc/pacman.conf ]]; then
+        export C_FPM='/etc/php/php-fpm.d'
+        export C_SQL='/etc/my.cnf.d'
+    else
+        export C_FPM="/etc/php/$V_PHP/fpm";
+    fi
 
     if [[ $DTYPE == mysql ]]; then
         export SQCMD=$EXMYS;
