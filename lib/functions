@@ -173,17 +173,22 @@ sethost ()
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     export MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
 
-    # OS dependant overrides
+    # OS dependant overrides (maybe create a function)
     if [[ -f /etc/alpine-release ]]; then
         export C_DNS='/etc/pdns'
         export C_FPM='/etc/php7/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
         export WUGID='nginx'
     elif [[ -f /etc/pacman.conf ]]; then
+        export C_DNS='/etc/powerdns'
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
+        export WUGID='http'
     else
+        export C_DNS='/etc/powerdns'
         export C_FPM="/etc/php/$V_PHP/fpm";
+        export C_SQL='/etc/mysql'
+        export WUGID='www-data'
     fi
 
     export DUSER=$UUSER;
@@ -231,15 +236,15 @@ updhost ()
         export C_SQL='/etc/my.cnf.d'
         export WUGID='nginx'
     elif [[ -f /etc/pacman.conf ]]; then
-        export C_DNS="$C_DNS"
+        export C_DNS='/etc/powerdns'
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
-        export WUGID="$WUGID"
+        export WUGID='http'
     else
-        export C_DNS="$C_DNS"
+        export C_DNS='/etc/powerdns'
         export C_FPM="/etc/php/$V_PHP/fpm";
-        export C_SQL="$C_SQL"
-        export WUGID="$WUGID"
+        export C_SQL='/etc/mysql'
+        export WUGID='www-data'
     fi
 
     if [[ $DTYPE == mysql ]]; then
