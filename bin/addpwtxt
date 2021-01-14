@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/addpwtxt 20190114 - 20190115
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addpwtxt 20190114 - 20210114
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: addpwtxt [password] [vhost]" && exit 1
 
@@ -14,7 +14,7 @@ if [[ -f ~/.vhosts/$VHOST ]];then
 
     if [[ -d $WPATH ]]; then
         echo $VPASS > $WPATH/$PWPIN.txt
-        chown $UUSER:www-data $WPATH/$PWPIN.txt
+        chown $UUSER:$WUGID $WPATH/$PWPIN.txt
         chmod 640 $WPATH/$PWPIN.txt
         echo "$WPATH/$PWPIN.txt"
         echo "$VPASS is at https://$VHOST/$PWPIN.txt"
@@ -25,4 +25,4 @@ else
     echo "ERROR: ~/.vhosts/$VHOST does not exist"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
