@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20210111
+# .sh/lib/functions 20151231 - 20210114
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -231,10 +231,15 @@ updhost ()
         export C_SQL='/etc/my.cnf.d'
         export WUGID='nginx'
     elif [[ -f /etc/pacman.conf ]]; then
+        export C_DNS="$C_DNS"
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
+        export WUGID="$WUGID"
     else
+        export C_DNS="$C_DNS"
         export C_FPM="/etc/php/$V_PHP/fpm";
+        export C_SQL="$C_SQL"
+        export WUGID="$WUGID"
     fi
 
     if [[ $DTYPE == mysql ]]; then
