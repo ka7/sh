@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20210112
+# .sh/bin/addvhost 20170217 - 20210126
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -7,7 +7,7 @@
 [[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [cms(none|wp)] [ssl(none|le|self)] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-set -x
+
 # Only for DTYPE and VPATH
 . ~/.shrc || exit 3
 
