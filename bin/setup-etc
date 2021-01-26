@@ -431,6 +431,7 @@ addvip $MHOST $IP4_0
 
 if [[ -f /etc/alpine-release ]]; then
     # restart alpine services
+    echo "restart alpine services"
 else
     systemctl daemon-reload > /dev/null 2>&1
 

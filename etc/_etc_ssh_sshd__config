@@ -1,5 +1,5 @@
-# .sh/etc/_etc_ssh_sshd__config 20180225 - 20200804
-# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/_etc_ssh_sshd__config 20180225 - 20210126
+# Copyright (C) 2015-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # PermitRootLogin yes
 # LogLevel VERBOSE (or DEBUG)
@@ -8,7 +8,7 @@ Port 9
 MaxAuthTries 3
 MaxSessions 20
 ChallengeResponseAuthentication no
-UsePAM yes
+#UsePAM yes # Alpine does not like this
 X11Forwarding yes
 PrintMotd no
 MaxStartups 1
