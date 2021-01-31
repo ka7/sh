@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 2020103
+# .sh/bin/setup-host2 20170524 - 2020131
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -25,7 +25,7 @@ OSREL=${3:-$OSREL}
 OSMIR=${4:-$OSMIR}
 
 if [[ -f /etc/alpine-release ]]; then
-# TODO
+    echo "TODO: add Alpine packages here"
 elif [[ -f /etc/pacman.conf ]]; then
 
     echo "Install Arch/Manjaro base packages"
