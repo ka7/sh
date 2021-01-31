@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20210126
+# .sh/bin/addvhost 20170217 - 20210131
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Move anything to do with hosting plans into another script
@@ -11,7 +11,7 @@
 # Only for DTYPE and VPATH
 . ~/.shrc || exit 3
 
-[[ ! -d $VPATH ]] && echo "ERROR: setup server first" && exit 4
+[[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
 
 Y_M_D=$(date +"%Y-%m-%d")
 UUTMP=""
