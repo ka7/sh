@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20210112
+# .sh/bin/setup-etc 20151231 - 20210222
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -123,13 +123,6 @@ elif [[ $DTYPE == mysql ]]; then
             ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
             > $CSMTP/mysql-alias-maps.cf
     fi
-    if [[ ! -f $CSMTP/mysql-gid-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-gid-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
-            > $CSMTP/mysql-gid-maps.cf
-    fi
     if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
         echo "Create $CSMTP/mysql-mailbox-domains.cf"
         sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
@@ -143,14 +136,23 @@ elif [[ $DTYPE == mysql ]]; then
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
             > $CSMTP/mysql-mailbox-maps.cf
-     fi
-     if [[ ! -f $CSMTP/mysql-uid-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-uid-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
-            > $CSMTP/mysql-uid-maps.cf
-     fi
+    fi
+
+# postfix does not need to know about gid/uid but dovecot does
+#    if [[ ! -f $CSMTP/mysql-gid-maps.cf ]]; then
+#        echo "Create $CSMTP/mysql-gid-maps.cf"
+#        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+#            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+#            ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
+#            > $CSMTP/mysql-gid-maps.cf
+#    fi
+#     if [[ ! -f $CSMTP/mysql-uid-maps.cf ]]; then
+#        echo "Create $CSMTP/mysql-uid-maps.cf"
+#        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+#            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+#            ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
+#            > $CSMTP/mysql-uid-maps.cf
+#     fi
 fi
 
 ### dovecot
