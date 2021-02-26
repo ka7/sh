@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 20210222
+# .sh/bin/setup-host2 20170524 - 20210226
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -185,16 +185,16 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     systemctl restart $SSH
 fi
 
-if [[ ! -f /root/.ssh/config ]]; then
-    echo "Create host /root/.ssh/config"
-    cp ~/.sh/etc/_.ssh_config ~/.ssh/config
-    chmod 600 /root/.ssh/*
-fi
-
 if [[ ! -d /root/.ssh ]]; then
     echo "Create host /root/.ssh dir"
     mkdir /root/.ssh
     chmod 700 /root/.ssh
+fi
+
+if [[ ! -f /root/.ssh/config ]]; then
+    echo "Create host /root/.ssh/config"
+    cp ~/.sh/etc/_.ssh_config ~/.ssh/config
+    chmod 600 /root/.ssh/*
 fi
 
 if [[ ! -f /root/.ssh/id_rsa ]]; then
