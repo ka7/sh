@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-lsws 20200629 - 20201208
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
-
-# TODO: Add LROOT to canonical env vars (and bump SH version number)
-# TODO: Setup primary VHOST configs when installing
+# .sh/bin/setup-lsws 20200629 - 20210227
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-lsws [ip|remove] [src ip]" && exit 1
 
@@ -11,7 +8,7 @@
 
 source /root/.shrc || exit 3
 
-LSVER=1.7.6
+LSVER=1.7.9
 LSPHP=80
 IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
 [[ $1 =~ $IPREG ]] && IPARG=$1 || IPARG=$IP4_0
@@ -82,7 +79,7 @@ deb http://rpms.litespeedtech.com/debian/ focal main
 deb http://archive.ubuntu.com/ubuntu focal main universe
 EOS
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
-    
+
     if [[ -f /etc/apt/sources.list.d/lst_debian_repo.list ]]; then
         rm /etc/apt/sources.list.d/lst_debian_repo.list
     fi
@@ -417,7 +414,7 @@ $TXTIP
 
     }
   }
-  
+
 
   context exp:^.*(css|gif|ico|jpeg|jpg|js|png|webp|woff|woff2|fon|fot|ttf)$ {
     location              \$DOC_ROOT/\$0
