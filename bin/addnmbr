@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addbr0 20210314 - 20210314
+# .sh/bin/addnmbr 20210314 - 20210314
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ -h ]] && echo "Usage: addbr0" && exit 1
+[[ $1 =~ -h ]] && echo "Usage: addnmbr" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
