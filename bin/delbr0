@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# .sh/bin/delbr0 20210314 - 20210314
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: delbr0" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+_ETH0=$(ip -o link show | awk -F': ' '{print $2}' | grep ^e)
+
+$SUDO nmcli connection down bridge-br0
+$SUDO nmcli connection down bridge-slave-$_ETH0
+$SUDO nmcli connection del bridge-br0
+$SUDO nmcli connection del bridge-slave-$_ETH0
