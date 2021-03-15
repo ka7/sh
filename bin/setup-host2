@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 20210226
+# .sh/bin/setup-host2 20170524 - 20210215
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -9,8 +9,6 @@
 # done without actually adding any custom IPs, users or vhosts. Anything
 # to do with setting up IPs, users or vhosts needs to be done in a
 # separate followup setup-sysadm script to create the primary vhost.
-
-# ADDED THE START OF ARCH/MANJARO SUPPORT
 
 [[ $1 =~ '-h' ]] && \
   echo "Usage: setup-host2 [(mysql)|sqlite] [php version] [os release] [os mirror]" && exit 1
@@ -25,7 +23,23 @@ OSREL=${3:-$OSREL}
 OSMIR=${4:-$OSMIR}
 
 if [[ -f /etc/alpine-release ]]; then
-    echo "TODO: add Alpine packages here"
+
+    echo "Install Alpine base packages"
+
+    ALIST="bash bc busybox-static ca-certificates curl db dovecot
+dovecot-lmtpd dovecot-sqlite ebtables fcgiwrap gawk git iputils jq msmtp
+msmtp mtr nano nginx opendkim opendkim-utils pdns php8 php8-curl
+php8-fpm php8-gd php8-imap php8-opcache php8-pdo php8-pdo_sqlite
+php8-pecl-redis php8-posix php8-session php8-simplexml postfix
+postfix-pcre postfix-policyd-spf-perl postfix-sqlite pwgen redis rsync
+s-nail sudo wget which whois"
+
+    MLIST="mariadb mariadb-client"
+
+    apk update && apk upgrade
+    apk add $ALIST
+    [[ $DTYPE == mysql ]] && apk add $MLIST
+
 elif [[ -f /etc/pacman.conf ]]; then
 
     echo "Install Arch/Manjaro base packages"
