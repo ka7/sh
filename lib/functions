@@ -4,9 +4,9 @@
 if [[ -f /etc/alpine-release ]]; then
     sc () {
     if [[ $1 == enable ]]; then
-        $SUDO rc-service add $2;
+        $SUDO rc-update add $2;
     elif [[ $1 == disable ]]; then
-        $SUDO rc-service del $2;
+        $SUDO rc-update del $2;
     else
         $SUDO rc-service $2 $1;
     fi
