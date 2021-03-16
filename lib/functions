@@ -1,6 +1,12 @@
 # .sh/lib/functions 20151231 - 20210316
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+if [[ -f /etc/alpine-release ]]; then
+    sc () { $SUDO rc-service $2 $1; }
+else
+    sc () { $SUDO systemctl $1 $2; }
+fi
+
 chktime ()
 {
     [[ $(($(stat -c %X $1)+$2)) < $(date +%s) ]] && return 0 || return 1;
@@ -200,11 +206,6 @@ sethost ()
     export WPUSR=$(head /dev/urandom|tr -dc a-z|head -c6);
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
-}
-sc ()
-{
-    [[ -f /etc/alpine-release ]] && \
-        $SUDO rc-service $2 $1 || $SUDO systemctl $1 $2
 }
 sx ()
 {
