@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-nmbr 20210314 - 20210316
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: setp-nmbr [remove]" && exit 1
+
+_ETH0=$(ip -o link show | awk -F': ' '{print $2}' | grep ^e)
+
+if [[ $1 == remove ]]; then
+    $SUDO nmcli connection down bridge-br0
+    $SUDO nmcli connection down bridge-slave-$_ETH0
+    $SUDO nmcli connection del bridge-br0
+    $SUDO nmcli connection del bridge-slave-$_ETH0
+else
+    $SUDO nmcli connection add type bridge ifname br0 stp no
+    $SUDO nmcli connection add type bridge-slave ifname $_ETH0 master br0
+    $SUDO nmcli connection up bridge-br0
+fi
