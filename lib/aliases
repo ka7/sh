@@ -1,5 +1,7 @@
-# .sh/lib/aliases 20151231 - 20210110
+# .sh/lib/aliases 20151231 - 20210316
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $(type -t sc) == alias ]] && unalias sc
 
 alias ?='bash ~/.help'
 alias c='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
@@ -18,7 +20,6 @@ alias la='LC_COLLATE=C ls -lFAh --group-directories-first --color'
 alias ll='LC_COLLATE=C ls -lF --group-directories-first --color'
 alias ls='LC_COLLATE=C ls -F --group-directories-first --color'
 alias lx='lxc list'
-alias sc=$SUDO'systemctl'
 alias se='sudo nano -t -x -c'
 alias sn='[ -f ~/.note ] && cat ~/.note'
 alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
@@ -32,7 +33,6 @@ if [[ -f /etc/alpine-release ]]; then
     alias lspkg=$SUDO'apk info'
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
     alias ram=$SUDO'ps -o rss,vsz,comm | grep -v "   0" | sort -n'
-    alias sc=$SUDO'rc-service'
     alias l=$SUDO'tail -f /var/log/messages'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'

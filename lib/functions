@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20210114
+# .sh/lib/functions 20151231 - 20210316
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 chktime ()
@@ -201,6 +201,16 @@ sethost ()
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
 }
+
+sc ()
+{
+    if [[ -f /etc/alpine-release ]]; then
+        $SUDO rc-service $2 $1
+    else
+        $SUDO systemctl $1 $2
+    fi
+}
+
 sx ()
 {
     [[ -z $2 || $1 =~ -h ]] && \
@@ -258,4 +268,4 @@ updhost ()
     fi
     gethost > /root/.vhosts/$1
 }
-export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost sx updhost
+export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost sc sx updhost
