@@ -201,16 +201,11 @@ sethost ()
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
     export AMAIL="$VUSER@$TEMPH";
 }
-
 sc ()
 {
-    if [[ -f /etc/alpine-release ]]; then
-        $SUDO rc-service $2 $1
-    else
-        $SUDO systemctl $1 $2
-    fi
+    [[ -f /etc/alpine-release ]] && \
+        $SUDO rc-service $2 $1 || $SUDO systemctl $1 $2
 }
-
 sx ()
 {
     [[ -z $2 || $1 =~ -h ]] && \
