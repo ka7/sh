@@ -2,7 +2,15 @@
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ -f /etc/alpine-release ]]; then
-    sc () { $SUDO rc-service $2 $1; }
+    sc () {
+    if [[ $1 == enable ]]; then
+        $SUDO rc-service add $2;
+    elif [[ $1 == disable ]]; then
+        $SUDO rc-service del $2;
+    else
+        $SUDO rc-service $2 $1;
+    fi
+}
 else
     sc () { $SUDO systemctl $1 $2; }
 fi
