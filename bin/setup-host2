@@ -75,7 +75,7 @@ php$V_PHP-imap php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap
 php$V_PHP-sqlite3 php$V_PHP-xml php$V_PHP-xmlrpc php$V_PHP-zip
 php-imagick php-redis postfix postfix-lmdb postfix-policyd-spf-perl
 postfix-sqlite pwgen redis-server rsyslog rsync sqlite3 sudo time unzip
-wget whois"
+wget whois zerotier-one"
 
     # Mysql List of packages (not need if using SQLite)
     MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server
@@ -159,19 +159,8 @@ EOS
     fi
 fi
 
-echo "Replace /sbin/netplan with systemd-networkd"
-[[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
+# Git is now available so install the SH scripts if not already
 
-if [[ $(ls -A /etc/systemd/network/*dhcp*.network 2> /dev/null) ]]; then
-    echo "/etc/systemd/network/*dhcp*.network already exists"
-else
-    echo "Create /etc/systemd/network/10-dhcp.network"
-    cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
-    chmod 644 /etc/systemd/network/10-dhcp.network
-    sc enable systemd-networkd > /dev/null 2>&1
-fi
-
-# We now have git available so install the essential SH scripts
 if [[ ! -d /root/.sh ]]; then
     echo "Setup NetServa SH scripts"
     cd && git clone -q https://github.com/netserva/sh .sh > /dev/null
@@ -180,22 +169,15 @@ if [[ ! -d /root/.sh ]]; then
 
     echo "Tweak git for updates"
     git config --global pull.rebase false
-fi
-
-if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
-    echo "Change /etc/resolv.conf to talk directly to 1.1.1.1"
-    cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
-    sed -i /etc/systemd/resolved.conf \
-     -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
-     -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
-    sc restart systemd-resolved
+    # Make sure the "sc" bash function is loaded
+    . /root/.shrc
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
-    [[ -f /etc/pacman.conf ]] && SSH=sshd || SSH=ssh
+    [[ ! -f /etc/pacman.conf ]] && SSH=ssh || SSH=sshd
     sc restart $SSH
 fi
 
@@ -211,11 +193,46 @@ if [[ ! -f /root/.ssh/config ]]; then
     chmod 600 /root/.ssh/*
 fi
 
+# Not sure if this is really needed?
 if [[ ! -f /root/.ssh/id_rsa ]]; then
     echo "Create host /root/.ssh/id_rsa key"
     ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
     chmod 600 /root/.ssh/*
+fi
+
+# If we are on a systemd system (ie; not Alpine)
+
+if [[ -d /etc/systemd ]]; then
+
+    [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
+
+    if [[ $(ls -A /etc/systemd/network/*dhcp*.network 2> /dev/null) ]]; then
+        echo "/etc/systemd/network/*dhcp*.network already exists"
+    else
+        echo "Create /etc/systemd/network/10-dhcp.network"
+        cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
+        chmod 644 /etc/systemd/network/10-dhcp.network
+        sc enable systemd-networkd > /dev/null 2>&1
+    fi
+
+    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+        echo "Change /etc/resolv.conf to talk directly to 1.1.1.1 (systemd)"
+        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+        sed -i /etc/systemd/resolved.conf \
+            -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
+            -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
+        sc restart systemd-resolved
+    fi
+else
+    if [[ ! -f /etc/resolv.conf.orig ]]; then
+        mv /etc/resolv.conf /etc/resolv.conf.orig
+        echo "Change /etc/resolv.conf to talk directly to 1.1.1.1 (static)"
+        cat << EOS | tee /etc/resolv.conf > /dev/null
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+EOS
+    fi
 fi
 
 #systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
