@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host2 20170524 - 20210215
+# .sh/bin/setup-host2 20170524 - 20210317
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### TEMP WIP
@@ -139,8 +139,8 @@ EOS
         fi
 
         echo "Disable pdns until actually needed"
-        systemctl stop pdns > /dev/null #2>&1
-        systemctl disable pdns > /dev/null #2>&1
+        sc stop pdns > /dev/null #2>&1
+        sc disable pdns > /dev/null #2>&1
 
         echo "Install bionic spamprobe (the focal spamprobe crashes)"
         apt-get install spamprobe=1.4d-14build1 > /dev/null #2>&1
@@ -150,8 +150,8 @@ EOS
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
         if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
             echo "Remove unattended-upgrades"
-            systemctl stop unattended-upgrades
-            systemctl disable unattended-upgrades
+            sc stop unattended-upgrades
+            sc disable unattended-upgrades
         fi
         echo "Remove python and all related packages"
         apt-get -yqq --purge remove $RLIST > /dev/null #2>&1
@@ -168,7 +168,7 @@ else
     echo "Create /etc/systemd/network/10-dhcp.network"
     cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
     chmod 644 /etc/systemd/network/10-dhcp.network
-    systemctl enable systemd-networkd > /dev/null 2>&1
+    sc enable systemd-networkd > /dev/null 2>&1
 fi
 
 # We now have git available so install the essential SH scripts
@@ -188,7 +188,7 @@ if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
     sed -i /etc/systemd/resolved.conf \
      -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
      -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
-    systemctl restart systemd-resolved
+    sc restart systemd-resolved
 fi
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
@@ -196,7 +196,7 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     [[ -f /etc/pacman.conf ]] && SSH=sshd || SSH=ssh
-    systemctl restart $SSH
+    sc restart $SSH
 fi
 
 if [[ ! -d /root/.ssh ]]; then
