@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-nmbr 20210314 - 20210316
+# .sh/bin/setup-nmbr 20210314 - 20210318
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: setp-nmbr [remove]" && exit 1
@@ -14,5 +14,6 @@ if [[ $1 == remove ]]; then
 else
     $SUDO nmcli connection add type bridge ifname br0 stp no
     $SUDO nmcli connection add type bridge-slave ifname $_ETH0 master br0
+    $SUDO nmcli connection mod bridge-br0 ipv4.ignore-auto-dns yes
     $SUDO nmcli connection up bridge-br0
 fi
