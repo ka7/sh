@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addrc 20190630 - 20210114
+# .sh/bin/addrc 20190630 - 20210318
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: addrc [domain] [rcver]" && exit 1
@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-RCVER=${2:-'1.4.10'}
+RCVER=${2:-'1.4.11'}
 DBTMP=${VHOST//[.-]/_}
 
 . /root/.vhosts/$VHOST || exit 3
