@@ -4,55 +4,18 @@
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [dtype]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [vhost] [dtype]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-export VHOST=$(hostname -f|tr 'A-Z' 'a-z')
-export DTYPE=${1:-${DTYPE:-'mysql'}}
+export VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+export DTYPE=${2:-${DTYPE:-'mysql'}}
 
 setup-host
-setup-fqdn
-setup-db
+setup-db $DTYPE
 setup-etc
+setup-fqdn $VHOST
 setup-hcp
 
 echo "### Send message to: admin@$MHOST"
-cat /root/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $(hostname -i)" -r admin@$MHOST admin@$MHOST
-
-echo "Setup plan for v2
-
-setup-host      : everything except whatever might identify this server
-
-setup-sysadm    : initial sysadm user setup using the primary domain
-
-setup-sqlite    : mandatory
-setup-mysql     : optional but default
-
-and
-
-setup-mail      : setup-postfix and setup-dovecot
-setup-web       : setup-nginx and setup-lsws
-setup-dns       : setup-pdns
-
-or separate services (or both, above call below)
-
-setup-postfix   : SMTP
-setup-dovecot   : IMAP
-setup-nginx     : nginx
-setup-lsws      : openlitespeed
-setup-php       : php7-fpm
-setup-pdns      : powerdns
-
-then
-
-setup-hcp       : Hosting Control Panel
-setup-sqladmin  : phpmyadmin (mysql) and phpliteadmin (sqlite)
-setup-roundcube : webmail
-setup-nextcloud : carddav, caldav, storage server
-
-"
-
-
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+cat /root/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $IP4_0" -r admin@$MHOST admin@$MHOST

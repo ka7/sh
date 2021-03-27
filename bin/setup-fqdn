@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-fqdn 20210327 - 20210327
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
-[[ $1 =~ '-h' ]] && \
-    echo "Usage: setup-fqdn [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-HNAME=$(hostname)
-HDOMN=$(hostname -d)
-[[ -z $HDOMN ]] && HDOMN='netserva.lan'
-VHOST=$HNAME.$HDOMN
+if [[ $1 ]]; then
+    VHOST=$1
+else
+    HNAME=$(hostname)
+    HDOMN=$(hostname -d)
+    [[ -z $HDOMN ]] && HDOMN='netserva.lan'
+    VHOST=$HNAME.$HDOMN
+fi
 
 if [[ -n $(grep :1000: /etc/passwd) ]]; then
     echo "Remove default UID 1000 user"
@@ -21,7 +24,7 @@ fi
 
 addvhost sysadm@mail.$VHOST
 
-. /root/.vhosts/$MHOST
+. /root/.vhosts/mail.$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
@@ -158,6 +161,31 @@ else
         cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
         MTEMP=${MAILTO:-$AMAIL}
         sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
+    fi
+fi
+
+if [[ ! -d $C_SSL/$MHOST ]]; then
+    echo "Create temporary self-signed certificate for $MHOST"
+    [[ ! -d $C_SSL/$MHOST ]] && mkdir $C_SSL/$MHOST
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$MHOST" \
+        -keyout /etc/ssl/$MHOST/privkey.pem \
+        -out /etc/ssl/$MHOST/fullchain.pem > /dev/null 2>&1
+
+    if [[ ! -f $C_WEB/sites-enabled/$MHOST.selfsigned ]]; then
+        cat << EOS | tee $C_WEB/sites-enabled/$MHOST.selfsigned > /dev/null
+server {
+    listen                      443 ssl http2;
+    server_name                 $MHOST;
+    set                         \$domain $MHOST;
+    include                     /etc/nginx/hcp.conf;
+    include                     /etc/nginx/common.conf;
+    ssl_certificate             $C_SSL/$MHOST/fullchain.pem;
+    ssl_certificate_key         $C_SSL/$MHOST/privkey.pem;
+    ssl_stapling                off;
+    ssl_stapling_verify         off;
+}
+EOS
     fi
 fi
 
