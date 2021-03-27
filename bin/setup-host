@@ -231,3 +231,16 @@ nameserver 8.8.8.8
 EOS
     fi
 fi
+
+if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
+    echo "Create /etc/sysctl.d/50-nginx-tweaks.conf"
+    cat << EOS > /etc/sysctl.d/50-nginx-tweaks.conf
+# Auto created by NetServa HCP/SH on $(date +%Y%m%d)
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_notsent_lowat = 16384
+vm.swappiness = 1
+net.core.somaxconn = 512
+EOS
+    sysctl -p
+fi

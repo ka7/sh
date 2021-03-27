@@ -46,3 +46,87 @@ EOS
     echo $HNAME > /etc/hostname
     echo $VHOST > /etc/mailname
 fi
+
+    sed -e "s/_VHOST/$VHOST/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+
+if [[ $DTYPE == sqlite ]]; then
+    if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-alias-maps.cf"
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
+            > $CSMTP/sqlite-alias-maps.cf
+    fi
+    if [[ ! -f $CSMTP/sqlite-gid-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-gid-maps.cf"
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
+            > $CSMTP/sqlite-gid-maps.cf
+    fi
+    if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
+        echo "Create $CSMTP/sqlite-mailbox-domains.cf"
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
+            > $CSMTP/sqlite-mailbox-domains.cf
+    fi
+    if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-mailbox-maps.cf"
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
+            > $CSMTP/sqlite-mailbox-maps.cf
+    fi
+    if [[ ! -f $CSMTP/sqlite-uid-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-uid-maps.cf"
+        sed -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
+            > $CSMTP/sqlite-uid-maps.cf
+    fi
+
+elif [[ $DTYPE == mysql ]]; then
+
+    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-alias-maps.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
+            > $CSMTP/mysql-alias-maps.cf
+    fi
+    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-domains.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
+            > $CSMTP/mysql-mailbox-domains.cf
+    fi
+    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-maps.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
+            > $CSMTP/mysql-mailbox-maps.cf
+    fi
+fi
+
+if [[ $DTYPE == sqlite ]]; then
+
+    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
+        echo "Create $CIMAP/user-sqlite.conf"
+        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
+            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
+            > $CIMAP/user-sqlite.conf
+    fi
+
+elif [[ $DTYPE == mysql ]]; then
+
+    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
+        echo "Create $CIMAP/user-mysql.conf"
+        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
+            > $CIMAP/user-mysql.conf
+    fi
+fi
+
+    sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
+
+

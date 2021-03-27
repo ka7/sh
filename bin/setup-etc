@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20210222
+# .sh/bin/setup-etc 20151231 - 20210327
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -57,10 +57,7 @@ fi
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "Create $CSMTP/main.cf for $DTYPE"
-    mv $CSMTP/main.cf $CSMTP/main.cf.orig
-
-    sed -e "s/_VHOST/$VHOST/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
-        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+    cp $CSMTP/main.cf $CSMTP/main.cf.orig
 
     if [[ $DTYPE == sqlite ]]; then
         echo "Append SQLite details to $CSMTP/main.cf"
@@ -82,78 +79,6 @@ if [[ ! -f $CSMTP/master.cf.orig ]]; then
     chmod 644 $CSMTP/master.cf
 fi
 
-if [[ $DTYPE == sqlite ]]; then
-    if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-alias-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
-            > $CSMTP/sqlite-alias-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-gid-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-gid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
-            > $CSMTP/sqlite-gid-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-domains.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
-            > $CSMTP/sqlite-mailbox-domains.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
-            > $CSMTP/sqlite-mailbox-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-uid-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-uid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
-            > $CSMTP/sqlite-uid-maps.cf
-    fi
-
-elif [[ $DTYPE == mysql ]]; then
-
-    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-alias-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
-            > $CSMTP/mysql-alias-maps.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-domains.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
-            > $CSMTP/mysql-mailbox-domains.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
-            > $CSMTP/mysql-mailbox-maps.cf
-    fi
-
-# postfix does not need to know about gid/uid but dovecot does
-#    if [[ ! -f $CSMTP/mysql-gid-maps.cf ]]; then
-#        echo "Create $CSMTP/mysql-gid-maps.cf"
-#        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-#            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-#            ~/.sh/etc/_etc_postfix_mysql-gid-maps.cf \
-#            > $CSMTP/mysql-gid-maps.cf
-#    fi
-#     if [[ ! -f $CSMTP/mysql-uid-maps.cf ]]; then
-#        echo "Create $CSMTP/mysql-uid-maps.cf"
-#        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-#            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-#            ~/.sh/etc/_etc_postfix_mysql-uid-maps.cf \
-#            > $CSMTP/mysql-uid-maps.cf
-#     fi
-fi
 
 ### dovecot
 
@@ -175,25 +100,6 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
 fi
 
-if [[ $DTYPE == sqlite ]]; then
-
-    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
-        echo "Create $CIMAP/user-sqlite.conf"
-        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
-            > $CIMAP/user-sqlite.conf
-    fi
-
-elif [[ $DTYPE == mysql ]]; then
-
-    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
-        echo "Create $CIMAP/user-mysql.conf"
-        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
-            > $CIMAP/user-mysql.conf
-    fi
-fi
 
 ### Spamprobe
 
@@ -263,18 +169,6 @@ if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
     cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
 fi
 
-if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
-    echo "Create /etc/sysctl.d/50-nginx-tweaks.conf"
-    cat << EOS > /etc/sysctl.d/50-nginx-tweaks.conf
-# Auto created by NetServa HCP/SH on $(date +%Y%m%d)
-net.core.default_qdisc = fq
-net.ipv4.tcp_congestion_control = bbr
-net.ipv4.tcp_notsent_lowat = 16384
-vm.swappiness = 1
-net.core.somaxconn = 512
-EOS
-    sysctl -p
-fi
 
 ### opendkim and opendmarc
 
@@ -376,14 +270,6 @@ if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
-### SSH
-
-if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo "Create new /etc/ssh/sshd_config"
-    mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
-fi
-
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "Create dhparams.pem"
     openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 > /dev/null 2>&1
@@ -393,7 +279,6 @@ if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
     echo "Create generic Port 80 nginx default config"
     [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
-    sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
 fi
 
 if [[ ! -d $C_SSL/$VHOST ]]; then
@@ -435,16 +320,14 @@ if [[ -f /etc/alpine-release ]]; then
     # restart alpine services
     echo "restart alpine services"
 else
-    systemctl daemon-reload > /dev/null 2>&1
+    sc daemon-reload > /dev/null 2>&1
 
-    systemctl restart ssh
-    systemctl enable opendkim > /dev/null 2>&1
-    systemctl restart opendkim
-    systemctl enable opendmarc > /dev/null 2>&1
-    systemctl restart opendmarc
+    sc restart ssh
+    sc enable opendkim > /dev/null 2>&1
+    sc restart opendkim
+    sc enable opendmarc > /dev/null 2>&1
+    sc restart opendmarc
 
     serva restart web
     serva restart mail
 fi
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
