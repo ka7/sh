@@ -47,28 +47,14 @@ if [[ ! -d $CIMAP/sieve ]]; then
     mkdir $CIMAP/sieve
 fi
 
-# For stock ubuntu install, replace with sysadm
-if [[ -n $(grep ^ubuntu /etc/passwd) ]]; then
-    echo "Remove default ubuntu user"
-    userdel -rf ubuntu > /dev/null 2>&1
-fi
 
 ### postfix
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "Create $CSMTP/main.cf for $DTYPE"
-    cp $CSMTP/main.cf $CSMTP/main.cf.orig
-
-    if [[ $DTYPE == sqlite ]]; then
-        echo "Append SQLite details to $CSMTP/main.cf"
-        cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
-    elif [[ $DTYPE == mysql ]]; then
-        echo "Append MySQL details to $CSMTP/main.cf"
-        cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
-    fi
-
+    mv $CSMTP/main.cf $CSMTP/main.cf.orig
+    cp ~/.sh/etc/_etc_postfix_main.cf $CSMTP/main.cf
     echo "/^Subject:/      WARN" > $CSMTP/header_checks
-
     chmod 644 $CSMTP/main.cf $CSMTP/header_checks
 fi
 
@@ -79,27 +65,14 @@ if [[ ! -f $CSMTP/master.cf.orig ]]; then
     chmod 644 $CSMTP/master.cf
 fi
 
-
 ### dovecot
 
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
-
-    sed -e "s/_VHOST/$VHOST/" \
-        ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
-
-    if [[ $DTYPE == sqlite ]]; then
-        echo "Append SQLite details to $CIMAP/dovecot.conf"
-        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
-    elif [[ $DTYPE == mysql ]]; then
-        echo "Append MySQL details to $CIMAP/dovecot.conf"
-        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
-    fi
-
+    cp ~/.sh/etc/_etc_dovecot_dovecot.conf $CIMAP/dovecot.conf
     openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
 fi
-
 
 ### Spamprobe
 
@@ -125,14 +98,6 @@ if [[ -e /usr/bin/spamprobe ]]; then
         cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
     fi
 
-    if [[ -d $CIMAP/sieve ]]; then
-        echo "Create sieve binaries"
-        cd $CIMAP/sieve
-        sievec global.sieve
-        sievec retrain-as-spam.sieve
-        sievec retrain-as-good.sieve
-        chmod 644 *.svbin
-    fi
 fi
 
 ### nginx
@@ -168,7 +133,6 @@ if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
     echo "Create $C_WEB/sites-enabled/_localhost"
     cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
 fi
-
 
 ### opendkim and opendmarc
 
@@ -231,37 +195,7 @@ fi
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
-    #    cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
-    sed "s/0\.0\.0\.0/$IP4_0/" \
-        ~/.sh/etc/_etc_powerdns_pdns.conf \
-        > $C_DNS/pdns.conf
-    if [[ $DTYPE == mysql ]]; then
-        echo "Create $C_DNS/pdns.d/mysql.conf"
-        sed -e "s/_PDNS_USER/$DUSER/" -e "s/_PDNS_PASS/$DPASS/" \
-            ~/.sh/etc/_etc_powerdns_pdns_mysql.conf \
-            > $C_DNS/pdns.d/mysql.conf
-    elif [[ $DTYPE == sqlite ]]; then
-        echo "Create $C_DNS/pdns.d/sqlite.conf"
-        cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
-    fi
-fi
-
-### CRON
-
-if [[ -f /etc/alpine-release ]]; then
-    if [[ ! -f /etc/etc/periodic/daily/netserva ]]; then
-        echo "Create /etc/etc/periodic/daily/netserva"
-        cp ~/.sh/etc/_etc_cron.d_netserva /etc/etc/periodic/daily/netserva
-        MTEMP=${MAILTO:-$AMAIL}
-        sed -i "s/_MAILTO/$MTEMP/" /etc/etc/periodic/daily/netserva
-    fi
-else
-    if [[ ! -f /etc/cron.d/netserva ]]; then
-        echo "Create /etc/cron.d/netserva"
-        cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
-        MTEMP=${MAILTO:-$AMAIL}
-        sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
-    fi
+    cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
@@ -312,22 +246,4 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     [[ ! -d /usr/share/nginx/html ]] && mkdir -p /usr/share/nginx/html
     cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
     chmod 644 /usr/share/nginx/html/50x.html
-fi
-
-addvip $MHOST $IP4_0
-
-if [[ -f /etc/alpine-release ]]; then
-    # restart alpine services
-    echo "restart alpine services"
-else
-    sc daemon-reload > /dev/null 2>&1
-
-    sc restart ssh
-    sc enable opendkim > /dev/null 2>&1
-    sc restart opendkim
-    sc enable opendmarc > /dev/null 2>&1
-    sc restart opendmarc
-
-    serva restart web
-    serva restart mail
 fi

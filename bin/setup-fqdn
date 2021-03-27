@@ -8,11 +8,16 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 HNAME=$(hostname)
-DNAME=$(hostname -d)
-[[ -z $DNAME ]] && DNAME='netserva.lan'
-VHOST=$HNAME.$DNAME
+HDOMN=$(hostname -d)
+[[ -z $HDOMN ]] && HDOMN='netserva.lan'
+VHOST=$HNAME.$HDOMN
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
+
+if [[ -n $(grep :1000: /etc/passwd) ]]; then
+    echo "Remove default UID 1000 user"
+    userdel -rf $(getent passwd 1000 | awk -F: '{print $1}')
+fi
 
 addvhost sysadm@mail.$VHOST
 
@@ -47,10 +52,19 @@ EOS
     echo $VHOST > /etc/mailname
 fi
 
-    sed -e "s/_VHOST/$VHOST/" -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
-        ~/.sh/etc/_etc_postfix_main.cf > $CSMTP/main.cf
+echo "Modify $CSMTP/main.cf"
+sed -i $CSMTP/main.cf \
+    -e "s/_VHOST/$VHOST/" \
+    -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+
+echo "Modify $CIMAP/dovecot.conf"
+sed -i $CIMAP/dovecot.conf -e "s/_VHOST/$VHOST/"
 
 if [[ $DTYPE == sqlite ]]; then
+
+    echo "Append SQLite details to $CSMTP/main.cf"
+    cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
+
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
         echo "Create $CSMTP/sqlite-alias-maps.cf"
         sed -e "s;_DPATH;$DPATH;" \
@@ -81,52 +95,99 @@ if [[ $DTYPE == sqlite ]]; then
             ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
             > $CSMTP/sqlite-uid-maps.cf
     fi
-
-elif [[ $DTYPE == mysql ]]; then
-
-    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-alias-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
-            > $CSMTP/mysql-alias-maps.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-domains.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
-            > $CSMTP/mysql-mailbox-domains.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
-            > $CSMTP/mysql-mailbox-maps.cf
-    fi
-fi
-
-if [[ $DTYPE == sqlite ]]; then
-
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "Create $CIMAP/user-sqlite.conf"
         sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
             ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
             > $CIMAP/user-sqlite.conf
     fi
+    echo "Append SQLite details to $CIMAP/dovecot.conf"
+    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
+    echo "Create $C_DNS/pdns.d/sqlite.conf"
+    cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
 
 elif [[ $DTYPE == mysql ]]; then
 
+    echo "Append MySQL details to $CSMTP/main.cf"
+    cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
+
+    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-alias-maps.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
+            > $CSMTP/mysql-alias-maps.cf
+    fi
+    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-domains.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
+            > $CSMTP/mysql-mailbox-domains.cf
+    fi
+    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-maps.cf"
+        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
+            ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
+            > $CSMTP/mysql-mailbox-maps.cf
+    fi
     if [[ ! -f $CIMAP/user-mysql.conf ]]; then
         echo "Create $CIMAP/user-mysql.conf"
-        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_DNAME/$ADMIN/" \
+        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
             ~/.sh/etc/_etc_dovecot_user-mysql.conf \
             > $CIMAP/user-mysql.conf
     fi
+    echo "Append MySQL details to $CIMAP/dovecot.conf"
+    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
+    echo "Create $C_DNS/pdns.d/mysql.conf"
+    sed -e "s/_PDNS_USER/$DUSER/" -e "s/_PDNS_PASS/$DPASS/" \
+        ~/.sh/etc/_etc_powerdns_pdns_mysql.conf \
+        > $C_DNS/pdns.d/mysql.conf
 fi
 
-    sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
+sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
+sed -i $C_DNS/pdns.conf "s/0\.0\.0\.0/$IP4_0/"
 
+if [[ -f /etc/alpine-release ]]; then
+    if [[ ! -f /etc/etc/periodic/daily/netserva ]]; then
+        echo "Create /etc/etc/periodic/daily/netserva"
+        cp ~/.sh/etc/_etc_cron.d_netserva /etc/etc/periodic/daily/netserva
+        MTEMP=${MAILTO:-$AMAIL}
+        sed -i "s/_MAILTO/$MTEMP/" /etc/etc/periodic/daily/netserva
+    fi
+else
+    if [[ ! -f /etc/cron.d/netserva ]]; then
+        echo "Create /etc/cron.d/netserva"
+        cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
+        MTEMP=${MAILTO:-$AMAIL}
+        sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
+    fi
+fi
 
+addvip $MHOST $IP4_0
+
+if [[ -f /etc/alpine-release ]]; then
+    echo "TODO: restart alpine services"
+else
+    sc daemon-reload > /dev/null 2>&1
+
+    sc restart ssh
+    sc enable opendkim > /dev/null 2>&1
+    sc restart opendkim
+    sc enable opendmarc > /dev/null 2>&1
+    sc restart opendmarc
+
+    serva restart web
+    serva restart mail
+fi
+
+if [[ -d $CIMAP/sieve ]]; then
+    echo "Create sieve binaries"
+    cd $CIMAP/sieve
+    sievec global.sieve
+    sievec retrain-as-spam.sieve
+    sievec retrain-as-good.sieve
+    chmod 644 *.svbin
+fi
