@@ -34,7 +34,7 @@ if [[ ! -f /etc/hosts.orig ]]; then
     fi
 
     echo "Add domain search to /etc/resolv.conf"
-    if [[ command -v systemctl > /dev/null ]]; then
+    if [[ -e /usr/bin/systemctl ]]; then
         sed -i /etc/systemd/resolved.conf \
             -e "s/^#Domains=/Domains=$VHOST/"
         sc restart systemd-resolved
