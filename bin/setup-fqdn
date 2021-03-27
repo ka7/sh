@@ -34,7 +34,7 @@ if [[ ! -f /etc/hosts.orig ]]; then
     fi
 
     echo "Change /etc/resolv.conf to 1.1.1.1"
-    if [[ `systemctl` =~ -\.mount ]]; then
+    if [[ command -v systemctl > /dev/null ]]; then
 #        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
         -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
