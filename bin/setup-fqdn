@@ -8,14 +8,15 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 HNAME=$(hostname)
-VHOST=$(hostname -d)
-[[ -z $VHOST ]] && VHOST='netserva.lan'
+DNAME=$(hostname -d)
+[[ -z $DNAME ]] && DNAME='netserva.lan'
+VHOST=$HNAME.$DNAME
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
 addvhost sysadm@mail.$VHOST
 
-. /root/.vhosts/$VHOST
+. /root/.vhosts/mail.$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
