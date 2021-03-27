@@ -5,7 +5,6 @@
 if [[ -d ~/.sh ]]; then
     echo "Update NetServa SH scripts"
     ~/.sh/bin/shm pull > /dev/null
-    source ~/.shrc
 else
     echo "Setup NetServa SH scripts"
     cd
@@ -13,5 +12,4 @@ else
     ~/.sh/bin/shm install > /dev/null
     ~/.sh/bin/shm perms
     git config --global pull.rebase false
-    source ~/.shrc
 fi

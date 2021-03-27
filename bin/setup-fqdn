@@ -9,7 +9,7 @@
 
 HNAME=$(hostname)
 VHOST=$(hostname -d)
-[[ -z $VHOST ]] && VHOST='local.lan'
+[[ -z $VHOST ]] && VHOST='netserva.lan'
 
 addvhost sysadm@mail.$VHOST
 
