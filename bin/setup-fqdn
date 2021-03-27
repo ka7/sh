@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-fqdn 20210327 - 20210327
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && \
+    echo "Usage: setup-fqdn [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+HNAME=$(hostname)
+VHOST=$(hostname -d)
+[[ -z $VHOST ]] && VHOST='local.lan'
+
+addvhost sysadm@mail.$VHOST
+
+. /root/.vhosts/$VHOST
+
+if [[ ! -f /etc/hosts.orig ]]; then
+    cp /etc/hosts /etc/hosts.orig
+    echo "Rewrite a sane /etc/hosts"
+    sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
+
+    grep -q "$IP4_0\t$VHOST $HNAME" /etc/hosts
+    if [[ $? -gt 0 ]]; then
+        echo -e "\n$IP4_0\t$VHOST $HNAME" >> /etc/hosts
+    fi
+
+    echo "Change /etc/resolv.conf to 1.1.1.1"
+    if [[ `systemctl` =~ -\.mount ]]; then
+#        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+        sed -i /etc/systemd/resolved.conf \
+        -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
+        -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/' \
+        -e "s/^#Domains=/Domains=$VHOST/"
+        sc restart systemd-resolved
+    else
+        cat << EOS >> /etc/resolv.conf
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+search $VHOST
+EOS
+    fi
+    echo $HNAME > /etc/hostname
+    echo $VHOST > /etc/mailname
+fi
