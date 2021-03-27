@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/setup-fqdn 20210327 - 20210327
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
-
+set -x
 [[ $1 =~ '-h' ]] && \
     echo "Usage: setup-fqdn [domain] [(mysql)|sqlite] [os release($OSREL)] [IP] [admin(sysadm)] [os mirror(archive.ubuntu.com)]" && exit 1
 
@@ -12,12 +12,12 @@ HDOMN=$(hostname -d)
 [[ -z $HDOMN ]] && HDOMN='netserva.lan'
 VHOST=$HNAME.$HDOMN
 
-[[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
-
 if [[ -n $(grep :1000: /etc/passwd) ]]; then
     echo "Remove default UID 1000 user"
     userdel -rf $(getent passwd 1000 | awk -F: '{print $1}')
 fi
+
+[[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
 addvhost sysadm@mail.$VHOST
 
@@ -49,7 +49,7 @@ search $VHOST
 EOS
     fi
     echo $HNAME > /etc/hostname
-    echo $VHOST > /etc/mailname
+    echo $MHOST > /etc/mailname
 fi
 
 echo "Modify $CSMTP/main.cf"
