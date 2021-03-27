@@ -1,42 +1,39 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20210131
+# .sh/bin/addvhost 20170217 - 20210327
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# Move anything to do with hosting plans into another script
+# TODO: move anything to do with hosting plans into another script
 
-[[ $1 =~ -h ]] && echo "Usage: addvhost [[uuser@]domain] [cms(none|wp)] [ssl(none|le|self)] [ip]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: addvhost [uuser@]domain [cms(none|wp)] [ssl(none|le|self)] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-# Only for DTYPE and VPATH
-. ~/.shrc || exit 3
-
-[[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir $VPATH
-
-Y_M_D=$(date +"%Y-%m-%d")
-UUTMP=""
+VHOST=$1
 DOCMS=${2:-''}
 DOSSL=${3:-''}
 USEIP=${4:-''}
 
+Y_M_D=$(date +"%Y-%m-%d")
+_UTMP=""
+
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
-        UUTMP=${1%@*}@ # $UUTMP @ domain
+        _UTMP=${1%@*}@ # $_UTMP @ domain
         VHOST=${1#*@}  # userid @ $VHOST
-    else
-        VHOST=$1
     fi
+else
+    VHOST=$1
 fi
 
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "Create /root/.vhosts/$VHOST config file"
-    sethost $UUTMP$VHOST $DTYPE $OSREL
+    sethost $_UTMP$VHOST $DTYPE $OSREL
     gethost > /root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*
 fi
 
-source /root/.vhosts/$VHOST
+. /root/.vhosts/$VHOST
 
 # Set some default minimal hosting plan settings
 V_ALIASES="10"

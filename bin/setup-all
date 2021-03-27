@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-all 20170519 - 20210327
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
-[[ $1 =~ '-h' ]] && echo "Usage: setup-all [dtype] [osrel]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-all [dtype]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=$(hostname -f|tr 'A-Z' 'a-z')
-DTYPE=${1:-${DTYPE:-'mysql'}}
-OSREL=${2:-${OSREL:-'groovy'}}
+export VHOST=$(hostname -f|tr 'A-Z' 'a-z')
+export DTYPE=${1:-${DTYPE:-'mysql'}}
 
-setup-host $VHOST $DTYPE $OSREL
-setup-deb
+setup-host
+setup-fqdn
 setup-db
 setup-etc
 setup-hcp
