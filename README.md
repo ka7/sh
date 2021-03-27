@@ -15,7 +15,7 @@ anyway you care to. The simplest way to install and setup this project is
 to copy and paste this one-liner as root. Please [review the script] at
 Github first...
 
-    curl -s https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh | bash
+    wget https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh ; . setup-sh
 
 **Note:** make sure `curl` and `git` are installed first. Use `which git`
 and if nothing is returned then manually update the package list and make
