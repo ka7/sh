@@ -6,15 +6,15 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-"mail.$(hostname -f|tr 'A-Z' 'a-z')"}
+MHOST=${1:-"mail.$(hostname -f|tr 'A-Z' 'a-z')"}
 
-source /root/.vhosts/$VHOST || exit 3
+source /root/.vhosts/$MHOST || exit 3
 
 if [[ -d $WPATH ]]; then
     echo "$WPATH already exists"
 else
-    echo "Create $VHOST with $DTYPE"
-    addvhost sysadm@$VHOST
+    echo "Create $MHOST with $DTYPE"
+    addvhost sysadm@$MHOST
 fi
 
 if [[ -d $WPATH/hcp ]]; then
@@ -37,12 +37,12 @@ EOS
         HPASS=$(pwgen -sB 8 1)
         echo "Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
         htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS
-        echo "# HTTP auth for https://$VHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
-        cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+        echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
+        cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
 HTTP Auth
 =========
 
-AdminWeb: https://$VHOST/hcp
+AdminWeb: https://$MHOST/hcp
 Username: $HUSER
 Password: $HPASS
 
@@ -50,11 +50,11 @@ EOS
     fi
 
     echo "Create default $DTYPE entries"
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
 HCP Auth
 =========
 
-AdminWeb: https://$VHOST/hcp/?o=auth
+AdminWeb: https://$MHOST/hcp/?o=auth
 Username: $AMAIL
 Password: $APASS
 
@@ -134,10 +134,8 @@ return [
 " > $WPATH/hcp/lib/.ht_conf.php
 fi
 
-addpma
-addrc
-chperms $VHOST
+addpma $MHOST
+addrc $MHOST
+chperms $MHOST
 serva restart web
 serva restart mail
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
