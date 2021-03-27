@@ -11,6 +11,8 @@ HNAME=$(hostname)
 VHOST=$(hostname -d)
 [[ -z $VHOST ]] && VHOST='netserva.lan'
 
+[[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
+
 addvhost sysadm@mail.$VHOST
 
 . /root/.vhosts/$VHOST
