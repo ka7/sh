@@ -214,7 +214,7 @@ if [[ -d /etc/systemd ]]; then
     fi
 
     if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
-#        echo "Change /etc/resolv.conf to talk directly to 1.1.1.1 (systemd)"
+        echo "Change /etc/resolv.conf to 1.1.1.1 (systemd)"
 #        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
             -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
@@ -224,7 +224,7 @@ if [[ -d /etc/systemd ]]; then
 else
     if [[ ! -f /etc/resolv.conf.orig ]]; then
         mv /etc/resolv.conf /etc/resolv.conf.orig
-        echo "Change /etc/resolv.conf to talk directly to 1.1.1.1 (static)"
+        echo "Change /etc/resolv.conf to 1.1.1.1 (static)"
         cat << EOS | tee /etc/resolv.conf > /dev/null
 nameserver 1.1.1.1
 nameserver 8.8.8.8

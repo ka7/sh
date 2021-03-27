@@ -21,30 +21,25 @@ fi
 
 addvhost sysadm@mail.$VHOST
 
-. /root/.vhosts/mail.$VHOST
+. /root/.vhosts/$MHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
     echo "Rewrite a sane /etc/hosts"
     sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
 
-    grep -q "$IP4_0\t$VHOST $HNAME" /etc/hosts
+    grep -q "$IP4_0\t$MHOST $HNAME" /etc/hosts
     if [[ $? -gt 0 ]]; then
-        echo -e "\n$IP4_0\t$VHOST $HNAME" >> /etc/hosts
+        echo -e "\n$IP4_0\t$MHOST $HNAME" >> /etc/hosts
     fi
 
-    echo "Change /etc/resolv.conf to 1.1.1.1"
+    echo "Add domain search to /etc/resolv.conf"
     if [[ command -v systemctl > /dev/null ]]; then
-#        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
-        -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
-        -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/' \
-        -e "s/^#Domains=/Domains=$VHOST/"
+            -e "s/^#Domains=/Domains=$VHOST/"
         sc restart systemd-resolved
     else
         cat << EOS >> /etc/resolv.conf
-nameserver 1.1.1.1
-nameserver 8.8.8.8
 search $VHOST
 EOS
     fi
@@ -54,11 +49,11 @@ fi
 
 echo "Modify $CSMTP/main.cf"
 sed -i $CSMTP/main.cf \
-    -e "s/_VHOST/$VHOST/" \
+    -e "s/_VHOST/$MHOST/" \
     -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
 
 echo "Modify $CIMAP/dovecot.conf"
-sed -i $CIMAP/dovecot.conf -e "s/_VHOST/$VHOST/"
+sed -i $CIMAP/dovecot.conf -e "s/_VHOST/$MHOST/"
 
 if [[ $DTYPE == sqlite ]]; then
 
