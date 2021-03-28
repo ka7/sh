@@ -13,3 +13,5 @@ else
     ~/.sh/bin/shm perms
     git config --global pull.rebase false
 fi
+
+. ~/.shrc
