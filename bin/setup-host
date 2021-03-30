@@ -106,23 +106,23 @@ postfix postfix/main_mailer_type string 'Internet Site'
 EOS
 
         echo "### Adding key for bionic (18.04) repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null
 
         echo "### Adding key for openlitespeed repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
 
         echo "### Updating package list for $OSREL, patience please..."
         apt-get -yqq update
 
         echo "### Upgrading packages for $OSREL, more patience..."
-        apt-get -yqq -u dist-upgrade
+        apt-get -yqq -u dist-upgrade > /dev/null
 
         echo "### Installing default package set, yet more patience..."
-        apt-get -yqq install $DLIST
+        apt-get -yqq install $DLIST > /dev/null
 
         if [[ $DTYPE == mysql ]]; then
             echo "### Installing MYSQL package set, even more patience..."
-            apt-get -yqq install $MLIST
+            apt-get -yqq install $MLIST > /dev/null
 
             echo "### Change Mysql to utf8 otherwise pdns tables will not install"
             sed -i /etc/mysql/mariadb.conf.d/50-server.cnf \
