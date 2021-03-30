@@ -1,28 +1,22 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210318
+# .sh/bin/setup-host 20170524 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-### TEMP WIP
-# This will replace setup-host once working. The idea is to extract all the
-# non-identifying names and vhost core setup code and add it here so that a
-# primary VM image can be cloned. Ie; so as much preliminary setup can be
-# done without actually adding any custom IPs, users or vhosts. Anything
-# to do with setting up IPs, users or vhosts needs to be done in a
-# separate followup setup-sysadm script to create the primary vhost.
-
 [[ $1 =~ '-h' ]] && \
-  echo "Usage: setup-host [(mysql)|sqlite] [php version] [os release] [os mirror]" && exit 1
+  echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-set -x
-DTYPE=${1:-$DTYPE}
-V_PHP=${2:-$V_PHP}
-OSREL=${3:-$OSREL}
-OSMIR=${4:-$OSMIR}
+
+VHOST=${1:-$DTYPE}
+DTYPE=${2:-$DTYPE}
+
+OSMIR=archive.ubuntu.com
+OSREL=hirsute
+V_PHP=7.4
 
 if [[ -f /etc/alpine-release ]]; then
 
-    echo "Install Alpine base packages"
+    echo "### Install Alpine base packages"
 
     ALIST="bash bc busybox-static ca-certificates curl db dovecot
 dovecot-lmtpd dovecot-sqlite ebtables fcgiwrap gawk git iputils jq msmtp
@@ -40,7 +34,7 @@ s-nail sqlite sudo wget which whois"
 
 elif [[ -f /etc/pacman.conf ]]; then
 
-    echo "Install Arch/Manjaro base packages"
+    echo "### Install Arch/Manjaro base packages"
 
     # Default List of required core Netserva Arch/Manjaro packages
     DLIST="bash bc inetutils s-nail busybox ca-certificates curl db
@@ -59,7 +53,7 @@ sudo time minizip wget which whois"
 
 elif [[ -f /etc/apt/sources.list ]]; then
 
-    echo "Install Debian/Ubuntu base packages"
+    echo "### Install Debian/Ubuntu base packages"
 
     # Default List of required core Netserva Debian packages
     DLIST="apache2-utils apt-utils bash bc bind9-host bsd-mailx
@@ -87,12 +81,12 @@ ubuntu-advantage-tools vi* xinetd"
     # Make sure that IP4 is the default
     grep -q '^#precedence ::ffff:0:0/96  100' /etc/gai.conf
     if [[ $? -eq 0 ]]; then
-        echo "Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
+        echo "### Warning: giving preference to IPv4 (IPv6 is Ubuntu default)"
         sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
     fi
 
     if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
-        echo "Create /etc/apt/apt.conf.d/20local"
+        echo "### Create /etc/apt/apt.conf.d/20local"
         cp ~/.sh/etc/_etc_apt_apt.conf.d_20local /etc/apt/apt.conf.d/20local
     fi
 
@@ -100,7 +94,7 @@ ubuntu-advantage-tools vi* xinetd"
         export DEBIAN_FRONTEND=noninteractive
         export TERM=linux
 
-        echo "Setup apt sources list for $OSREL"
+        echo "### Setup apt sources list for $OSREL"
         mv /etc/apt/sources.list /etc/apt/sources.list.orig
         sed ~/.sh/etc/_etc_apt_sources.list \
         -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
@@ -111,48 +105,48 @@ postfix postfix/mailname string 'localhost'
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
 
-        echo "Adding key for bionic (18.04) repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null 2>&1
+        echo "### Adding key for bionic (18.04) repo"
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
 
-        echo "Adding key for openlitespeed repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null 2>&1
+        echo "### Adding key for openlitespeed repo"
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
 
-        echo "Updating package list for $OSREL, patience please..."
-        apt-get -yqq update > /dev/null #2>&1
+        echo "### Updating package list for $OSREL, patience please..."
+        apt-get -yqq update
 
-        echo "Upgrading packages for $OSREL, more patience..."
-        apt-get -yqq -u dist-upgrade > /dev/null #2>&1
+        echo "### Upgrading packages for $OSREL, more patience..."
+        apt-get -yqq -u dist-upgrade
 
-        echo "Installing default package set, yet more patience..."
-        apt-get -yqq install $DLIST > /dev/null #2>&1
+        echo "### Installing default package set, yet more patience..."
+        apt-get -yqq install $DLIST
 
         if [[ $DTYPE == mysql ]]; then
-            echo "Installing MYSQL package set, even more patience..."
-            apt-get -yqq install $MLIST > /dev/null #2>&1
+            echo "### Installing MYSQL package set, even more patience..."
+            apt-get -yqq install $MLIST
 
-            echo "Change Mysql to utf8 otherwise pdns tables will not install"
+            echo "### Change Mysql to utf8 otherwise pdns tables will not install"
             sed -i /etc/mysql/mariadb.conf.d/50-server.cnf \
             -e "/^character-set-server/ s/utf8mb4/utf8/" \
             -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/"
         fi
 
-        echo "Disable pdns until actually needed"
-        sc stop pdns > /dev/null #2>&1
-        sc disable pdns > /dev/null #2>&1
+        echo "### Disable pdns until actually needed"
+        sc stop pdns
+        sc disable pdns
 
-        echo "Install bionic spamprobe (the focal+ spamprobe crashes)"
-        apt-get install spamprobe=1.4d-14build1 > /dev/null #2>&1
-        apt-mark hold spamprobe > /dev/null
+        echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
+        apt-get install spamprobe=1.4d-14build1
+        apt-mark hold spamprobe
     fi
 
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
         if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
-            echo "Remove unattended-upgrades"
+            echo "### Remove unattended-upgrades"
             sc stop unattended-upgrades
             sc disable unattended-upgrades
         fi
-        echo "Remove python and all related packages"
-        apt-get -yqq --purge remove $RLIST > /dev/null #2>&1
+        echo "### Remove python and all related packages"
+        apt-get -yqq --purge remove $RLIST
 
     fi
 fi
@@ -160,41 +154,33 @@ fi
 # Git is now available so install the SH scripts, if not already
 
 if [[ ! -d /root/.sh ]]; then
-    echo "Setup NetServa SH scripts"
-    cd && git clone -q https://github.com/netserva/sh .sh > /dev/null
-    /root/.sh/bin/shm install > /dev/null
+    echo "### Setup NetServa SH scripts"
+    cd && git clone -q https://github.com/netserva/sh .sh
+    /root/.sh/bin/shm install
     /root/.sh/bin/shm perms
     git config --global pull.rebase false
 fi
 
 . ~/.shrc || exit 3
 
-[[ ! -d $VPATH ]] && echo "Create $VPATH" && mkdir -p $VPATH
+[[ ! -d $VPATH ]] && echo "### Create $VPATH" && mkdir -p $VPATH
 
 if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo "Create new /etc/ssh/sshd_config"
+    echo "### Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     sc restart sshd
 fi
 
 if [[ ! -d /root/.ssh ]]; then
-    echo "Create host /root/.ssh dir"
+    echo "### Create host /root/.ssh dir"
     mkdir /root/.ssh
     chmod 700 /root/.ssh
 fi
 
 if [[ ! -f /root/.ssh/config ]]; then
-    echo "Create host /root/.ssh/config"
+    echo "### Create host /root/.ssh/config"
     cp ~/.sh/etc/_.ssh_config ~/.ssh/config
-    chmod 600 /root/.ssh/*
-fi
-
-# Not sure if this is really needed?
-if [[ ! -f /root/.ssh/id_rsa ]]; then
-    echo "Create host /root/.ssh/id_rsa key"
-    ssh-keygen -t rsa -f /root/.ssh/id_rsa -N '' > /dev/null
-    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
     chmod 600 /root/.ssh/*
 fi
 
@@ -205,16 +191,16 @@ if [[ -d /etc/systemd ]]; then
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
 
     if [[ $(ls -A /etc/systemd/network/*dhcp*.network 2> /dev/null) ]]; then
-        echo "/etc/systemd/network/*dhcp*.network already exists"
+        echo "### /etc/systemd/network/*dhcp*.network already exists"
     else
-        echo "Create /etc/systemd/network/10-dhcp.network"
+        echo "### Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
         chmod 644 /etc/systemd/network/10-dhcp.network
-        sc enable systemd-networkd > /dev/null 2>&1
+        sc enable systemd-networkd
     fi
 
     if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
-        echo "Change /etc/resolv.conf to 1.1.1.1 (systemd)"
+        echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
 #        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
             -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
@@ -224,8 +210,8 @@ if [[ -d /etc/systemd ]]; then
 else
     if [[ ! -f /etc/resolv.conf.orig ]]; then
         mv /etc/resolv.conf /etc/resolv.conf.orig
-        echo "Change /etc/resolv.conf to 1.1.1.1 (static)"
-        cat << EOS | tee /etc/resolv.conf > /dev/null
+        echo "### Change /etc/resolv.conf to 1.1.1.1 (static)"
+        cat << EOS | tee /etc/resolv.conf
 nameserver 1.1.1.1
 nameserver 8.8.8.8
 EOS
@@ -233,7 +219,7 @@ EOS
 fi
 
 if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
-    echo "Create /etc/sysctl.d/50-nginx-tweaks.conf"
+    echo "### Create /etc/sysctl.d/50-nginx-tweaks.conf"
     cat << EOS > /etc/sysctl.d/50-nginx-tweaks.conf
 # Auto created by NetServa HCP/SH on $(date +%Y%m%d)
 net.core.default_qdisc = fq

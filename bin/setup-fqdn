@@ -5,7 +5,7 @@
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-set -x
+
 if [[ $1 ]]; then
     VHOST=$1
 else
@@ -67,30 +67,34 @@ sed -i $CIMAP/dovecot.conf \
 
 if [[ $DTYPE == sqlite ]]; then
 
-    echo "Update $CSMTP/sqlite-alias-maps.cf"
-    sed -i $CSMTP/sqlite-alias-maps.cf \
-        -e "s;_DPATH;$DPATH;"
+    if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-alias-maps.cf"
+        cp ~/.sh/_etc_postfix_sqlite-alias-maps.cf $CSMTP/sqlite-alias-maps.cf
+        sed -i $CSMTP/sqlite-alias-maps.cf \
+            -e "s;_DPATH;$DPATH;"
+    fi
 
-    echo "Update $CSMTP/sqlite-gid-maps.cf"
-    sed -i $CSMTP/sqlite-gid-maps.cf \
-        -e "s;_DPATH;$DPATH;"
+    if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
+        echo "Create $CSMTP/sqlite-mailbox-domains.cf"
+        cp ~/.sh/_etc_postfix_sqlite-mailbox-domains.cf $CSMTP/sqlite-mailbox-domains.cf
+        sed -i $CSMTP/sqlite-mailbox-domains.cf \
+            -e "s;_DPATH;$DPATH;"
+    fi
 
-    echo "Update $CSMTP/sqlite-mailbox-domains.cf"
-    sed -i $CSMTP/sqlite-mailbox-domains.cf \
-        -e "s;_DPATH;$DPATH;"
+    if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
+        echo "Create $CSMTP/sqlite-mailbox-maps.cf"
+        cp ~/.sh/_etc_postfix_sqlite-mailbox-maps.cf $CSMTP/sqlite-mailbox-maps.cf
+        sed -i $CSMTP/sqlite-mailbox-maps.cf \
+            -e "s;_DPATH;$DPATH;"
+    fi
 
-    echo "Update $CSMTP/sqlite-mailbox-maps.cf"
-    sed -i $CSMTP/sqlite-mailbox-maps.cf \
-        -e "s;_DPATH;$DPATH;"
-
-    echo "Update $CSMTP/sqlite-uid-maps.cf"
-    sed -i $CSMTP/sqlite-uid-maps.cf \
-        -e "s;_DPATH;$DPATH;"
-
-    echo "Update $CIMAP/user-sqlite.conf"
-    sed -i $CIMAP/user-sqlite.conf \
-        -e "s;_DTYPE;$DTYPE;" \
-        -e "s;_DPATH;$DPATH;"
+    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
+        echo "Create $CIMAP/user-sqlite.conf"
+        cp ~/.sh/_etc_dovecot_user-sqlite.conf $CIMAP/user-sqlite.conf
+        sed -i $CIMAP/user-sqlite.conf \
+            -e "s;_DTYPE;$DTYPE;" \
+            -e "s;_DPATH;$DPATH;"
+    fi
 
     if [[ ! -f $C_DNS/pdns.d/sqlite.conf ]]; then
         echo "Create $C_DNS/pdns.d/sqlite.conf"
@@ -111,44 +115,43 @@ if [[ $DTYPE == sqlite ]]; then
 
 elif [[ $DTYPE == mysql ]]; then
 
-    echo "Update $CSMTP/mysql-alias-maps.cf"
-    sed -i $CSMTP/mysql-alias-maps.cf \
-        -e "s/_DHOST/$DHOST/" \
-        -e "s/_HDOMN/$ADMIN/" \
-        -e "s/_DUSER/$ADMIN/" \
-        -e "s/_DPASS/$DPASS/"
+    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-alias-maps.cf"
+        cp ~/.sh/_etc_postfix_mysql-alias-maps.cf $CSMTP/mysql-alias-maps.cf
+        sed -i $CSMTP/mysql-alias-maps.cf \
+            -e "s/_DHOST/$DHOST/" \
+            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" \
+            -e "s/_DPASS/$DPASS/"
+    fi
 
-    echo "Update $CSMTP/mysql-mailbox-domains.cf"
-    sed -i $CSMTP/mysql-mailbox-domains.cf \
-        -e "s/_DHOST/$DHOST/" \
-        -e "s/_HDOMN/$ADMIN/" \
-        -e "s/_DUSER/$ADMIN/" \
-        -e "s/_DPASS/$DPASS/"
+    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-domains.cf"
+        cp ~/.sh/_etc_postfix_mysql-mailbox-domains.cf $CSMTP/mysql-mailbox-domains.cf
+        sed -i $CSMTP/mysql-mailbox-domains.cf \
+            -e "s/_DHOST/$DHOST/" \
+            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" \
+            -e "s/_DPASS/$DPASS/"
+    fi
 
-    echo "Update $CSMTP/mysql-mailbox-maps.cf"
-    sed -i $CSMTP/mysql-mailbox-maps.cf \
-        -e "s/_DHOST/$DHOST/" \
-        -e "s/_HDOMN/$ADMIN/" \
-        -e "s/_DUSER/$ADMIN/" \
-        -e "s/_DPASS/$DPASS/"
-
-    echo "Update $CIMAP/user-mysql.conf"
-    sed -i $CIMAP/user-mysql.conf
-        -e "s/_DTYPE/$DTYPE/" \
-        -e "s/_DHOST/$DHOST/" \
-        -e "s/_HDOMN/$ADMIN/" \
-        -e "s/_DUSER/$ADMIN/" \
-        -e "s/_DPASS/$DPASS/"
+    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
+        echo "Create $CSMTP/mysql-mailbox-maps.cf"
+        cp ~/.sh/_etc_postfix_mysql-mailbox-maps.cf $CSMTP/mysql-mailbox-maps.cf
+        sed -i $CSMTP/mysql-mailbox-maps.cf \
+            -e "s/_DHOST/$DHOST/" \
+            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" \
+            -e "s/_DPASS/$DPASS/"
+    fi
 
     if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
         echo "Create $C_DNS/pdns.d/mysql.conf"
         cp ~/.sh/etc/_etc_powerdns_pdns_mysql.conf $C_DNS/pdns.d/mysql.conf
+        sed -i $C_DNS/pdns.d/mysql.conf \
+            -e "s/_PDNS_USER/$DUSER/" \
+            -e "s/_PDNS_PASS/$DPASS/"
     fi
-
-    echo "Update $C_DNS/pdns.d/mysql.conf"
-    sed -i $C_DNS/pdns.d/mysql.conf \
-        -e "s/_PDNS_USER/$DUSER/" \
-        -e "s/_PDNS_PASS/$DPASS/"
 
     grep -q virtual_alias_maps $CSMTP/main.cf
     if [[ $? -gt 0 ]]; then

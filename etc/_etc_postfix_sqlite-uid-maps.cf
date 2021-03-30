@@ -1,2 +1,0 @@
-dbpath = _DPATH
-query = SELECT uid FROM vmails WHERE user = '%s'

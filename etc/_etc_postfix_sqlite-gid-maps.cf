@@ -1,2 +1,0 @@
-dbpath = _DPATH
-query = SELECT gid FROM vmails WHERE user = '%s'

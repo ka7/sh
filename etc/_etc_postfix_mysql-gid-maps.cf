@@ -1,5 +1,0 @@
-dbname = _DNAME
-hosts = _DHOST
-password = _DPASS
-user = _DUSER
-query = SELECT gid FROM vmails WHERE user = '%s'
