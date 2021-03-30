@@ -6,6 +6,12 @@ variables to help make it easier to manage your Bash shell from an upstream
 shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
 which also provides a foundation for the [NetServa HCP] PHP web interface.
 
+Currently tested on (WIP):
+
+- Ubuntu Focal (20.04) # Manually upgrade to hirsute (21.04) if needed
+- Manjaro Testing
+- Alpine Edge
+
 ## Usage
 
 To use these scripts make sure you have the `git` package installed and
@@ -15,7 +21,7 @@ anyway you care to. The simplest way to install and setup this project is
 to copy and paste this one-liner as root. Please [review the script] at
 Github first...
 
-    wget https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh ; . setup-sh
+    wget -q https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh ; . setup-sh
 
 **Note:** make sure `curl` and `git` are installed first. Use `which git`
 and if nothing is returned then manually update the package list and make
