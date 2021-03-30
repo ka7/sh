@@ -135,7 +135,7 @@ EOS
         sc disable pdns
 
         echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
-        apt-get install spamprobe=1.4d-14build1
+        apt-get -yqq install spamprobe=1.4d-14build1
         apt-mark hold spamprobe
     fi
 
