@@ -152,7 +152,6 @@ EOS
         fi
         echo "### Remove python and all related packages"
         apt-get -yqq --purge remove $RLIST
-
     fi
 fi
 
