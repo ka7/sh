@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20210327
+# .sh/bin/setup-hcp 20170519 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-MHOST=${1:-"mail.$(hostname -f|tr 'A-Z' 'a-z')"}
+MHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 
 source /root/.vhosts/$MHOST || exit 3
 

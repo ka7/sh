@@ -20,30 +20,30 @@ if [[ $DTYPE == sqlite ]]; then
 elif [[ $DTYPE == mysql ]]; then
     SQCMD=$EXMYS
 else
-    echo "ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
+    echo "### ERROR: unknown argument DTYPE='$DTYPE'" && exit 2
 fi
 
 ### Create missing directories
 
 # For Alpine
 if [[ ! -d $C_WEB/sites-enabled ]]; then
-    echo "Create $C_WEB/sites-enabled"
+    echo "### Create $C_WEB/sites-enabled"
     mkdir $C_WEB/sites-enabled
 fi
 
 if [[ ! -d /etc/opendkim ]]; then
-    echo "Create /etc/opendkim"
+    echo "### Create /etc/opendkim"
     # mkdir and move to opendkim section
     dkim list
 fi
 
 if [[ ! -d $CIMAP/vhosts ]]; then
-    echo "Create $CIMAP/vhosts"
+    echo "### Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
 fi
 
 if [[ ! -d $CIMAP/sieve ]]; then
-    echo "Create $CIMAP/sieve"
+    echo "### Create $CIMAP/sieve"
     mkdir $CIMAP/sieve
 fi
 
@@ -51,15 +51,15 @@ fi
 ### postfix
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
-    echo "Create $CSMTP/main.cf for $DTYPE"
+    echo "### Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf $CSMTP/main.cf
-    echo "/^Subject:/      WARN" > $CSMTP/header_checks
+    echo "### /^Subject:/      WARN" > $CSMTP/header_checks
     chmod 644 $CSMTP/main.cf $CSMTP/header_checks
 fi
 
 if [[ ! -f $CSMTP/master.cf.orig ]]; then
-    echo "Create $CSMTP/master.cf"
+    echo "### Create $CSMTP/master.cf"
     mv $CSMTP/master.cf $CSMTP/master.cf.orig
     cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
     chmod 644 $CSMTP/master.cf
@@ -68,93 +68,92 @@ fi
 ### dovecot
 
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
-    echo "Create $CIMAP/dovecot.conf for $DTYPE"
+    echo "### Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
     cp ~/.sh/etc/_etc_dovecot_dovecot.conf $CIMAP/dovecot.conf
-    chmdo 644 $CIMAP/dovecot.conf
+    chmod 644 $CIMAP/dovecot.conf
     openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
-fi
-
-if [[ ! -d $CIMAP/sieve/global.svbin ]]; then
-    echo "Create sieve binaries"
-    cd $CIMAP/sieve
-    sievec global.sieve
-    sievec retrain-as-spam.sieve
-    sievec retrain-as-good.sieve
-    chmod 644 *.svbin
 fi
 
 ### Spamprobe
 
 if [[ -e /usr/bin/spamprobe ]]; then
     if [[ ! -L $CIMAP/sieve/spamprobe ]]; then
-        echo "Create $CIMAP/sieve/spamprobe symlink"
+        echo "### Create $CIMAP/sieve/spamprobe symlink"
         cd $CIMAP/sieve
         ln -s /usr/bin/spamprobe $CIMAP/sieve/spamprobe
     fi
 
     if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
-        echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
+        echo "###  Create $CIMAP/sieve/retrain-as-good.sieve"
         cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-good.sieve $CIMAP/sieve/retrain-as-good.sieve
     fi
 
     if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
-        echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
+        echo "###  Create $CIMAP/sieve/retrain-as-spam.sieve"
         cp ~/.sh/etc/_etc_dovecot_sieve_retrain-as-spam.sieve $CIMAP/sieve/retrain-as-spam.sieve
     fi
 
     if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
-        echo "*** Create $CIMAP/sieve/global.sieve"
+        echo "###  Create $CIMAP/sieve/global.sieve"
         cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
     fi
 
+    if [[ ! -d $CIMAP/sieve/global.svbin ]]; then
+        echo "### Create sieve binaries"
+        cd $CIMAP/sieve
+        sievec global.sieve
+        sievec retrain-as-spam.sieve
+        sievec retrain-as-good.sieve
+        chmod 644 *.svbin
+    fi
 fi
 
 ### nginx
 
 if [[ ! -f $C_WEB/common.conf ]]; then
-    echo "Create $C_WEB/common.conf"
+    echo "### Create $C_WEB/common.conf"
     cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
 fi
 
 if [[ ! -f $C_WEB/php.conf ]]; then
-    echo "Create $C_WEB/php.conf"
+    echo "### Create $C_WEB/php.conf"
     cp ~/.sh/etc/_etc_nginx_php.conf $C_WEB/php.conf
 fi
 
 # Not strictly necessary at this point (could be in setup-hcp)
 if [[ ! -f $C_WEB/hcp.conf ]]; then
-    echo "Create $C_WEB/hcp.conf"
+    echo "### Create $C_WEB/hcp.conf"
     cp ~/.sh/etc/_etc_nginx_hcp.conf $C_WEB/hcp.conf
 fi
 
 if [[ ! -f $C_WEB/headers.conf ]]; then
-    echo "Create $C_WEB/headers.conf"
+    echo "### Create $C_WEB/headers.conf"
     cp ~/.sh/etc/_etc_nginx_headers.conf $C_WEB/headers.conf
 fi
 
 if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
-    echo "Create $C_WEB/nginx.conf"
+    echo "### Create $C_WEB/nginx.conf"
     mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
-    echo "Create $C_WEB/sites-enabled/_localhost"
+    echo "### Create $C_WEB/sites-enabled/_localhost"
     cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
 fi
 
 ### opendkim and opendmarc
 
 if [[ ! -f /etc/opendkim.conf.orig ]]; then
-    echo "Create /etc/opendkim.conf"
+    echo "### Create /etc/opendkim.conf"
     touch /etc/opendkim.conf.orig
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
     chown opendkim:opendkim /etc/opendkim.conf
 fi
 
 if [[ ! -f /etc/opendmarc.conf.orig ]]; then
-    echo "Create /etc/opendmarc.conf"
+    echo "### Create /etc/opendmarc.conf"
     touch /etc/opendmarc.conf.orig
     cp ~/.sh/etc/_etc_opendmarc.conf /etc/opendmarc.conf
 fi
@@ -162,13 +161,13 @@ fi
 if [[ ! -f /etc/alpine-release ]]; then
 
     if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
-        echo "Create /etc/systemd/system/opendkim.service"
+        echo "### Create /etc/systemd/system/opendkim.service"
         cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
         chmod 644 /etc/systemd/system/opendkim.service
     fi
 
     if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
-        echo "Create /etc/systemd/system/opendmarc.service"
+        echo "### Create /etc/systemd/system/opendmarc.service"
         cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
         chmod 644 /etc/systemd/system/opendmarc.service
     fi
@@ -177,16 +176,16 @@ fi
 ### php
 
 if [[ -f /etc/alpine-release ]]; then
-    echo "Create $C_FPM/common.conf (TODO)"
-    echo "Modify $C_FPM/php.ini (TODO)"
+    echo "### Create $C_FPM/common.conf (TODO)"
+    echo "### Modify $C_FPM/php.ini (TODO)"
 else
     if [[ ! -f $C_FPM/common.conf ]]; then
-        echo "Create $C_FPM/common.conf"
+        echo "### Create $C_FPM/common.conf"
         cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
     fi
 
     if [[ ! -f $C_FPM/php.ini.orig ]]; then
-        echo "Modify $C_FPM/php.ini"
+        echo "### Modify $C_FPM/php.ini"
         cp $C_FPM/php.ini $C_FPM/php.ini.orig
         sed -i $C_FPM/php.ini \
             -e 's/;opcache.enable=1/opcache.enable=1/' \
@@ -203,31 +202,31 @@ fi
 ### pdns
 
 if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
-    echo "Create $C_DNS/pdns.conf"
+    echo "### Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
 fi
 
 if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
-    echo "Create /etc/sudoers.d/99-sysadm"
+    echo "### Create /etc/sudoers.d/99-sysadm"
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
-    echo "Create dhparams.pem"
+    echo "### Create dhparams.pem"
     openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 > /dev/null 2>&1
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
-    echo "Create generic Port 80 nginx default config"
+    echo "### Create generic Port 80 nginx default config"
     [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
 fi
 
 # Missing from Ubuntu nginx installation
 if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
-    echo "Create /usr/share/nginx/html/50x.html"
+    echo "### Create /usr/share/nginx/html/50x.html"
     [[ ! -d /usr/share/nginx/html ]] && mkdir -p /usr/share/nginx/html
     cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
     chmod 644 /usr/share/nginx/html/50x.html
