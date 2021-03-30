@@ -18,7 +18,7 @@ fi
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
-grep -q 'sysadm:1000' /etc/passwd
+grep -q '^sysadm:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
     echo "Default sysadm:1000 user already exists"
 else
@@ -72,6 +72,7 @@ if [[ $DTYPE == sqlite ]]; then
         cp ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf $CSMTP/sqlite-alias-maps.cf
         sed -i $CSMTP/sqlite-alias-maps.cf \
             -e "s;_DPATH;$DPATH;"
+        chmod 644 $CSMTP/sqlite-alias-maps.cf
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
@@ -79,6 +80,7 @@ if [[ $DTYPE == sqlite ]]; then
         cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf $CSMTP/sqlite-mailbox-domains.cf
         sed -i $CSMTP/sqlite-mailbox-domains.cf \
             -e "s;_DPATH;$DPATH;"
+        chmod 644 $CSMTP/sqlite-mailbox-domains.cf
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
@@ -86,6 +88,7 @@ if [[ $DTYPE == sqlite ]]; then
         cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf $CSMTP/sqlite-mailbox-maps.cf
         sed -i $CSMTP/sqlite-mailbox-maps.cf \
             -e "s;_DPATH;$DPATH;"
+        chmod 644 $CSMTP/sqlite-mailbox-maps.cf
     fi
 
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
@@ -120,7 +123,7 @@ elif [[ $DTYPE == mysql ]]; then
         cp ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf $CSMTP/mysql-alias-maps.cf
         sed -i $CSMTP/mysql-alias-maps.cf \
             -e "s/_DHOST/$DHOST/" \
-            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
     fi
@@ -130,7 +133,7 @@ elif [[ $DTYPE == mysql ]]; then
         cp ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf $CSMTP/mysql-mailbox-domains.cf
         sed -i $CSMTP/mysql-mailbox-domains.cf \
             -e "s/_DHOST/$DHOST/" \
-            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
     fi
@@ -140,7 +143,7 @@ elif [[ $DTYPE == mysql ]]; then
         cp ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf $CSMTP/mysql-mailbox-maps.cf
         sed -i $CSMTP/mysql-mailbox-maps.cf \
             -e "s/_DHOST/$DHOST/" \
-            -e "s/_HDOMN/$ADMIN/" \
+            -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
     fi

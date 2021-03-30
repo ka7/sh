@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20210112
+# .sh/etc/setup-db.sh 20170319 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Suggested by Rachid
@@ -16,7 +16,7 @@
 
 source /root/.shrc || exit 3
 
-DTYPE=${1:-$DTYPE}
+DTYPE=${1:-'mysql'}
 
 if [[ $DTYPE == sqlite ]]; then
 

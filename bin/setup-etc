@@ -71,6 +71,7 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     echo "Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
     cp ~/.sh/etc/_etc_dovecot_dovecot.conf $CIMAP/dovecot.conf
+    chmdo 644 $CIMAP/dovecot.conf
     openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
 fi
 
