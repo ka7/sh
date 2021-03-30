@@ -69,28 +69,28 @@ if [[ $DTYPE == sqlite ]]; then
 
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
         echo "Create $CSMTP/sqlite-alias-maps.cf"
-        cp ~/.sh/_etc_postfix_sqlite-alias-maps.cf $CSMTP/sqlite-alias-maps.cf
+        cp ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf $CSMTP/sqlite-alias-maps.cf
         sed -i $CSMTP/sqlite-alias-maps.cf \
             -e "s;_DPATH;$DPATH;"
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
         echo "Create $CSMTP/sqlite-mailbox-domains.cf"
-        cp ~/.sh/_etc_postfix_sqlite-mailbox-domains.cf $CSMTP/sqlite-mailbox-domains.cf
+        cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf $CSMTP/sqlite-mailbox-domains.cf
         sed -i $CSMTP/sqlite-mailbox-domains.cf \
             -e "s;_DPATH;$DPATH;"
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
         echo "Create $CSMTP/sqlite-mailbox-maps.cf"
-        cp ~/.sh/_etc_postfix_sqlite-mailbox-maps.cf $CSMTP/sqlite-mailbox-maps.cf
+        cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf $CSMTP/sqlite-mailbox-maps.cf
         sed -i $CSMTP/sqlite-mailbox-maps.cf \
             -e "s;_DPATH;$DPATH;"
     fi
 
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
         echo "Create $CIMAP/user-sqlite.conf"
-        cp ~/.sh/_etc_dovecot_user-sqlite.conf $CIMAP/user-sqlite.conf
+        cp ~/.sh/etc/_etc_dovecot_user-sqlite.conf $CIMAP/user-sqlite.conf
         sed -i $CIMAP/user-sqlite.conf \
             -e "s;_DTYPE;$DTYPE;" \
             -e "s;_DPATH;$DPATH;"
@@ -117,7 +117,7 @@ elif [[ $DTYPE == mysql ]]; then
 
     if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
         echo "Create $CSMTP/mysql-alias-maps.cf"
-        cp ~/.sh/_etc_postfix_mysql-alias-maps.cf $CSMTP/mysql-alias-maps.cf
+        cp ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf $CSMTP/mysql-alias-maps.cf
         sed -i $CSMTP/mysql-alias-maps.cf \
             -e "s/_DHOST/$DHOST/" \
             -e "s/_HDOMN/$ADMIN/" \
@@ -127,7 +127,7 @@ elif [[ $DTYPE == mysql ]]; then
 
     if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
         echo "Create $CSMTP/mysql-mailbox-domains.cf"
-        cp ~/.sh/_etc_postfix_mysql-mailbox-domains.cf $CSMTP/mysql-mailbox-domains.cf
+        cp ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf $CSMTP/mysql-mailbox-domains.cf
         sed -i $CSMTP/mysql-mailbox-domains.cf \
             -e "s/_DHOST/$DHOST/" \
             -e "s/_HDOMN/$ADMIN/" \
@@ -137,7 +137,7 @@ elif [[ $DTYPE == mysql ]]; then
 
     if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
         echo "Create $CSMTP/mysql-mailbox-maps.cf"
-        cp ~/.sh/_etc_postfix_mysql-mailbox-maps.cf $CSMTP/mysql-mailbox-maps.cf
+        cp ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf $CSMTP/mysql-mailbox-maps.cf
         sed -i $CSMTP/mysql-mailbox-maps.cf \
             -e "s/_DHOST/$DHOST/" \
             -e "s/_HDOMN/$ADMIN/" \
