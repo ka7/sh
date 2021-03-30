@@ -10,9 +10,14 @@
 VHOST=${1:-$DTYPE}
 DTYPE=${2:-$DTYPE}
 
-OSMIR=archive.ubuntu.com
-OSREL=hirsute
-V_PHP=7.4
+if [[ -f ~/.shrc ]]; then
+    . ~/.shrc
+else
+    # Also test and adjust for manjaro and alpine
+    OSMIR=archive.ubuntu.com
+    OSREL=focal
+    V_PHP=7.4
+fi
 
 if [[ -f /etc/alpine-release ]]; then
 
@@ -106,10 +111,10 @@ postfix postfix/main_mailer_type string 'Internet Site'
 EOS
 
         echo "### Adding key for bionic (18.04) repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
 
         echo "### Adding key for openlitespeed repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085
 
         echo "### Updating package list for $OSREL, patience please..."
         apt-get -yqq update
