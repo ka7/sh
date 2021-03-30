@@ -148,6 +148,14 @@ elif [[ $DTYPE == mysql ]]; then
             -e "s/_DPASS/$DPASS/"
     fi
 
+    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
+        echo "Create $CIMAP/user-mysql.conf"
+        cp ~/.sh/etc/_etc_dovecot_user-mysql.conf $CIMAP/user-mysql.conf
+        sed -i $CIMAP/user-mysql.conf \
+            -e "s;_DTYPE;$DTYPE;" \
+            -e "s;_DPATH;$DPATH;"
+    fi
+
     if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
         echo "Create $C_DNS/pdns.d/mysql.conf"
         cp ~/.sh/etc/_etc_powerdns_pdns_mysql.conf $C_DNS/pdns.d/mysql.conf
