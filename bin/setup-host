@@ -124,7 +124,7 @@ EOS
 
         echo "### Installing default package set, yet more patience..."
         apt-get -yqq install $DLIST > /dev/null
-
+set -x
         if [[ $DTYPE == mysql ]]; then
             echo "### Installing MYSQL package set, even more patience..."
             apt-get -yqq install $MLIST > /dev/null
@@ -134,7 +134,7 @@ EOS
             -e "/^character-set-server/ s/utf8mb4/utf8/" \
             -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/"
         fi
-
+set +x
         echo "### Disable pdns until actually needed"
         sc stop pdns
         sc disable pdns

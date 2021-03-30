@@ -18,5 +18,5 @@ setup-fqdn $VHOST
 setup-hcp
 
 echo "### Send message to: admin@$MHOST"
-cat /root/.vhosts/$VHOST.conf | \
+cat /root/.vhosts/$MHOST.conf | \
  mail -s "Setup $MHOST - $IP4_0" -r admin@$MHOST admin@$MHOST $MAILTO
