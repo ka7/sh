@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20210327
+# .sh/bin/setup-all 20170519 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -18,4 +18,5 @@ setup-fqdn $VHOST
 setup-hcp
 
 echo "### Send message to: admin@$MHOST"
-cat /root/.vhosts/$MHOST.conf | mail -s "Setup $MHOST - $IP4_0" -r admin@$MHOST admin@$MHOST
+cat /root/.vhosts/$MHOST.conf | \
+ mail -s "Setup $MHOST - $IP4_0" -r admin@$MHOST admin@$MHOST $MAILTO
