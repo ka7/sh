@@ -50,6 +50,7 @@ search $VHOST
 EOS
     fi
     echo $HNAME > /etc/hostname
+    hostname $HNAME
     echo $MHOST > /etc/mailname
 fi
 
