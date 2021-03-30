@@ -8,9 +8,9 @@ which also provides a foundation for the [NetServa HCP] PHP web interface.
 
 Currently tested on (WIP):
 
-Ubuntu Focal (20.04) # Manually upgrade to hirsute (21.04) if needed
-Manjaro Testing
-Alpine Edge
+- Ubuntu Focal (20.04) # Manually upgrade to hirsute (21.04) if needed
+- Manjaro Testing
+- Alpine Edge
 
 ## Usage
 
