@@ -45,7 +45,7 @@ else
     DTYPE='mysql'
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
-    OSREL='hirsute'
+    OSREL='focal'
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
