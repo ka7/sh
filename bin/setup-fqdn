@@ -10,6 +10,7 @@ if [[ $1 ]]; then
     VHOST=$1
 else
     HNAME=$(hostname)
+    HNAME=${HNAME/%\.*/}
     HDOMN=$(hostname -d)
     [[ -z $HDOMN ]] && HDOMN='netserva.lan'
     VHOST=$HNAME.$HDOMN
