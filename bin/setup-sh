@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-sh 20170319 - 20210328
+# .sh/bin/setup-sh 20170319 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [ -d ~/.sh ]; then
     echo "Update NetServa SH scripts"
-    ~/.sh/bin/shm pull > /dev/null
+    ~/.sh/bin/shm pull
 else
     echo "Setup NetServa SH scripts"
     cd
-    git clone -q https://github.com/netserva/sh .sh > /dev/null
+    git clone -q --depth 1 https://github.com/netserva/sh .sh > /dev/null
     ~/.sh/bin/shm install > /dev/null
     ~/.sh/bin/shm perms
     git config --global pull.rebase false
