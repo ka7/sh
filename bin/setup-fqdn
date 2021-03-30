@@ -18,7 +18,7 @@ fi
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
-grep -q '^sysadm:1000' /etc/passwd
+grep -q '^sysadm:x:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
     echo "Default sysadm:1000 user already exists"
 else
@@ -28,7 +28,8 @@ else
     addvhost sysadm@mail.$VHOST
 fi
 
-. /root/.vhosts/mail.$VHOST
+. ~/.shrc
+. /root/.vhosts/$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
