@@ -14,7 +14,7 @@
   echo "Usage: setup-host [(mysql)|sqlite] [php version] [os release] [os mirror]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
-
+set -x
 DTYPE=${1:-$DTYPE}
 V_PHP=${2:-$V_PHP}
 OSREL=${3:-$OSREL}

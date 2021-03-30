@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20210327
+# .sh/bin/setup-fqdn 20210327 - 20210330
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -15,14 +15,17 @@ else
     VHOST=$HNAME.$HDOMN
 fi
 
-if [[ -n $(grep :1000: /etc/passwd) ]]; then
-    echo "Remove default UID 1000 user"
-    userdel -rf $(getent passwd 1000 | awk -F: '{print $1}')
-fi
-
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
-addvhost sysadm@mail.$VHOST
+grep -q 'sysadm:1000' /etc/passwd
+if [[ $? -eq 0 ]]; then
+    echo "Default sysadm:1000 user already exists"
+else
+    echo "Remove default UID 1000 user"
+    userdel -rf $(getent passwd 1000 | awk -F: '{print $1}')
+    echo "Add vhost sysadm@mail.$VHOST"
+    addvhost sysadm@mail.$VHOST
+fi
 
 . /root/.vhosts/mail.$VHOST
 
@@ -50,101 +53,115 @@ EOS
     echo $MHOST > /etc/mailname
 fi
 
-echo "Update myhostname in $CSMTP/main.cf"
+echo "Update FQDN in $CSMTP/main.cf"
 sed -i $CSMTP/main.cf \
-    -e "s/_VHOST/$MHOST/" \
-    -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+    -e "s/_MHOST/$MHOST/" \
+    -e "s/^#myhostname = _MHOST/myhostname = $MHOST/"
 
-echo "Update _VHOST in $CIMAP/dovecot.conf"
-sed -i $CIMAP/dovecot.conf -e "s/_VHOST/$MHOST/"
+echo "Update FQDN in $CIMAP/dovecot.conf"
+sed -i $CIMAP/dovecot.conf \
+    -e "s/_MHOST/$MHOST/" \
+    -e "s/_VHOST/$VHOST/"
 
 if [[ $DTYPE == sqlite ]]; then
 
-    echo "Append SQLite details to $CSMTP/main.cf"
-    cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
+    echo "Update $CSMTP/sqlite-alias-maps.cf"
+    sed -i $CSMTP/sqlite-alias-maps.cf \
+        -e "s;_DPATH;$DPATH;"
 
-    if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-alias-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf \
-            > $CSMTP/sqlite-alias-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-gid-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-gid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-gid-maps.cf \
-            > $CSMTP/sqlite-gid-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-domains.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf \
-            > $CSMTP/sqlite-mailbox-domains.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf \
-            > $CSMTP/sqlite-mailbox-maps.cf
-    fi
-    if [[ ! -f $CSMTP/sqlite-uid-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-uid-maps.cf"
-        sed -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_postfix_sqlite-uid-maps.cf \
-            > $CSMTP/sqlite-uid-maps.cf
-    fi
-    if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
-        echo "Create $CIMAP/user-sqlite.conf"
-        sed -e "s;_DTYPE;$DTYPE;" -e "s;_DPATH;$DPATH;" \
-            ~/.sh/etc/_etc_dovecot_user-sqlite.conf \
-            > $CIMAP/user-sqlite.conf
-    fi
-    echo "Append SQLite details to $CIMAP/dovecot.conf"
-    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
+    echo "Update $CSMTP/sqlite-gid-maps.cf"
+    sed -i $CSMTP/sqlite-gid-maps.cf \
+        -e "s;_DPATH;$DPATH;"
 
-    echo "Create $C_DNS/pdns.d/sqlite.conf"
-    cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
+    echo "Update $CSMTP/sqlite-mailbox-domains.cf"
+    sed -i $CSMTP/sqlite-mailbox-domains.cf \
+        -e "s;_DPATH;$DPATH;"
+
+    echo "Update $CSMTP/sqlite-mailbox-maps.cf"
+    sed -i $CSMTP/sqlite-mailbox-maps.cf \
+        -e "s;_DPATH;$DPATH;"
+
+    echo "Update $CSMTP/sqlite-uid-maps.cf"
+    sed -i $CSMTP/sqlite-uid-maps.cf \
+        -e "s;_DPATH;$DPATH;"
+
+    echo "Update $CIMAP/user-sqlite.conf"
+    sed -i $CIMAP/user-sqlite.conf \
+        -e "s;_DTYPE;$DTYPE;" \
+        -e "s;_DPATH;$DPATH;"
+
+    if [[ ! -f $C_DNS/pdns.d/sqlite.conf ]]; then
+        echo "Create $C_DNS/pdns.d/sqlite.conf"
+        cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
+    fi
+
+    grep -q virtual_alias_maps $CSMTP/main.cf
+    if [[ $? -gt 0 ]]; then
+        echo "Append SQLite details to $CSMTP/main.cf"
+        cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
+    fi
+
+    grep -q passdb $CSMTP/main.cf
+    if [[ $? -gt 0 ]]; then
+        echo "Append SQLite details to $CIMAP/dovecot.conf"
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
+    fi
 
 elif [[ $DTYPE == mysql ]]; then
 
-    echo "Append MySQL details to $CSMTP/main.cf"
-    cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
+    echo "Update $CSMTP/mysql-alias-maps.cf"
+    sed -i $CSMTP/mysql-alias-maps.cf \
+        -e "s/_DHOST/$DHOST/" \
+        -e "s/_HDOMN/$ADMIN/" \
+        -e "s/_DUSER/$ADMIN/" \
+        -e "s/_DPASS/$DPASS/"
 
-    if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-alias-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf \
-            > $CSMTP/mysql-alias-maps.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-domains.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf \
-            > $CSMTP/mysql-mailbox-domains.cf
-    fi
-    if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-maps.cf"
-        sed -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf \
-            > $CSMTP/mysql-mailbox-maps.cf
-    fi
-    if [[ ! -f $CIMAP/user-mysql.conf ]]; then
-        echo "Create $CIMAP/user-mysql.conf"
-        sed -e "s/_DTYPE/$DTYPE/" -e "s/_DHOST/$DHOST/" -e "s/_HDOMN/$ADMIN/" \
-            -e "s/_DUSER/$ADMIN/" -e "s/_DPASS/$DPASS/" \
-            ~/.sh/etc/_etc_dovecot_user-mysql.conf \
-            > $CIMAP/user-mysql.conf
-    fi
-    echo "Append MySQL details to $CIMAP/dovecot.conf"
-    cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
+    echo "Update $CSMTP/mysql-mailbox-domains.cf"
+    sed -i $CSMTP/mysql-mailbox-domains.cf \
+        -e "s/_DHOST/$DHOST/" \
+        -e "s/_HDOMN/$ADMIN/" \
+        -e "s/_DUSER/$ADMIN/" \
+        -e "s/_DPASS/$DPASS/"
 
-    echo "Create $C_DNS/pdns.d/mysql.conf"
-    sed -e "s/_PDNS_USER/$DUSER/" -e "s/_PDNS_PASS/$DPASS/" \
-        ~/.sh/etc/_etc_powerdns_pdns_mysql.conf \
-        > $C_DNS/pdns.d/mysql.conf
+    echo "Update $CSMTP/mysql-mailbox-maps.cf"
+    sed -i $CSMTP/mysql-mailbox-maps.cf \
+        -e "s/_DHOST/$DHOST/" \
+        -e "s/_HDOMN/$ADMIN/" \
+        -e "s/_DUSER/$ADMIN/" \
+        -e "s/_DPASS/$DPASS/"
+
+    echo "Update $CIMAP/user-mysql.conf"
+    sed -i $CIMAP/user-mysql.conf
+        -e "s/_DTYPE/$DTYPE/" \
+        -e "s/_DHOST/$DHOST/" \
+        -e "s/_HDOMN/$ADMIN/" \
+        -e "s/_DUSER/$ADMIN/" \
+        -e "s/_DPASS/$DPASS/"
+
+    if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
+        echo "Create $C_DNS/pdns.d/mysql.conf"
+        cp ~/.sh/etc/_etc_powerdns_pdns_mysql.conf $C_DNS/pdns.d/mysql.conf
+    fi
+
+    echo "Update $C_DNS/pdns.d/mysql.conf"
+    sed -i $C_DNS/pdns.d/mysql.conf \
+        -e "s/_PDNS_USER/$DUSER/" \
+        -e "s/_PDNS_PASS/$DPASS/"
+
+    grep -q virtual_alias_maps $CSMTP/main.cf
+    if [[ $? -gt 0 ]]; then
+        echo "Append MySQL details to $CSMTP/main.cf"
+        cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
+    fi
+
+    grep -q passdb $CSMTP/main.cf
+    if [[ $? -gt 0 ]]; then
+        echo "Append MySQL details to $CIMAP/dovecot.conf"
+        cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
+    fi
+
+else
+    echo "Warning: Unknown DTYPE '$DTYPE'"
 fi
 
 echo "Update _MHOST in $C_WEB/sites-enabled/_default"
@@ -194,7 +211,9 @@ EOS
     fi
 fi
 
-addvip $MHOST $IP4_0
+if [[ ! -f $CSMTP/vhosts/$MHOST ]]; then
+    addvip $MHOST $IP4_0
+fi
 
 if [[ -f /etc/alpine-release ]]; then
     echo "TODO: restart alpine services"
@@ -209,13 +228,4 @@ else
 
     serva restart web
     serva restart mail
-fi
-
-if [[ -d $CIMAP/sieve ]]; then
-    echo "Create sieve binaries"
-    cd $CIMAP/sieve
-    sievec global.sieve
-    sievec retrain-as-spam.sieve
-    sievec retrain-as-good.sieve
-    chmod 644 *.svbin
 fi
