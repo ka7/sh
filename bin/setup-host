@@ -153,7 +153,7 @@ EOS
             sc disable unattended-upgrades
         fi
         echo "### Remove python and all related packages"
-        apt-get -yqq --purge remove $RLIST
+        apt-get -yqq --purge remove $RLIST > /dev/null
     fi
 fi
 

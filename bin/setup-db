@@ -21,9 +21,9 @@ DTYPE=${1:-'mysql'}
 if [[ $DTYPE == sqlite ]]; then
 
     if [[ -d $DBSQL ]]; then
-        echo "$DBSQL already exists"
+        echo "### $DBSQL already exists"
     else
-        echo "Create $DBSQL"
+        echo "### Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
         chown dovecot:dovecot $DBSQL/dovecot
         chown postfix:postfix $DBSQL/postfix
@@ -39,9 +39,9 @@ if [[ $DTYPE == sqlite ]]; then
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ -f ~/.my.cnf ]]; then
-        echo "~/.my.cnf (MySQL) already exists"
+        echo "### ~/.my.cnf (MySQL) already exists"
     else
-        echo "Create ~/.my.cnf"
+        echo "### Create ~/.my.cnf"
         cat << EOS | tee ~/.my.cnf > /dev/null
 # Autocreated by setup-db
 [client]
@@ -54,9 +54,9 @@ EOS
     fi
 
     if [[ -d $DBMYS/$ADMIN ]]; then
-        echo "$DBMYS/$ADMIN already exists"
+        echo "### $DBMYS/$ADMIN already exists"
     else
-        echo "Create MySQL privileges"
+        echo "### Create MySQL privileges"
         cat << EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 CREATE DATABASE IF NOT EXISTS pdns;
@@ -71,7 +71,7 @@ EOS
     SQDNS="mysql -BN pdns"
 
 else
-    echo "ERROR: unknown argument '$DTYPE'" && exit 2
+    echo "### ERROR: unknown argument '$DTYPE'" && exit 2
 fi
 
 cat << EOS | $SQCMD
@@ -338,9 +338,9 @@ CREATE VIEW IF NOT EXISTS domains_view2 AS
 EOS
 
 if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
-    echo "Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
-    echo "PRAGMA journal_mode=DELETE" | $SQCMD
-    echo "Create hardlinks for dovecot/postfix"
+    echo "### Add 'PRAGMA journal_mode=DELETE' to prevent -wal and -shm files"
+    echo "### PRAGMA journal_mode=DELETE" | $SQCMD
+    echo "### Create hardlinks for dovecot/postfix"
     cd $DBSQL
     chown $A_UID:$A_GID -R $ADMIN
     chmod 644 $DPATH
@@ -379,5 +379,3 @@ CREATE INDEX virtual_aliases_source ON valias (source);
 CREATE INDEX virtual_aliases_hid ON valias (hid);
 CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

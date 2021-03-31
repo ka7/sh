@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20210330
+# .sh/bin/setup-hcp 20170519 - 20210331
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -8,19 +8,12 @@
 
 MHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 
-source /root/.vhosts/$MHOST || exit 3
-
-if [[ -d $WPATH ]]; then
-    echo "$WPATH already exists"
-else
-    echo "Create $MHOST with $DTYPE"
-    addvhost sysadm@$MHOST
-fi
+. /root/.vhosts/$MHOST || exit 3
 
 if [[ -d $WPATH/hcp ]]; then
-    echo "$WPATH/hcp (HCP) already exists"
+    echo "### $WPATH/hcp (HCP) already exists"
 else
-    echo "Clone Netserva HCP to $WPATH/hcp"
+    echo "### Clone Netserva HCP to $WPATH/hcp"
     git clone https://github.com/netserva/hcp $WPATH/hcp > /dev/null 2>&1
     APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);")
     cat << EOS | $SQCMD
@@ -31,11 +24,11 @@ else
     (null,1,0,1,'$AMAIL','System','Administrator','','',0,'','$APASS_HASH','2018-01-01 00:00:01','2018-01-01 00:00:01');
 EOS
     if [[ -f $WPATH/hcp/.htpasswd ]]; then
-        echo "$WPATH/hcp/.htpasswd already exists"
+        echo "### $WPATH/hcp/.htpasswd already exists"
     else
         HUSER=$(pwgen -sB 8 1)
         HPASS=$(pwgen -sB 8 1)
-        echo "Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
+        echo "### Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
         htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS
         echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
         cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
@@ -49,7 +42,7 @@ Password: $HPASS
 EOS
     fi
 
-    echo "Create default $DTYPE entries"
+    echo "### Create default $DTYPE entries"
     cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
 HCP Auth
 =========
@@ -61,37 +54,37 @@ Password: $APASS
 EOS
 fi
 
-if [[ -d $WPATH/.well-known/autodiscover.php ]]; then
-    echo "$WPATH/.well-known/autodiscover.php already exists"
+if [[ -f $WPATH/.well-known/autodiscover.php ]]; then
+    echo "### $WPATH/.well-known/autodiscover.php already exists"
 else
-    echo "Setup $WPATH/.well-known/autodiscover.php with $MHOST"
+    echo "### Setup $WPATH/.well-known/autodiscover.php with $MHOST"
     mkdir $WPATH/.well-known
     cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/.well-known/autodiscover.php
 fi
 
 if [[ -d $UPATH/var/www_old/private ]]; then
-    echo "Move $UPATH/var/www_old/private to www"
+    echo "### Move $UPATH/var/www_old/private to www"
     mv $UPATH/var/www_old/private $WPATH
 fi
 
 if [[ -d $UPATH/var/www_old/public ]]; then
-    echo "Move $UPATH/var/www_old/public to www"
+    echo "### Move $UPATH/var/www_old/public to www"
     mv $UPATH/var/www_old/public $WPATH
 fi
 
 # Even if SQLite is the default this is so switching to MySQL has a chance
 # of working when index.php db=>type is dynamically changed to "mysql".
 if [[ -f $WPATH/hcp/lib/.ht_pw ]]; then
-    echo "$WPATH/hcp/lib/.ht_pw already exists"
+    echo "### $WPATH/hcp/lib/.ht_pw already exists"
 else
-    echo "Create $WPATH/hcp/lib/.ht_pw"
+    echo "### Create $WPATH/hcp/lib/.ht_pw"
     echo $DPASS > $WPATH/hcp/lib/.ht_pw
 fi
 
 if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
-    echo "$WPATH/hcp/lib/.ht_conf.php already exists"
+    echo "### $WPATH/hcp/lib/.ht_conf.php already exists"
 else
-    echo "Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
+    echo "### Create $WPATH/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
     TPDNS=
     TMPDB=
     if [[ $DTYPE == mysql ]]; then
@@ -134,8 +127,8 @@ return [
 " > $WPATH/hcp/lib/.ht_conf.php
 fi
 
-addpma $MHOST
-addrc $MHOST
+setup-pma $MHOST
+setup-roundcube $MHOST
 chperms $MHOST
 serva restart web
 serva restart mail

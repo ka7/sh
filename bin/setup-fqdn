@@ -251,3 +251,18 @@ else
     serva restart web
     serva restart mail
 fi
+
+if [[ ! -f /etc/aliases.lmdb ]]; then
+    echo "### Create lmdb:/etc/aliases"
+    echo '' > /etc/aliases
+    postmap lmdb:/etc/aliases
+fi
+
+if [[ ! -d $CIMAP/sieve/global.svbin ]]; then
+    echo "### Create sieve binaries"
+    cd $CIMAP/sieve
+    sievec global.sieve
+    sievec retrain-as-spam.sieve
+    sievec retrain-as-good.sieve
+    chmod 644 *.svbin
+fi
