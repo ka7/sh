@@ -17,20 +17,23 @@ else
 fi
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
-set -x
+
 grep -q '^sysadm:x:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
     echo "Default sysadm:1000 user already exists"
 else
-    echo "Remove default UID 1000 user"
-    userdel -rf $(getent passwd 1000 | awk -F: '{print $1}')
+    _SADM=$(getent passwd 1000 | awk -F: '{print $1}')
+    if [[ $_SADM ]]; then
+        echo "Remove current UID 1000 user '$_SADM'"
+        userdel -rf $_SADM
+    fi
     echo "Add vhost sysadm@mail.$VHOST"
     addvhost sysadm@mail.$VHOST
 fi
 
 . ~/.shrc # just for MHOST
 . /root/.vhosts/$MHOST
-set +x
+
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
     echo "Rewrite a sane /etc/hosts"
@@ -153,8 +156,10 @@ elif [[ $DTYPE == mysql ]]; then
         echo "Create $CIMAP/user-mysql.conf"
         cp ~/.sh/etc/_etc_dovecot_user-mysql.conf $CIMAP/user-mysql.conf
         sed -i $CIMAP/user-mysql.conf \
-            -e "s;_DTYPE;$DTYPE;" \
-            -e "s;_DPATH;$DPATH;"
+            -e "s/_DHOST/$DHOST/" \
+            -e "s/_DNAME/$ADMIN/" \
+            -e "s/_DUSER/$ADMIN/" \
+            -e "s/_DPASS/$DPASS/"
     fi
 
     if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
