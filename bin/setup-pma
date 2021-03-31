@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-pma 20190630 - 20210331
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-pma [domain]" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+PHPLA=phpLiteAdmin_v1-9-8-2.zip
+
+source /root/.vhosts/$VHOST || exit 3
+
+if [[ $DTYPE == mysql ]]; then
+    if [[ -d $WPATH/hcp/phpmyadmin ]]; then
+        echo "### $WPATH/hcp/phpmyadmin already exists"
+    else
+        echo "### Setup phpmyadmin to https://$MHOST/hcp/phpmyadmin"
+        cd $UPATH/var
+        wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
+        tar xf phpMyAdmin-latest-english.tar.gz > /dev/null 2>&1
+        mv phpMyAdmin-*/ www/hcp/phpmyadmin
+        mv www/hcp/phpmyadmin/config.sample.inc.php www/hcp/phpmyadmin/config.inc.php
+        ENCPW=$(newpw 4 | tr ' ' _)
+        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/hcp/phpmyadmin/config.inc.php
+        rm phpMyAdmin-latest-english.tar.gz
+        cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+PhpMyadmin
+=========
+
+AdminWeb: https://$VHOST/hcp/phpmyadmin
+Username: $ADMIN
+Password: $DPASS
+
+EOS
+    fi
+elif [[ $DTYPE == sqlite ]]; then
+     if [[ -f $WPATH/hcp/phpliteadmin.php ]]; then
+        echo "### $WPATH/hcp/phpliteadmin.php already exists"
+     else
+        echo "### Setup phpliteadmin to https://$MHOST/hcp/phpliteadmin.php"
+        cd $WPATH/hcp/
+        wget https://bitbucket.org/phpliteadmin/public/downloads/$PHPLA
+        unzip $PHPLA
+        rm phpLiteAdmin_v1-9-7-1.zip readme.md
+        wget https://bitbucket.org/phpliteadmin/public/raw/27c697869f776ce3bda7e0596ceb7977c036bcec/themes/Modern/phpliteadmin.css
+        cat << EOS > phpliteadmin.config.php
+<?php
+// Auto created by NetServa HCP/SH on $(date +%Y%m%d)
+\$password          = '$DPASS';
+\$directory         = '/var/lib/sqlite/sysadm/';
+\$databases         = [['path'=> 'sysadm.db', 'name'=> 'Sysadm DB'],['path'=> 'pdns.db', 'name'=> 'PDNS DB']];
+\$theme             = 'phpliteadmin.css';
+\$language          = 'en';
+\$rowsNum           = 30;
+\$charsNum          = 300;
+\$maxSavedQueries   = 10;
+\$cookie_name       = 'sysadm1';
+\$debug             = false;
+\$allowed_extensions= ['db'];
+EOS
+        cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+SQLiteAdm
+=========
+
+AdminWeb: https://$VHOST/hcp/phpliteadmin.php
+Password: $DPASS
+
+EOS
+     fi
+fi
+
