@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/allssl 20170304 - 20190623
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/allssl 20170304 - 20210331
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested domains
 
-# TODO: add domain|all args and change to updatessl
+# TODO: add [all|domain] args and change name to "updatessl"
 
 [[ $1 =~ -h ]] && echo "Usage: allssl [--force]" && exit 1
 
@@ -44,5 +44,3 @@ done
 
 [[ -d /etc/nginx ]] && ~/.sh/bin/serva reload web
 [[ -d /etc/postfix ]] && ~/.sh/bin/serva reload mail
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
