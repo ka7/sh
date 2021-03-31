@@ -101,6 +101,7 @@ if [[ $DTYPE == sqlite ]]; then
         sed -i $CIMAP/user-sqlite.conf \
             -e "s;_DTYPE;$DTYPE;" \
             -e "s;_DPATH;$DPATH;"
+        chmod 644 $CIMAP/user-sqlite.conf
     fi
 
     if [[ ! -f $C_DNS/pdns.d/sqlite.conf ]]; then
@@ -130,6 +131,7 @@ elif [[ $DTYPE == mysql ]]; then
             -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
+        chmod 644 $CSMTP/mysql-alias-maps.cf
     fi
 
     if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
@@ -140,7 +142,8 @@ elif [[ $DTYPE == mysql ]]; then
             -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
-    fi
+        chmod 644 $CSMTP/mysql-mailbox-domains.cf
+   fi
 
     if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
         echo "Create $CSMTP/mysql-mailbox-maps.cf"
@@ -150,16 +153,19 @@ elif [[ $DTYPE == mysql ]]; then
             -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
+        chmod 644 $CSMTP/mysql-mailbox-maps.cf
     fi
 
     if [[ ! -f $CIMAP/user-mysql.conf ]]; then
         echo "Create $CIMAP/user-mysql.conf"
         cp ~/.sh/etc/_etc_dovecot_user-mysql.conf $CIMAP/user-mysql.conf
         sed -i $CIMAP/user-mysql.conf \
+            -e "s/_DTYPE/$DTYPE/" \
             -e "s/_DHOST/$DHOST/" \
             -e "s/_DNAME/$ADMIN/" \
             -e "s/_DUSER/$ADMIN/" \
             -e "s/_DPASS/$DPASS/"
+        chmod 644 $CIMAP/user-mysql.conf
     fi
 
     if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
@@ -237,6 +243,13 @@ if [[ ! -f $CSMTP/vhosts/$MHOST ]]; then
     addvip $MHOST $IP4_0
 fi
 
+if [[ ! -f /etc/aliases.lmdb ]]; then
+    echo "### Create lmdb:/etc/aliases"
+    echo '' > /etc/aliases
+    postmap lmdb:/etc/aliases
+    [[ -f /etc/aliases.db ]] && rm /etc/aliases.db
+fi
+
 if [[ -f /etc/alpine-release ]]; then
     echo "TODO: restart alpine services"
 else
@@ -250,12 +263,6 @@ else
 
     serva restart web
     serva restart mail
-fi
-
-if [[ ! -f /etc/aliases.lmdb ]]; then
-    echo "### Create lmdb:/etc/aliases"
-    echo '' > /etc/aliases
-    postmap lmdb:/etc/aliases
 fi
 
 if [[ ! -d $CIMAP/sieve/global.svbin ]]; then
