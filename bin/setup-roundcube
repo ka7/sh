@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-roundcube 20190630 - 20210331
+# .sh/bin/setup-roundcube 20190630 - 20210405
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-roundcube [domain] [rcver]" && exit 1
@@ -42,7 +42,7 @@ else
     mv roundcubemail-$RCVER/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
     cd www
     mkdir data
-    wget https://getcomposer.org/composer.phar
+    wget -q https://getcomposer.org/composer.phar
 
     cat << EOS > config/config.inc.php
 <?php
@@ -99,8 +99,8 @@ EOS
 
     chperms $VHOST
 
-    su - $UUSER -c "cd var/www; php composer.phar -n update"
-    su - $UUSER -c "cd var/www; php composer.phar -n install"
+    su - $UUSER -c "cd var/www; php composer.phar -n update" > /dev/null
+    su - $UUSER -c "cd var/www; php composer.phar -n install" > /dev/null
 
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 RoundCube
