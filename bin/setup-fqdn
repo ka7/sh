@@ -14,8 +14,9 @@ else
     HDOMN=$(hostname -d)
     [[ -z $HDOMN ]] && HDOMN='netserva.lan'
     VHOST=$HNAME.$HDOMN
-    VHOST=${VHOST#mail\.} # strip extra leading mail. hostname
 fi
+
+VHOST=${VHOST#mail\.} # strip 'mail' hostname if exists
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
