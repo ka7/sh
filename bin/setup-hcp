@@ -29,7 +29,7 @@ EOS
         HUSER=$(pwgen -sB 8 1)
         HPASS=$(pwgen -sB 8 1)
         echo "### Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
-        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS
+        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS > /dev/null
         echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
         cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
 HTTP Auth
