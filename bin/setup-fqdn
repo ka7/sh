@@ -275,13 +275,26 @@ if [[ ! -d $CIMAP/sieve/global.svbin ]]; then
     chmod 644 *.svbin
 fi
 
+addvhost $VHOST
+
+[[ $DTYPE == mysql ]] && addwp $VHOST
+
 DIGIP=$(dig +short $MHOST|tail -n1)
 
 if [[ $IP4_0 =~ ^(192\.168|127\.|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.) ]]; then
-    echo "Using private network IP, leave self-signed cert in place"
+    cat << EOS
+Using private network IP so leave self-signed cert in place for $MHOST.
+You may need to manually add LetsEncrypt certificates when this server can
+be accessed from the upstream LetsEncrypt SSL authorization servers.
+
+    newssl $MHOST
+    newssl $VHOST www autoconfig autodiscover
+    nginx -t && nginx -s reload
+EOS
 else
     if [[ "$DIGIP" == "$IP4_0" ]]; then
         newssl $MHOST
+        newssl $VHOST www autoconfig autodiscover
         nginx -t && nginx -s reload
     fi
 fi
