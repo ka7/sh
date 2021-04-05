@@ -21,14 +21,14 @@ fi
 
 grep -q '^sysadm:x:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
-    echo "Default sysadm:1000 user already exists"
+    echo "Warning: default sysadm:1000 user already exists"
 else
     _SADM=$(getent passwd 1000 | awk -F: '{print $1}')
     if [[ $_SADM ]]; then
         echo "Remove current UID 1000 user '$_SADM'"
         userdel -rf $_SADM
     fi
-    echo "Add vhost sysadm@mail.$VHOST"
+    echo "Create vhost sysadm@mail.$VHOST"
     addvhost sysadm@mail.$VHOST
 fi
 
@@ -36,7 +36,7 @@ fi
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
-    echo "Rewrite a sane /etc/hosts"
+    echo "Update /etc/hosts"
     sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
 
     grep -q "$IP4_0\t$MHOST $HNAME" /etc/hosts
@@ -44,7 +44,7 @@ if [[ ! -f /etc/hosts.orig ]]; then
         echo -e "\n$IP4_0\t$MHOST $HNAME" >> /etc/hosts
     fi
 
-    echo "Add domain search to /etc/resolv.conf"
+    echo "Append domain search to /etc/resolv.conf"
     if [[ -e /usr/bin/systemctl ]]; then
         sed -i /etc/systemd/resolved.conf \
             -e "s/^#Domains=/Domains=$VHOST/"
