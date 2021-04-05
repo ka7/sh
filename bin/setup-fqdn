@@ -13,7 +13,8 @@ else
     HNAME=${HNAME/%\.*/}
     HDOMN=$(hostname -d)
     [[ -z $HDOMN ]] && HDOMN='netserva.lan'
-    VHOST=$HNAME.${HDOMN#mail\.}
+    VHOST=$HNAME.$HDOMN
+    VHOST=${VHOST#mail\.} # strip extra leading mail. hostname
 fi
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
@@ -31,7 +32,7 @@ else
     addvhost sysadm@mail.$VHOST
 fi
 
-. /root/.vhosts/mail.$VHOST || exit 3
+. /root/.vhosts/mail.$VHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
