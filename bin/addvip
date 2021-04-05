@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20210222
+# .sh/bin/addvip 20190602 - 20210405
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mxhost]" && exit 1
@@ -16,13 +16,13 @@ CIMAP="/etc/dovecot"
 # Postfix
 
 if [[ ! -d $CSMTP/vhosts ]]; then
-    echo "Created: $CSMTP/vhosts"
+    echo "Create $CSMTP/vhosts"
     mkdir $CSMTP/vhosts
     chmod 700 $CSMTP/vhosts
 fi
 
 if [[ ! -f $CSMTP/vhosts/00_master.cf ]]; then
-    echo "Created: $CSMTP/vhosts/00_master.cf"
+    echo "Create $CSMTP/vhosts/00_master.cf"
 
     cat << EOS > $CSMTP/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
@@ -113,13 +113,13 @@ EOS
     cat $CSMTP/vhosts/* > $CSMTP/master.cf
     chmod 600 $CSMTP/vhosts/$VHOST
 #    systemctl restart postfix
-    echo "Created: $CSMTP/vhosts/$VHOST"
+    echo "Create $CSMTP/vhosts/$VHOST"
 fi
 
 # Dovecot
 
 if [[ ! -d $CIMAP/vhosts ]]; then
-    echo "Created: $CIMAP/vhosts"
+    echo "Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
     chmod 700 $CIMAP/vhosts
 fi
@@ -144,12 +144,10 @@ service imap-login {
 
 EOS
     chmod 600 $CIMAP/vhosts/$VHOST
-    echo "Created: $CIMAP/vhosts/$VHOST"
+    echo "Create $CIMAP/vhosts/$VHOST"
 fi
 
 mv $CSMTP/master.cf $CSMTP/master.cf.orig
 cat $CSMTP/vhosts/* > $CSMTP/master.cf
 
 serva restart mail
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
