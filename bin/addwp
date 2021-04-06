@@ -60,7 +60,7 @@ else
     echo "### Download Wordpress"
     cd $UPATH/var
     if [[ ! -f latest.tar.gz ]]; then
-        wget -nv --no-check-certificate https://wordpress.org/latest.tar.gz
+        wget -q -nv --no-check-certificate https://wordpress.org/latest.tar.gz
     fi
     tar xf latest.tar.gz
     rm latest.tar.gz
@@ -72,7 +72,6 @@ else
     chown $U_UID:$WUGID -R $FPATH
 fi
 
-# Add 2> /dev/null to remove wp-cli permission warnings
 if [[ -f $FPATH/wp-includes/version.php ]]; then
     echo "### Setting up Wordpress"
     su - $UUSER -c "
@@ -103,7 +102,7 @@ $WPAPP option update medium_large_size_w '0'
 $WPAPP option update medium_large_size_h '0'
 $WPAPP option update permalink_structure '/%postname%/'
 $WPAPP option set default_comment_status closed
-"
+" > /dev/null
 
 export PLUGINS=$(echo $(su $UUSER -c "$WPAPP plugin list --field=name --path=$FPATH"))
 export PAGES=$(su $UUSER -c "$WPAPP post list --post_type=page --format=ids --path=$FPATH")
@@ -146,7 +145,7 @@ $WPAPP post create --post_type=page --post_title='Home' --post_status=publish
 $WPAPP post create --post_type=page --post_title='About' --post_status=publish
 $WPAPP post create --post_type=page --post_title='News' --post_status=publish
 $WPAPP post create --post_type=page --post_title='Contact' --post_status=publish
-"
+" > /dev/null
 
 export HOMEPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=home --format=ids --path=$FPATH")
 export NEWSPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=news --format=ids --path=$FPATH")
@@ -164,7 +163,8 @@ $WPAPP menu location assign primary-menu primary
 $WPAPP option update page_on_front $HOMEPAGE
 $WPAPP option update page_for_posts $NEWSPAGE
 $WPAPP option update show_on_front page
-"
+" > /dev/null
+
     cat << EOS >> $FPATH/wp-content/themes/kadence-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
 add_action('admin_head', function() {
