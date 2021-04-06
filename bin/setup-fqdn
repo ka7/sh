@@ -22,14 +22,14 @@ VHOST=${VHOST#mail\.} # strip 'mail' hostname if exists
 
 grep -q '^sysadm:x:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
-    echo "Warning: default sysadm:1000 user already exists"
+    echo "### Warning: default sysadm:1000 user already exists"
 else
     _SADM=$(getent passwd 1000 | awk -F: '{print $1}')
     if [[ $_SADM ]]; then
-        echo "Remove current UID 1000 user '$_SADM'"
+        echo "### Remove current UID 1000 user '$_SADM'"
         userdel -rf $_SADM
     fi
-    echo "Create vhost sysadm@mail.$VHOST"
+    echo "### Create vhost sysadm@mail.$VHOST"
     addvhost sysadm@mail.$VHOST
 fi
 
@@ -37,7 +37,7 @@ fi
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
-    echo "Update /etc/hosts"
+    echo "### Update /etc/hosts"
     sed -i "s/^127.0.1.1.*$/127.0.1.1\tresolved/" /etc/hosts
 
     grep -q "$IP4_0\t$MHOST $HNAME" /etc/hosts
@@ -45,7 +45,7 @@ if [[ ! -f /etc/hosts.orig ]]; then
         echo -e "\n$IP4_0\t$MHOST $HNAME" >> /etc/hosts
     fi
 
-    echo "Append domain search to /etc/resolv.conf"
+    echo "### Append domain search to /etc/resolv.conf"
     if [[ -e /usr/bin/systemctl ]]; then
         sed -i /etc/systemd/resolved.conf \
             -e "s/^#Domains=/Domains=$VHOST/"
@@ -60,12 +60,12 @@ EOS
     echo $MHOST > /etc/mailname
 fi
 
-echo "Update FQDN in $CSMTP/main.cf"
+echo "### Update FQDN in $CSMTP/main.cf"
 sed -i $CSMTP/main.cf \
     -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
     -e "s/_MHOST/$MHOST/"
 
-echo "Update FQDN in $CIMAP/dovecot.conf"
+echo "### Update FQDN in $CIMAP/dovecot.conf"
 sed -i $CIMAP/dovecot.conf \
     -e "s/_MHOST/$MHOST/" \
     -e "s/_VHOST/$VHOST/"
@@ -73,7 +73,7 @@ sed -i $CIMAP/dovecot.conf \
 if [[ $DTYPE == sqlite ]]; then
 
     if [[ ! -f $CSMTP/sqlite-alias-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-alias-maps.cf"
+        echo "### Create $CSMTP/sqlite-alias-maps.cf"
         cp ~/.sh/etc/_etc_postfix_sqlite-alias-maps.cf $CSMTP/sqlite-alias-maps.cf
         sed -i $CSMTP/sqlite-alias-maps.cf \
             -e "s;_DPATH;$DPATH;"
@@ -81,7 +81,7 @@ if [[ $DTYPE == sqlite ]]; then
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-domains.cf"
+        echo "### Create $CSMTP/sqlite-mailbox-domains.cf"
         cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-domains.cf $CSMTP/sqlite-mailbox-domains.cf
         sed -i $CSMTP/sqlite-mailbox-domains.cf \
             -e "s;_DPATH;$DPATH;"
@@ -89,7 +89,7 @@ if [[ $DTYPE == sqlite ]]; then
     fi
 
     if [[ ! -f $CSMTP/sqlite-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/sqlite-mailbox-maps.cf"
+        echo "### Create $CSMTP/sqlite-mailbox-maps.cf"
         cp ~/.sh/etc/_etc_postfix_sqlite-mailbox-maps.cf $CSMTP/sqlite-mailbox-maps.cf
         sed -i $CSMTP/sqlite-mailbox-maps.cf \
             -e "s;_DPATH;$DPATH;"
@@ -97,7 +97,7 @@ if [[ $DTYPE == sqlite ]]; then
     fi
 
     if [[ ! -f $CIMAP/user-sqlite.conf ]]; then
-        echo "Create $CIMAP/user-sqlite.conf"
+        echo "### Create $CIMAP/user-sqlite.conf"
         cp ~/.sh/etc/_etc_dovecot_user-sqlite.conf $CIMAP/user-sqlite.conf
         sed -i $CIMAP/user-sqlite.conf \
             -e "s;_DTYPE;$DTYPE;" \
@@ -106,26 +106,26 @@ if [[ $DTYPE == sqlite ]]; then
     fi
 
     if [[ ! -f $C_DNS/pdns.d/sqlite.conf ]]; then
-        echo "Create $C_DNS/pdns.d/sqlite.conf"
+        echo "### Create $C_DNS/pdns.d/sqlite.conf"
         cp ~/.sh/etc/_etc_powerdns_pdns_sqlite.conf $C_DNS/pdns.d/sqlite.conf
     fi
 
     grep -q virtual_alias_maps $CSMTP/main.cf
     if [[ $? -gt 0 ]]; then
-        echo "Append SQLite details to $CSMTP/main.cf"
+        echo "### Append SQLite details to $CSMTP/main.cf"
         cat ~/.sh/etc/_etc_postfix_main_sqlite.cf >> $CSMTP/main.cf
     fi
 
     grep -q passdb $CSMTP/main.cf
     if [[ $? -gt 0 ]]; then
-        echo "Append SQLite details to $CIMAP/dovecot.conf"
+        echo "### Append SQLite details to $CIMAP/dovecot.conf"
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-sqlite >> $CIMAP/dovecot.conf
     fi
 
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ ! -f $CSMTP/mysql-alias-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-alias-maps.cf"
+        echo "### Create $CSMTP/mysql-alias-maps.cf"
         cp ~/.sh/etc/_etc_postfix_mysql-alias-maps.cf $CSMTP/mysql-alias-maps.cf
         sed -i $CSMTP/mysql-alias-maps.cf \
             -e "s/_DHOST/$DHOST/" \
@@ -136,7 +136,7 @@ elif [[ $DTYPE == mysql ]]; then
     fi
 
     if [[ ! -f $CSMTP/mysql-mailbox-domains.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-domains.cf"
+        echo "### Create $CSMTP/mysql-mailbox-domains.cf"
         cp ~/.sh/etc/_etc_postfix_mysql-mailbox-domains.cf $CSMTP/mysql-mailbox-domains.cf
         sed -i $CSMTP/mysql-mailbox-domains.cf \
             -e "s/_DHOST/$DHOST/" \
@@ -147,7 +147,7 @@ elif [[ $DTYPE == mysql ]]; then
    fi
 
     if [[ ! -f $CSMTP/mysql-mailbox-maps.cf ]]; then
-        echo "Create $CSMTP/mysql-mailbox-maps.cf"
+        echo "### Create $CSMTP/mysql-mailbox-maps.cf"
         cp ~/.sh/etc/_etc_postfix_mysql-mailbox-maps.cf $CSMTP/mysql-mailbox-maps.cf
         sed -i $CSMTP/mysql-mailbox-maps.cf \
             -e "s/_DHOST/$DHOST/" \
@@ -158,7 +158,7 @@ elif [[ $DTYPE == mysql ]]; then
     fi
 
     if [[ ! -f $CIMAP/user-mysql.conf ]]; then
-        echo "Create $CIMAP/user-mysql.conf"
+        echo "### Create $CIMAP/user-mysql.conf"
         cp ~/.sh/etc/_etc_dovecot_user-mysql.conf $CIMAP/user-mysql.conf
         sed -i $CIMAP/user-mysql.conf \
             -e "s/_DTYPE/$DTYPE/" \
@@ -170,7 +170,7 @@ elif [[ $DTYPE == mysql ]]; then
     fi
 
     if [[ ! -f $C_DNS/pdns.d/mysql.conf ]]; then
-        echo "Create $C_DNS/pdns.d/mysql.conf"
+        echo "### Create $C_DNS/pdns.d/mysql.conf"
         cp ~/.sh/etc/_etc_powerdns_pdns_mysql.conf $C_DNS/pdns.d/mysql.conf
         sed -i $C_DNS/pdns.d/mysql.conf \
             -e "s/_PDNS_USER/$DUSER/" \
@@ -179,36 +179,36 @@ elif [[ $DTYPE == mysql ]]; then
 
     grep -q virtual_alias_maps $CSMTP/main.cf
     if [[ $? -gt 0 ]]; then
-        echo "Append MySQL details to $CSMTP/main.cf"
+        echo "### Append MySQL details to $CSMTP/main.cf"
         cat ~/.sh/etc/_etc_postfix_main_mysql.cf >> $CSMTP/main.cf
     fi
 
     grep -q passdb $CSMTP/main.cf
     if [[ $? -gt 0 ]]; then
-        echo "Append MySQL details to $CIMAP/dovecot.conf"
+        echo "### Append MySQL details to $CIMAP/dovecot.conf"
         cat ~/.sh/etc/_etc_dovecot_dovecot.conf-mysql >> $CIMAP/dovecot.conf
     fi
 
 else
-    echo "Warning: Unknown DTYPE '$DTYPE'"
+    echo "### Warning: Unknown DTYPE '$DTYPE'"
 fi
 
-echo "Update _MHOST in $C_WEB/sites-enabled/_default"
+echo "### Update _MHOST in $C_WEB/sites-enabled/_default"
 sed -i $C_WEB/sites-enabled/_default -e "s/_MHOST/$MHOST/g"
 
-echo "Update 0.0.0.0 in $C_DNS/pdns.conf"
+echo "### Update 0.0.0.0 in $C_DNS/pdns.conf"
 sed -i $C_DNS/pdns.conf -e "s/0\.0\.0\.0/$IP4_0/"
 
 if [[ -f /etc/alpine-release ]]; then
     if [[ ! -f /etc/etc/periodic/daily/netserva ]]; then
-        echo "Create /etc/etc/periodic/daily/netserva"
+        echo "### Create /etc/etc/periodic/daily/netserva"
         cp ~/.sh/etc/_etc_cron.d_netserva /etc/etc/periodic/daily/netserva
         MTEMP=${MAILTO:-$AMAIL}
         sed -i "s/_MAILTO/$MTEMP/" /etc/etc/periodic/daily/netserva
     fi
 else
     if [[ ! -f /etc/cron.d/netserva ]]; then
-        echo "Create /etc/cron.d/netserva"
+        echo "### Create /etc/cron.d/netserva"
         cp ~/.sh/etc/_etc_cron.d_netserva /etc/cron.d/netserva
         MTEMP=${MAILTO:-$AMAIL}
         sed -i "s/_MAILTO/$MTEMP/" /etc/cron.d/netserva
@@ -216,7 +216,7 @@ else
 fi
 
 if [[ ! -d $C_SSL/$MHOST ]]; then
-    echo "Create temporary self-signed certificate for $MHOST"
+    echo "### Create temporary self-signed certificate for $MHOST"
     [[ ! -d $C_SSL/$MHOST ]] && mkdir $C_SSL/$MHOST
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$MHOST" \
@@ -252,7 +252,7 @@ if [[ ! -f /etc/aliases.lmdb ]]; then
 fi
 
 if [[ -f /etc/alpine-release ]]; then
-    echo "TODO: restart alpine services"
+    echo "### TODO: restart alpine services"
 else
     sc daemon-reload > /dev/null 2>&1
 

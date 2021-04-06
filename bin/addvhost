@@ -282,7 +282,7 @@ elif [[ $DOSSL == le ]]; then
     [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
         && rm $C_WEB/sites-enabled/*.selfsigned
 
-    newssl $VHOST mail www autoconfig autodiscover $USEIP > /dev/null 2>&1
+    newssl $VHOST mail www autoconfig autodiscover $USEIP
 fi
 
 addvmail $VUSER@$VHOST
