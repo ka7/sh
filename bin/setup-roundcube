@@ -99,8 +99,8 @@ EOS
 
     chperms $VHOST
 
-    su - $UUSER -c "cd var/www; php composer.phar -n update" > /dev/null
-    su - $UUSER -c "cd var/www; php composer.phar -n install" > /dev/null
+    su - $UUSER -c "cd var/www; php composer.phar -n update" > /dev/null 2>&1
+    su - $UUSER -c "cd var/www; php composer.phar -n install" > /dev/null 2>&1
 
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 RoundCube
