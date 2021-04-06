@@ -138,19 +138,19 @@ EOS
         fi
 
         echo "### Disable pdns until actually needed"
-        sc stop pdns
+        sc stop pdns > /dev/null
         sc disable pdns > /dev/null
 
         echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
         apt-get -yqq install spamprobe=1.4d-14build1 > /dev/null
-        apt-mark hold spamprobe
+        apt-mark hold spamprobe > /dev/null
     fi
 
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
         if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
             echo "### Remove unattended-upgrades"
-            sc stop unattended-upgrades
-            sc disable unattended-upgrades
+            sc stop unattended-upgrades > /dev/null
+            sc disable unattended-upgrades > /dev/null
         fi
         echo "### Remove python and all related packages"
         apt-get -yqq --purge remove $RLIST > /dev/null
