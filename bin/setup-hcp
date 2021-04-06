@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20210331
+# .sh/bin/setup-hcp 20170519 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -29,7 +29,7 @@ EOS
         HUSER=$(pwgen -sB 8 1)
         HPASS=$(pwgen -sB 8 1)
         echo "### Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
-        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS > /dev/null
+        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS > /dev/null 2>&1
         echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
         cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
 HTTP Auth
@@ -58,7 +58,7 @@ if [[ -f $WPATH/.well-known/autodiscover.php ]]; then
     echo "### $WPATH/.well-known/autodiscover.php already exists"
 else
     echo "### Setup $WPATH/.well-known/autodiscover.php with $MHOST"
-    mkdir $WPATH/.well-known
+    [[ ! -d $WPATH/.well-known ]] && mkdir -p $WPATH/.well-known
     cp ~/.sh/etc/_.well-known_autodiscover.php $WPATH/.well-known/autodiscover.php
 fi
 
