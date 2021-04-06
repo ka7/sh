@@ -46,7 +46,7 @@ if [[ $DNAME == $ADMIN ]]; then
 fi
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
-    echo "### '$DNAME' database already exists"
+    echo "### Warning: '$DNAME' database already exists"
 else
     echo "### Create $DNAME database"
     mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
@@ -55,7 +55,7 @@ else
 fi
 
 if [[ -f $FPATH/wp-config.php ]]; then
-    echo "### Wordpress already installed"
+    echo "### ERROR: Wordpress is already installed"
     exit 4
 else
     echo "### Download Wordpress"
