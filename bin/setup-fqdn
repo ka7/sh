@@ -295,7 +295,7 @@ else
     if [[ "$DIGIP" == "$IP4_0" ]]; then
         newssl $MHOST
         newssl $HDOMN www autoconfig autodiscover
-        nginx -t && nginx -s reload
+        nginx -t && nginx -s reload > /dev/null
     fi
 fi
 
