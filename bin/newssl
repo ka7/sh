@@ -44,7 +44,7 @@ C_WEB="/etc/nginx"
     mkdir $LECFG && \
     git clone --depth 1 $LEGIT $LECFG && \
     chmod +x $LECFG/dehydrated && \
-    ln -s $C_SSL $LECFG/certs
+    ln -s $C_SSL $LECFG/certs > /dev/null
 
 [[ ! -f $LECFG/accounts/*/account_key.pem ]] && \
     $LECFG/dehydrated --register --accept-terms
@@ -160,4 +160,3 @@ EOS
     fi
 fi
 
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
