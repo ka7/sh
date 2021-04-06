@@ -202,7 +202,7 @@ if [[ -d /etc/systemd ]]; then
         echo "### Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
         chmod 644 /etc/systemd/network/10-dhcp.network
-        sc enable systemd-networkd > /dev/null
+        sc enable systemd-networkd > /dev/null 2>&1
     fi
 
     if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
