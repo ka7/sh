@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20210405
+# .sh/bin/setup-fqdn 20210327 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -62,8 +62,8 @@ fi
 
 echo "Update FQDN in $CSMTP/main.cf"
 sed -i $CSMTP/main.cf \
-    -e "s/_MHOST/$MHOST/" \
-    -e "s/^#myhostname = _MHOST/myhostname = $MHOST/"
+    -e "s/^#myhostname = _MHOST/myhostname = $MHOST/" \
+    -e "s/_MHOST/$MHOST/"
 
 echo "Update FQDN in $CIMAP/dovecot.conf"
 sed -i $CIMAP/dovecot.conf \
