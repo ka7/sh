@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/chshpw 20171015 - 20210405
+# .sh/bin/chshpw 20171015 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: chshpw user|domain|path [newpw]" && exit 1
@@ -11,10 +11,10 @@ UPASS=${2:-$(newpw)}
 USERS=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep -c $1)
 
 if [[ $USERS -eq 0 ]]; then
-    echo "No matching user, try again"
+    echo "### No matching user, try again"
 elif [[ $USERS -gt 1 ]]; then
-    echo "Chose a more specific part of user, domain or path"
-    echo "--------------------------------------------------"
+    echo "### Chose a more specific part of user, domain or path"
+    echo "### --------------------------------------------------"
     getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
 elif [[ $USERS -eq 1 ]]; then
     GETPW=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
@@ -23,7 +23,7 @@ elif [[ $USERS -eq 1 ]]; then
     [[ $VHOST =~ , ]] && VHOST=$(echo $VHOST|cut -d',' -f1)
     [[ $(id -u) -gt 0 ]] && SUDO='sudo -i' || SUDO=
     echo -n "$UUSER:$UPASS" | chpasswd
-    echo "Update shell password for $UUSER"
+    echo "### Update shell password for $UUSER"
     cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
 SSH/SFTP
 =========
@@ -38,5 +38,3 @@ sftp://$UUSER:$UPASS@$VHOST:9/var/www
 
 EOS
 fi
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
