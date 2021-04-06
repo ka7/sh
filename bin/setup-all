@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20210405
+# .sh/bin/setup-all 20170519 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -8,13 +8,13 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-export VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+export MHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
 export DTYPE=${2:-${DTYPE:-'mysql'}}
 
 setup-host
 setup-db $DTYPE
 setup-etc
-setup-fqdn $VHOST
+setup-fqdn $MHOST
 setup-hcp
 
 [[ -z $MAILTO ]] && MAILTO="admin@$VHOST"
