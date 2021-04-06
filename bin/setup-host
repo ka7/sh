@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210405
+# .sh/bin/setup-host 20170524 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -202,7 +202,7 @@ if [[ -d /etc/systemd ]]; then
         echo "### Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
         chmod 644 /etc/systemd/network/10-dhcp.network
-        sc enable systemd-networkd
+        sc enable systemd-networkd > /dev/null
     fi
 
     if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
@@ -234,5 +234,5 @@ net.ipv4.tcp_notsent_lowat = 16384
 vm.swappiness = 1
 net.core.somaxconn = 512
 EOS
-    sysctl -p
+    sysctl -p > /dev/null
 fi
