@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20210405
+# .sh/bin/addvip 20190602 - 20210406
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mxhost]" && exit 1
@@ -16,13 +16,13 @@ CIMAP="/etc/dovecot"
 # Postfix
 
 if [[ ! -d $CSMTP/vhosts ]]; then
-    echo "Create $CSMTP/vhosts"
+    echo "### Create $CSMTP/vhosts"
     mkdir $CSMTP/vhosts
     chmod 700 $CSMTP/vhosts
 fi
 
 if [[ ! -f $CSMTP/vhosts/00_master.cf ]]; then
-    echo "Create $CSMTP/vhosts/00_master.cf"
+    echo "### Create $CSMTP/vhosts/00_master.cf"
 
     cat << EOS > $CSMTP/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
@@ -64,7 +64,7 @@ EOS
 fi
 
 if [[ -f $CSMTP/vhosts/$VHOST ]]; then
-    echo "Warning: $CSMTP/vhosts/$VHOST already exists"
+    echo "### Warning: $CSMTP/vhosts/$VHOST already exists"
 else
     cat << EOS > $CSMTP/vhosts/$VHOST
 
@@ -113,19 +113,19 @@ EOS
     cat $CSMTP/vhosts/* > $CSMTP/master.cf
     chmod 600 $CSMTP/vhosts/$VHOST
 #    systemctl restart postfix
-    echo "Create $CSMTP/vhosts/$VHOST"
+    echo "### Create $CSMTP/vhosts/$VHOST"
 fi
 
 # Dovecot
 
 if [[ ! -d $CIMAP/vhosts ]]; then
-    echo "Create $CIMAP/vhosts"
+    echo "### Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
     chmod 700 $CIMAP/vhosts
 fi
 
 if [[ -f $CIMAP/vhosts/$VHOSTS ]]; then
-    echo "Warning: $CIMAP/vhosts/$VHOSTS already exists"
+    echo "### Warning: $CIMAP/vhosts/$VHOSTS already exists"
 else
     cat << EOS > $CIMAP/vhosts/$VHOST
 local $IP4_0 {
@@ -144,7 +144,7 @@ service imap-login {
 
 EOS
     chmod 600 $CIMAP/vhosts/$VHOST
-    echo "Create $CIMAP/vhosts/$VHOST"
+    echo "### Create $CIMAP/vhosts/$VHOST"
 fi
 
 mv $CSMTP/master.cf $CSMTP/master.cf.orig

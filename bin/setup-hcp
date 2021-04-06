@@ -132,3 +132,4 @@ setup-roundcube $MHOST
 chperms $MHOST
 serva restart web
 serva restart mail
+sleep 2
