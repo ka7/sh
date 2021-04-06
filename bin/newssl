@@ -47,7 +47,7 @@ C_WEB="/etc/nginx"
     ln -s $C_SSL $LECFG/certs > /dev/null
 
 [[ ! -f $LECFG/accounts/*/account_key.pem ]] && \
-    $LECFG/dehydrated --register --accept-terms
+    $LECFG/dehydrated --register --accept-terms > /dev/null
 
 if [[ ! -d $WACME ]]; then
     mkdir -p $WACME
