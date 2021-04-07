@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-all 20170519 - 20210406
+# .sh/bin/setup-all 20170519 - 20210407
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
@@ -8,17 +8,34 @@ export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/root/.sh/bin
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-export MHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
-export DTYPE=${2:-${DTYPE:-'mysql'}}
+VHOST=${1:-${VHOST:-$(hostname -f|tr 'A-Z' 'a-z')}}
+DTYPE=${2:-${DTYPE:-'mysql'}}
 
 setup-host
 setup-db $DTYPE
 setup-etc
-setup-fqdn $MHOST
+setup-fqdn $VHOST
 setup-hcp
 
-[[ -z $MAILTO ]] && MAILTO="admin@$VHOST"
+[[ -z $MAILTO ]] && MAILTO="admin@$HDOMN"
 
 echo "### Send message to: $MAILTO"
-cat /root/.vhosts/$MHOST.conf /root/.vhosts/$VHOST.conf | \
- mail -s "Setup $VHOST - $IP4_0" -r admin@$VHOST $MAILTO
+
+# TODO: add more useful notes below
+
+cat << EOS > /root/netserva.txt
+Your Netserva system is now setup and ready to use.
+EOS
+
+if [[ -f /root/.vhosts/$HDOMN.conf ]]; then
+    echo -e "\n### $HDOMN\n==========\n\n" >> /root/netserva.txt
+    cat /root/.vhosts/$HDOMN.conf >> /root/netserva.txt
+fi
+
+if [[ -f /root/.vhosts/$VHOST.conf ]]; then
+    echo -e "\n### $VHOST\n==========\n\n" >> /root/netserva.txt
+    cat /root/.vhosts/$VHOST.conf >> /root/netserva.txt
+fi
+
+cat /root/netserva.txt | \
+ mail -s "Setup $VHOST - $IP4_0" -r admin@$HDOMN $MAILTO
