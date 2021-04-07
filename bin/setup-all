@@ -25,16 +25,22 @@ echo "### Send message to: $MAILTO"
 
 cat << EOS > /root/netserva.txt
 Your Netserva system is now setup and ready to use.
+
 EOS
 
 if [[ -f /root/.vhosts/$HDOMN.conf ]]; then
-    echo -e "\n### $HDOMN\n==========\n\n" >> /root/netserva.txt
+    echo -e "### Details for $HDOMN\n" >> /root/netserva.txt
     cat /root/.vhosts/$HDOMN.conf >> /root/netserva.txt
 fi
 
 if [[ -f /root/.vhosts/$VHOST.conf ]]; then
-    echo -e "\n### $VHOST\n==========\n\n" >> /root/netserva.txt
+    echo -e "### Details for $VHOST\n" >> /root/netserva.txt
     cat /root/.vhosts/$VHOST.conf >> /root/netserva.txt
+fi
+
+if [[ -f /root/netserva.log ]]; then
+    echo -e "### Netserva installation log\n" >> /root/netserva.txt
+    cat /root/netserva.log >> /root/netserva.txt
 fi
 
 cat /root/netserva.txt | \
