@@ -243,9 +243,8 @@ updhost ()
     if [[ -f /root/.vhosts/$1 ]]; then
         . /root/.vhosts/$1
     else
-        sethost $1
+        echo "ERROR: /root/.vhosts/$1 does not exist" && return 2
     fi
-    . /root/.shrc
 
     export HNAME=${1%%.*}
     export HDOMN=${1#*.*}
