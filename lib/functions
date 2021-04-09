@@ -167,7 +167,6 @@ sethost ()
     LROOT='/usr/local/lsws';
     OSMIR='archive.ubuntu.com';
     OSREL='focal';
-    OSTYP='ubuntu';
     TAREA='Australia';
     TCITY='Sydney';
     VPATH='/home/u';
