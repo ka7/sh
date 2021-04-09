@@ -1,12 +1,6 @@
 # .sh/lib/functions 20151231 - 20210409
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-OSTYP=unknown
-
-if [[ -f /etc/os-release ]]; then
-    OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
-fi
-
 if [[ $OSTYP == alpine ]]; then
     sc () {
         if [ $1 = 'enable' ]; then
@@ -126,12 +120,12 @@ setuser ()
 {
     local U_TMP=$(grepuser "$1");
     [[ $U_TMP && (( $(grep -c . <<<"$U_TMP") != 1 )) ]] && echo "Ambiguous result for '$1'" && return 10;
-    export UUSER=$(echo $U_TMP | cut -d: -f1);
-    export U_UID=$(echo $UUSER | cut -d: -f3);
-    export U_GID=$(echo $UUSER | cut -d: -f4);
-    export VHOST=$(echo $UUSER | cut -d: -f5);
-    export UPATH=$(echo $UUSER | cut -d: -f6);
-    export U_SHL=$(echo $UUSER | cut -d: -f7);
+    UUSER=$(echo $U_TMP | cut -d: -f1);
+    U_UID=$(echo $UUSER | cut -d: -f3);
+    U_GID=$(echo $UUSER | cut -d: -f4);
+    VHOST=$(echo $UUSER | cut -d: -f5);
+    UPATH=$(echo $UUSER | cut -d: -f6);
+    U_SHL=$(echo $UUSER | cut -d: -f7);
 }
 sethost ()
 {
@@ -139,93 +133,121 @@ sethost ()
         echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [distro($OSREL)] [IP]";
         return 1;
     elif [[ $1 =~ "@" ]]; then
-        export UUSER=${1%@*};
-        export VHOST=${1#*@};
+        UUSER=${1%@*};
+        VHOST=${1#*@};
         if [[ $UUSER == u* ]]; then
             U_UID=${UUSER#*u}
         else
             [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000;
         fi;
-        export U_UID;
+        U_UID;
     else
-        export VHOST=$1;
-        export U_UID=$(newuid);
-        export UUSER=$([[ $U_UID = 1000 ]] && echo "sysadm" || echo "u$U_UID");
+        VHOST=$1;
+        U_UID=$(newuid);
+        UUSER=$([[ $U_UID = 1000 ]] && echo "sysadm" || echo "u$U_UID");
     fi;
-    export U_GID=$U_UID;
 
-    export HNAME=${VHOST%%.*}
-    export HDOMN=${VHOST#*.*}
+    # Global static shell variables (default to ubuntu)
+    ADMIN='sysadm';
+    ANAME='System Administrator';
+    A_GID='1000';
+    A_UID='1000';
+    BPATH='/home/backups';
+    CIMAP='/etc/dovecot';
+    CSMTP='/etc/postfix';
+    C_DNS='/etc/powerdns';
+    C_SQL='/etc/mysql';
+    C_SSL='/etc/ssl';
+    C_WEB='/etc/nginx';
+    DBMYS='/var/lib/mysql';
+    DBSQL='/var/lib/sqlite';
+    DHOST='localhost';
+    DPORT='3306';
+    DTYPE='mysql';
+    LROOT='/usr/local/lsws';
+    OSMIR='archive.ubuntu.com';
+    OSREL='focal';
+    OSTYP='ubuntu';
+    TAREA='Australia';
+    TCITY='Sydney';
+    VPATH='/home/u';
+    V_PHP='7.4';
+    WUGID='www-data';
 
-    [[ $UUSER == $ADMIN ]] && export DNAME=$ADMIN || export DNAME=${VHOST//[.-]/_};
-
-    export OSREL=${3:-$OSREL}
-
-    if [[ -z $4 ]]; then
-        export IP4_0=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
-    elif [[ $4 =~ "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" ]]; then
-        export IP4_0=$4
-    else
-        export IP4_0=$(hostname -i|cut -d ' ' -f -1)
+    # OS dependant overrides (maybe create a function)
+    if [[ $OSTYP == alpine ]]; then
+        C_DNS='/etc/pdns'
+        C_FPM='/etc/php7/php-fpm.d'
+        C_SQL='/etc/my.cnf.d'
+        WUGID='nginx'
+        ### TODO: add these for alpine
+        OSMIR=''
+        OSREL=''
+    elif [[ $OSTYP == manjaro ]]; then
+        C_DNS='/etc/powerdns'
+        C_FPM='/etc/php/php-fpm.d'
+        C_SQL='/etc/my.cnf.d'
+        WUGID='http'
+        ### TODO: add these for manjaro
+        OSMIR=''
+        OSREL=''
+    elif [[ $OSTYP == debian ]]; then
+        OSMIR='ftp.debian.org'
+        OSREL='buster'
     fi
 
-    export DPATH="$DBSQL/$ADMIN/$ADMIN.db";
-    export EXMYS="mysql -BN $ADMIN";
-    export EXSQL="sqlite3 $DPATH";
-    export DTYPE=${2:-'mysql'}
+    U_GID=$U_UID;
+
+    HNAME=${VHOST%%.*}
+    HDOMN=${VHOST#*.*}
+
+    [[ $UUSER == $ADMIN ]] && DNAME=$ADMIN || DNAME=${VHOST//[.-]/_};
+
+    OSREL=${3:-$OSREL}
+
+    if [[ -z $4 ]]; then
+        IP4_0=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
+    elif [[ $4 =~ "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" ]]; then
+        IP4_0=$4
+    else
+        IP4_0=$(hostname -i|cut -d ' ' -f -1)
+    fi
+
+    DPATH="$DBSQL/$ADMIN/$ADMIN.db";
+    EXMYS="mysql -BN $ADMIN";
+    EXSQL="sqlite3 $DPATH";
+    DTYPE=${2:-'mysql'}
 
     if [[ $DTYPE == mysql ]]; then
-        export SQCMD=$EXMYS;
-        export SQDNS="mysql -BN pdns";
+        SQCMD=$EXMYS;
+        SQDNS="mysql -BN pdns";
     elif [[ $DTYPE == sqlite ]]; then
-        export SQCMD=$EXSQL;
-        export SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db";
+        SQCMD=$EXSQL;
+        SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db";
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi;
 
     # was pwgen -sB 16 1
-    export APASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
-    export DPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
-    export EPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
-    export UPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
-    export WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    APASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    DPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    EPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    UPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
 
-    export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
-    export MHOST="mail.$(echo $VHOST|sed 's/^mail\.//')"
+    AHOST=$(hostname -f|tr 'A-Z' 'a-z')
+    MHOST="mail.$(echo $VHOST|sed 's/^mail\.//')"
 
-    export C_FPM="/etc/php/$V_PHP/fpm";
-    # OS dependant overrides (maybe create a function)
-    if [[ $OSTYP == alpine ]]; then
-        export C_DNS='/etc/pdns'
-        export C_FPM='/etc/php7/php-fpm.d'
-        export C_SQL='/etc/my.cnf.d'
-        export WUGID='nginx'
-        ### TODO: add these for alpine
-        export OSMIR=''
-        export OSREL=''
-    elif [[ $OSTYP == manjaro ]]; then
-        export C_DNS='/etc/powerdns'
-        export C_FPM='/etc/php/php-fpm.d'
-        export C_SQL='/etc/my.cnf.d'
-        export WUGID='http'
-        ### TODO: add these for manjaro
-        export OSMIR=''
-        export OSREL=''
-    elif [[ $OSTYP == debian ]]; then
-        export OSMIR='ftp.debian.org'
-        export OSREL='buster'
-    fi
-
-    export DUSER=$UUSER;
-    export MPATH=$VPATH/$VHOST/home;
-    export UPATH=$VPATH/$VHOST;
-    export U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
-    export VUSER='admin';
-    export WPATH=$VPATH/$VHOST/var/www;
-    export WPUSR=$(head /dev/urandom|tr -dc a-z|head -c6);
+    C_FPM="/etc/php/$V_PHP/fpm";
+    DUSER=$UUSER;
+    MPATH=$VPATH/$VHOST/home;
+    UPATH=$VPATH/$VHOST;
+    U_SHL=$([[ $U_UID = 1000 ]] && echo "/bin/bash" || echo "/bin/sh");
+    VUSER='admin';
+    WPATH=$VPATH/$VHOST/var/www;
+    WPUSR=$(head /dev/urandom|tr -dc a-z|head -c6);
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST;
-    export AMAIL="$VUSER@$TEMPH";
+    AMAIL="$VUSER@$TEMPH";
 }
 sx ()
 {
@@ -246,42 +268,42 @@ updhost ()
         echo "ERROR: /root/.vhosts/$1 does not exist" && return 2
     fi
 
-    export HNAME=${1%%.*}
-    export HDOMN=${1#*.*}
-    export DTYPE=${2:-$DTYPE}
-    export OSREL=${3:-$OSREL}
-    export IP4_0=${4:-$IP4_0}
-    export V_PHP=${5:-$V_PHP}
-    export LROOT="/usr/local/lsws"
-    export OSTYP=$OSTYP
-    export C_FPM="/etc/php/$V_PHP/fpm";
+    HNAME=${1%%.*}
+    HDOMN=${1#*.*}
+    DTYPE=${2:-$DTYPE}
+    OSREL=${3:-$OSREL}
+    IP4_0=${4:-$IP4_0}
+    V_PHP=${5:-$V_PHP}
+    LROOT="/usr/local/lsws"
+    OSTYP=$OSTYP
+    C_FPM="/etc/php/$V_PHP/fpm";
 
     # OS dependant overrides
     if [[ $OSTYP == alpine ]]; then
-        export C_DNS='/etc/pdns'
-        export C_FPM='/etc/php7/php-fpm.d'
-        export C_SQL='/etc/my.cnf.d'
-        export WUGID='nginx'
-        export OSMIR=''
-        export OSREL=''
+        C_DNS='/etc/pdns'
+        C_FPM='/etc/php7/php-fpm.d'
+        C_SQL='/etc/my.cnf.d'
+        WUGID='nginx'
+        OSMIR=''
+        OSREL=''
     elif [[ $OSTYP == manjaro ]]; then
-        export C_DNS='/etc/powerdns'
-        export C_FPM='/etc/php/php-fpm.d'
-        export C_SQL='/etc/my.cnf.d'
-        export WUGID='http'
-        export OSMIR=''
-        export OSREL=''
+        C_DNS='/etc/powerdns'
+        C_FPM='/etc/php/php-fpm.d'
+        C_SQL='/etc/my.cnf.d'
+        WUGID='http'
+        OSMIR=''
+        OSREL=''
     elif [[ $OSTYP == debian ]]; then
-        export OSMIR='ftp.debian.org'
-        export OSREL='buster'
+        OSMIR='ftp.debian.org'
+        OSREL='buster'
     fi
 
     if [[ $DTYPE == mysql ]]; then
-        export SQCMD=$EXMYS;
-        export SQDNS="mysql -BN pdns";
+        SQCMD=$EXMYS;
+        SQDNS="mysql -BN pdns";
     elif [[ $DTYPE == sqlite ]]; then
-        export SQCMD=$EXSQL;
-        export SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db";
+        SQCMD=$EXSQL;
+        SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db";
     else
         echo "!!! ERROR: unknown database type '$DTYPE'";
     fi

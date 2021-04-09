@@ -2,64 +2,33 @@
 # Copyright (C) 2015-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
+PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([[ $(id -u) -gt 0 ]] && echo 'sudo ')
 MHOST=$(hostname -f|tr 'A-Z' 'a-z')
-#MAILTO=admin@$MHOST
-EDITOR=nano
-
+OSTYP=unknown
 COLOR=31
 LABEL=$(id -un)@$MHOST
+EDITOR=nano
 
 # Let's try these here, may not be needed
 export TERM=linux
 export DEBIAN_FRONTEND=readline
 
-# Import managed aliases
+if [[ -f /etc/os-release ]]; then
+    OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
+fi
+
+# Import global aliases
 [ -f ~/.sh/lib/aliases ] && . ~/.sh/lib/aliases
 
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && . ~/.sh/lib/functions
 
-if [ -f ~/.vhosts/$MHOST ]; then
-    # Load primary root profile if exists
-    . ~/.vhosts/$MHOST
-    [ -f ~/.myrc ] && . ~/.myrc
-else
-    # Global static shell variables (default to ubuntu)
-    ADMIN='sysadm'
-    ANAME='System Administrator'
-    A_GID='1000'
-    A_UID='1000'
-    BPATH='/home/backups'
-    CIMAP='/etc/dovecot'
-    CSMTP='/etc/postfix'
-    C_DNS='/etc/powerdns'
-    C_SQL='/etc/mysql'
-    C_SSL='/etc/ssl'
-    C_WEB='/etc/nginx'
-    DBMYS='/var/lib/mysql'
-    DBSQL='/var/lib/sqlite'
-    DHOST='localhost'
-    DPORT='3306'
-    DTYPE='mysql'
-    LROOT='/usr/local/lsws'
-    OSMIR='archive.ubuntu.com'
-    OSREL='focal'
-    OSTYP='ubuntu'
-    TAREA='Australia'
-    TCITY='Sydney'
-    VPATH='/home/u'
-    V_PHP='7.4'
-    WUGID='www-data'
+# Local custom aliases and env var overrides
+[ -f ~/.myrc ] && . ~/.myrc
 
-    # Local custom aliases and env var overrides
-    [ -f ~/.myrc ] && . ~/.myrc
-
-    sethost $MHOST
-fi
-
-PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
+sethost $MHOST
 
 export PATH SUDO MAILTO EDITOR TERM DEBIAN_FRONTEND PS1
 
