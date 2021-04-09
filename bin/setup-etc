@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20210405
+# .sh/bin/setup-etc 20151231 - 20210409
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
@@ -149,7 +149,7 @@ if [[ ! -f /etc/opendmarc.conf.orig ]]; then
     cp ~/.sh/etc/_etc_opendmarc.conf /etc/opendmarc.conf
 fi
 
-if [[ ! -f /etc/alpine-release ]]; then
+if [[ $OSTYP != alpine ]]; then
 
     if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
         echo "### Create /etc/systemd/system/opendkim.service"
@@ -166,7 +166,7 @@ fi
 
 ### php
 
-if [[ -f /etc/alpine-release ]]; then
+if [[ $OSTYP == alpine ]]; then
     echo "### Create $C_FPM/common.conf (TODO)"
     echo "### Modify $C_FPM/php.ini (TODO)"
 else

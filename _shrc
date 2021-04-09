@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20210330
+# .sh/_shrc 20130315 - 20210409
 # Copyright (C) 2015-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
@@ -26,7 +26,7 @@ if [ -f ~/.vhosts/$MHOST ]; then
     . ~/.vhosts/$MHOST
     [ -f ~/.myrc ] && . ~/.myrc
 else
-    # Global static shell variables
+    # Global static shell variables (default to ubuntu)
     ADMIN='sysadm'
     ANAME='System Administrator'
     A_GID='1000'
@@ -46,6 +46,7 @@ else
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
     OSREL='focal'
+    OSTYP='ubuntu'
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
@@ -65,5 +66,5 @@ export PATH SUDO MAILTO EDITOR TERM DEBIAN_FRONTEND PS1
 export ADMIN AHOST AMAIL ANAME APASS A_GID A_UID BPATH CIMAP CSMTP C_DNS
 export C_FPM C_SQL C_SSL C_WEB DBMYS DBSQL DHOST DNAME DPASS DPATH DPORT
 export DTYPE DUSER EPASS EXMYS EXSQL HNAME HDOMN IP4_0 LROOT MHOST MPATH
-export OSMIR OSREL SQCMD SQDNS TAREA TCITY UPASS UPATH UUSER U_GID U_SHL
-export U_UID VHOST VPATH VUSER V_PHP WPASS WPATH WPUSR
+export OSMIR OSREL OSTYP SQCMD SQDNS TAREA TCITY UPASS UPATH UUSER U_GID
+export U_SHL U_UID VHOST VPATH VUSER V_PHP WPASS WPATH WPUSR

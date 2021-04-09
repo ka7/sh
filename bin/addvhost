@@ -57,7 +57,7 @@ if [[ $(grepuser ":$VHOST:") ]]; then
     echo "### Warning: $UUSER for $VHOST already exists"
 else
     echo "### Create $UUSER user"
-    if [[ -f /etc/alpine-release ]]; then
+    if [[ $OSTYP == alpine ]]; then
         [[ $(getent group sudo) ]] || addgroup -S sudo
     fi
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
@@ -97,7 +97,7 @@ EOS
 )
 
 if [[ -d $C_FPM ]]; then
-    if [[ -f /etc/alpine-release ]]; then
+    if [[ $OSTYP == alpine ]]; then
         _POOL=$C_FPM
     else
         _POOL=$C_FPM/pool.d

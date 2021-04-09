@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210406
+# .sh/bin/setup-host 20170524 - 20210409
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -7,19 +7,20 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$DTYPE}
+VHOST=${1:-$VHOST}
 DTYPE=${2:-$DTYPE}
 
 if [[ -f ~/.shrc ]]; then
     . ~/.shrc
 else
-    # Also test and adjust for manjaro and alpine
-    OSMIR=archive.ubuntu.com
-    OSREL=focal
-    V_PHP=7.4
+    if [[ -f /etc/os-release ]]; then
+        OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
+    else
+        OSTYP=unknown
+    fi
 fi
 
-if [[ -f /etc/alpine-release ]]; then
+if [[ $OSTYP == alpine ]]; then
 
     echo "### Install Alpine base packages"
 
@@ -59,6 +60,16 @@ sudo time minizip wget which whois"
 elif [[ -f /etc/apt/sources.list ]]; then
 
     echo "### Install Debian/Ubuntu base packages"
+
+    if [[ $OSTYP == debian ]]; then
+        OSMIR=ftp.debian.org
+        OSREL=buster
+        V_PHP=7.4
+    else
+        OSMIR=archive.ubuntu.com
+        OSREL=focal
+        V_PHP=7.4
+    fi
 
     # Default List of required core Netserva Debian packages
     DLIST="apache2-utils apt-utils bash bc bind9-host bsd-mailx
@@ -103,8 +114,16 @@ ubuntu-advantage-tools vi* xinetd"
 
         echo "### Setup apt sources list for $OSREL"
         mv /etc/apt/sources.list /etc/apt/sources.list.orig
-        sed ~/.sh/etc/_etc_apt_sources.list \
-        -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
+        if [[ $OSTYP == debian ]]; then
+            cat << EOS > /etc/apt/sources.list
+deb http://$OSMIR/debian/ $OSREL main
+deb http://$OSMIR/debian/ $OSREL-updates main
+deb http://security.debian.org/debian-security $OSREL/updates main
+EOS
+        else
+            sed ~/.sh/etc/_etc_apt_sources.list \
+            -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
+        fi
 
         cat << EOS | debconf-set-selections
 postfix postfix/destinations string 'localhost'
@@ -190,14 +209,22 @@ if [[ ! -f /root/.ssh/config ]]; then
     chmod 600 /root/.ssh/*
 fi
 
-# If we are on a systemd system (ie; not Alpine)
+# If we are NOT on a systemd system (ie; Alpine)
 
-if [[ -d /etc/systemd ]]; then
-
+if [[ $OSTYP == alpine ]]; then
+    if [[ ! -f /etc/resolv.conf.orig ]]; then
+        mv /etc/resolv.conf /etc/resolv.conf.orig
+        echo "### Change /etc/resolv.conf to 1.1.1.1 (static)"
+        cat << EOS | tee /etc/resolv.conf > /dev/null
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+EOS
+    fi
+else
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
 
-    if [[ $(ls -A /etc/systemd/network/*dhcp*.network 2> /dev/null) ]]; then
-        echo "### /etc/systemd/network/*dhcp*.network already exists"
+    if [[ $(ls -A /etc/systemd/network/*.network > /dev/null 2>&1) ]]; then
+        echo "### /etc/systemd/network/*.network already exists"
     else
         echo "### Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
@@ -205,23 +232,14 @@ if [[ -d /etc/systemd ]]; then
         sc enable systemd-networkd > /dev/null 2>&1
     fi
 
-    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
-        echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
+# TODO: we actually do want the 127.0.0.53 stub DNS resolver
+#    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+#        echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
 #        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
-        sed -i /etc/systemd/resolved.conf \
-            -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
-            -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
-        sc restart systemd-resolved
-    fi
-else
-    if [[ ! -f /etc/resolv.conf.orig ]]; then
-        mv /etc/resolv.conf /etc/resolv.conf.orig
-        echo "### Change /etc/resolv.conf to 1.1.1.1 (static)"
-        cat << EOS | tee /etc/resolv.conf
-nameserver 1.1.1.1
-nameserver 8.8.8.8
-EOS
-    fi
+#        sed -i /etc/systemd/resolved.conf \
+#            -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
+#            -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
+#        sc restart systemd-resolved
 fi
 
 if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then

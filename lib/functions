@@ -1,7 +1,13 @@
-# .sh/lib/functions 20151231 - 20210316
+# .sh/lib/functions 20151231 - 20210409
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if [[ -f /etc/alpine-release ]]; then
+OSTYP=unknown
+
+if [[ -f /etc/os-release ]]; then
+    OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
+fi
+
+if [[ $OSTYP == alpine ]]; then
     sc () {
         if [ $1 = 'enable' ]; then
             $SUDO rc-update add $2;
@@ -61,6 +67,7 @@ MHOST='$MHOST'
 MPATH='$MPATH'
 OSMIR='$OSMIR'
 OSREL='$OSREL'
+OSTYP='$OSTYP'
 SQCMD='$SQCMD'
 SQDNS='$SQDNS'
 TAREA='$TAREA'
@@ -187,22 +194,27 @@ sethost ()
     export AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     export MHOST="mail.$(echo $VHOST|sed 's/^mail\.//')"
 
+    export C_FPM="/etc/php/$V_PHP/fpm";
     # OS dependant overrides (maybe create a function)
-    if [[ -f /etc/alpine-release ]]; then
+    if [[ $OSTYP == alpine ]]; then
         export C_DNS='/etc/pdns'
         export C_FPM='/etc/php7/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
         export WUGID='nginx'
-    elif [[ -f /etc/pacman.conf ]]; then
+        ### TODO: add these for alpine
+        export OSMIR=''
+        export OSREL=''
+    elif [[ $OSTYP == manjaro ]]; then
         export C_DNS='/etc/powerdns'
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
         export WUGID='http'
-    else
-        export C_DNS='/etc/powerdns'
-        export C_FPM="/etc/php/$V_PHP/fpm";
-        export C_SQL='/etc/mysql'
-        export WUGID='www-data'
+        ### TODO: add these for manjaro
+        export OSMIR=''
+        export OSREL=''
+    elif [[ $OSTYP == debian ]]; then
+        export OSMIR='ftp.debian.org'
+        export OSREL='buster'
     fi
 
     export DUSER=$UUSER;
@@ -242,23 +254,27 @@ updhost ()
     export IP4_0=${4:-$IP4_0}
     export V_PHP=${5:-$V_PHP}
     export LROOT="/usr/local/lsws"
+    export OSTYP=$OSTYP
+    export C_FPM="/etc/php/$V_PHP/fpm";
 
     # OS dependant overrides
-    if [[ -f /etc/alpine-release ]]; then
+    if [[ $OSTYP == alpine ]]; then
         export C_DNS='/etc/pdns'
         export C_FPM='/etc/php7/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
         export WUGID='nginx'
-    elif [[ -f /etc/pacman.conf ]]; then
+        export OSMIR=''
+        export OSREL=''
+    elif [[ $OSTYP == manjaro ]]; then
         export C_DNS='/etc/powerdns'
         export C_FPM='/etc/php/php-fpm.d'
         export C_SQL='/etc/my.cnf.d'
         export WUGID='http'
-    else
-        export C_DNS='/etc/powerdns'
-        export C_FPM="/etc/php/$V_PHP/fpm";
-        export C_SQL='/etc/mysql'
-        export WUGID='www-data'
+        export OSMIR=''
+        export OSREL=''
+    elif [[ $OSTYP == debian ]]; then
+        export OSMIR='ftp.debian.org'
+        export OSREL='buster'
     fi
 
     if [[ $DTYPE == mysql ]]; then
