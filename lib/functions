@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20210412
+# .sh/lib/functions 20151231 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -175,13 +175,14 @@ sethost ()
 
     # OS dependant overrides (maybe create a function)
     if [[ $OSTYP == alpine ]]; then
+        V_PHP='8';
         C_DNS='/etc/pdns'
-        C_FPM='/etc/php7/php-fpm.d'
+        C_DNS='/etc/pdns';
+        C_FPM="/etc/php$V_PHP/php-fpm.d"
         C_SQL='/etc/my.cnf.d'
+        OSMIR='nl.alpinelinux.org'
+        OSREL='edge'
         WUGID='nginx'
-        ### TODO: add these for alpine
-        OSMIR=''
-        OSREL=''
     elif [[ $OSTYP == manjaro ]]; then
         C_DNS='/etc/powerdns'
         C_FPM='/etc/php/php-fpm.d'
