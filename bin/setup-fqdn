@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20210409
+# .sh/bin/setup-fqdn 20210327 - 20210413
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -301,6 +301,7 @@ fi
 
 if [[ "$DIGIP" != "$IP4_0" ]]; then
     cat << EOS
+
 Warning: you need to set up DNS records for $MHOST (example)
 
 $HDOMN  300     IN      A       $IP4_0
@@ -308,5 +309,6 @@ $HDOMN  300     IN      MX      10 $MHOST.
 $MHOST  300     IN      A       $IP4_0
 $HDOMN  300     IN      TXT     "v=spf1 ip4:$IP4_0/32 -all"
 $HDOMN  300     IN      CAA     0 issue "letsencrypt.org"
+
 EOS
 fi

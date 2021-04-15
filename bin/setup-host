@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210409
+# .sh/bin/setup-host 20170524 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -24,15 +24,30 @@ if [[ $OSTYP == alpine ]]; then
 
     echo "### Install Alpine base packages"
 
+    OSMIR=nl.alpinelinux.org
+    OSREL=edge
+    V_PHP=8
+
     ALIST="bash bc busybox-static ca-certificates curl db dovecot
 dovecot-lmtpd dovecot-sqlite ebtables fcgiwrap gawk git iputils jq msmtp
-msmtp mtr nano nginx opendkim opendkim-utils pdns php8 php8-curl
-php8-fpm php8-gd php8-imap php8-opcache php8-pdo php8-pdo_sqlite
-php8-pecl-redis php8-posix php8-session php8-simplexml postfix
-postfix-pcre postfix-policyd-spf-perl postfix-sqlite pwgen redis rsync
-s-nail sqlite sudo wget which whois"
+msmtp mtr nano nginx opendkim opendkim-utils pdns php$V_PHP
+php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-imap
+php$V_PHP-opcache php$V_PHP-pdo php$V_PHP-pdo_sqlite
+php$V_PHP-pecl-redis php$V_PHP-posix php$V_PHP-session
+php$V_PHP-simplexml postfix postfix-pcre postfix-policyd-spf-perl
+postfix-sqlite pwgen redis rsync s-nail sqlite sudo wget which whois"
 
     MLIST="mariadb mariadb-client"
+
+    if [[ ! -f /etc/apk/repositories.orig ]]; then
+        echo "### Update /etc/apk/repositories with $OSREL"
+        mv /etc/apk/repositories /etc/apk/repositories.orig
+        cat << EOS > /etc/apk/repositories
+https://$OSMIR/alpine/$OSREL/main
+https://$OSMIR/alpine/$OSREL/testing
+https://$OSMIR/alpine/$OSREL/community
+EOS
+    fi
 
     apk update && apk upgrade
     apk add $ALIST
