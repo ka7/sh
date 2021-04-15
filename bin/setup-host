@@ -47,11 +47,16 @@ https://$OSMIR/alpine/$OSREL/main
 https://$OSMIR/alpine/$OSREL/testing
 https://$OSMIR/alpine/$OSREL/community
 EOS
-    fi
+        apk update && apk upgrade
+        apk add $ALIST
 
-    apk update && apk upgrade
-    apk add $ALIST
-    [[ $DTYPE == mysql ]] && apk add $MLIST
+        if [[ $DTYPE == mysql ]]; then
+            echo "### Install mariabdb packages"
+            apk add $MLIST
+            /etc/init.d/mariadb setup
+            rc-service mariadb start
+        fi
+    fi
 
 elif [[ -f /etc/pacman.conf ]]; then
 
