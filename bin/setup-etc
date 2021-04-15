@@ -166,17 +166,15 @@ fi
 
 ### php
 
-[[ $OSTYP == alpine ]] && __FPM="/etc/php$V_PHP" || __FPM=$C_FPM
-
-if [[ ! -f $__FPM/common.conf ]]; then
-    echo "### Create $__FPM/common.conf"
-    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $__FPM/common.conf
+if [[ ! -f $C_FPM/common.conf ]]; then
+    echo "### Create $C_FPM/common.conf"
+    cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
 fi
 
-if [[ ! -f $__FPM/php.ini.orig ]]; then
-    echo "### Modify $__FPM/php.ini"
-    cp $T_FPM/php.ini $__FPM/php.ini.orig
-    sed -i $__FPM/php.ini \
+if [[ ! -f $C_FPM/php.ini.orig ]]; then
+    echo "### Modify $C_FPM/php.ini"
+    cp $T_FPM/php.ini $C_FPM/php.ini.orig
+    sed -i $C_FPM/php.ini \
         -e 's/;opcache.enable=1/opcache.enable=1/' \
         -e 's/;opcache.enable_cli=0/opcache.enable_cli=1/' \
         -e 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=8/' \

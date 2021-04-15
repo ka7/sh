@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20210406
+# .sh/bin/addvhost 20170217 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: move anything to do with hosting plans into another script
@@ -98,7 +98,7 @@ EOS
 
 if [[ -d $C_FPM ]]; then
     if [[ $OSTYP == alpine ]]; then
-        _POOL=$C_FPM
+        _POOL=$C_FPM/php-fpm.d
     else
         _POOL=$C_FPM/pool.d
     fi

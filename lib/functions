@@ -180,7 +180,7 @@ sethost ()
         V_PHP='8';
         C_DNS='/etc/pdns'
         C_DNS='/etc/pdns';
-        C_FPM="/etc/php$V_PHP/php-fpm.d"
+        C_FPM="/etc/php$V_PHP"
         C_SQL='/etc/my.cnf.d'
         OSMIR='nl.alpinelinux.org'
         OSREL='edge'
