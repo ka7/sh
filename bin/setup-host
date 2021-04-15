@@ -32,12 +32,12 @@ if [[ $OSTYP == alpine ]]; then
 dovecot-lmtpd dovecot-sqlite ebtables fcgiwrap gawk git iputils jq msmtp
 msmtp mtr nano nginx opendkim opendkim-utils pdns php$V_PHP
 php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-imap
-php$V_PHP-opcache php$V_PHP-pdo php$V_PHP-pdo_sqlite
-php$V_PHP-pecl-redis php$V_PHP-posix php$V_PHP-session
+php$V_PHP-opcache php$V_PHP-pdo php$V_PHP-pdo_sqlite php$V_PHP-zip
+php$V_PHP-pecl-redis php$V_PHP-posix php$V_PHP-session php$V_PHP-phar
 php$V_PHP-simplexml postfix postfix-pcre postfix-policyd-spf-perl
 postfix-sqlite pwgen redis rsync s-nail sqlite sudo wget which whois"
 
-    MLIST="mariadb mariadb-client"
+    MLIST="mariadb mariadb-client php$V_PHP-pdo_mysql"
 
     if [[ ! -f /etc/apk/repositories.orig ]]; then
         echo "### Update /etc/apk/repositories with $OSREL"
