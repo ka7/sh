@@ -140,7 +140,6 @@ sethost ()
         else
             [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000;
         fi;
-        U_UID;
     else
         VHOST=$1;
         U_UID=$(newuid);
