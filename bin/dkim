@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/dkim 20170201 - 20210112
+# .sh/bin/dkim 20170201 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && \
@@ -15,8 +15,8 @@ if [[ ! -d /etc/opendkim ]]; then
     touch /etc/opendkim/SigningTable
     echo -e "127.0.0.1\nlocalhost\n" > /etc/opendkim/TrustedHosts
     chown opendkim:opendkim -R /etc/opendkim
-    # mv into /etc/opendkim for Alpine
     chown opendkim:opendkim /etc/opendkim.conf
+    [[ $OSTYP == alpine ]] && mv /etc/opendkim.conf /etc/opendkim
     find /etc/opendkim -type d -exec chmod 700 {} +
     find /etc/opendkim -type f -exec chmod 600 {} +
 fi
@@ -41,17 +41,13 @@ add)
         mv "/tmp/$SELECT.private" "$KFILES"
         sed -i "s/ ; ----- DKIM key $SELECT for $DOMAIN//g" "$DNSTXT"
         chown $WUGID: /etc/opendkim/dnstxt/*
-        chown opendkim: "$KFILES"
+        chown opendkim:opendkim "$KFILES"
         chmod 600 "$KFILES"
         echo "$ID     $DOMAIN:$SELECT:$KFILES" >> /etc/opendkim/KeyTable
         echo "*@$DOMAIN       $ID" >> /etc/opendkim/SigningTable
         echo "$DOMAIN" >> /etc/opendkim/TrustedHosts
         echo "*.$DOMAIN" >> /etc/opendkim/TrustedHosts
-        if [[ -f /etc/alpine-release ]]; then
-            rc-service opendkim restart
-        else
-            systemctl reload opendkim
-        fi
+        sc restart opendkim
         echo "Added DKIM keys for $DOMAIN using a selector of '$SELECT' and a key length of $KEYLEN"
     fi
     ;;
@@ -64,11 +60,7 @@ del)
         sed -i "/$DELID/d" /etc/opendkim/KeyTable 2> /dev/null
         sed -i "/$DELID/d" /etc/opendkim/SigningTable 2> /dev/null
         sed -i "/${DOMAIN}$/d" /etc/opendkim/TrustedHosts 2> /dev/null
-        if [[ -f /etc/alpine-release ]]; then
-            rc-service opendkim restart
-        else
-            systemctl reload opendkim
-        fi
+        sc restart opendkim
         echo "Removed DKIM key for $DOMAIN"
     fi
     ;;
@@ -90,5 +82,3 @@ show)
     fi
     ;;
 esac
-
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

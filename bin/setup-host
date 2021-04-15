@@ -28,10 +28,10 @@ if [[ $OSTYP == alpine ]]; then
     OSREL=edge
     V_PHP=8
 
-    # Missing OpenDMARC
-    ALIST="bash bc bind-tools busybox-static ca-certificates curl db
-dovecot dovecot-lmtpd dovecot-pigeonhole-plugin dovecot-sqlite ebtables
-fcgiwrap gawk git iputils jq msmtp msmtp mtr nano nginx opendkim
+    # Missing OpenDMARC and SpamProbe
+    ALIST="bash bc bind-tools bogofilter busybox-static ca-certificates
+curl db dovecot dovecot-lmtpd dovecot-pigeonhole-plugin dovecot-sqlite
+ebtables fcgiwrap gawk git iputils jq msmtp msmtp mtr nano nginx opendkim
 opendkim-utils pdns pdns-backend-sqlite3 php$V_PHP php$V_PHP-curl
 php$V_PHP-fpm php$V_PHP-gd php$V_PHP-imap php$V_PHP-opcache
 php$V_PHP-pdo php$V_PHP-pdo_sqlite php$V_PHP-pecl-redis php$V_PHP-phar
@@ -40,7 +40,7 @@ postfix postfix-pcre postfix-policyd-spf-perl postfix-sqlite pwgen redis
 rsync s-nail shadow sqlite sudo wget which whois"
 
     MLIST="dovecot-mysql mariadb mariadb-client pdns-backend-mysql
-php$V_PHP-pdo_mysql"
+php$V_PHP-pdo_mysql postfix-mysql"
 
     if [[ ! -f /etc/apk/repositories.orig ]]; then
         echo "### Update /etc/apk/repositories with $OSREL"

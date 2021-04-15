@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/serva 20170417 - 20210409
+# .sh/bin/serva 20170417 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 == '-h' ]] && \
@@ -47,20 +47,23 @@ serva_dns()
 
 serva_php()
 {
-    if [[ $OSTYP == alpine ]]; then
-        echo "Alpine TODO"
-    else
-        if [[ -f /usr/sbin/php-fpm$V_PHP ]]; then
-            [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && \
-                $SUDO systemctl $1 php$V_PHP-fpm
-        fi
-    fi
+    # WIP this may work now
+    sc $1 php-fpm$V_PHP
+
+#    if [[ $OSTYP == alpine ]]; then
+#        sc restart php-fpm$V_PHP
+#    else
+#        if [[ -f /usr/sbin/php-fpm$V_PHP ]]; then
+#            [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && \
+#                $SUDO systemctl $1 php$V_PHP-fpm
+#        fi
+#    fi
 }
 
 serva_nginx()
 {
     if [[ $OSTYP == alpine ]]; then
-        echo "Alpine TODO"
+        sc $1 nginx
     else
         if [[ -f /usr/sbin/nginx ]]; then
             [[ $($SUDO /usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && \
@@ -73,8 +76,8 @@ if [[ $2 == all ]]; then
     serva_nginx $1
     serva_php $1
     serva_mail $1
-    systemctl $1 opendkim
-    systemctl $1 opendmarc
+    sc $1 opendkim
+    sc $1 opendmarc
 #    serva_dns $1
 elif [[ $2 == dns ]]; then
     serva_dns $1

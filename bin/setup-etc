@@ -127,6 +127,8 @@ if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     echo "### Create $C_WEB/nginx.conf"
     mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
+    [[ $OSTYP != ubuntu ]] && \
+        sed -i $C_WEB/nginx.conf -e "s/www-data/$WUGID/"
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
