@@ -97,11 +97,10 @@ EOS
 )
 
 if [[ -d $C_FPM ]]; then
-    if [[ $OSTYP == alpine ]]; then
-        _POOL=$C_FPM/php-fpm.d
-    else
-        _POOL=$C_FPM/pool.d
-    fi
+
+    _POOL=$C_FPM/pool.d
+    [[ $OSTYP == alpine ]] && _POOL=$C_FPM/php-fpm.d
+
     if [ -f $_POOL/$VHOST.conf ]; then
         echo "### $_POOL/$VHOST.conf already exists"
     else
