@@ -40,9 +40,10 @@ add)
         mv "/tmp/$SELECT.txt" "$DNSTXT"
         mv "/tmp/$SELECT.private" "$KFILES"
         sed -i "s/ ; ----- DKIM key $SELECT for $DOMAIN//g" "$DNSTXT"
-        chown $WUGID: /etc/opendkim/dnstxt/*
-        chown opendkim:opendkim "$KFILES"
-        chmod 600 "$KFILES"
+# This may need to be adjusted for HCP access
+#        chown $WUGID:opendkim /etc/opendkim/dnstxt/*
+        chown opendkim:opendkim "$KFILES" "$DNSTXT"
+        chmod 600 "$KFILES" "$DNSTXT"
         echo "$ID     $DOMAIN:$SELECT:$KFILES" >> /etc/opendkim/KeyTable
         echo "*@$DOMAIN       $ID" >> /etc/opendkim/SigningTable
         echo "$DOMAIN" >> /etc/opendkim/TrustedHosts
