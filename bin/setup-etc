@@ -173,7 +173,7 @@ fi
 
 if [[ ! -f $C_FPM/php.ini.orig ]]; then
     echo "### Modify $C_FPM/php.ini"
-    cp $T_FPM/php.ini $C_FPM/php.ini.orig
+    cp $C_FPM/php.ini $C_FPM/php.ini.orig
     sed -i $C_FPM/php.ini \
         -e 's/;opcache.enable=1/opcache.enable=1/' \
         -e 's/;opcache.enable_cli=0/opcache.enable_cli=1/' \
