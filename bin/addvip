@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20210406
+# .sh/bin/addvip 20190602 - 20210415
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain vip [mxhost]" && exit 1
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+. ~/.shrc || exit 3
+
 VHOST=$1
-IP4_0=$2
-MHOST=${3:-"mail.$VHOST"}
-M_OUT=$(echo $VHOST|sed 's/\./-/g')
-CSMTP="/etc/postfix"
-CIMAP="/etc/dovecot"
+IP4_0=${2:-$IP4_0}
+_MOUT=$(echo $VHOST|sed 's/\./-/g')
 
 # Postfix
 
@@ -78,10 +77,10 @@ $IP4_0:25 inet n -       n       -       1         postscreen
 smtpd_$IP4_0 pass - -    n       -       -         smtpd
     -o syslog_name=$IP4_0
     -o smtp_bind_address=$IP4_0
-    -o smtp_helo_name=$MHOST
-    -o mail_name=$MHOST
-    -o myorigin=$MHOST
-    -o myhostname=$MHOST
+    -o smtp_helo_name=$VHOST
+    -o mail_name=$VHOST
+    -o myorigin=$VHOST
+    -o myhostname=$VHOST
     -o smtpd_tls_cert_file=/etc/ssl/$VHOST/fullchain.pem
     -o smtpd_tls_key_file=/etc/ssl/$VHOST/privkey.pem
 
@@ -91,14 +90,14 @@ $IP4_0:465 inet n -      n       -       -         smtpd
     -o smtpd_tls_wrappermode=yes
     -o smtpd_sasl_auth_enable=yes
     -o smtpd_reject_unlisted_recipient=no
-    -o smtp_helo_name=$MHOST
-    -o mail_name=$MHOST
-    -o myorigin=$MHOST
-    -o myhostname=$MHOST
+    -o smtp_helo_name=$VHOST
+    -o mail_name=$VHOST
+    -o myorigin=$VHOST
+    -o myhostname=$VHOST
     -o smtpd_tls_cert_file=/etc/ssl/$VHOST/fullchain.pem
     -o smtpd_tls_key_file=/etc/ssl/$VHOST/privkey.pem
 
-$M_OUT-out unix - -      n       -       -         smtp
+$_MOUT-out unix - -      n       -       -         smtp
     -o syslog_name=$IP4_0
     -o smtp_bind_address=$IP4_0
 
@@ -106,13 +105,12 @@ EOS
     [[ ! -f $CSMTP/sender_transport ]] && touch $CSMTP/sender_transport
     grep -q "^@$VHOST" $CSMTP/sender_transport
     if [[ $? -ne 0 ]]; then
-        echo "@$VHOST    $M_OUT-out:" >> $CSMTP/sender_transport
+        echo "@$VHOST    $_MOUT-out:" >> $CSMTP/sender_transport
         postmap lmdb:$CSMTP/sender_transport
     fi
     mv $CSMTP/master.cf $CSMTP/master.cf.bkp
     cat $CSMTP/vhosts/* > $CSMTP/master.cf
     chmod 600 $CSMTP/vhosts/$VHOST
-#    systemctl restart postfix
     echo "### Create $CSMTP/vhosts/$VHOST"
 fi
 
