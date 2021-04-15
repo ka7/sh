@@ -173,6 +173,8 @@ sethost ()
     V_PHP='7.4';
     WUGID='www-data';
 
+    C_FPM="/etc/php/$V_PHP/fpm";
+
     # OS dependant overrides (maybe create a function)
     if [[ $OSTYP == alpine ]]; then
         V_PHP='8';
@@ -238,7 +240,6 @@ sethost ()
     AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     MHOST="mail.$(echo $VHOST|sed 's/^mail\.//')"
 
-    C_FPM="/etc/php/$V_PHP/fpm";
     DUSER=$UUSER;
     MPATH=$VPATH/$VHOST/home;
     UPATH=$VPATH/$VHOST;
