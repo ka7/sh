@@ -1,5 +1,5 @@
-# .sh/_help 20130212 - 20190630
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/_help 20130212 - 20210416
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 cat << EOS
 ## How to set up a small 512MB swapfile as /swapfile
@@ -68,6 +68,7 @@ ll ...... Long Listing
 ls ...... Short form List
 se ...... Sudo Edit text files as root
 sn ...... Show Notes created with "n"
+wt ...... Show simple website page load speed
 env ..... Show Environmental global variables
 alias ... To show all current Aliases
 EOS

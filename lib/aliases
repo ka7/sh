@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20210316
+# .sh/lib/aliases 20151231 - 20210416
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $(type -t sc) == alias ]] && unalias sc
@@ -22,6 +22,7 @@ alias ls='LC_COLLATE=C ls -F --group-directories-first --color'
 alias lx='lxc list'
 alias se='sudo nano -t -x -c'
 alias sn='[ -f ~/.note ] && cat ~/.note'
+alias wt="curl -s -w '%{time_total}\n' -o /dev/null"
 alias ram='ps -eo rss:10,vsz:10,cmd --sort=rss'
 alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
