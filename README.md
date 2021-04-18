@@ -9,8 +9,9 @@ which also provides a foundation for the [NetServa HCP] PHP web interface.
 Currently tested on (WIP):
 
 - Ubuntu Focal (20.04) # Manually upgrade to hirsute (21.04) if needed
-- Manjaro Testing
-- Alpine Edge
+- Manjaro Testing      # Partly done
+- Alpine Edge          # Almost done
+- Debian Buster        # TODO
 
 ## Usage
 
@@ -27,9 +28,12 @@ Github first...
 and if nothing is returned then manually update the package list and make
 sure these very basic packages are available...
 
+    # Ubuntu and Debian example
     sudo apt -y update
     sudo apt -y full-upgrade
     sudo apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
+
+    # TODO: add Manjaro and Alpine examples
 
 To install this project manually, copy and paste these 3 lines below...
 
