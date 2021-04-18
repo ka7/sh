@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20210415
+# .sh/lib/functions 20151231 - 20210418
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -230,11 +230,11 @@ sethost ()
     fi;
 
     # was pwgen -sB 16 1
-    APASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16); sleep 0.1;
-    DPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16); sleep 0.1;
-    EPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16); sleep 0.1;
-    UPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16); sleep 0.1;
-    WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16); sleep 0.1;
+    APASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    DPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    EPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    UPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
+    WPASS=$(head /dev/urandom|tr -dc A-Za-z0-9|head -c16);
 
     AHOST=$(hostname -f|tr 'A-Z' 'a-z')
     MHOST="mail.$(echo $VHOST|sed 's/^mail\.//')"
