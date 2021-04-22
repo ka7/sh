@@ -6,7 +6,7 @@
 // This simple PHP script prints out a list of bulk prices starting from
 // the initial price ($fee) and then decreases the next items price by the
 // nominated percentage ($pct). The percentage decrease is applied to the
-// per item price of the previous item. The feeber of prices printed out is
+// per item price of the previous item. The number of prices printed out is
 // set by the 3rd arg or $end which is 50 items by default.
 
 (isset($argv[1]) && $argv[1] == '-h') && die("Usage: pct% startfee num_items\n");
