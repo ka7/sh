@@ -15,7 +15,8 @@ $pct = $argv[1] ?? 50; // decrease per item fee by this percentage
 $fee = $argv[2] ?? 20; // set the starting fee
 $end = $argv[3] ?? 50; // number of items to print
 
-printf("%4s\t%4s\t%9s\n", "Num", "Price", "Unit Cost");
+printf("%4s   %4s  %8s\n", "Num", "Price", "PerItem");
+echo "----------------------\n";
 foreach (range(1, $end) as $key) {
     printf("%4d\t%4d\t%6.2f\n", $key, $fee, round($fee/$key,2));
     $fee = round($fee + ($fee / $key) - ((($fee / $key) / 100) * $pct));
