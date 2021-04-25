@@ -62,8 +62,8 @@ serva_php()
 serva_nginx()
 {
     if [[ -f /usr/sbin/nginx ]]; then
-        [[ $($SUDO /usr/sbin/nginx -t > /dev/null 2>&1) -eq 0 ]] && \
-            sc $1 nginx
+        $SUDO /usr/sbin/nginx -t > /dev/null 2>&1
+        [[ $? -eq 0 ]] && sc $1 nginx
     fi
 }
 
@@ -72,7 +72,7 @@ if [[ $2 == all ]]; then
     serva_php $1
     serva_mail $1
     sc $1 opendkim
-    [[ $OSTYP != alpine ]] && sc $1 opendmarc
+    [[ $OSTYP != alpine ]] && sc $1 opendmarc # not available for Alpine
 #    serva_dns $1
 elif [[ $2 == dns ]]; then
     serva_dns $1
