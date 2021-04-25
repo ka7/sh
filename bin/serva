@@ -49,6 +49,7 @@ serva_dns()
 serva_php()
 {
     local _BFPM="php-fpm$V_PHP" _SFPM="php$V_PHP-fpm"
+    [[ $OSTYP == alpine ]] && _SFPM=$_BFPM
     if [[ -f /usr/sbin/$_BFPM ]]; then
         $SUDO /usr/sbin/$_BFPM -t > /dev/null 2>&1
         [[ $? -eq 0 ]] && sc $1 $_SFPM && echo "$1 $_SFPM"
