@@ -65,5 +65,5 @@ elif [[ $2 == mail ]]; then
 elif [[ $2 == nginx ]]; then
     serva_nginx $1
 else
-    echo "Warning: unknown action '$1'"
+    echo "Warning: unknown service '$2'"
 fi
