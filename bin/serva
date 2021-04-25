@@ -52,7 +52,7 @@ serva_php()
     elif [[ $OSTYP == ubuntu ]]; then
         if [[ -f /usr/sbin/php-fpm$V_PHP ]]; then
             $SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1
-            [[ $? -eq 0 ]] && sc $1 php$V_PHP-fpm
+            [[ $? -eq 0 ]] && sc $1 php$V_PHP-fpm && echo "Restarted php$V_PHP-fpm"
         fi
     else
         echo "Warning: restarting PHP needs to be checked for debian and manjaro"
@@ -63,7 +63,7 @@ serva_nginx()
 {
     if [[ -f /usr/sbin/nginx ]]; then
         $SUDO /usr/sbin/nginx -t > /dev/null 2>&1
-        [[ $? -eq 0 ]] && sc $1 nginx
+        [[ $? -eq 0 ]] && sc $1 nginx && echo "Restarted nginx"
     fi
 }
 
