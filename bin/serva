@@ -51,8 +51,8 @@ serva_php()
         sc $1 php-fpm$V_PHP
     elif [[ $OSTYP == ubuntu ]]; then
         if [[ -f /usr/sbin/php-fpm$V_PHP ]]; then
-            [[ $($SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1) -eq 0 ]] && \
-                sc $1 php$V_PHP-fpm
+            $SUDO /usr/sbin/php-fpm$V_PHP -t > /dev/null 2>&1
+            [[ $? -eq 0 ]] && sc $1 php$V_PHP-fpm
         fi
     else
         echo "Warning: restarting PHP needs to be checked for debian and manjaro"
