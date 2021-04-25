@@ -22,8 +22,8 @@ serva_mail()
 
 serva_dns()
 {
-    [[ -f /usr/sbin/pdns_server ]] && sc $1 pdns
-    [[ -f /usr/sbin/pdns_recursor ]] && sc $1 pdns-recursor
+    [[ -f /usr/sbin/pdns_server ]] && sc $1 pdns && echo "$1 pdns"
+    [[ -f /usr/sbin/pdns_recursor ]] && sc $1 pdns-recursor && echo "$1 pdns-recursor"
 }
 
 # TODO: PHP needs to be checked for Debian and Manjaro
