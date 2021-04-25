@@ -5,44 +5,25 @@
 [[ -z $2 || $1 == '-h' ]] && \
     echo "Usage: serva start|stop|restart|reload all|dns|mail|web|php|nginx" && exit 1
 
-source ~/.shrc || exit 2
+. ~/.shrc || exit 2
 
 serva_mail()
 {
-    if [[ $OSTYP == alpine ]]; then
-        if [[ -f /usr/sbin/postfix ]]; then
-            [[ $($SUDO /usr/sbin/postfix check) -eq 0 ]] && $SUDO rc-service postfix $1
-        fi
-        if [[ -f /usr/bin/doveconf ]]; then
-            [[ $($SUDO /usr/bin/doveconf check) -eq 0 ]] && $SUDO rc-service dovecot $1
-        fi
-    else
-        if [[ -f /usr/sbin/postfix ]]; then
-            [[ $($SUDO /usr/sbin/postfix check) -eq 0 ]] && $SUDO systemctl $1 postfix
-        fi
-        if [[ -f /usr/bin/doveconf ]]; then
-            [[ $($SUDO /usr/bin/doveconf check) -eq 0 ]] && $SUDO systemctl $1 dovecot
-        fi
+    if [[ -f /usr/sbin/postfix ]]; then
+        $SUDO /usr/sbin/postfix check
+        [[ $? -eq 0 ]] && sc $1 postfix && echo "$1 postfix"
+    fi
+
+    if [[ -f /usr/bin/doveconf ]]; then
+        $SUDO /usr/bin/doveconf check
+        [[ $? -eq 0 ]] && sc $1 dovecot && echo "$1 dovecot"
     fi
 }
 
 serva_dns()
 {
-    if [[ $OSTYP == alpine ]]; then
-        if [[ -f /usr/sbin/pdns_server ]]; then
-            $SUDO rc-service pdns $1
-        fi
-        if [[ -f /usr/sbin/pdns_recursor ]]; then
-            $SUDO rc-service pdns-recursor $1
-        fi
-    else
-        if [[ -f /usr/sbin/pdns_server ]]; then
-            $SUDO systemctl $1 pdns
-        fi
-        if [[ -f /usr/sbin/pdns_recursor ]]; then
-            $SUDO systemctl $1 pdns-recursor
-        fi
-    fi
+    [[ -f /usr/sbin/pdns_server ]] && sc $1 pdns
+    [[ -f /usr/sbin/pdns_recursor ]] && sc $1 pdns-recursor
 }
 
 # TODO: PHP needs to be checked for Debian and Manjaro
@@ -50,6 +31,7 @@ serva_php()
 {
     local _BFPM="php-fpm$V_PHP" _SFPM="php$V_PHP-fpm"
     [[ $OSTYP == alpine ]] && _SFPM=$_BFPM
+
     if [[ -f /usr/sbin/$_BFPM ]]; then
         $SUDO /usr/sbin/$_BFPM -t > /dev/null 2>&1
         [[ $? -eq 0 ]] && sc $1 $_SFPM && echo "$1 $_SFPM"
