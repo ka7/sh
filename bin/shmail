@@ -29,13 +29,13 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
         N2=$(find -type f|wc -l)
         cd - > /dev/null
         NTOTAL=$(($NTOTAL+$N2))
-        [[ $N1 -lt 5000 ]] && N1STR=" " || N1STR=$(printf "%'10.2fM" $(echo $N1/1000000|bc -l))
+        [[ $N1 -lt 5000 ]] && N1STR=" " || N1STR=$(printf "%'9.3fG" $(echo $N1/1000000|bc -l))
         [[ $N2 -eq 0 ]] && N2STR=" " || N2STR=$N2
         printf "%-40s %6s %11s\n" "$(echo $dir|cut -c 3-)" "$N2STR" "$N1STR"
     done
     STOTAL=$(du -s $MPATH/Maildir|cut -f1)
     echo "-----------------------------------------------------------"
-    printf "%-40s %6s %'10.2fG\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+    printf "%-40s %6s %'9.3fG\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
     echo "-----------------------------------------------------------"
 )
 
