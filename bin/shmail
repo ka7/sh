@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20210409
+# .sh/bin/shmail 20150529 - 20210505
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
@@ -35,7 +35,7 @@ find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
     done
     STOTAL=$(du -s $MPATH/Maildir|cut -f1)
     echo "-----------------------------------------------------------"
-    printf "%-40s %6s %'10.2fM\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
+    printf "%-40s %6s %'10.2fG\n" Total $NTOTAL $(echo $STOTAL/1000000|bc -l)
     echo "-----------------------------------------------------------"
 )
 
