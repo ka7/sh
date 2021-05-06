@@ -39,4 +39,6 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  mv spamprobe-new .spamprobe; \
  [[ DBG ]] && du -sh .spamprobe | cut -f1; \
  sleep 2; \
- rm -rf spamprobe-old spamprobe-bkp; done
+ rm -rf spamprobe-old spamprobe-bkp; \
+ sleep 1; \
+ done
