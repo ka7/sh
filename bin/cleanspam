@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/cleanspam 20190706 - 20201026
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/cleanspam 20190706 - 20210506
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: cleanspam [email] [-v]" && exit 1
 
@@ -40,5 +40,3 @@ find $TPATH -type d -name .spamprobe | while read i; do \
  [[ DBG ]] && du -sh .spamprobe | cut -f1; \
  sleep 2; \
  rm -rf spamprobe-old spamprobe-bkp; done
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
