@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# .sh/bin/chknewmail 20210522 - 20210522
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: chknewmail" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+du -sb /home/u/*/home/*/Maildir/new | sort -n | while read -r fsize fpath; do \
+  f_num=$(/bin/ls -l $fpath | wc -l); \
+  [[ $f_num -eq 1 ]] && continue; \
+  fdate=$(/bin/ls -l $fpath | head -2 | tail -1 | awk '{print $6"-"$7"-"$8}'); \
+  printf "%'10.3fG %5d  %12s  %s\n" $(echo $fsize/1048576|bc -l) $f_num "$fdate" $fpath; \
+done
