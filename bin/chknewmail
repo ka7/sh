@@ -8,7 +8,7 @@
 
 du -sb /home/u/*/home/*/Maildir/new | sort -n | while read -r fsize fpath; do \
   f_num=$(/bin/ls -l $fpath | grep -v ^total | wc -l); \
-  [[ $f_num -eq 1 ]] && continue; \
+  [[ $f_num -eq 0 ]] && continue; \
   fdate=$(/bin/ls -l $fpath | head -2 | tail -1 | awk '{print $6"-"$7"-"$8}'); \
   printf "%'10.3fG %5d  %12s  %s\n" $(echo $fsize/1048576|bc -l) $f_num "$fdate" $fpath; \
 done
