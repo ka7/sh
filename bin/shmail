@@ -31,7 +31,7 @@ if [[ $? -gt 0 ]]; then
 fi
 
 _MBOX=$(/bin/ls -d ${MPATH})
-_MNUM=$(echo $_MBOX|wc -l)
+_MNUM=$(echo $_MBOX|wc -w)
 
 if [[ $_MNUM -eq 1 ]]; then
     echo "Handle a single mailbox"
