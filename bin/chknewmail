@@ -16,7 +16,7 @@ if [[ $1 ]]; then
     else
         VHOST=$1
     fi
-    if [[ $(/bin/ls -l /home/u/$VHOST/home/$UUSER/Maildir > /dev/null 2>&1) ]]; then
+    if [[ $(/bin/ls -l /home/u/$VHOST/home/$UUSER/Maildir > /dev/null 2>&1) -gt 0 ]]; then
         echo "ERROR: /home/u/$VHOST/home/$UUSER/Maildir does not exist"
         exit 3
     fi
