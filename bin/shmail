@@ -68,10 +68,10 @@ if [[ $_MNUM -eq 1 ]]; then
     [ -d ${MPATH}/.spamprobe ] && du -h ${MPATH}/.spamprobe | awk '{printf "%-52s %6s\n", $2, $1}'
 
 else
-    du -sb ${_MBOX}|sort -n|while read -r _size _path; do \
+    du -s ${_MBOX}|sort -n|while read -r _size _path; do \
         _fnum=$(find $_path -type f|wc -l); \
         [[ $_fnum -eq 0 ]] && continue; \
         _mail=$(echo $_path|sed 's:/home/u/\(.*\)/home/\(.*\)/Maildir:\2@\1:'); \
-        printf "%-40s %8d %'8.3fM\n" $_mail $_fnum $(echo $_size/1048576|bc -l); \
+        printf "%-40s %8d %'8.3fM\n" $_mail $_fnum $(echo $_size/1000|bc -l); \
     done
 fi
