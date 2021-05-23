@@ -1,22 +1,45 @@
 #!/usr/bin/env bash
-# .sh/bin/shmail 20150529 - 20210506
+# .sh/bin/shmail 20150529 - 20210523
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+set -x
+#VHOST=${_ARG1#*@} # userid @ $VHOST
+#VUSER=${_ARG1%@*} # $VUSER @ domain
 
-[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail user@domain" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: shmail email@|domain" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-EMAIL=${1,,} # lowercase user@domain
-VHOST=${EMAIL#*@} # userid @ $VHOST
-VUSER=${EMAIL%@*} # $VUSER @ domain
+_ARG1=${1,,} # lowercase user@domain
 VPATH="/home/u"
-HPATH="$VPATH/$VHOST/home"
-MPATH="$HPATH/$VUSER"
+VUSER='*'
+VHOST='*'
 
-if [[ ! -d $MPATH/Maildir ]]; then
-    echo "Warning: Maildir directory does not exist: $MPATH/Maildir"
-    exit 3
+if [[ $1 =~ "@" ]]; then
+    VUSER="*${1%@*}*";
+    VHOST="*${1#*@}*";
+else
+    VHOST="*$1*"
 fi
+
+HPATH="$VPATH/$VHOST/home"
+MPATH="$HPATH/$VUSER/Maildir"
+
+#_MNUM=$(/bin/ls -ld $MPATH > /dev/null 2>&1)
+_MNUM=$(/bin/ls -ld $MPATH | wc -l)
+#if [[ $? -gt 0 ]]; then
+#    echo "ERROR: $MPATH does not exist"
+#    exit 3
+#fi
+
+if [[ $_NUMD -gt 0 ]]; then
+    echo "ERROR: $MPATH does not exist"
+elif [[ $_NUMD -eq 1 ]]; then
+    echo "Handle a single mailbox"
+else
+    echo "Handle multile mailboxes"
+fi
+
+exit
 
 cd $MPATH/Maildir
 
