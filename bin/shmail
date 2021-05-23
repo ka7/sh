@@ -70,4 +70,7 @@ if [[ $_MNUM -eq 1 ]]; then
 
 else
     echo "Handle multile mailboxes"
+    for i in $_MBOX; do \
+        du -sb $i \
+    done
 fi
