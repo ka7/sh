@@ -25,7 +25,7 @@ HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER/Maildir"
 
 #_MNUM=$(/bin/ls -ld $MPATH > /dev/null 2>&1)
-_MNUM=$(/bin/ls -ld $MPATH | wc -l) 2>/dev/null
+_MNUM=$(/bin/ls -ld $MPATH | wc -l 2>/dev/null)
 #if [[ $? -gt 0 ]]; then
 #    echo "ERROR: $MPATH does not exist"
 #    exit 3
