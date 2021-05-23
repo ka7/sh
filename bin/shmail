@@ -82,7 +82,7 @@ else
             _sstr=$(printf "%'6.3fM" $(echo $_size/1000|bc -l)); \
         else \
             _sstr=$(printf "%'6.3fG" $(echo $_size/1000000|bc -l)); \
-        fi \
+        fi; \
         printf "%-42s %8d %s\n" $_mail $_fnum $_sstr; \
     done
 fi
