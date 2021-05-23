@@ -16,7 +16,7 @@ VHOST='*'
 
 if [[ $1 =~ "@" ]]; then
     VUSER="*${1%@*}*";
-    VHOST="*${1#*@}*";
+    VHOST="${1#*@}*";
 else
     VHOST="*$1*"
 fi
