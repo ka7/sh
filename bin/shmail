@@ -47,14 +47,14 @@ if [[ $_MNUM -eq 1 ]]; then
             if [[ $N1 -lt 5 ]]; then
                 N1STR=" "
             elif [[ $N1 -lt 1000 ]]; then
-                N1STR="${N1}K"
+                N1STR=$(printf "%'3.3fK" ${N1})
             elif [[ $N1 -lt 1000000 ]]; then
-                N1STR="${N1}M"
+                N1STR=$(printf "%'3.3fM" $(echo $N1/1000|bc -l))
             else
-                N1STR=$(printf "%'6.3fG" $(echo $N1/1000000|bc -l))
+                N1STR=$(printf "%'3.3fG" $(echo $N1/1000000|bc -l))
             fi
             [[ $N2 -eq 0 ]] && N2STR=" " || N2STR=$N2
-            printf "%-42s %8s %10s\n" "$(echo $dir|cut -c 3-)" "$N2STR" "$N1STR"
+            printf "%-42s-%8s-%10s-\n" "$(echo $dir|cut -c 3-)" "$N2STR" "$N1STR"
         done
         STOTAL=$(du -s ${MPATH}|cut -f1)
         echo "-----------------------------------------------------------"
