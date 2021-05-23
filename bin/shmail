@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .sh/bin/shmail 20150529 - 20210523
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
-set -x
+
 #VHOST=${_ARG1#*@} # userid @ $VHOST
 #VUSER=${_ARG1%@*} # $VUSER @ domain
 
@@ -34,7 +34,6 @@ _MBOX=$(/bin/ls -d ${MPATH}/Maildir)
 _MNUM=$(echo $_MBOX|wc -w)
 
 if [[ $_MNUM -eq 1 ]]; then
-    echo "Handle a single mailbox"
     cd ${MPATH}/Maildir
     find -maxdepth 2 -type d -name "new" -o -name "cur"|sort -f|xargs -0| (
         while read dir; do
@@ -69,18 +68,10 @@ if [[ $_MNUM -eq 1 ]]; then
     [ -d ${MPATH}/.spamprobe ] && du -h ${MPATH}/.spamprobe | awk '{printf "%-52s %6s\n", $2, $1}'
 
 else
-    echo "Handle multile mailboxes"
     du -sb ${_MBOX}|sort -n|while read -r _size _path; do \
         _fnum=$(find $_path -type f|wc -l); \
         [[ $_fnum -eq 0 ]] && continue; \
         _mail=$(echo $_path|sed 's:/home/u/\(.*\)/home/\(.*\)/Maildir:\2@\1:'); \
         printf "%-40s %8d %'8.3fM\n" $_mail $_fnum $(echo $_size/1048576|bc -l); \
     done
-
-
-#    for i in $_MBOX; do \
-#        _NUMF=$(find $i -type f|wc -l)
-#        _SIZE=$()
-#        du -sb $i; \
-#    done
 fi
