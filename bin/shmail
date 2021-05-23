@@ -24,16 +24,15 @@ fi
 HPATH="$VPATH/$VHOST/home"
 MPATH="$HPATH/$VUSER/Maildir"
 
-#_MNUM=$(/bin/ls -ld $MPATH > /dev/null 2>&1)
-_MNUM=$(/bin/ls -ld $MPATH | wc -l 2>/dev/null)
-#if [[ $? -gt 0 ]]; then
-#    echo "ERROR: $MPATH does not exist"
-#    exit 3
-#fi
-
-if [[ $_MNUM -gt 0 ]]; then
+/bin/ls -d $MPATH
+if [[ $? -gt 0 ]]; then
     echo "ERROR: $MPATH does not exist"
-elif [[ $_MNUM -eq 1 ]]; then
+    exit 3
+fi
+
+_MNUM=$(/bin/ls -d $MPATH | wc -l)
+
+if [[ $_MNUM -eq 1 ]]; then
     echo "Handle a single mailbox"
 else
     echo "Handle multile mailboxes"
