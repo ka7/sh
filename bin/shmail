@@ -74,7 +74,7 @@ if [[ $_MNUM -eq 1 ]]; then
     else
         find -L . -xtype l
     fi
-    [ -d ${MPATH}/.spamprobe ] && du -h ${MPATH}/.spamprobe | awk '{printf "%-52s %6s\n", $2, $1}'
+    [ -d ${MPATH}/.spamprobe ] && du -h ${MPATH}/.spamprobe | awk '{printf "%-55s %7s\n", $2, $1}'
 
 else
     du -s ${_MBOX}|sort -n|while read -r _size _path; do \
