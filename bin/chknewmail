@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
-# .sh/bin/chknewmail 20210522 - 20210522
+# .sh/bin/chknewmail 20210522 - 20210523
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && echo "Usage: chknewmail" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: chknewmail [email|domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-du -sb /home/u/*/home/*/Maildir/new | sort -n | while read -r fsize fpath; do \
+UUSER='*'
+VHOST='*'
+
+if [[ $1 ]]; then
+    if [[ $1 =~ "@" ]]; then
+        UUSER=${1%@*};
+        VHOST=${1#*@};
+    else
+        VHOST=$1
+    fi
+    if [[ ! -d /home/u/$VHOST/home/$UUSER/Maildir/new ]]; then
+        echo "ERROR: /home/u/$VHOST/home/$UUSER/Maildir/new does not exist"
+        exit 3
+    fi
+fi
+
+du -sb /home/u/$VHOST/home/$UUSER/Maildir/new | sort -n | while read -r fsize fpath; do \
   f_num=$(/bin/ls -l $fpath | grep -v ^total | wc -l); \
   [[ $f_num -eq 0 ]] && continue; \
   fdate=$(/bin/ls -l $fpath | head -2 | tail -1 | awk '{print $6"-"$7"-"$8}'); \
