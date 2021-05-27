@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210415
+# .sh/bin/setup-host 20170524 - 20210527
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -10,15 +10,17 @@
 VHOST=${1:-$VHOST}
 DTYPE=${2:-$DTYPE}
 
-if [[ -f ~/.shrc ]]; then
-    . ~/.shrc
-else
-    if [[ -f /etc/os-release ]]; then
-        OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
-    else
-        OSTYP=unknown
-    fi
-fi
+[[ -f ~/.shrc ]] && . ~/.shrc
+
+#if [[ -f ~/.shrc ]]; then
+#    . ~/.shrc
+#else
+#    if [[ -f /etc/os-release ]]; then
+#        OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
+#    else
+#        OSTYP=unknown
+#    fi
+#fi
 
 if [[ $OSTYP == alpine ]]; then
 
@@ -87,13 +89,8 @@ elif [[ -f /etc/apt/sources.list ]]; then
     echo "### Install Debian/Ubuntu base packages"
 
     if [[ $OSTYP == debian ]]; then
-        OSMIR=ftp.debian.org
-        OSREL=buster
-        V_PHP=7.4
-    else
-        OSMIR=archive.ubuntu.com
-        OSREL=focal
-        V_PHP=7.4
+        OSMIR=${OSMIR:-'ftp.debian.org'}
+        OSREL=${OSREL:-'buster'}
     fi
 
     # Default List of required core Netserva Debian packages
