@@ -165,11 +165,11 @@ sethost ()
     DTYPE='mysql';
     LROOT='/usr/local/lsws';
     OSMIR='archive.ubuntu.com';
-    OSREL='focal';
+    OSREL=${OSREL:-'focal'};
     TAREA='Australia';
     TCITY='Sydney';
     VPATH='/home/u';
-    V_PHP='7.4';
+    V_PHP=${V_PHP:-'7.4'};
     WUGID='www-data';
 
     C_FPM="/etc/php/$V_PHP/fpm";
@@ -204,7 +204,7 @@ sethost ()
 
     [[ $UUSER == $ADMIN ]] && DNAME=$ADMIN || DNAME=${VHOST//[.-]/_};
 
-    OSREL=${3:-$OSREL}
+    #OSREL=${3:-$OSREL} #should not be needed if ~/.myrc will override
 
     if [[ -z $4 ]]; then
         IP4_0=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
