@@ -19,14 +19,14 @@ EDITOR=nano
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && . ~/.sh/lib/functions
 
-if [ -f ~/.vhosts/$MHOST ]; then
-    . ~/.vhosts/$MHOST
-else
-    # Local custom aliases and env var overrides
-    [ -f ~/.myrc ] && . ~/.myrc
-    sethost $MHOST
-fi
+#if [ -f ~/.vhosts/$MHOST ]; then
+#    . ~/.vhosts/$MHOST
+#else
+#    sethost $MHOST
+#fi
 
+# Local custom aliases and env var overrides
+[ -f ~/.myrc ] && . ~/.myrc
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
 
