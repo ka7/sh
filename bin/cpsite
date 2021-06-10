@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# .sh/bin/cpsite 20210609 - 20210610
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+# Add you custom post removal tweak here
+_FIX1='author/twccei/index.html'
+_FIX2=''
+
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: cpsite src_site [dst_site]" && exit 1
+
+_SURL=${1,,}
+_DURL=${2:-''}
+_ISUP=$(curl -s -o /dev/null -w "%{http_code}" "$_SURL")
+
+[[ $_ISUP != 200 ]] && echo "'$_SURL' is not available" && exit 3
+
+_TEMP=$(echo $_SURL|sed -r 's~^http[s]*://([a-z0-9.-]+)(.*)~\1~')
+
+echo "Save $_SURL to ./$_TEMP"
+
+wget -P "$_TEMP" -nH -mpc -nv --user-agent="cpsite" -e robots=off \
+  --reject-regex "(.*)\?(.*)" --convert-links --wait 1 -E "$_SURL"
+
+cd $_TEMP
+
+find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) | \
+  while read i; do sed "s|$_SURL|$_DURL|g" -i $i; done
+
+if [[ $_FIX1 ]]; then
+    find . -type f -name "index.html" | \
+      while read i; do sed "s|$_FIX1|$_FIX2|g" -i $i; done
+fi
