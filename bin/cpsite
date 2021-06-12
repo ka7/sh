@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/cpsite 20210609 - 20210610
+# .sh/bin/cpsite 20210609 - 20210612
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Add you custom post removal tweak here
@@ -28,5 +28,5 @@ find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) | \
 
 if [[ $_FIX1 ]]; then
     find . -type f -name "index.html" | \
-      while read i; do sed "s|$_FIX1|$_FIX2|g" -i $i; done
+      while read i; do sed -e "s|$_FIX1|$_FIX2|g" -e "s|index.html||g" -i $i; done
 fi
