@@ -19,7 +19,10 @@ _TEMP=$(echo $_SURL|sed -r 's~^http[s]*://([a-z0-9.-]+)(.*)~\1~')
 echo "Save $_SURL to ./$_TEMP"
 
 wget -P "$_TEMP" -nH -mpc -nv --user-agent="cpsite" -e robots=off \
-  --reject-regex "(.*)\?(.*)" --convert-links --wait 1 -E "$_SURL"
+  --reject-regex "(.*)\?(.*)" --convert-links -E "$_SURL"
+
+# with --wait 1
+#  --reject-regex "(.*)\?(.*)" --convert-links --wait 1 -E "$_SURL"
 
 cd $_TEMP
 
