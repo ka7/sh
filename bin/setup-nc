@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/addnc 20180829 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addnc 20180829 - 20210720
+# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: addnc domain [path]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: setup-nc domain [path]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -72,5 +72,3 @@ Nextcloud: $WPURL/login
 Username: $ADMIN
 Password: $APASS
 EOS
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
