@@ -45,7 +45,7 @@ elif [[ -f /etc/pacman.conf ]]; then
     alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
 else
     alias i=$SUDO'apt-get install'
-    alias u=$SUDO'apt-get update && '$SUDO'apt-get -y -f dist-upgrade && '$SUDO'apt-get -y autoremove && '$SUDO'apt-get clean
+    alias u=$SUDO'apt-get update && '$SUDO'apt-get -y -f dist-upgrade && '$SUDO'apt-get -y autoremove && '$SUDO'apt-get clean'
     alias r=$SUDO'apt-get remove --purge'
     alias s='apt-cache search'
     alias lspkg='dpkg --get-selections | awk "{print \$1}" | sort | grep'
