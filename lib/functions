@@ -253,7 +253,7 @@ sx ()
 {
     [[ -z $2 || $1 =~ -h ]] && \
       echo "Usage: sx host command (host must be in ~/.ssh/config)" && return 1
-    _HOST=$1; shift; ssh $_HOST -q -t "bash -ci '$@'"
+    local _HOST=$1; shift; ssh $_HOST -q -t "bash -ci '$@'"
 }
 updhost ()
 {
