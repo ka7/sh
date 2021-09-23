@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210527
+# .sh/bin/setup-host 20170524 - 20210923
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && \
@@ -97,8 +97,8 @@ elif [[ -f /etc/apt/sources.list ]]; then
     DLIST="apache2-utils apt-utils bash bc bind9-host bsd-mailx
 busybox-static ca-certificates curl db5.3-util deborphan dnsutils
 dovecot-imapd dovecot-lmtpd dovecot-managesieved dovecot-sqlite ebtables
-fcgiwrap gawk git iptables iputils-ping jq libxml2-utils mailgraph msmtp
-mtr-tiny mutt nano net-tools nginx-light opendkim opendkim-tools
+fcgiwrap gawk git gnupg iptables iputils-ping jq libxml2-utils mailgraph
+msmtp mtr-tiny mutt nano net-tools nginx-light opendkim opendkim-tools
 opendmarc openssh-server pdns-backend-sqlite3 pflogsumm php$V_PHP
 php$V_PHP-bcmath php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp
 php$V_PHP-imap php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap
