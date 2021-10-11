@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20210406
+# .sh/bin/setup-hcp 20170519 - 20211011
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
@@ -121,7 +121,7 @@ return [
     'out' => [
         'doc'   => '$VHOST',
         'head'  => '$VHOST',
-        'foot'  => 'Copyright (C) 2020 $VHOST',
+        'foot'  => 'Copyright (C) ' . date("Y") . ' $VHOST',
     ],$TPDNS
 ];
 " > $WPATH/hcp/lib/.ht_conf.php
