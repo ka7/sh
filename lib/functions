@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20210418
+# .sh/lib/functions 20151231 - 20211020
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -165,11 +165,11 @@ sethost ()
     DTYPE='mysql';
     LROOT='/usr/local/lsws';
     OSMIR='archive.ubuntu.com';
-    OSREL=${OSREL:-'focal'};
+    OSREL=${OSREL:-'impish'};
     TAREA='Australia';
     TCITY='Sydney';
     VPATH='/home/u';
-    V_PHP=${V_PHP:-'7.4'};
+    V_PHP=${V_PHP:-'8.0'};
     WUGID='www-data';
 
     C_FPM="/etc/php/$V_PHP/fpm";
@@ -295,7 +295,7 @@ updhost ()
         OSREL=''
     elif [[ $OSTYP == debian ]]; then
         OSMIR='ftp.debian.org'
-        OSREL='buster'
+        OSREL='bullseye'
     fi
 
     if [[ $DTYPE == mysql ]]; then
