@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20210610
+# .sh/bin/setup-fqdn 20210327 - 20211021
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -12,7 +12,7 @@ else
     HNAME=$(hostname)
     HNAME=${HNAME/%\.*/}
     HDOMN=$(hostname -d)
-    [[ -z $HDOMN ]] && HDOMN='netserva.lan'
+    [[ -z $HDOMN ]] && HDOMN='netserva.local'
     VHOST=$HNAME.$HDOMN
 fi
 

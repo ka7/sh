@@ -190,8 +190,8 @@ sethost ()
         C_SQL='/etc/my.cnf.d'
         WUGID='http'
         ### TODO: add these for manjaro
-        OSMIR=''
-        OSREL=''
+        OSMIR='manjaro.moson.eu'
+        OSREL='testing'
     elif [[ $OSTYP == debian ]]; then
         OSMIR='ftp.debian.org'
         OSREL='buster'
