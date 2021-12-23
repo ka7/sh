@@ -9,24 +9,21 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. ~/.shrc || exit 3
+. /root/.shrc || exit 3
 
 EMAIL=${1}
 
-if [[ ! -f $2 ]]; then
-    echo "ERROR: missing vacation text file"
-    exit 3
-fi
+[[ ! -f $2 ]] && echo "ERROR: missing vacation text file ($2)" && exit 4
 
 _SUBJ=$(head -n 1 $2)
-[[ -z $_SUBJ ]] && echo "ERROR: Missing Subject" && exit
+[[ -z $_SUBJ ]] && echo "ERROR: Missing Subject" && exit 4
 
 _MESG=$(tail -n +2 $2)
-[[ -z $_MESG ]] && echo "ERROR: Missing Message" && exit
+[[ -z $_MESG ]] && echo "ERROR: Missing Message" && exit 4
 
 _PATH="$VPATH/${EMAIL#*@}/home/${EMAIL%@*}"
 
-[[ ! -d $_PATH/sieve ]] && echo "ERROR: Missing sieve directory ($_PATH/sieve)" && exit
+[[ ! -d $_PATH/sieve ]] && echo "ERROR: Missing sieve directory ($_PATH/sieve)" && exit 4
 
 SIEVE="$_PATH/sieve/vacation.sieve"
 
