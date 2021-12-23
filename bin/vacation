@@ -1,20 +1,34 @@
 #!/usr/bin/env bash
-# .sh/bin/vacation 20201224 - 20201224
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/vacation 20201224 - 20211223
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-_MESG="Thank you for your email. The office of Power & Cartwright will be closed from 12 noon on Thursday, 24 December, 2020 until 8.30 a.m. on Monday, 11 January, 2021.  We apologise for any inconvenience this may cause.  Our staff will attend to your email as soon as possible."
+# Vacation file format is plain text with the Suject on the first line
+# followed by the message content with no empty lines.
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: vacation email [subject]" && exit 1
+[[ -z $2 || $1 =~ -h ]] && echo "Usage: vacation email vacation_file" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 . ~/.shrc || exit 3
 
 EMAIL=${1}
-_SUBJ=${2:-'Out of office'}
 
-FPATH="$VPATH/${EMAIL#*@}/home/${EMAIL%@*}"
-SIEVE="$FPATH/sieve/vacation.sieve"
+if [[ ! -f $2 ]]; then
+    echo "ERROR: missing vacation text file"
+    exit 3
+fi
+
+_SUBJ=$(head -n 1 $2)
+[[ -z $_SUBJ ]] && echo "ERROR: Missing Subject" && exit
+
+_MESG=$(tail -n +2 $2)
+[[ -z $_MESG ]] && echo "ERROR: Missing Message" && exit
+
+_PATH="$VPATH/${EMAIL#*@}/home/${EMAIL%@*}"
+
+[[ ! -d $_PATH/sieve ]] && echo "ERROR: Missing sieve directory ($_PATH/sieve)" && exit
+
+SIEVE="$_PATH/sieve/vacation.sieve"
 
 echo "Save to $SIEVE"
 
@@ -23,12 +37,13 @@ require ["vacation"];
 # rule:[Out of office]
 if true
 {
-        vacation :days 1 :subject "$_SUBJ" :from "$EMAIL" "$_MESG";
+        vacation :days 1 :addresses "$EMAIL" :subject "$_SUBJ" :from "$EMAIL" text:
+$_MESG
+.
+;
         keep;
 }
 EOS
 
 sievec $SIEVE
-chown $(stat -c '%u:%g' $FPATH) -R $FPATH/sieve
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+chown $(stat -c '%u:%g' $_PATH) -R $_PATH/sieve
