@@ -1,7 +1,7 @@
 # .sh/_menu 20130212 - 20180225
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-cat << EOS
+cat <<EOS
 Menu System
 ===========
 TODO: this is a placeholder to set up and interactive menu system.

@@ -1,8 +1,7 @@
 # .sh/lib/_chperms 20151231 - 20210112
 # Copyright (C) 2015-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-_chperms()
-{
+_chperms() {
     local UUSER=$(grepuser ":$1")
     [[ -z $UUSER ]] && echo "ERROR: $1 does not exist" && return 10
 
