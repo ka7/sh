@@ -8,7 +8,7 @@
 
 [[ ! $1 =~ "@" ]] && echo "ERROR: must be an email address" && exit 2
 
-EMAIL=${1,,} # lowercase user@domain
+EMAIL=${1,,}      # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VUSER=${EMAIL%@*} # $VUSER @ domain
 VPATH="/home/u"
@@ -35,15 +35,15 @@ elif [[ $2 == rm ]]; then
     rm .dovecot* sieve/Default.sieve
 elif [[ $2 == redirect ]]; then
     [[ ! $3 =~ "@" ]] && echo "ERROR: need target email address" && exit 2
-    echo "redirect \"$3\";" > sieve/Default.sieve
+    echo "redirect \"$3\";" >sieve/Default.sieve
     [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
     ln -s sieve/Default.sieve .dovecot.sieve
     sievec .dovecot.sieve
     chown $(stat -c "%u:%g" $MPATH) -R sieve .dovecot*
 elif [[ $2 == copy ]]; then
     [[ ! $3 =~ "@" ]] && echo "ERROR: need target email address" && exit 3
-    echo "require \"copy\";" > sieve/Default.sieve
-    echo "redirect :copy \"$3\";" >> sieve/Default.sieve
+    echo "require \"copy\";" >sieve/Default.sieve
+    echo "redirect :copy \"$3\";" >>sieve/Default.sieve
     [[ -f .dovecot.sieve ]] && rm .dovecot.sieve
     ln -s sieve/Default.sieve .dovecot.sieve
     sievec .dovecot.sieve

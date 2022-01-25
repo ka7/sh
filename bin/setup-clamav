@@ -7,17 +7,17 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 echo "Install clamav clamav-freshclam clamsmtp"
-apt-get install -y clamav clamav-freshclam clamsmtp > /dev/null
+apt-get install -y clamav clamav-freshclam clamsmtp >/dev/null
 
 echo "Enable systemd startup files"
-systemctl enable clamsmtp > /dev/null 2>&1
-systemctl enable clamav-freshclam > /dev/null 2>&1
-systemctl enable clamav-daemon > /dev/null 2>&1 # not sure if this one is needed ?
+systemctl enable clamsmtp >/dev/null 2>&1
+systemctl enable clamav-freshclam >/dev/null 2>&1
+systemctl enable clamav-daemon >/dev/null 2>&1 # not sure if this one is needed ?
 
 echo "Modify /etc/clamsmtpd.conf"
 sed -i /etc/clamsmtpd.conf \
-  -e 's/OutAddress: 10025/OutAddress: 127.0.0.1:10026/' \
-  -e 's/Listen: 127.0.0.1:10026/Listen: 127.0.0.1:10025/'
+    -e 's/OutAddress: 10025/OutAddress: 127.0.0.1:10026/' \
+    -e 's/Listen: 127.0.0.1:10026/Listen: 127.0.0.1:10025/'
 
 echo "Restart systemd startup files"
 systemctl restart clamav-daemon
@@ -27,14 +27,14 @@ systemctl restart clamsmtp
 systemctl restart clamav-freshclam
 
 echo "Modify /etc/postfix/main.cf"
-cat << EOS >> /etc/postfix/main.cf
+cat <<EOS >>/etc/postfix/main.cf
 
 content_filter = scan:127.0.0.1:10025
 receive_override_options = no_address_mappings
 EOS
 
 echo "Modify /etc/postfix/vhosts/00_master.cf"
-cat << EOS >> /etc/postfix/vhosts/00_master.cf
+cat <<EOS >>/etc/postfix/vhosts/00_master.cf
 scan       unix  -       -       n       -       16      smtp
     -o smtp_send_xforward_command=yes
 127.0.0.1:10026 inet n   -       n       -       16      smtpd
@@ -50,14 +50,14 @@ scan       unix  -       -       n       -       16      smtp
 EOS
 
 mv /etc/postfix/master.cf /etc/postfix/master.old
-cat /etc/postfix/vhosts/* > /etc/postfix/master.cf
+cat /etc/postfix/vhosts/* >/etc/postfix/master.cf
 
 systemctl restart postfix
 
 #echo "Append freshclam job to /etc/cron.d/netserva"
 #cat << EOS >> /etc/cron.d/netserva
 #
-#20 0 * * * root freshclam --quiet 
+#20 0 * * * root freshclam --quiet
 #EOS
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

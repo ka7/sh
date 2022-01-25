@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-MHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+MHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 
 . /root/.vhosts/$MHOST || exit 3
 
@@ -14,9 +14,9 @@ if [[ -d $WPATH/hcp ]]; then
     echo "### $WPATH/hcp (HCP) already exists"
 else
     echo "### Clone Netserva HCP to $WPATH/hcp"
-    git clone https://github.com/netserva/hcp $WPATH/hcp > /dev/null 2>&1
+    git clone https://github.com/netserva/hcp $WPATH/hcp >/dev/null 2>&1
     APASS_HASH=$(php -r "echo password_hash('$APASS', PASSWORD_DEFAULT);")
-    cat << EOS | $SQCMD
+    cat <<EOS | $SQCMD
     INSERT INTO news VALUES
     (null, 'News Item 1', 'Lorem ipsum etc...', 'lib/uploads/Blank-300x150.png', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01'),
     (null, 'News Item 2', 'Lorem ipsum etc...', 'lib/uploads/Blank-300x150.png', 1, '2018-01-01 00:00:01', '2018-01-01 00:00:01');
@@ -29,9 +29,9 @@ EOS
         HUSER=$(pwgen -sB 8 1)
         HPASS=$(pwgen -sB 8 1)
         echo "### Create $WPATH/hcp/.htpasswd $HUSER/$HPASS"
-        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS > /dev/null 2>&1
-        echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >> ~/.my.cnf
-        cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
+        htpasswd -b -c $WPATH/hcp/.htpasswd $HUSER $HPASS >/dev/null 2>&1
+        echo "# HTTP auth for https://$MHOST/hcp -> $HUSER / $HPASS" >>~/.my.cnf
+        cat <<EOS | tee -a /root/.vhosts/$MHOST.conf >/dev/null
 HTTP Auth
 =========
 
@@ -43,7 +43,7 @@ EOS
     fi
 
     echo "### Create default $DTYPE entries"
-    cat << EOS | tee -a /root/.vhosts/$MHOST.conf > /dev/null
+    cat <<EOS | tee -a /root/.vhosts/$MHOST.conf >/dev/null
 HCP Auth
 =========
 
@@ -78,7 +78,7 @@ if [[ -f $WPATH/hcp/lib/.ht_pw ]]; then
     echo "### $WPATH/hcp/lib/.ht_pw already exists"
 else
     echo "### Create $WPATH/hcp/lib/.ht_pw"
-    echo $DPASS > $WPATH/hcp/lib/.ht_pw
+    echo $DPASS >$WPATH/hcp/lib/.ht_pw
 fi
 
 if [[ -f $WPATH/hcp/lib/.ht_conf.php ]]; then
@@ -124,7 +124,7 @@ return [
         'foot'  => 'Copyright (C) ' . date("Y") . ' $VHOST',
     ],$TPDNS
 ];
-" > $WPATH/hcp/lib/.ht_conf.php
+" >$WPATH/hcp/lib/.ht_conf.php
 fi
 
 setup-pma $MHOST

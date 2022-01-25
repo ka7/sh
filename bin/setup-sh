@@ -8,8 +8,8 @@ if [ -d ~/.sh ]; then
 else
     echo "Setup NetServa SH scripts"
     cd
-    git clone -q --depth 1 https://github.com/netserva/sh .sh > /dev/null
-    ~/.sh/bin/shm install > /dev/null
+    git clone -q --depth 1 https://github.com/netserva/sh .sh >/dev/null
+    ~/.sh/bin/shm install >/dev/null
     ~/.sh/bin/shm perms
     git config --global pull.rebase false
 fi

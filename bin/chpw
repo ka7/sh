@@ -40,7 +40,7 @@ if [[ -f $VCONF ]]; then
         grep -A1 "^Username: $EMAIL" $VCONF
         sed -i "/^Username: $EMAIL/{n;s/.*/Password: $NEWPW/}" $VCONF
     else
-        cat << EOS | tee -a $VCONF
+        cat <<EOS | tee -a $VCONF
 Mail
 =========
 

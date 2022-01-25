@@ -6,11 +6,11 @@
 
 if [[ ! -f /root/.vhosts/$(hostname -f) ]]; then
     sleep 15 # for network to settle
-    /root/.sh/bin/setup-all > /tmp/setup-first.log
+    /root/.sh/bin/setup-all >/tmp/setup-first.log
     [[ -f /etc/cron.d/setup-first ]] && rm /etc/cron.d/setup-first
     sleep 1
     . /root/.vhosts/$(hostname -f)
     echo "ssh sysadm@$(hostname -i) / $UPASS (or shconf $(hostname -f))"
-    echo $UPASS > $WPATH/1234.txt
+    echo $UPASS >$WPATH/1234.txt
     chown $U_UID:$WUGID $WPATH/1234.txt
 fi

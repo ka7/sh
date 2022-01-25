@@ -12,8 +12,8 @@ _USER=${1:-''}
 
 if [[ -n $_USER ]]; then
     _PATH=$(grepuser $_USER | awk -F: '{print $6}')
-    [[ ! -d $_PATH ]] && \
-      echo "!!! Error: '$_PATH' does not exist" && exit 3
+    [[ ! -d $_PATH ]] &&
+        echo "!!! Error: '$_PATH' does not exist" && exit 3
     du -sh $_PATH
     du -sh $_PATH/home/* --exclude=*/home/u --exclude=*/home/b
     du -sh $_PATH/var/*

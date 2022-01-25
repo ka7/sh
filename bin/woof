@@ -6,15 +6,15 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.shrc || exit 3  # just for VPATH
+source /root/.shrc || exit 3 # just for VPATH
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 4
 
-M_LHS=$(echo $1|cut -d@ -f1)
-M_RHS=$(echo $1|cut -d@ -f2)
+M_LHS=$(echo $1 | cut -d@ -f1)
+M_RHS=$(echo $1 | cut -d@ -f2)
 
 if [[ ! -f ~/.muttrc ]]; then
-    cat << EOS | tee ~/.muttrc  > /dev/null
+    cat <<EOS | tee ~/.muttrc >/dev/null
 #set from="System Admin <admin@example.com>"
 folder-hook . 'set sort=reverse-date'
 set auto_tag=yes

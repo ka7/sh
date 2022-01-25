@@ -6,12 +6,12 @@
 
 [[ $EUID -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-EMAIL=${1,,} # lowercase user@domain
+EMAIL=${1,,}      # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 
 . ~/.vhosts/$VHOST || exit 3
 
-VUSER=${EMAIL%@*} # $VUSER @ domain
+VUSER=${EMAIL%@*}     # $VUSER @ domain
 HPATH="$MPATH/$VUSER" # home path to users mailbox
 VCONF=~/.vhosts/$VHOST.conf
 
@@ -21,14 +21,14 @@ if [[ -d $HPATH ]]; then
     [[ -f $BFILE ]] && rm $BFILE # remove previous same-day backup
 
     echo "Create $HPATH/shuser_details"
-    shuser $EMAIL > $HPATH/shuser_details
+    shuser $EMAIL >$HPATH/shuser_details
 
     echo "Create $BFILE"
-    tar czf $BFILE $HPATH > /dev/null 2>&1
+    tar czf $BFILE $HPATH >/dev/null 2>&1
 
     echo "Remove from $VCONF"
     TFILE=$(mktemp -q) && {
-      awk '/^Username: '$EMAIL'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $VCONF > $TFILE && mv $TFILE $VCONF
+        awk '/^Username: '$EMAIL'$/{for(x=NR-3;x<=NR+2;x++)d[x];}{a[NR]=$0}END{for(i=1;i<=NR;i++)if(!(i in d))print a[i]}' $VCONF >$TFILE && mv $TFILE $VCONF
     }
 
     echo "Remove $HPATH"
@@ -38,7 +38,8 @@ else
     exit 4
 fi
 
-MID=$(cat << EOS | $SQCMD
+MID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM vmails
   WHERE user = '$EMAIL'
 EOS
@@ -48,13 +49,14 @@ if [[ -z $MID ]]; then
     echo "Warning: '$EMAIL' does not exist in $ADMIN.vmails"
 else
     echo "Remove '$EMAIL' from $ADMIN.vmails ($DTYPE)"
-    cat << EOS | $SQCMD
+    cat <<EOS | $SQCMD
  DELETE FROM vmails
   WHERE id = $MID
 EOS
 fi
 
-AID=$(cat << EOS | $SQCMD
+AID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM valias
   WHERE target = '$EMAIL'
 EOS
@@ -64,13 +66,14 @@ if [[ -z $AID ]]; then
     echo "Warning: '$EMAIL' does not exist in $ADMIN.valias"
 else
     echo "Remove '$EMAIL' from $ADMIN.valias ($DTYPE)"
-    cat << EOS | $SQCMD
+    cat <<EOS | $SQCMD
  DELETE FROM valias
   WHERE target = '$EMAIL'
 EOS
 fi
 
-LID=$(cat << EOS | $SQCMD
+LID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM vmail_log
   WHERE mid = '$MID'
 EOS
@@ -80,7 +83,7 @@ if [[ -z $LID ]]; then
     echo "Warning: '$EMAIL' does not exist in $ADMIN.vmail_log"
 else
     echo "Remove '$EMAIL' from $ADMIN.vmail_log ($DTYPE)"
-    cat << EOS | $SQCMD
+    cat <<EOS | $SQCMD
  DELETE FROM vmail_log
   WHERE mid = '$MID'
 EOS

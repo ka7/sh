@@ -28,7 +28,7 @@ fi
 if [[ ! -f /root/.vhosts/$VHOST ]]; then
     echo "### Create /root/.vhosts/$VHOST config file"
     sethost $_UTMP$VHOST $DTYPE $OSREL
-    gethost > /root/.vhosts/$VHOST
+    gethost >/root/.vhosts/$VHOST
     touch /root/.vhosts/$VHOST.conf
     chmod 600 /root/.vhosts/*
 fi
@@ -44,7 +44,8 @@ V_MAILQUOTA="500000000"
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 V_UPDATED=$V_CREATED
 
-IS_VHOST=$(cat << EOS | $SQCMD
+IS_VHOST=$(
+    cat <<EOS | $SQCMD
  SELECT COUNT(id)
    FROM vhosts
   WHERE domain = '$VHOST'
@@ -67,7 +68,8 @@ else
 fi
 
 echo "### Create entry in $ADMIN.vhosts ($DTYPE)"
-DO_VHOST=$(cat << EOS | $SQCMD
+DO_VHOST=$(
+    cat <<EOS | $SQCMD
  INSERT INTO vhosts (
         active,
         aliases,
@@ -105,7 +107,7 @@ if [[ -d $C_FPM ]]; then
         echo "### $_POOL/$VHOST.conf already exists"
     else
         echo "### Create $_POOL/$VHOST.conf"
-        cat << EOS > $_POOL/$VHOST.conf
+        cat <<EOS >$_POOL/$VHOST.conf
 [$VHOST]
 user = $U_UID
 group = $U_GID
@@ -163,7 +165,7 @@ if [[ -f $UPATH/.profile ]]; then
     echo "### $UPATH/.profile already exists"
 else
     echo "### Create $UPATH/.profile"
-    cat << EOS > $UPATH/.profile
+    cat <<EOS >$UPATH/.profile
 export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
 alias la='ls -lA -F --color'
 alias ll='ls -l -F --color'
@@ -179,7 +181,7 @@ else
     echo "### Create $UPATH/etc/passwd"
     W_UID=$(id -u $WUGID)
     W_GID=$(id -g $WUGID)
-    cat << EOS > $UPATH/etc/passwd
+    cat <<EOS >$UPATH/etc/passwd
 root:x:0:0:::
 $WUGID:x:$W_UID:$W_GID:::
 $UUSER:x:$U_UID:$U_GID:::
@@ -191,7 +193,7 @@ if [[ -f $UPATH/etc/group ]]; then
 else
     echo "### Create $UPATH/etc/group"
     W_GID=$(id -g $WUGID)
-    cat << EOS > $UPATH/etc/group
+    cat <<EOS >$UPATH/etc/group
 root:x:0:
 $WUGID:x:$W_GID:
 $UUSER:x:$U_GID:
@@ -203,14 +205,14 @@ if [[ -f $WPATH/index.html || -f $WPATH/index.php ]]; then
     [[ -f $WPATH/index.php ]] && echo "### $WPATH/index.php already exists"
 else
     echo "### Create $WPATH/index.html"
-    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" > $WPATH/index.html
+    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" >$WPATH/index.html
 fi
 
 if [[ -f $WPATH/phpinfo.php ]]; then
     echo "### $WPATH/phpinfo.php already exists"
 else
     echo "### Create $WPATH/phpinfo.php"
-    echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" > $WPATH/phpinfo.php
+    echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" >$WPATH/phpinfo.php
 fi
 
 if [[ -f $WPATH/private/.htpasswd ]]; then
@@ -218,9 +220,9 @@ if [[ -f $WPATH/private/.htpasswd ]]; then
 else
     PIN=$RANDOM
     echo "### Create $WPATH/private/.htpasswd (guest/$PIN)"
-    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN > /dev/null 2>&1
+    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN >/dev/null 2>&1
     [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 Private
 =========
 
@@ -257,13 +259,13 @@ if [[ $DOSSL == self ]]; then
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
             -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$VHOST" \
             -keyout /etc/ssl/$VHOST/privkey.pem \
-            -out /etc/ssl/$VHOST/fullchain.pem > /dev/null 2>&1
+            -out /etc/ssl/$VHOST/fullchain.pem >/dev/null 2>&1
     fi
 
     if [[ ! -f $C_WEB/sites-enabled/$VHOST.selfsigned ]]; then
         echo "### Create $C_WEB/sites-enabled/$VHOST.selfsigned"
         [[ $USEIP ]] && USEIP="$USEIP:"
-        cat << EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned > /dev/null
+        cat <<EOS | tee $C_WEB/sites-enabled/$VHOST.selfsigned >/dev/null
 server {
     listen                      ${USEIP}443 ssl http2;
     server_name                 $VHOST;
@@ -278,8 +280,8 @@ EOS
     fi
     serva restart nginx
 elif [[ $DOSSL == le ]]; then
-    [[ -f $C_WEB/sites-enabled/*.selfsigned ]] \
-        && rm $C_WEB/sites-enabled/*.selfsigned
+    [[ -f $C_WEB/sites-enabled/*.selfsigned ]] &&
+        rm $C_WEB/sites-enabled/*.selfsigned
 
     newssl $VHOST mail www autoconfig autodiscover $USEIP
 fi
@@ -287,14 +289,16 @@ fi
 addvmail $VUSER@$VHOST
 chshpw $UUSER $UPASS
 
-MID=$(cat << EOS | $SQCMD
+MID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM vmails
   WHERE user = '$VUSER@$VHOST'
 EOS
 )
 
 echo "### Create $VUSER@$VHOST entry in $ADMIN.vmail_log ($DTYPE)"
-DO_VMAILLOG=$(cat << EOS | $SQCMD
+DO_VMAILLOG=$(
+    cat <<EOS | $SQCMD
  INSERT INTO vmail_log (
         mid,
         ymd
@@ -319,4 +323,4 @@ fi
 # TODO: cleanup $(hostname -f) /etc/ssl and /etc/nginx/sites-enabled
 #       unless a better place is found or a dedicated script is created
 
-logging $VHOST update > /dev/null
+logging $VHOST update >/dev/null

@@ -10,73 +10,73 @@
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
     -H "X-Auth-Email: $CFP_USR" \
     -H "X-Auth-Key: $CFP_API" \
-    -H "Content-Type: application/json" \
-    | jq -r '.result[] | [.name,.id] | join("\t")' \
-    | awk "/^$1/ {print \$2}")
-    
+    -H "Content-Type: application/json" |
+    jq -r '.result[] | [.name,.id] | join("\t")' |
+    awk "/^$1/ {print \$2}")
+
 if [[ $ZONID ]]; then
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"A","name":"'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"A","name":"'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"A","name":"www.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"A","name":"www.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":true}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"A","name":"mail.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"A","name":"mail.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"A","name":"autoconfig.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"A","name":"autoconfig.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"A","name":"autodiscover.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"A","name":"autodiscover.'$1'","content":"'$2'","ttl":1,"priority":0,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"MX","name":"'$1'","content":"mail.'$1'","ttl":1,"priority":10,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"MX","name":"'$1'","content":"mail.'$1'","ttl":1,"priority":10,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"TXT","name":"'$1'","content":"v=spf1 ip4:'$2'/32 -all","ttl":1,"priority":0,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"TXT","name":"'$1'","content":"v=spf1 ip4:'$2'/32 -all","ttl":1,"priority":0,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFP_USR" \
         -H "X-Auth-Key: $CFP_API" \
         -H "Content-Type: application/json" \
-        --data '{"type":"TXT","name":"_dmarc.'$1'","content":"v=DMARC1;p=reject;sp=reject;pct=100;adkim=s;aspf=s;rua=mailto:dmarc@renta.net;ruf=mailto:dmarc@renta.net;fo=1","ttl":1,"priority":0,"proxied":false}' \
-        | jq -r '.errors[] | .message'
+        --data '{"type":"TXT","name":"_dmarc.'$1'","content":"v=DMARC1;p=reject;sp=reject;pct=100;adkim=s;aspf=s;rua=mailto:dmarc@renta.net;ruf=mailto:dmarc@renta.net;fo=1","ttl":1,"priority":0,"proxied":false}' |
+        jq -r '.errors[] | .message'
 
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFUSR" \
         -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
+        -H "Content-Type: application/json" |
+        jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
 
 else
     echo "!!! Warning: no ZONE ID for $1"

@@ -12,7 +12,7 @@
 XMLREQF=$(mktemp)
 XMLRESF=$(mktemp)
 
-cat << EOS > $XMLREQF
+cat <<EOS >$XMLREQF
 <?xml version="1.0" encoding="UTF-8"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
   <SOAP-ENV:Body>
@@ -33,9 +33,9 @@ cat << EOS > $XMLREQF
 EOS
 
 curl -s --header "Content-Type: text/xml;charset=UTF-8" \
- --header "SOAPAction: balanceQuery" \
- --data @$XMLREQF \
- https://api.synergywholesale.com/?wsdl > $XMLRESF
+    --header "SOAPAction: balanceQuery" \
+    --data @$XMLREQF \
+    https://api.synergywholesale.com/?wsdl >$XMLRESF
 
 rm $XMLREQF
 SW_BALANCE=$(xmllint --xpath "//*[local-name()='balance']/text()" $XMLRESF)

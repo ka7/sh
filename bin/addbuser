@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addbuser 20200804 - 20201018
+# .sh/bin/addbuser 20200804 - 20220125
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addbuser for_vhost [user] [pw]" && exit 1
@@ -17,11 +17,11 @@ _PASS=${3:-$(newpw)}
 
 _HOME="/home/b/$_USER"
 
-[[ $_BUID = 1000 ]] && \
-  echo "ERROR: $_BUID must be greater than 1000" && exit 4
+[[ $_BUID = 1000 ]] &&
+    echo "ERROR: $_BUID must be greater than 1000" && exit 4
 
-[[ $(grepuser ":$_BUID:") ]] && \
-  echo "ERROR: $_USER user or group already exists" && exit 5
+[[ $(grepuser ":$_BUID:") ]] &&
+    echo "ERROR: $_USER user or group already exists" && exit 5
 
 echo "Create $_USER user"
 useradd -M -U -u $_BUID -d $_HOME -c "$_HOST" $_USER
@@ -62,7 +62,7 @@ if [[ -f $_HOME/.profile ]]; then
 else
     echo "Create $_HOME/.profile and .hushlogin"
     touch $_HOME/.hushlogin
-    cat << EOS > $_HOME/.profile
+    cat <<EOS >$_HOME/.profile
 export PS1="\[\033[1;35m\]\$LOGNAME@$HOSTNAME \w\[\033[0m\] "
 alias la='ls -lA -F --color'
 alias ll='ls -l -F --color'
@@ -75,7 +75,7 @@ if [[ -f $_HOME/etc/passwd ]]; then
     echo "$_HOME/etc/passwd already exists"
 else
     echo "Create $_HOME/etc/passwd"
-    cat << EOS > $_HOME/etc/passwd
+    cat <<EOS >$_HOME/etc/passwd
 root:x:0:0:::
 $_USER:x:$_BUID:$_BUID:::
 EOS
@@ -85,7 +85,7 @@ if [[ -f $_HOME/etc/group ]]; then
     echo "$_HOME/etc/group already exists"
 else
     echo "Create $_HOME/etc/group"
-    cat << EOS > $_HOME/etc/group
+    cat <<EOS >$_HOME/etc/group
 root:x:0:
 $_USER:x:$_BUID:
 EOS
@@ -102,7 +102,7 @@ chmod 700 $_HOME/.ssh
 [[ -f $_HOME/bin/rsync ]] && chmod 750 $_HOME/bin/rsync
 [[ -f $_HOME/bin/busybox ]] && chmod 750 $_HOME/bin/busybox
 
-cat << EOS | tee -a /root/.vhosts/$BHOST.conf
+cat <<EOS | tee -a /root/.vhosts/$BHOST.conf
 Backup
 =========
 
@@ -111,5 +111,3 @@ Username: $_USER
 Password: $_PASS
 
 EOS
-
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

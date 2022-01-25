@@ -23,8 +23,8 @@ if [[ $RESULT -gt 1 ]]; then
  SELECT uid, user, home
    FROM $PWTBL
   WHERE user LIKE '$QRY'
-  ORDER BY uid" | $SQCMD | \
-    awk -F '[|\t]' '{printf "u%d  %-42s %s\n", $1, $2, $3}'
+  ORDER BY uid" | $SQCMD |
+        awk -F '[|\t]' '{printf "u%d  %-42s %s\n", $1, $2, $3}'
 
 elif [[ $RESULT -eq 1 ]]; then
 
@@ -36,8 +36,8 @@ elif [[ $RESULT -eq 1 ]]; then
     echo "
  SELECT uid, user, home
    FROM $PWTBL
-  WHERE user = '$EMAIL'" | $SQCMD | \
-    awk -F '[|\t]' '{printf " user: %s\n uuid: u%s\n home: %s\n", $2, $1, $3}'
+  WHERE user = '$EMAIL'" | $SQCMD |
+        awk -F '[|\t]' '{printf " user: %s\n uuid: u%s\n home: %s\n", $2, $1, $3}'
 
     echo "   pw: $(shpw $EMAIL)"
 else

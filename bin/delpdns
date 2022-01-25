@@ -7,16 +7,16 @@
 VHOST=$1
 
 # Check if zone already exists
-if ! pdnsutil list-zone $VHOST 2> /dev/null; then
+if ! pdnsutil list-zone $VHOST 2>/dev/null; then
     echo "!!! '$VHOST' does not exist on $(hostname -f)"
     exit
 fi
 
 # Remove all DNS records
-pdnsutil clear-zone $VHOST > /dev/null 2>&1
+pdnsutil clear-zone $VHOST >/dev/null 2>&1
 
 # Remove zone entry
-pdnsutil delete-zone $VHOST > /dev/null 2>&1
+pdnsutil delete-zone $VHOST >/dev/null 2>&1
 
 echo "!!! Removed $VHOST"
 

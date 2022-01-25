@@ -13,7 +13,8 @@ source /root/.vhosts/$THOST || exit 3
 
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 
-IS_FHOST=$(cat << EOS | $SQCMD
+IS_FHOST=$(
+    cat <<EOS | $SQCMD
  SELECT COUNT(id)
    FROM vhosts
   WHERE domain = '$FHOST'
@@ -22,7 +23,8 @@ EOS
 
 [[ $IS_FHOST -gt 0 ]] && echo "ERROR: '$FHOST' vhost already exists in database" && exit 4
 
-IS_THOST=$(cat << EOS | $SQCMD
+IS_THOST=$(
+    cat <<EOS | $SQCMD
  SELECT COUNT(id)
    FROM vhosts
   WHERE domain = '$THOST'
@@ -32,7 +34,8 @@ EOS
 [[ $IS_THOST -eq 0 ]] && echo "ERROR: '$THOST' vhost does not exist in database" && exit 5
 
 echo "Create entry in $ADMIN.vhosts ($DTYPE)"
-DO_FHOST=$(cat << EOS | $SQCMD
+DO_FHOST=$(
+    cat <<EOS | $SQCMD
  INSERT INTO vhosts (
         active,
         aliases,
@@ -61,7 +64,8 @@ DO_FHOST=$(cat << EOS | $SQCMD
 EOS
 )
 
-HID=$(cat << EOS | $SQCMD
+HID=$(
+    cat <<EOS | $SQCMD
  SELECT id
    FROM vhosts
   WHERE domain = '$THOST'
@@ -70,7 +74,8 @@ EOS
 
 [[ -z $HID ]] && echo "*** ERROR: '$THOST' does not exist in $ADMIN.vhosts" && exit 6
 
-USRID=$(cat << EOS | $SQCMD
+USRID=$(
+    cat <<EOS | $SQCMD
  SELECT id
    FROM valias
   WHERE source = '@$FHOST'
@@ -80,7 +85,8 @@ EOS
 [[ $USRID ]] && echo "ERROR: '@$FHOST' already exists in $ADMIN.valias" && exit 4
 
 echo "*** Create $ADMIN.valias entry ($DTYPE)"
-DO_VALIAS=$(cat << EOS | $SQCMD
+DO_VALIAS=$(
+    cat <<EOS | $SQCMD
  INSERT INTO valias (
         hid,
         source,
@@ -102,7 +108,7 @@ if [[ -f $C_WEB/sites-enabled/__$FHOST ]]; then
     cat $C_WEB/sites-enabled/__$FHOST
 else
     echo "Create $C_WEB/sites-enabled/__$FHOST"
-    cat << EOS > $C_WEB/sites-enabled/__$FHOST
+    cat <<EOS >$C_WEB/sites-enabled/__$FHOST
 server {
     listen                      443 ssl http2;
     server_name                 $FHOST www.$FHOST;

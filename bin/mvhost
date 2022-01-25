@@ -25,7 +25,7 @@ else
         ssh $RHOST "mysqldump $DNAME > $UPATH/var/$DNAME.sql"
         echo "Create: $DNAME database"
         mysql -e "CREATE DATABASE IF NOT EXISTS $DNAME"
-        mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'";
+        mysql -e "GRANT ALL PRIVILEGES ON $DNAME.* TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS'"
         mysql -e "FLUSH PRIVILEGES"
     else
         echo "Warning: no remote database called '$DNAME'"

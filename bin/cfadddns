@@ -14,16 +14,16 @@ PROXY=${6:-'false'}
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
     -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
     -H "X-Auth-Key: $CF_USER_API_KEY" \
-    -H "Content-Type: application/json" \
-    | jq -r '{"result"}[] | .[0] | .id')
+    -H "Content-Type: application/json" |
+    jq -r '{"result"}[] | .[0] | .id')
 set -x
 if [[ $ZONID ]]; then
     curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CF_PARTNER_EMAIL" \
         -H "X-Auth-Key: $CF_USER_API_KEY" \
         -H "Content-Type: application/json" \
-        --data '{"name":"'$2'","type":"'$3'","content":"'$4'","ttl":1,"priority":'$_PRIO',"proxied":'$PROXY'}' \
-        | jq -r '.errors[] | .message'
+        --data '{"name":"'$2'","type":"'$3'","content":"'$4'","ttl":1,"priority":'$_PRIO',"proxied":'$PROXY'}' |
+        jq -r '.errors[] | .message'
 else
     echo "!!! Warning: no ZONE_ID for $1"
 fi

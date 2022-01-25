@@ -12,8 +12,8 @@
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
     -H "X-Auth-Email: $CFUSR" \
     -H "X-Auth-Key: $CFKEY" \
-    -H "Content-Type: application/json" \
-    | jq -r '{"result"}[] | .[0] | .id')
+    -H "Content-Type: application/json" |
+    jq -r '{"result"}[] | .[0] | .id')
 
 echo "ZONID=$ZONID"
 exit

@@ -32,70 +32,70 @@ NS1IP='173.199.96.96' # ns1.vultr.com
 NS2IP='173.199.96.97' # ns2.vultr.com
 
 vultr dns domain list | cut -f1 | grep -q -E "^$VHOST$"
-if [[ $? -eq 0 ]];then
+if [[ $? -eq 0 ]]; then
     echo "+++ $VHOST DNS already set up Vultr"
     vultr dns record list -d $VHOST
     exit 3
 fi
 
 echo "+++ Add basic DNS records for $VHOST"
-vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null
+vultr dns domain create -d $VHOST -s $IP4_0 >/dev/null
 
 echo "+++ Delete CNAME wildcard record for $VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
-vultr dns record delete -d $VHOST -r $RECID > /dev/null
+vultr dns record delete -d $VHOST -r $RECID >/dev/null
 
 echo "+++ Update MX record to mail.$VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
-vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null
+vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST >/dev/null
 
 echo "+++ Update ns1 record to ns1.$VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/ns1/ {print $1}')
-vultr dns record update -d $VHOST -r $RECID -D ns1.$VHOST > /dev/null
+vultr dns record update -d $VHOST -r $RECID -D ns1.$VHOST >/dev/null
 
 echo "+++ Update ns2 record to ns2.$VHOST"
 RECID=$(vultr dns record list -d $VHOST | awk '/ns2/ {print $1}')
-vultr dns record update -d $VHOST -r $RECID -D ns2.$VHOST > /dev/null
+vultr dns record update -d $VHOST -r $RECID -D ns2.$VHOST >/dev/null
 
 echo "+++ Add ns1.$VHOST and ns2.$VHOST"
-vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null
-vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null
+vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP >/dev/null
+vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP >/dev/null
 
 echo "+++ Add www.$VHOST and mail.$VHOST pointing to $IP4_0"
-vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null
-vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null
+vultr dns record create -d $VHOST -n www -t A -D $IP4_0 >/dev/null
+vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 >/dev/null
 
 echo "+++ Add autoconfig.$VHOST and autodiscover.$VHOST pointing to $IP4_0"
-vultr dns record create -d $VHOST -n autoconfig -t A -D $IP4_0 > /dev/null
-vultr dns record create -d $VHOST -n autodiscover -t A -D $IP4_0 > /dev/null
+vultr dns record create -d $VHOST -n autoconfig -t A -D $IP4_0 >/dev/null
+vultr dns record create -d $VHOST -n autodiscover -t A -D $IP4_0 >/dev/null
 
 echo "+++ Add SPF record for $VHOST"
-vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null
+vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" >/dev/null
 
 echo "+++ Add DMARC record for $VHOST"
-vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null
+vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" >/dev/null
 
 echo "+++ Add $VHOST CAA record for letsencrypt.org"
-vultr dns record create -d $VHOST -n $VHOST -t CAA -D '0 issue "letsencrypt.org"' > /dev/null
+vultr dns record create -d $VHOST -n $VHOST -t CAA -D '0 issue "letsencrypt.org"' >/dev/null
 
 echo "+++ Update SOA record for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/soa_update \
- --data "domain=$VHOST" \
- --data "nsprimary=ns1.$VHOST" \
- --data "email=admin@$VHOST"
+    https://api.vultr.com/v1/dns/soa_update \
+    --data "domain=$VHOST" \
+    --data "nsprimary=ns1.$VHOST" \
+    --data "email=admin@$VHOST"
 
 echo "+++ Enable DNSSEC for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_enable \
- --data "domain=$VHOST" \
- --data "enable=yes"
+    https://api.vultr.com/v1/dns/dnssec_enable \
+    --data "domain=$VHOST" \
+    --data "enable=yes"
 
 echo "+++ Add DNSSEC DS records for $VHOST"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST | \
- jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
- while read DS; do swdsadd $VHOST $DS; done
+    https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST |
+    jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' |
+    while read DS; do swdsadd $VHOST $DS; done
 
 if [[ -z $SW_API_ID || -z $SW_API_KEY ]]; then
     echo "Warning: missing Synergy Wholesale API ID and KEY"

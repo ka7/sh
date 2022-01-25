@@ -8,14 +8,13 @@
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 3
 
-_dbdump()
-{
-    VDB=$(echo $1|tr '.' '_')
+_dbdump() {
+    VDB=$(echo $1 | tr '.' '_')
     if [[ -n $VDB ]]; then
         IFDB=$(mysql -BNe "SHOW DATABASES LIKE '$VDB'")
         if [[ -n $IFDB ]]; then
             if [[ -d $VPATH/$1/var ]]; then
-                mysqldump $VDB > $VPATH/$1/var/$VDB.sql
+                mysqldump $VDB >$VPATH/$1/var/$VDB.sql
                 W_UID=$(stat -c "%u" $VPATH/$1/var/www)
                 W_GID=$(stat -c "%g" $VPATH/$1/var/www)
                 chown $W_UID:$W_GID $VPATH/$1/var/$VDB.sql

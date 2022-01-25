@@ -10,7 +10,7 @@
 # MAILTO=YOUR@EMAIL.ADDRESS
 # */5 * * * * root /root/.sh/bin/ddns DOMAIN SUBDOMAIN APIKEY https://DNS_SERVER/hcp/lib/php/ddns.php username:password
 
-[[ $1 =~ "-h" ]] && \
+[[ $1 =~ "-h" ]] &&
     echo "Usage: ddns [domain] [subdomain|''] [apikey] [dns script] [http auth(use:pw)] [email]" && exit 1
 
 # Either pass the 6 values above or hardwire them below between the ''
@@ -24,7 +24,7 @@ DDNS_MSG=${6:-''} # Email address for messages (default admin@$DDNS_FOR)
 
 OLDIP=
 
-[[ -f /var/tmp/ip ]] && OLDIP=$(< /var/tmp/ip)
+[[ -f /var/tmp/ip ]] && OLDIP=$(</var/tmp/ip)
 
 NEWIP=$(curl -s https://canihazip.com/s)
 
@@ -35,7 +35,7 @@ echo $NEWIP | grep -qE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"
 if [[ $? -gt 0 ]]; then
     echo "'$NEWIP' is not a valid IP (old IP is $OLDIP)"
 elif [[ -z $OLDIP || $NEWIP != $OLDIP ]]; then
-    echo $NEWIP > /var/tmp/ip
+    echo $NEWIP >/var/tmp/ip
     [[ $DDNS_USR ]] && TMP_USR="-u $DDNS_USR" || TMP_USR=""
     [[ $DDNS_MSG ]] && TMP_MSG="&msg=$DDNS_MSG" || TMP_MSG=""
     curl -s $TMP_USR "$DDNS_URL?key=$DDNS_KEY&for=$DDNS_FOR&sub=$DDNS_SUB$TMP_MSG"

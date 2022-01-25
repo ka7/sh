@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ $2 ]]; then
-    pdnsutil list-zone $2 > /dev/null 2>&1
+    pdnsutil list-zone $2 >/dev/null 2>&1
     if [[ $? -gt 0 ]]; then
         echo "ERROR: '$2' does not exist in local pdns datastore"
         exit 3
@@ -24,8 +24,8 @@ add)
     echo "Created DNSSEC for $2"
     if [[ $SW_API_ID && $SW_API_KEY ]]; then
         echo "Add DS records to SW"
-        pdnsutil show-zone $2 2>/dev/null | grep ^DS | \
-            awk '{print $6" "$7" "$8" "$9}' | \
+        pdnsutil show-zone $2 2>/dev/null | grep ^DS |
+            awk '{print $6" "$7" "$8" "$9}' |
             while read DS; do swdsadd $2 $DS; done
     fi
     ;;

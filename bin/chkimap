@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 CIMAP=/etc/dovecot
-PHOST=$(hostname -f|tr 'A-Z' 'a-z')
+PHOST=$(hostname -f | tr 'A-Z' 'a-z')
 PFQDN=${PHOST#*.*} # parent FQDN
 
 if [[ ! -d $CIMAP/vhosts ]]; then
@@ -34,7 +34,7 @@ fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-good.sieve ]]; then
     echo "*** Create $CIMAP/sieve/retrain-as-good.sieve"
-    cat << 'EOS' > $CIMAP/sieve/retrain-as-good.sieve
+    cat <<'EOS' >$CIMAP/sieve/retrain-as-good.sieve
 require ["vnd.dovecot.execute", "environment", "variables", "imapsieve"];
 if environment :matches "imap.mailbox" "*" {if string "${1}" "Trash" { stop; }}
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "good"];
@@ -45,7 +45,7 @@ fi
 
 if [[ ! -f $CIMAP/sieve/retrain-as-spam.sieve ]]; then
     echo "*** Create $CIMAP/sieve/retrain-as-spam.sieve"
-    cat << 'EOS' > $CIMAP/sieve/retrain-as-spam.sieve
+    cat <<'EOS' >$CIMAP/sieve/retrain-as-spam.sieve
 require ["vnd.dovecot.execute"];
 execute :pipe "spamprobe" ["-c", "-d", ".spamprobe", "spam"];
 EOS
@@ -55,7 +55,7 @@ fi
 
 if [[ ! -f $CIMAP/sieve/global.sieve ]]; then
     echo "*** Create $CIMAP/sieve/global.sieve"
-    cat << 'EOS' > $CIMAP/sieve/global.sieve
+    cat <<'EOS' >$CIMAP/sieve/global.sieve
 require ["vnd.dovecot.execute", "fileinto", "envelope", "variables", "editheader"];
 if header :contains "from" ["root@", "daemon@", "postmaster@"] { fileinto "Trash";
 } elsif header :contains "to" ["root@", "daemon@", "postmaster@"] { fileinto "Trash"; }
@@ -74,7 +74,7 @@ if [[ $? -eq 1 ]]; then
     echo "$CIMAP/dovecot.conf will be updated"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.old
     sed -e "s/_VHOST/$PFQDN/" \
-        ~/.sh/etc/_etc_dovecot_dovecot.conf > $CIMAP/dovecot.conf
+        ~/.sh/etc/_etc_dovecot_dovecot.conf >$CIMAP/dovecot.conf
 else
     echo "$CIMAP/dovecot.conf is uptodate"
 fi
@@ -82,4 +82,3 @@ fi
 #find $CIMAP -type f | grep -v conf.d/ | sort
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
-

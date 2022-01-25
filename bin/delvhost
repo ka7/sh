@@ -14,11 +14,11 @@ source ~/.vhosts/$VHOST || exit 3
 
 if [[ $DTYPE == mysql ]]; then
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$ADMIN'") ]]; then
-        HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'"|$SQCMD)
+        HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'" | $SQCMD)
 
         echo "Create backup of (id=$HID) $ADMIN entries"
         mysqldump sysadm vhosts vmails valias vhost_log vhost_log_bkp vmail_log vmail_log_bkp \
-          --where="id=$HID" --compact --no-create-info > $UPATH/etc/mysql-$ADMIN.sql
+            --where="id=$HID" --compact --no-create-info >$UPATH/etc/mysql-$ADMIN.sql
 
         echo "Remove entries from vhosts, vmails and valias"
         echo "DELETE FROM vhosts WHERE id = $HID" | $SQCMD
@@ -30,11 +30,11 @@ if [[ $DTYPE == mysql ]]; then
 
     echo "Create MySQL backup of $DNAME"
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
-        if [[ $DNAME == $ADMIN ]];then
+        if [[ $DNAME == $ADMIN ]]; then
             echo "Leaving '$DNAME' database"
         else
             echo "Backup '$DNAME' database"
-            mysqldump $DNAME > $UPATH/etc/$DNAME.sql
+            mysqldump $DNAME >$UPATH/etc/$DNAME.sql
             chown $(stat -c "%u:%g" $UPATH/etc/) $UPATH/etc/$DNAME.sql
             chmod 640 $UPATH/etc/$DNAME.sql
             echo "Remove '$DNAME' database"
@@ -45,12 +45,12 @@ if [[ $DTYPE == mysql ]]; then
     fi
 elif [[ $DTYPE == sqlite ]]; then
     if [[ -f $DPATH ]]; then
-        HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'"|$SQCMD)
+        HID=$(echo "SELECT id FROM vhosts WHERE domain = '$VHOST'" | $SQCMD)
 
         echo "Create backup of (id=$HID) $ADMIN entries"
-        echo "SELECT * vhosts WHERE hid = $HID" | $SQCMD > $UPATH/etc/sqlite-$ADMIN.sql
-        echo "SELECT * vmails WHERE hid = $HID" | $SQCMD >> $UPATH/etc/sqlite-$ADMIN.sql
-        echo "SELECT * valias WHERE hid = $HID" | $SQCMD >> $UPATH/etc/sqlite-$ADMIN.sql
+        echo "SELECT * vhosts WHERE hid = $HID" | $SQCMD >$UPATH/etc/sqlite-$ADMIN.sql
+        echo "SELECT * vmails WHERE hid = $HID" | $SQCMD >>$UPATH/etc/sqlite-$ADMIN.sql
+        echo "SELECT * valias WHERE hid = $HID" | $SQCMD >>$UPATH/etc/sqlite-$ADMIN.sql
     else
         echo "Warning: $ADMIN ($DTYPE) database does not exist"
     fi
@@ -82,7 +82,7 @@ if [[ -f $C_FPM/pool.d/$VHOST.conf ]]; then
 fi
 
 if [[ -f /root/.vhosts/$VHOST ]]; then
-    if [[ $VHOST == $(hostname -f|tr 'A-Z' 'a-z') ]];then
+    if [[ $VHOST == $(hostname -f | tr 'A-Z' 'a-z') ]]; then
         echo "Leaving /root/.vhosts/$VHOST"
     else
         echo "Remove /root/.vhosts/$VHOST"
@@ -101,7 +101,7 @@ BFILE="$BPATH/$(date +'%Y%m%d')_$VHOST.tgz"
 [[ -f $BFILE ]] && rm $BFILE
 
 echo "Create $BFILE"
-tar czf $BFILE $UPATH > /dev/null 2>&1
+tar czf $BFILE $UPATH >/dev/null 2>&1
 
 # check for VHOST,IP
 UUSER=$(getent passwd | awk -F: "/:$VHOST[,:]/ {print \$1}")
@@ -110,7 +110,7 @@ if [[ -z $UUSER ]]; then
     echo "Warning: '$UUSER' does not exist"
 else
     echo "Remove $UUSER"
-    userdel -rf $UUSER > /dev/null 2>&1
+    userdel -rf $UUSER >/dev/null 2>&1
 fi
 
 if [[ -d $UPATH ]]; then

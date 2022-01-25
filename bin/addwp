@@ -10,7 +10,7 @@
 
 MULTI=${2:-''}
 FPATH=${3:-''}
-TITLE=$(echo $VHOST|tr 'a-z' 'A-Z')
+TITLE=$(echo $VHOST | tr 'a-z' 'A-Z')
 MSITE=''
 MSNET=''
 WPAPP='/usr/local/bin/wp'
@@ -103,15 +103,15 @@ $WPAPP option update medium_large_size_w '0'
 $WPAPP option update medium_large_size_h '0'
 $WPAPP option update permalink_structure '/%postname%/'
 $WPAPP option set default_comment_status closed
-" > /dev/null
+" >/dev/null
 
-export PLUGINS=$(echo $(su $UUSER -c "$WPAPP plugin list --field=name --path=$FPATH"))
-export PAGES=$(su $UUSER -c "$WPAPP post list --post_type=page --format=ids --path=$FPATH")
-export POSTS=$(su $UUSER -c "$WPAPP post list --post_type=post --format=ids --path=$FPATH")
+    export PLUGINS=$(echo $(su $UUSER -c "$WPAPP plugin list --field=name --path=$FPATH"))
+    export PAGES=$(su $UUSER -c "$WPAPP post list --post_type=page --format=ids --path=$FPATH")
+    export POSTS=$(su $UUSER -c "$WPAPP post list --post_type=post --format=ids --path=$FPATH")
 
-#echo 'Install Kadence Starter Templates plugin' # OPTIONAL
-#$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
-#$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
+    #echo 'Install Kadence Starter Templates plugin' # OPTIONAL
+    #$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
+    #$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
 
     su - $UUSER -c "
 cd $FPATH
@@ -146,12 +146,12 @@ $WPAPP post create --post_type=page --post_title='Home' --post_status=publish
 $WPAPP post create --post_type=page --post_title='About' --post_status=publish
 $WPAPP post create --post_type=page --post_title='News' --post_status=publish
 $WPAPP post create --post_type=page --post_title='Contact' --post_status=publish
-" > /dev/null
+" >/dev/null
 
-export HOMEPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=home --format=ids --path=$FPATH")
-export NEWSPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=news --format=ids --path=$FPATH")
-export ABOUTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=about --format=ids --path=$FPATH")
-export CONTACTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=contact --format=ids --path=$FPATH")
+    export HOMEPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=home --format=ids --path=$FPATH")
+    export NEWSPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=news --format=ids --path=$FPATH")
+    export ABOUTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=about --format=ids --path=$FPATH")
+    export CONTACTPAGE=$(su $UUSER -c "$WPAPP post list --post_type=page --name=contact --format=ids --path=$FPATH")
 
     su - $UUSER -c "
 cd $FPATH
@@ -164,9 +164,9 @@ $WPAPP menu location assign primary-menu primary
 $WPAPP option update page_on_front $HOMEPAGE
 $WPAPP option update page_for_posts $NEWSPAGE
 $WPAPP option update show_on_front page
-" > /dev/null
+" >/dev/null
 
-    cat << EOS >> $FPATH/wp-content/themes/kadence-child/functions.php
+    cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
 add_action('admin_head', function() {
     echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
@@ -174,7 +174,7 @@ add_action('admin_head', function() {
 EOS
 
     chperms $VHOST
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 WordPress
 =========
 

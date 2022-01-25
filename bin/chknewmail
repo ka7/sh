@@ -11,21 +11,21 @@ VHOST='*'
 
 if [[ $1 ]]; then
     if [[ $1 =~ "@" ]]; then
-        UUSER="*${1%@*}*";
-        VHOST="*${1#*@}*";
+        UUSER="*${1%@*}*"
+        VHOST="*${1#*@}*"
     else
         VHOST="*$1*"
     fi
-    /bin/ls -l /home/u/$VHOST/home/$UUSER/Maildir > /dev/null 2>&1
+    /bin/ls -l /home/u/$VHOST/home/$UUSER/Maildir >/dev/null 2>&1
     if [[ $? -gt 0 ]]; then
         echo "ERROR: /home/u/$VHOST/home/$UUSER/Maildir does not exist"
         exit 3
     fi
 fi
 
-du -sb /home/u/$VHOST/home/$UUSER/Maildir/new | sort -n | while read -r fsize fpath; do \
-  f_num=$(/bin/ls -l $fpath | grep -v ^total | wc -l); \
-  [[ $f_num -eq 0 ]] && continue; \
-  fdate=$(/bin/ls -l $fpath | head -2 | tail -1 | awk '{print $6"-"$7"-"$8}'); \
-  printf "%'8.3fM %5d  %12s  %s\n" $(echo $fsize/1048576|bc -l) $f_num "$fdate" $fpath; \
+du -sb /home/u/$VHOST/home/$UUSER/Maildir/new | sort -n | while read -r fsize fpath; do
+    f_num=$(/bin/ls -l $fpath | grep -v ^total | wc -l)
+    [[ $f_num -eq 0 ]] && continue
+    fdate=$(/bin/ls -l $fpath | head -2 | tail -1 | awk '{print $6"-"$7"-"$8}')
+    printf "%'8.3fM %5d  %12s  %s\n" $(echo $fsize/1048576 | bc -l) $f_num "$fdate" $fpath
 done

@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-EMAIL=${1,,} # lowercase user@domain
+EMAIL=${1,,}      # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 
 source ~/.vhosts/$VHOST || exit 3

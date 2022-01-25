@@ -10,7 +10,7 @@
 
 LECFG=/etc/dehydrated
 C_SSL=/etc/ssl
-AHOST=$(hostname -f|tr 'A-Z' 'a-z')
+AHOST=$(hostname -f | tr 'A-Z' 'a-z')
 
 [[ -n $1 && $1 == 'force' ]] && FORCE="--force" || FORCE=""
 
@@ -33,9 +33,10 @@ for i in $ALL; do
         chown $(stat -c "%u:%g" $WPATH) -R $WPATH/.well-known
     fi
 
-    echo "WELLKNOWN=$VACME" > config
+    echo "WELLKNOWN=$VACME" >config
 
-    D=""; for A in ${ALTCN//,/ }; do [[ $A != $VHOST ]] && D="$D -d $A"; done
+    D=""
+    for A in ${ALTCN//,/ }; do [[ $A != $VHOST ]] && D="$D -d $A"; done
 
     ./dehydrated -c -d $VHOST $D $FORCE
 

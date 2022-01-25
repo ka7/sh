@@ -6,15 +6,16 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-FMAIL=${1,,} # lowercase source
-TMAIL=${2,,} # lowercase target
+FMAIL=${1,,}      # lowercase source
+TMAIL=${2,,}      # lowercase target
 VHOST=${TMAIL#*@} # userid @ $VHOST
 
 source /root/.vhosts/$VHOST || exit 3
 
 V_CREATED=$(date +"%Y-%m-%d %H:%M:%S")
 
-HID=$(cat << EOS | $SQCMD
+HID=$(
+    cat <<EOS | $SQCMD
  SELECT id
    FROM vhosts
   WHERE domain = '$VHOST'
@@ -23,7 +24,8 @@ EOS
 
 [[ -z $HID ]] && echo "ERROR: '$VHOST' does not exist in $ADMIN.vhosts" && exit 3
 
-USRID=$(cat << EOS | $SQCMD
+USRID=$(
+    cat <<EOS | $SQCMD
  SELECT id
    FROM valias
   WHERE source = '$FMAIL'
@@ -32,7 +34,7 @@ EOS
 
 [[ $USRID ]] && echo "ERROR: '$FMAIL' already exists in $ADMIN.valias" && exit 4
 
-cat << EOS | $SQCMD
+cat <<EOS | $SQCMD
  INSERT INTO valias (
         hid,
         source,

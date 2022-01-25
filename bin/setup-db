@@ -32,7 +32,7 @@ if [[ $DTYPE == sqlite ]]; then
     fi
 
     SQLPK="INTEGER PRIMARY KEY AUTOINCREMENT"
-# are these next two really necessary?
+    # are these next two really necessary?
     SQCMD="sqlite3 $DPATH"
     SQDNS="sqlite3 $DBSQL/$ADMIN/pdns.db"
 
@@ -42,7 +42,7 @@ elif [[ $DTYPE == mysql ]]; then
         echo "### ~/.my.cnf (MySQL) already exists"
     else
         echo "### Create ~/.my.cnf"
-        cat << EOS | tee ~/.my.cnf > /dev/null
+        cat <<EOS | tee ~/.my.cnf >/dev/null
 # Autocreated by setup-db
 [client]
 host = $DHOST
@@ -57,7 +57,7 @@ EOS
         echo "### $DBMYS/$ADMIN already exists"
     else
         echo "### Create MySQL privileges"
-        cat << EOS | mysql
+        cat <<EOS | mysql
 CREATE DATABASE IF NOT EXISTS $ADMIN;
 CREATE DATABASE IF NOT EXISTS pdns;
 GRANT ALL ON $ADMIN . * TO '$DUSER'@'localhost' IDENTIFIED BY '$DPASS';
@@ -66,7 +66,7 @@ FLUSH PRIVILEGES;
 EOS
     fi
     SQLPK="int(11) PRIMARY KEY AUTO_INCREMENT"
-# are these next two really necessary?
+    # are these next two really necessary?
     SQCMD="mysql -BN $ADMIN"
     SQDNS="mysql -BN pdns"
 
@@ -74,7 +74,7 @@ else
     echo "### ERROR: unknown argument '$DTYPE'" && exit 2
 fi
 
-cat << EOS | $SQCMD
+cat <<EOS | $SQCMD
 CREATE TABLE IF NOT EXISTS accounts (
   id $SQLPK,
   grp int(11) NOT NULL DEFAULT '0',
@@ -245,8 +245,7 @@ CREATE VIEW IF NOT EXISTS news_view AS
 
 EOS
 
-
-cat << EOS | $SQDNS
+cat <<EOS | $SQDNS
 CREATE TABLE IF NOT EXISTS comments (
   id $SQLPK,
   domain_id int(11) NOT NULL,
@@ -349,7 +348,7 @@ if [[ $DTYPE == sqlite && ! -L $DPATH/dovecot ]]; then
 fi
 
 # Put create indexes last because when rerun it will fail
-cat << EOS | $SQDNS
+cat <<EOS | $SQDNS
 CREATE UNIQUE INDEX name_index ON domains (name);
 CREATE INDEX rec_name_index ON records (name);
 CREATE INDEX nametype_index ON records (name,type);
@@ -364,7 +363,7 @@ CREATE INDEX domainidindex ON cryptokeys (domain_id);
 CREATE UNIQUE INDEX namealgoindex ON tsigkeys (name, algorithm);
 EOS
 
-cat << EOS | $SQCMD
+cat <<EOS | $SQCMD
 CREATE INDEX accounts_grp ON accounts (grp);
 CREATE INDEX accounts_acl ON accounts (acl);
 CREATE UNIQUE INDEX accounts_login ON accounts (login);

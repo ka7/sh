@@ -8,7 +8,7 @@
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 3
 
-if [[ $1 == all ]];then
+if [[ $1 == all ]]; then
     WPS=$(find $VPATH -type d -name "wp-admin")
     for WP in $WPS; do
         WPATH=$(dirname $WP)

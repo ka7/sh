@@ -17,7 +17,7 @@ cd $UPATH/var
 
 if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
     [[ -f $DNAME.sql ]] && echo "Warning: removing old $DNAME.sql" && rm $DNAME.sql
-    mysqldump $DNAME > $DNAME.sql
+    mysqldump $DNAME >$DNAME.sql
     chown $(stat -c "%u:%g" www) $DNAME.sql
     chmod 640 $DNAME.sql
 else

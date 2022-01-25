@@ -26,7 +26,7 @@ else
     if [[ $(mysql -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DNAME'") ]]; then
         [[ -f $DFILE.sql ]] && echo "!!! Warning: removing old $DFILE.sql" && rm $DFILE.sql
         echo "!!! Backup old $DNAME database"
-        mysqldump $DNAME > $DNAME.sql
+        mysqldump $DNAME >$DNAME.sql
         chown $(stat -c "%u:%g" www) $DNAME.sql
         chmod 640 $DNAME.sql
         echo "!!! Delete old $DNAME database"
@@ -65,19 +65,19 @@ else
         sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
 
         wp user create $WPUSR $AMAIL \
-          --user_pass=$WPASS \
-          --role=administrator \
-          --path=www --allow-root 2> /dev/null
-        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --report-changed-only --path=www --allow-root 2> /dev/null
-        wp plugin deactivate autoptimize --path=www --allow-root 2> /dev/null
-        wp plugin deactivate wp-super-cache --path=www --allow-root 2> /dev/null
-        wp plugin deactivate wordpress-social-login --path=www --allow-root 2> /dev/null
-        wp plugin deactivate jgc-google-recaptcha --path=www --allow-root 2> /dev/null
-        wp plugin deactivate google-analytics-dashboard-for-wp --path=www --allow-root 2> /dev/null
+            --user_pass=$WPASS \
+            --role=administrator \
+            --path=www --allow-root 2>/dev/null
+        wp search-replace "$VFILE" "$VHOST" --skip-columns=guid --report-changed-only --path=www --allow-root 2>/dev/null
+        wp plugin deactivate autoptimize --path=www --allow-root 2>/dev/null
+        wp plugin deactivate wp-super-cache --path=www --allow-root 2>/dev/null
+        wp plugin deactivate wordpress-social-login --path=www --allow-root 2>/dev/null
+        wp plugin deactivate jgc-google-recaptcha --path=www --allow-root 2>/dev/null
+        wp plugin deactivate google-analytics-dashboard-for-wp --path=www --allow-root 2>/dev/null
         # Just in case these were installed
-        wp plugin deactivate elementor-pro --path=www --allow-root 2> /dev/null
-        wp plugin deactivate astra-pro --path=www --allow-root 2> /dev/null
-        wp plugin deactivate astra-pro-sites --path=www --allow-root 2> /dev/null
+        wp plugin deactivate elementor-pro --path=www --allow-root 2>/dev/null
+        wp plugin deactivate astra-pro --path=www --allow-root 2>/dev/null
+        wp plugin deactivate astra-pro-sites --path=www --allow-root 2>/dev/null
 
         echo "
 New login details
@@ -86,9 +86,9 @@ Wordpress: https://$VHOST/wp-admin
 Username: $WPUSR or $AMAIL
 Password: $WPASS
 "
-     fi
-     chperms $VHOST
-     echo "!!! Restored $VHOST - $(du -sbh www)"
+    fi
+    chperms $VHOST
+    echo "!!! Restored $VHOST - $(du -sbh www)"
 fi
 
 systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"

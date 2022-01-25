@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 
 source /root/.vhosts/$VHOST || exit 3
 

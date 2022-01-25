@@ -8,7 +8,7 @@
 
 # !!! This is not correct... REWRITE !!!
 
-[[ -z $3 || $1 =~ -h ]] && \
+[[ -z $3 || $1 =~ -h ]] &&
     echo "Usage: setup-cf email password host_key" && exit 1
 
 _JSON=$(curl -s -X POST https://api.cloudflare.com/host-gw.html \

@@ -11,7 +11,7 @@ source ~/.vhosts/$(hostname -f) || exit 2
 printf "%-40s %10s %10s %10s\n" 'Per Domain Usage In MB' 'Mail' 'Web' 'Total'
 echo "-------------------------------------------------------------------------"
 
-cat << EOS | "${CMD[@]}" | awk '{printf "%-40s %10d %10d %10d\n", $1, $2, $3, $4}'
+cat <<EOS | "${CMD[@]}" | awk '{printf "%-40s %10d %10d %10d\n", $1, $2, $3, $4}'
  SELECT vhosts.domain as Domain,
         round(size_mpath/1000000,0) AS Mpath,
         round(size_wpath/1000000,0) AS Wpath,

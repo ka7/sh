@@ -5,6 +5,6 @@
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: cfp_user_lookup email" && exit 1
 
 curl -s https://api.cloudflare.com/host-gw.html \
-  -d "act=user_lookup" \
-  -d "host_key=$CFP_KEY" \
-  -d "cloudflare_email=$1" | jq .
+    -d "act=user_lookup" \
+    -d "host_key=$CFP_KEY" \
+    -d "cloudflare_email=$1" | jq .

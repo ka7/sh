@@ -24,8 +24,8 @@ wp plugin update-all
 "
 }
 
-if [[ $1 == all ]];then
-    WPS=$(find $VPATH -type d -name "wp-admin"|grep "var/www/wp-admin")
+if [[ $1 == all ]]; then
+    WPS=$(find $VPATH -type d -name "wp-admin" | grep "var/www/wp-admin")
     for WP in $WPS; do
         WPDIR=$(dirname $WP)
         if [[ ! -f $WPDIR/DONOTUPDATE ]]; then

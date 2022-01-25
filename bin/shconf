@@ -12,7 +12,7 @@ cd /root/.vhosts
 
 [[ -z $1 ]] && /bin/ls -1 | grep -v '\.conf$' | sort && exit 3
 
-/bin/ls -1 $1*.conf > /dev/null 2>&1
+/bin/ls -1 $1*.conf >/dev/null 2>&1
 
 [[ $? -ne 0 ]] && echo "Nothing matches $1" && exit 4
 

@@ -12,13 +12,12 @@ RHOST=$2
 
 # Redundant exception for old Spiderweb mailserver MPATH setting
 if [[ $RHOST = s1 ]]; then
-mkvpath()
-{
-    local U P V
-    U=$(echo ${1/@/.}|tr A-Z a-z)
-    for V in ${U//./' '}; do P=$V/$P; done
-    echo $P
-}
+    mkvpath() {
+        local U P V
+        U=$(echo ${1/@/.} | tr A-Z a-z)
+        for V in ${U//./' '}; do P=$V/$P; done
+        echo $P
+    }
     RPATH="$RHOST:/home/m/"$(mkvpath $1)"Maildir"
 else
     RPATH="$RHOST:$MPATH"

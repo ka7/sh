@@ -17,5 +17,5 @@ CFKEY=${2:-$CFKEY}
 curl -s -X GET "https://api.cloudflare.com/client/v4/zones" \
     -H "X-Auth-Email: $CFUSR" \
     -H "X-Auth-Key: $CFKEY" \
-    -H "Content-Type: application/json" \
-    | jq -r '.result[] | [.name,.id] | join("\t")'
+    -H "Content-Type: application/json" |
+    jq -r '.result[] | [.name,.id] | join("\t")'

@@ -10,7 +10,7 @@
 
 VHOST=$1
 IP4_0=${2:-$IP4_0}
-_MOUT=$(echo $VHOST|sed 's/\./-/g')
+_MOUT=$(echo $VHOST | sed 's/\./-/g')
 
 # Postfix
 
@@ -23,7 +23,7 @@ fi
 if [[ ! -f $CSMTP/vhosts/00_master.cf ]]; then
     echo "### Create $CSMTP/vhosts/00_master.cf"
 
-    cat << EOS > $CSMTP/vhosts/00_master.cf
+    cat <<EOS >$CSMTP/vhosts/00_master.cf
 dnsblog    unix  -       -       y       -       0       dnsblog
 tlsproxy   unix  -       -       y       -       0       tlsproxy
 pickup     unix  n       -       y       60      1       pickup
@@ -65,7 +65,7 @@ fi
 if [[ -f $CSMTP/vhosts/$VHOST ]]; then
     echo "### Warning: $CSMTP/vhosts/$VHOST already exists"
 else
-    cat << EOS > $CSMTP/vhosts/$VHOST
+    cat <<EOS >$CSMTP/vhosts/$VHOST
 
 # master.cf section for $VHOST at $IP4_0
 
@@ -105,11 +105,11 @@ EOS
     [[ ! -f $CSMTP/sender_transport ]] && touch $CSMTP/sender_transport
     grep -q "^@$VHOST" $CSMTP/sender_transport
     if [[ $? -ne 0 ]]; then
-        echo "@$VHOST    $_MOUT-out:" >> $CSMTP/sender_transport
+        echo "@$VHOST    $_MOUT-out:" >>$CSMTP/sender_transport
         postmap lmdb:$CSMTP/sender_transport
     fi
     mv $CSMTP/master.cf $CSMTP/master.cf.bkp
-    cat $CSMTP/vhosts/* > $CSMTP/master.cf
+    cat $CSMTP/vhosts/* >$CSMTP/master.cf
     chmod 600 $CSMTP/vhosts/$VHOST
     echo "### Create $CSMTP/vhosts/$VHOST"
 fi
@@ -125,7 +125,7 @@ fi
 if [[ -f $CIMAP/vhosts/$VHOSTS ]]; then
     echo "### Warning: $CIMAP/vhosts/$VHOSTS already exists"
 else
-    cat << EOS > $CIMAP/vhosts/$VHOST
+    cat <<EOS >$CIMAP/vhosts/$VHOST
 local $IP4_0 {
   protocol imap {
     ssl_cert = </etc/ssl/$VHOST/fullchain.pem
@@ -146,6 +146,6 @@ EOS
 fi
 
 mv $CSMTP/master.cf $CSMTP/master.cf.orig
-cat $CSMTP/vhosts/* > $CSMTP/master.cf
+cat $CSMTP/vhosts/* >$CSMTP/master.cf
 
 serva restart mail

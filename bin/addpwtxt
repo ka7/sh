@@ -7,13 +7,13 @@
 VPASS=${1:-$(pwgen -sB 16 1)}
 VHOST=${2:-$(hostname -f)}
 
-if [[ -f ~/.vhosts/$VHOST ]];then
+if [[ -f ~/.vhosts/$VHOST ]]; then
     source ~/.vhosts/$VHOST
     PWPIN=$((1000 + RANDOM % 9999))
     NEWPW=$(pwgen -sB 16 1)
 
     if [[ -d $WPATH ]]; then
-        echo $VPASS > $WPATH/$PWPIN.txt
+        echo $VPASS >$WPATH/$PWPIN.txt
         chown $UUSER:$WUGID $WPATH/$PWPIN.txt
         chmod 640 $WPATH/$PWPIN.txt
         echo "$WPATH/$PWPIN.txt"

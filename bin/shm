@@ -4,23 +4,20 @@
 
 [[ -z $REPO ]] && REPO=~/.sh
 
-usage ()
-{
+usage() {
     echo "\
 cd
 $REPO/bin/shm install
 shm [install|pull|push|remove|removeall|perms]"
 }
 
-sh_perms ()
-{
+sh_perms() {
     chmod 700 $REPO $REPO/{bin,etc,lib}
     chmod 700 $REPO/bin/*
     chmod 600 $REPO/{LICENSE.md,README.md,_help,_menu,_myrc,_shrc,etc/*,lib/*}
 }
 
-sh_install ()
-{
+sh_install() {
     local F FF DF
     cd
     for F in $(ls -1 $REPO/_*); do
@@ -33,13 +30,12 @@ sh_install ()
     sh_perms
     [ -f ~/.profile ] && sed -i 's/^mesg/#mesg/' ~/.profile
     touch ~/.hushlogin
-    echo "[ -f ~/.shrc ] && . ~/.shrc" >> ~/.bashrc
+    echo "[ -f ~/.shrc ] && . ~/.shrc" >>~/.bashrc
     echo
     echo ". ~/.shrc"
 }
 
-sh_remove ()
-{
+sh_remove() {
     local F FF DF
     cd
     sed -i '/\.shrc/d' ~/.bashrc
@@ -52,8 +48,7 @@ sh_remove ()
     done
 }
 
-sh_remove_all ()
-{
+sh_remove_all() {
     sh_remove
     [[ -f ~/.myrc ]] && cp -v ~/.myrc ~/.myrc.bkp
     cd
@@ -68,12 +63,22 @@ git clone https://github.com/netserva/sh .sh
 }
 
 case "$1" in
-    install)   sh_install ;;
-    diff)      cd $REPO ; git diff HEAD@{1} ;;
-    pull)      cd $REPO ; git pull ;;
-    push)      cd $REPO ; git commit -a ; git push ;;
-    remove)    sh_remove ;;
-    removeall) sh_remove_all ;;
-    perms)     sh_perms ;;
-    *)         usage ;;
+install) sh_install ;;
+diff)
+    cd $REPO
+    git diff HEAD@{1}
+    ;;
+pull)
+    cd $REPO
+    git pull
+    ;;
+push)
+    cd $REPO
+    git commit -a
+    git push
+    ;;
+remove) sh_remove ;;
+removeall) sh_remove_all ;;
+perms) sh_perms ;;
+*) usage ;;
 esac

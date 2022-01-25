@@ -12,17 +12,17 @@
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
     -H "X-Auth-Email: $CFUSR" \
     -H "X-Auth-Key: $CFKEY" \
-    -H "Content-Type: application/json" \
-    | jq -r '{"result"}[] | .[0] | .id')
+    -H "Content-Type: application/json" |
+    jq -r '{"result"}[] | .[0] | .id')
 
 if [[ $ZONID ]]; then
 
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFUSR" \
         -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '.result[] | [.id] | join("")' \
-        | while read i; do
+        -H "Content-Type: application/json" |
+        jq -r '.result[] | [.id] | join("")' |
+        while read i; do
             curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records/$i" \
                 -H "X-Auth-Email: $CFUSR" \
                 -H "X-Auth-Key: $CFKEY" \

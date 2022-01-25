@@ -36,8 +36,8 @@ if [[ $WSERV == nginx ]]; then ### Nginx config files
 
     if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
-        if grep -q autoconfig. <<< "$SUBDS"; then
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+        if grep -q autoconfig. <<<"$SUBDS"; then
+            cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 autoconfig.$VHOST;
@@ -56,8 +56,8 @@ server {
 EOS
         fi
 
-        if grep -q autodiscover. <<< "$SUBDS"; then
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+        if grep -q autodiscover. <<<"$SUBDS"; then
+            cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 autodiscover.$VHOST;
@@ -76,8 +76,8 @@ server {
 EOS
         fi
 
-        if grep -q mail. <<< "$SUBDS"; then
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+        if grep -q mail. <<<"$SUBDS"; then
+            cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 mail.$VHOST;
@@ -91,8 +91,8 @@ server {
 EOS
         fi
 
-        if grep -q www. <<< "$SUBDS"; then
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+        if grep -q www. <<<"$SUBDS"; then
+            cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 www.$VHOST;
@@ -103,7 +103,7 @@ server {
 EOS
         fi
 
-        cat << EOS >> $C_WEB/sites-enabled/$VHOST
+        cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
@@ -118,17 +118,17 @@ EOS
     # Cleanup any dangling left over self signed certificates
     if [[ -n "$(find $C_WEB/sites-enabled -maxdepth 1 -name '*.selfsigned' -print -quit)" ]]; then
         echo "Remove $C_WEB/sites-enabled/*.selfsigned"
-        rm  $C_WEB/sites-enabled/*.selfsigned
+        rm $C_WEB/sites-enabled/*.selfsigned
     fi
     chmod 755 $C_SSL/$VHOST
 
-
-elif [[ $WSERV == lsws ]]; then ### OpenLiteSpeed config files
-
+elif
+    [[ $WSERV == lsws ]]
+then ### OpenLiteSpeed config files
 
     if [[ ! -f $C_WEB/conf/vhosts/$VHOST/vhconf.conf ]]; then
         [[ -d $C_WEB/conf/vhosts/$VHOST ]] || mkdir -p $C_WEB/conf/vhosts/$VHOST
-        cat << EOS > $C_WEB/conf/vhosts/$VHOST/vhconf.conf
+        cat <<EOS >$C_WEB/conf/vhosts/$VHOST/vhconf.conf
 docRoot                 $WPATH
 vhDomain                $VHOST
 vhAliases               www.$VHOST

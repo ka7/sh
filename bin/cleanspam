@@ -23,22 +23,22 @@ else
     TPATH=$VPATH
 fi
 
-find $TPATH -type d -name .spamprobe | while read i; do \
- [[ DBG ]] && echo $i; \
- HPATH=$(dirname $i); \
- cd $HPATH; \
- mkdir spamprobe-bkp; \
- cp -a .spamprobe/* spamprobe-bkp; \
- db5.3_recover -h spamprobe-bkp; \
- spamprobe -d spamprobe-bkp cleanup 2 366; \
- [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "; \
- mkdir spamprobe-new; \
- spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import; \
- chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new; \
- mv .spamprobe spamprobe-old; \
- mv spamprobe-new .spamprobe; \
- [[ DBG ]] && du -sh .spamprobe | cut -f1; \
- sleep 2; \
- rm -rf spamprobe-old spamprobe-bkp; \
- sleep 1; \
- done
+find $TPATH -type d -name .spamprobe | while read i; do
+    [[ DBG ]] && echo $i
+    HPATH=$(dirname $i)
+    cd $HPATH
+    mkdir spamprobe-bkp
+    cp -a .spamprobe/* spamprobe-bkp
+    db5.3_recover -h spamprobe-bkp
+    spamprobe -d spamprobe-bkp cleanup 2 366
+    [[ DBG ]] && echo -n "$(du -sh .spamprobe | cut -f1) "
+    mkdir spamprobe-new
+    spamprobe -d spamprobe-bkp export | spamprobe -d spamprobe-new import
+    chown $(stat -c "%u:%g" $HPATH) -R spamprobe-new
+    mv .spamprobe spamprobe-old
+    mv spamprobe-new .spamprobe
+    [[ DBG ]] && du -sh .spamprobe | cut -f1
+    sleep 2
+    rm -rf spamprobe-old spamprobe-bkp
+    sleep 1
+done

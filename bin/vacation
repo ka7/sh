@@ -29,7 +29,7 @@ SIEVE="$_PATH/sieve/vacation.sieve"
 
 echo "Save to $SIEVE"
 
-cat << EOS > $SIEVE
+cat <<EOS >$SIEVE
 require ["vacation"];
 # rule:[Out of office]
 if true

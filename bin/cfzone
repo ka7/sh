@@ -13,16 +13,16 @@ CFKEY=${3:-$CFKEY}
 ZONID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$1" \
     -H "X-Auth-Email: $CFUSR" \
     -H "X-Auth-Key: $CFKEY" \
-    -H "Content-Type: application/json" \
-    | jq -r '{"result"}[] | .[0] | .id')
+    -H "Content-Type: application/json" |
+    jq -r '{"result"}[] | .[0] | .id')
 
 if [[ $ZONID ]]; then
 
     curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONID/dns_records" \
         -H "X-Auth-Email: $CFUSR" \
         -H "X-Auth-Key: $CFKEY" \
-        -H "Content-Type: application/json" \
-        | jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
+        -H "Content-Type: application/json" |
+        jq -r '.result[] | [.id,.name,.type,.content] | join("\t")'
 
 else
     echo "ZONE $1 does not exist"

@@ -2,11 +2,11 @@
 # .sh/bin/chkmbox 20190601 - 20190601
 # Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1  || $1 =~ '-h' ]] && echo "Usage: chkmbox user@domain" && exit 1
+[[ -z $1 || $1 =~ '-h' ]] && echo "Usage: chkmbox user@domain" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! You must be root (use sudo)" && exit 2
 
-EMAIL=${1,,} # lowercase user@domain
+EMAIL=${1,,}      # lowercase user@domain
 VHOST=${EMAIL#*@} # userid @ $VHOST
 VUSER=${EMAIL%@*} # $VUSER @ domain
 VPATH="/home/u"
@@ -32,29 +32,29 @@ cd Maildir
 
 if [[ -f courierimapsubscribed ]]; then
     echo "Remove any old Courier related files"
-    find -type f -name "sqwebmail*" -exec rm -f {} \; > /dev/null 2>&1
-    find -type d -name "sqwebmail*" -exec rm -rf {} \; > /dev/null 2>&1
-    find -type f -name "courier*" -exec rm -f {} \; > /dev/null 2>&1
-    find -type d -name "courier*" -exec rm -rf {} \; > /dev/null 2>&1
-    find -type f -name "calendar*" -exec rm -f {} \; > /dev/null 2>&1
-    find -type d -name "calendar" -exec rm -rf {} \; > /dev/null 2>&1
-    rm -f maildirsize quotawarn > /dev/null 2>&1
-    rm -rf .Spam/ .Spam.ThisIsNotSpam/ .Spam.ThisIsSpam/ .IsSpam/ .IsGood/ > /dev/null 2>&1
-    rm -rf .Trash.* > /dev/null 2>&1
-    rm .Trash/cur/* .Trash/new/* > /dev/null 2>&1
+    find -type f -name "sqwebmail*" -exec rm -f {} \; >/dev/null 2>&1
+    find -type d -name "sqwebmail*" -exec rm -rf {} \; >/dev/null 2>&1
+    find -type f -name "courier*" -exec rm -f {} \; >/dev/null 2>&1
+    find -type d -name "courier*" -exec rm -rf {} \; >/dev/null 2>&1
+    find -type f -name "calendar*" -exec rm -f {} \; >/dev/null 2>&1
+    find -type d -name "calendar" -exec rm -rf {} \; >/dev/null 2>&1
+    rm -f maildirsize quotawarn >/dev/null 2>&1
+    rm -rf .Spam/ .Spam.ThisIsNotSpam/ .Spam.ThisIsSpam/ .IsSpam/ .IsGood/ >/dev/null 2>&1
+    rm -rf .Trash.* >/dev/null 2>&1
+    rm .Trash/cur/* .Trash/new/* >/dev/null 2>&1
 fi
 
 if [[ -d .Sent.* ]]; then
     echo "Remove Sent subfolders and move any messages to Sent"
-    for i in .Sent.*/cur/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
-    for i in .Sent.*/new/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
-    rm -rf .Sent.* > /dev/null 2>&1
+    for i in .Sent.*/cur/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
+    for i in .Sent.*/new/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
+    rm -rf .Sent.* >/dev/null 2>&1
 fi
 
 if [[ -d .Trash ]]; then
     if [[ -d ".Deleted Items" && ! -L ".Deleted Items" ]]; then
         echo "Remove '.Deleted Items' folder"
-        rm -rf ".Deleted Items" > /dev/null 2>&1
+        rm -rf ".Deleted Items" >/dev/null 2>&1
     fi
     if [[ ! -L ".Deleted Items" ]]; then
         echo "Create symlink from '.Deleted Items' to .Trash"
@@ -62,7 +62,7 @@ if [[ -d .Trash ]]; then
     fi
     if [[ -d ".Deleted Messages" && ! -L ".Deleted Messages" ]]; then
         echo "Remove '.Deleted Messages' folder"
-        rm -rf ".Deleted Messages" > /dev/null 2>&1
+        rm -rf ".Deleted Messages" >/dev/null 2>&1
     fi
     if [[ ! -L ".Deleted Messages" ]]; then
         echo "Create symlink from '.Deleted Messages' to .Trash"
@@ -75,7 +75,7 @@ fi
 if [[ -d .Junk ]]; then
     if [[ -d ".Junk E-mail" && ! -L ".Junk E-mail" ]]; then
         echo "Remove '.Junk E-mail' folder"
-        rm -rf ".Junk E-mail" > /dev/null 2>&1
+        rm -rf ".Junk E-mail" >/dev/null 2>&1
     fi
     if [[ ! -L ".Junk E-mail" ]]; then
         echo "Create symlink from '.Junk E-mail' to .Junk"
@@ -87,20 +87,20 @@ fi
 
 if [[ -d .Sent ]]; then
     if [[ -d ".Sent Items" && ! -L ".Sent Items" ]]; then
-        for i in ".Sent Items"/cur/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
-        for i in ".Sent Items"/new/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
+        for i in ".Sent Items"/cur/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
+        for i in ".Sent Items"/new/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
         echo "Remove '.Sent Items' folder"
-        rm -rf ".Sent Items"  > /dev/null 2>&1
+        rm -rf ".Sent Items" >/dev/null 2>&1
     fi
     if [[ ! -L ".Sent Items" ]]; then
         echo "Create symlink from '.Sent Items' to .Sent"
         ln -s .Sent ".Sent Items"
     fi
-    if [[ -d ".Sent Messages" && ! -L ".Sent Messages"  ]]; then
-        for i in ".Sent Messages"/cur/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
-        for i in ".Sent Messages"/new/* ; do mv "$i" .Sent/new ; done > /dev/null 2>&1
-         echo "Remove '.Sent Messages' folder"
-       rm -rf ".Sent Messages"  > /dev/null 2>&1
+    if [[ -d ".Sent Messages" && ! -L ".Sent Messages" ]]; then
+        for i in ".Sent Messages"/cur/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
+        for i in ".Sent Messages"/new/*; do mv "$i" .Sent/new; done >/dev/null 2>&1
+        echo "Remove '.Sent Messages' folder"
+        rm -rf ".Sent Messages" >/dev/null 2>&1
     fi
     if [[ ! -L ".Sent Messages" ]]; then
         echo "Create symlink from '.Sent Messages' to .Sent"

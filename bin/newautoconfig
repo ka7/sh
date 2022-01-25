@@ -2,7 +2,7 @@
 # .sh/bin/newautoconfig 20170201 - 20180626
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 == '-h' || $1 =~ -h ]] && \
+[[ $1 == '-h' || $1 =~ -h ]] &&
     echo "Usage: newautoconfig [domain] [smtpdomain] [imapdomain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo)" && exit 2
@@ -20,7 +20,7 @@ XFILE="config-v1.1.xml"
 [[ -f $XPATH/$XFILE ]] && echo "Warning: $XPATH/$XFILE exists"
 
 echo "!!! Create $XPATH/$XFILE"
-cat << EOS > $XPATH/$XFILE
+cat <<EOS >$XPATH/$XFILE
 <?xml version="1.0" encoding="UTF-8"?>
 <clientConfig version="1.1">
   <emailProvider id="$VHOST">

@@ -10,9 +10,9 @@
 [[ -z $CFKEY ]] && echo "ERROR: CFKEY is empty" && exit 3
 
 _JSON=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$1/dns_records/$2" \
-     -H "X-Auth-Email: $CFUSR" \
-     -H "X-Auth-Key: $CFKEY" \
-     -H "Content-Type: application/json")
+    -H "X-Auth-Email: $CFUSR" \
+    -H "X-Auth-Key: $CFKEY" \
+    -H "Content-Type: application/json")
 
 RESULT=$(echo $_JSON | jq -r '.success')
 

@@ -20,7 +20,7 @@ if [[ $1 == remove ]]; then
     echo "Backup openlitespeed configs"
     [[ -f $LSBKP ]] && rm $LSBKP
     cd $LROOT
-    tar -cf $LSBKP {admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} > /dev/null
+    tar -cf $LSBKP {admin/conf/admin_config.conf,conf/httpd_config.conf,conf/vhosts/*/vhconf.conf} >/dev/null
     cd
     echo "Remove openlitespeed from $LROOT"
     $LROOT/bin/lswsctrl stop
@@ -37,11 +37,11 @@ fi
 if [[ ! -d $LROOT ]]; then
     echo "Fetch openlitespeed-$LSVER.tgz"
     cd
-    wget -q https://openlitespeed.org/packages/openlitespeed-$LSVER.tgz > /dev/null
+    wget -q https://openlitespeed.org/packages/openlitespeed-$LSVER.tgz >/dev/null
     echo "Extract openlitespeed-$LSVER.tgz"
-    tar -xf openlitespeed-$LSVER.tgz > /dev/null
+    tar -xf openlitespeed-$LSVER.tgz >/dev/null
     cd openlitespeed
-    cat << EOS | tee ols.conf > /dev/null
+    cat <<EOS | tee ols.conf >/dev/null
 DEFAULT_TMP_DIR=/tmp/lshttpd
 OPENLSWS_ADMIN=$ADMIN
 OPENLSWS_ADMINPORT=7080
@@ -56,8 +56,8 @@ SERVERROOT=$LROOT
 USE_LSPHP7=no
 EOS
     echo "Installing openlitespeed to $LROOT"
-    ./install.sh > /dev/null
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    ./install.sh >/dev/null
+    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 LSWSAdmin
 =========
 
@@ -66,7 +66,7 @@ Username: $UUSER
 Password: $APASS
 
 EOS
-    else
+else
     echo "Error: OpenLiteSpeed already installed" && exit 4
 fi
 
@@ -74,11 +74,11 @@ grep -q 'rpms.litespeedtech.com' /etc/apt/sources.list
 
 if [[ $? -gt 0 ]]; then
     echo "Append OLS package repo to /etc/apt/sources.list"
-    cat << EOS | tee -a /etc/apt/sources.list > /dev/null
+    cat <<EOS | tee -a /etc/apt/sources.list >/dev/null
 deb http://rpms.litespeedtech.com/debian/ focal main
 deb http://archive.ubuntu.com/ubuntu focal main universe
 EOS
-    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 >/dev/null
 
     if [[ -f /etc/apt/sources.list.d/lst_debian_repo.list ]]; then
         rm /etc/apt/sources.list.d/lst_debian_repo.list
@@ -86,9 +86,9 @@ EOS
 fi
 
 echo "Install lsphp$LSPHP from OLS repo"
-apt-get -q update > /dev/null
-apt-get -q -y install libicu66 > /dev/null
-apt-get -q -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-sqlite3 > /dev/null
+apt-get -q update >/dev/null
+apt-get -q -y install libicu66 >/dev/null
+apt-get -q -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-sqlite3 >/dev/null
 # PHP 7.4 list
 #    apt-get -y install lsphp$LSPHP lsphp$LSPHP-common lsphp$LSPHP-curl lsphp$LSPHP-igbinary lsphp$LSPHP-imagick lsphp$LSPHP-imap lsphp$LSPHP-intl lsphp$LSPHP-json lsphp$LSPHP-ldap lsphp$LSPHP-mysql lsphp$LSPHP-opcache lsphp$LSPHP-redis lsphp$LSPHP-sqlite3 > /dev/null
 
@@ -102,7 +102,7 @@ if [[ $SRCIP ]]; then
 "
 fi
 
-cat << EOS > $LROOT/admin/conf/admin_config.conf
+cat <<EOS >$LROOT/admin/conf/admin_config.conf
 enableCoreDump            1
 sessionTimeout            3600
 
@@ -129,7 +129,7 @@ listener adminListener {
 }
 EOS
 
-cat << EOS > $LROOT/conf/httpd_config.conf
+cat <<EOS >$LROOT/conf/httpd_config.conf
 #
 # PLAIN TEXT CONFIGURATION FILE
 #
@@ -368,7 +368,7 @@ vhTemplate Vhosts {
 }
 EOS
 
-cat << EOS > $LROOT/conf/templates/vhosts.conf
+cat <<EOS >$LROOT/conf/templates/vhosts.conf
 vhRoot                    /home/u/\$VH_NAME/var
 configFile                /home/u/\$VH_NAME/etc/vhost.conf
 maxKeepAliveReq           100

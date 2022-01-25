@@ -2,7 +2,7 @@
 # .sh/bin/setup-ssh 20170521 - 20201018
 # Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && \
+[[ -z $1 || $1 =~ '-h' ]] &&
     echo "Usage: setup-ssh domain [targethost] [user] [port] [sshkeyname]" && exit 1
 
 VHOST=$1
@@ -19,7 +19,7 @@ fi
 
 if [[ ! -f ~/.ssh/$S_KEY ]]; then
     echo "Create local ~/.ssh/$S_KEY key"
-    ssh-keygen -b 2048 -t rsa -f ~/.ssh/$S_KEY -N '' > /dev/null
+    ssh-keygen -b 2048 -t rsa -f ~/.ssh/$S_KEY -N '' >/dev/null
     chmod 600 ~/.ssh/$S_KEY*
     echo "Copy public key to $SUSER@$VHOST:.ssh/authorized_keys and chmod 600"
     echo
@@ -35,8 +35,8 @@ if [[ $? -eq 1 ]]; then
   Port $SPORT
   Hostname $THOST
   IdentityFile ~/.ssh/$S_KEY
-" > ~/.ssh/config.tmp
-    cat ~/.ssh/config >> ~/.ssh/config.tmp
+" >~/.ssh/config.tmp
+    cat ~/.ssh/config >>~/.ssh/config.tmp
     mv ~/.ssh/config.tmp ~/.ssh/config
     chmod 600 ~/.ssh/config
 else

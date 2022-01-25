@@ -10,7 +10,7 @@
 [[ -z $4 ]] && _UNIQ='' || _UNIQ="-d 'unique_id=$3'"
 
 curl -s https://api.cloudflare.com/host-gw.html \
-  -d "act=user_create" \
-  -d "host_key=$CFP_KEY" \
-  -d "cloudflare_email=$1" \
-  -d "cloudflare_pass=$2" $_NAME $_UNIQ | jq .
+    -d "act=user_create" \
+    -d "host_key=$CFP_KEY" \
+    -d "cloudflare_email=$1" \
+    -d "cloudflare_pass=$2" $_NAME $_UNIQ | jq .

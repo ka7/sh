@@ -13,7 +13,7 @@
 #Login to Cloudflare for CF_KEY then go to https://www.cloudflare.com/a/account/my-account
 #cd $LECFG; wget https://raw.githubusercontent.com/BotoX/dehydrated-cloudflare-hook/master/hook.sh
 
-[[ -z $1 || $1 =~ -h ]] && \
+[[ -z $1 || $1 =~ -h ]] &&
     echo "Usage: newssl domain [subd subd...[--force][--nocfg][0.0.0.0]]" && exit 1
 
 VHOST=$1
@@ -29,7 +29,7 @@ for SUB in $_ARGS; do
     SUBDS="$SUBDS -d $SUB.$VHOST"
 done
 
-AHOST=$(hostname -f|tr 'A-Z' 'a-z')
+AHOST=$(hostname -f | tr 'A-Z' 'a-z')
 VPATH="/home/u"
 WPATH="$VPATH/$AHOST/var/www"
 WACME="$WPATH/.well-known/acme-challenge"
@@ -40,14 +40,14 @@ C_WEB="/etc/nginx"
 
 [[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
 
-[[ ! -d $LECFG ]] && \
-    mkdir $LECFG && \
-    git clone --depth 1 $LEGIT $LECFG && \
-    chmod +x $LECFG/dehydrated && \
-    ln -s $C_SSL $LECFG/certs > /dev/null
+[[ ! -d $LECFG ]] &&
+    mkdir $LECFG &&
+    git clone --depth 1 $LEGIT $LECFG &&
+    chmod +x $LECFG/dehydrated &&
+    ln -s $C_SSL $LECFG/certs >/dev/null
 
-[[ ! -f $LECFG/accounts/*/account_key.pem ]] && \
-    $LECFG/dehydrated --register --accept-terms > /dev/null
+[[ ! -f $LECFG/accounts/*/account_key.pem ]] &&
+    $LECFG/dehydrated --register --accept-terms >/dev/null
 
 if [[ ! -d $WACME ]]; then
     mkdir -p $WACME
@@ -55,13 +55,13 @@ if [[ ! -d $WACME ]]; then
 fi
 
 cd $LECFG
-echo "CONTACT_EMAIL=$AMAIL" > config
+echo "CONTACT_EMAIL=$AMAIL" >config
 
 if [[ $DHOOK ]]; then
-    echo "CHALLENGETYPE=dns-01" >> config
-    echo "HOOK=/etc/dehydrated/$DHOOK" >> config
+    echo "CHALLENGETYPE=dns-01" >>config
+    echo "HOOK=/etc/dehydrated/$DHOOK" >>config
 else
-    echo "WELLKNOWN=$WACME" >> config
+    echo "WELLKNOWN=$WACME" >>config
 fi
 
 ./dehydrated -c -d $VHOST$SUBDS
@@ -70,8 +70,8 @@ if [[ $? -eq 0 ]]; then
     if [[ -z $NOCFG ]]; then
         if [[ ! -f $C_WEB/sites-enabled/$VHOST ]]; then
 
-            if grep -q autoconfig. <<< "$SUBDS"; then
-                cat << EOS >> $C_WEB/sites-enabled/$VHOST
+            if grep -q autoconfig. <<<"$SUBDS"; then
+                cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 autoconfig.$VHOST;
@@ -90,8 +90,8 @@ server {
 EOS
             fi
 
-            if grep -q autodiscover. <<< "$SUBDS"; then
-                cat << EOS >> $C_WEB/sites-enabled/$VHOST
+            if grep -q autodiscover. <<<"$SUBDS"; then
+                cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 autodiscover.$VHOST;
@@ -110,8 +110,8 @@ server {
 EOS
             fi
 
-            if grep -q mail. <<< "$SUBDS"; then
-                cat << EOS >> $C_WEB/sites-enabled/$VHOST
+            if grep -q mail. <<<"$SUBDS"; then
+                cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 mail.$VHOST;
@@ -125,8 +125,8 @@ server {
 EOS
             fi
 
-            if grep -q www. <<< "$SUBDS"; then
-                cat << EOS >> $C_WEB/sites-enabled/$VHOST
+            if grep -q www. <<<"$SUBDS"; then
+                cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 www.$VHOST;
@@ -137,7 +137,7 @@ server {
 EOS
             fi
 
-            cat << EOS >> $C_WEB/sites-enabled/$VHOST
+            cat <<EOS >>$C_WEB/sites-enabled/$VHOST
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
@@ -152,7 +152,7 @@ EOS
         # Cleanup any dangling left over self signed certificates
         if [[ -n "$(find $C_WEB/sites-enabled -maxdepth 1 -name '*.selfsigned' -print -quit)" ]]; then
             echo "### Remove $C_WEB/sites-enabled/*.selfsigned"
-            rm  $C_WEB/sites-enabled/*.selfsigned
+            rm $C_WEB/sites-enabled/*.selfsigned
         fi
         chmod 755 $C_SSL/$VHOST
     else

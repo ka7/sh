@@ -47,14 +47,13 @@ if [[ ! -d $CIMAP/sieve ]]; then
     mkdir $CIMAP/sieve
 fi
 
-
 ### postfix
 
 if [[ ! -f $CSMTP/main.cf.orig ]]; then
     echo "### Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf $CSMTP/main.cf
-    echo "### /^Subject:/      WARN" > $CSMTP/header_checks
+    echo "### /^Subject:/      WARN" >$CSMTP/header_checks
     chmod 644 $CSMTP/main.cf $CSMTP/header_checks
 fi
 
@@ -72,7 +71,7 @@ if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
     cp ~/.sh/etc/_etc_dovecot_dovecot.conf $CIMAP/dovecot.conf
     chmod 644 $CIMAP/dovecot.conf
-    openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096  > /dev/null 2>&1
+    openssl dhparam -dsaparam -out /etc/dovecot/dh.pem 4096 >/dev/null 2>&1
 fi
 
 ### Spamprobe
@@ -127,7 +126,7 @@ if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
     echo "### Create $C_WEB/nginx.conf"
     mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
-    [[ $OSTYP != ubuntu ]] && \
+    [[ $OSTYP != ubuntu ]] &&
         sed -i $C_WEB/nginx.conf -e "s/www-data/$WUGID/"
 fi
 
@@ -208,12 +207,12 @@ fi
 
 if [[ ! -f $C_SSL/dhparams.pem ]]; then
     echo "### Create dhparams.pem"
-    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 > /dev/null 2>&1
+    openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 >/dev/null 2>&1
 fi
 
 if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
     echo "### Create generic Port 80 nginx default config"
-    [[ -h $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
+    [[ -L $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
 fi
 

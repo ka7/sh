@@ -18,12 +18,13 @@ DU="/usr/bin/du -s"
 YMD=$(date +%Y-%m-%d)
 FIND="/usr/bin/find"
 
-log_vhost()
-{
+log_vhost() {
     local UPATH=$VPATH/${1,,}
     local MPATH=$UPATH/home
     local WPATH=$UPATH/var/www
-    local UDU=0; local MDU=0; local WDU=0;
+    local UDU=0
+    local MDU=0
+    local WDU=0
 
     [[ -d $UPATH ]] && UDU=$($DU $UPATH | cut -f1)
     [[ -d $MPATH ]] && MDU=$($DU $MPATH | cut -f1)
@@ -66,14 +67,18 @@ log_vhost()
     fi
 }
 
-log_vmail()
-{
+log_vmail() {
     local MPATH=$VPATH/${1,,}/home
     [[ ! -d $MPATH ]] && echo "Warning: $MPATH does not exist"
     local MBOXS=$(find $MPATH -mindepth 1 -maxdepth 1 -type d \! -type l \! -name "u" | sort)
 
     for MBOX in $MBOXS; do
-        local HDU=0; local MDU=0; local SDU=0; local INUM=0; local SNUM=0; local TNUM=0;
+        local HDU=0
+        local MDU=0
+        local SDU=0
+        local INUM=0
+        local SNUM=0
+        local TNUM=0
 
         [[ -d $MBOX ]] && HDU=$($DU $MBOX | cut -f1)
         [[ -d $MBOX/Maildir ]] && MDU=$($DU $MBOX/Maildir | cut -f1)
@@ -129,7 +134,10 @@ log_vmail()
 
 if [[ -z $1 || $1 == all ]]; then
     VHOSTS=$(find $VPATH -mindepth 1 -maxdepth 1 -type d \! -type l | sed "s#$VPATH/##" | sort)
-    for VHOST in $VHOSTS; do log_vhost $VHOST; log_vmail $VHOST; done
+    for VHOST in $VHOSTS; do
+        log_vhost $VHOST
+        log_vmail $VHOST
+    done
 else
     log_vhost $1
     log_vmail $1

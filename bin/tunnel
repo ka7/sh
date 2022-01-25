@@ -2,7 +2,7 @@
 # .sh/bin/tunnel 20181102 - 20181207
 # Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ -z $1 || $1 =~ '-h' ]] && \
+[[ -z $1 || $1 =~ '-h' ]] &&
     echo "Usage: tunnel forward|reverse|list|del targethost [lport] [rport] [luser] [ruser] [sport]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
@@ -28,25 +28,25 @@ if [[ $1 == list ]]; then
         echo "No systemd tunnel files exit"
     fi
     echo
-    
+
     if [[ -f $LHOME/.ssh/authorized_keys ]]; then
         echo "!!! List keys in $LHOME/.ssh/authorized_keys"
         cat $LHOME/.ssh/authorized_keys | awk '{print $3}'
         echo
     fi
-    
+
     stat -t $LHOME/.ssh/* >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         echo "!!! List all files in $LHOME/.ssh"
         /bin/ls -1 $LHOME/.ssh/
         echo
     fi
-    
+
     if [[ $THOST != local ]]; then
         if [[ ! -z $SSHPASS ]]; then
             sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
-                sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST << EOSSH
+                sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST <<EOSSH
 echo "!!! List keys in $RUSER@$THOST:.ssh/authorized_keys"
 cat .ssh/authorized_keys | awk '{print \$3}'
 echo
@@ -54,14 +54,14 @@ echo "!!! List all files in $RUSER@$THOST:.ssh/"
 ls -1 .ssh
 EOSSH
             fi
-        fi    
+        fi
     fi
     exit 3
 
 elif [[ $1 == del ]]; then
 
     # Stop, disable and remove systemd service control file
-    
+
     SERVF="/etc/systemd/system/${TUNID}.service"
     if [[ -f $SERVF ]]; then
         systemctl stop $TUNID
@@ -74,9 +74,9 @@ elif [[ $1 == del ]]; then
         echo "!!! $SERVF does not exist"
     fi
     echo
-    
+
     # Remove local SSH public key from .ssh/authorized_keys
-    
+
     grep " $TUNID@" $LHOME/.ssh/authorized_keys >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         echo "!!! Delete local public key from $LHOME/.ssh/authorized_keys"
@@ -84,7 +84,7 @@ elif [[ $1 == del ]]; then
     fi
 
     # Remove local public and private SSH keys
-    
+
     if [[ -f $LHOME/.ssh/$TUNID ]]; then
         echo "!!! Delete local private key $LHOME/.ssh/$TUNID"
         rm $LHOME/.ssh/$TUNID
@@ -94,14 +94,14 @@ elif [[ $1 == del ]]; then
         echo "!!! Delete local public key $LHOME/.ssh/$TUNID.pub"
         rm $LHOME/.ssh/$TUNID.pub
     fi
-    
+
     # Remove SSH public key from remote:.ssh/authorized_keys
-    
+
     if [[ $THOST != local ]]; then
         if [[ ! -z $SSHPASS ]]; then
             sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT $RUSER@$THOST exit
             if [[ $? -eq 0 ]]; then
-                sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST << EOSSH
+                sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST <<EOSSH
 grep " $TUNID@" .ssh/authorized_keys >/dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     echo "!!! Delete remote public key from $RUSER@$THOST:.ssh/authorized_keys"
@@ -156,7 +156,7 @@ chmod 600 *"
         P_KEY=$(cat $LHOME/.ssh/$TUNID.pub)
         sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT $RUSER@$THOST exit
         if [[ $? -eq 0 ]]; then
-            sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST << EOSSH
+            sshpass -e ssh -o StrictHostKeyChecking=no -p $SPORT -T $RUSER@$THOST <<EOSSH
 echo "!!! Append $LHOME/.ssh/$TUNID.pub to $RUSER@$THOST:.ssh/authorized_keys"
 echo "$P_KEY" >> .ssh/authorized_keys       
 EOSSH
@@ -177,7 +177,7 @@ ssh -o StrictHostKeyChecking=no -p $SPORT -i $LHOME/.ssh/$TUNID $RUSER@$THOST
 fi
 
 service_file() {
-   cat << EOS
+    cat <<EOS
 [Unit]
 Description=${T_STR} SSH Tunnel
 ConditionPathExists=|/usr/bin
@@ -202,7 +202,7 @@ EOS
 }
 
 if [[ $1 == forward || $1 == reverse ]]; then
-    service_file $* > /etc/systemd/system/${TUNID}.service
+    service_file $* >/etc/systemd/system/${TUNID}.service
     systemctl daemon-reload
     sleep 1
     systemctl start ${TUNID}.service

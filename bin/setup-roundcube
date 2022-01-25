@@ -6,7 +6,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-VHOST=${1:-$(hostname -f|tr 'A-Z' 'a-z')}
+VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 RCVER=${2:-'1.4.11'}
 DBTMP=${VHOST//[.-]/_}
 
@@ -17,7 +17,7 @@ if [[ -d $WPATH/vendor/roundcube/ ]]; then
 else
     echo "### Setup RoundCube in $WPATH"
     cd $UPATH/var
-    [[ ! -f roundcubemail-$RCVER-complete.tar.gz ]] && \
+    [[ ! -f roundcubemail-$RCVER-complete.tar.gz ]] &&
         wget -q https://github.com/roundcube/roundcubemail/releases/download/$RCVER/roundcubemail-$RCVER-complete.tar.gz
     tar xf roundcubemail-$RCVER-complete.tar.gz
 
@@ -44,7 +44,7 @@ else
     mkdir data
     wget -q https://getcomposer.org/composer.phar
 
-    cat << EOS > config/config.inc.php
+    cat <<EOS >config/config.inc.php
 <?php
 // Auto created by NetServa HCP/SH on $(date +%Y%m%d)
 \$config = [];
@@ -63,7 +63,7 @@ else
 \$config['plugins'] = ['archive','zipdownload','ident_switch','carddav','managesieve','password',];
 EOS
 
-    cat << EOS > composer.json
+    cat <<EOS >composer.json
 {
     "name": "roundcube/roundcubemail",
     "description": "The Roundcube Webmail suite",
@@ -92,17 +92,17 @@ EOS
     }
 }
 EOS
-#        "boressoft/ident_switch": "*", // this seems to be outdated
+    #        "boressoft/ident_switch": "*", // this seems to be outdated
 
     [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $UPATH/var/www/.well-known
     [[ -d $UPATH/var/www_old/hcp ]] && mv $UPATH/var/www_old/hcp $UPATH/var/www/hcp
 
     chperms $VHOST
 
-    su - $UUSER -c "cd var/www; php composer.phar -n update" > /dev/null 2>&1
-    su - $UUSER -c "cd var/www; php composer.phar -n install" > /dev/null 2>&1
+    su - $UUSER -c "cd var/www; php composer.phar -n update" >/dev/null 2>&1
+    su - $UUSER -c "cd var/www; php composer.phar -n install" >/dev/null 2>&1
 
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 RoundCube
 =========
 

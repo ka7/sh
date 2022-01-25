@@ -53,7 +53,7 @@ fi
 # -o  Operating system (OSID)                270 = Ubuntu 18.04
 # --hostname=host.domain.name (same as -n)
 
-[[ -z $1 || $1 =~ -h ]] && \
+[[ -z $1 || $1 =~ -h ]] &&
     echo "Usage: setup-vultr hostname.domain.name [regionid] [planid] [sshkeyid] [scriptid] [osid]" && exit 1
 
 AHOST=$1
@@ -77,7 +77,7 @@ vultr servers | grep -q $AHOST
 [[ $? -eq 0 ]] && echo "ERROR: $AHOST already exists" && exit 4
 
 echo "Create server instance for $AHOST"
-vultr server create -n $AHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$AHOST --notify-activate=false > /dev/null 2>&1
+vultr server create -n $AHOST -r $VARG2 -p $VARG3 -k $VARG4 -s $VARG5 -o $VARG6 --hostname=$AHOST --notify-activate=false >/dev/null 2>&1
 
 echo "Wait 15 seconds for server to become active"
 sleep 15
@@ -88,7 +88,7 @@ IP4_0=${VULTR[1]}
 echo "Server IP is $IP4_0 and SUBID is $SUBID"
 
 vultr dns domain list | grep -q $VHOST
-if [[ $? -eq 0 ]];then
+if [[ $? -eq 0 ]]; then
     echo "Delete old DNS records for $VHOST"
     vultr dns domain delete -d $VHOST
 fi
@@ -97,42 +97,56 @@ fi
 #swchangens $VHOST ns1.vultr.com ns2.vultr.com
 
 echo "Add DNS records for $VHOST"
-vultr dns domain create -d $VHOST -s $IP4_0 > /dev/null 2>&1
+vultr dns domain create -d $VHOST -s $IP4_0 >/dev/null 2>&1
 swchangens $VHOST ns1.vultr.com ns2.vultr.com
 #RECID=$(vultr dns record list -d $VHOST | awk '/CNAME/ {print $1}')
 #vultr dns record delete -d $VHOST -r $RECID > /dev/null 2>&1
-vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP > /dev/null 2>&1
-vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP > /dev/null 2>&1
-vultr dns record create -d $VHOST -n $VHOST -t NS -D ns1.$VHOST > /dev/null 2>&1
-vultr dns record create -d $VHOST -n $VHOST -t NS -D ns2.$VHOST > /dev/null 2>&1
-vultr dns record create -d $VHOST -n www -t A -D $IP4_0 > /dev/null 2>&1
-vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
-vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 > /dev/null 2>&1
-vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" > /dev/null 2>&1
-vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" > /dev/null 2>&1
+vultr dns record create -d $VHOST -n ns1.$VHOST -t A -D $NS1IP >/dev/null 2>&1
+vultr dns record create -d $VHOST -n ns2.$VHOST -t A -D $NS2IP >/dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t NS -D ns1.$VHOST >/dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t NS -D ns2.$VHOST >/dev/null 2>&1
+vultr dns record create -d $VHOST -n www -t A -D $IP4_0 >/dev/null 2>&1
+vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 >/dev/null 2>&1
+vultr dns record create -d $VHOST -n $_HOST -t A -D $IP4_0 >/dev/null 2>&1
+vultr dns record create -d $VHOST -n $VHOST -t TXT -D "\"v=spf1 ip4:$IP4_0/32 -all\"" >/dev/null 2>&1
+vultr dns record create -d $VHOST -n _dmarc -t TXT -D "\"v=DMARC1; p=none; pct=100; rua=mailto:dmarc@renta.net; ruf=mailto:dmarc@renta.net; sp=none; aspf=r;\"" >/dev/null 2>&1
 
 #[[ $_HOST != mail ]] && \
 #  vultr dns record create -d $VHOST -n mail -t A -D $IP4_0 > /dev/null 2>&1
 RECID=$(vultr dns record list -d $VHOST | awk '/MX/ {print $1}')
-vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST > /dev/null 2>&1
-vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$VHOST > /dev/null 2>&1
+vultr dns record update -d $VHOST -r $RECID -D mail.$VHOST >/dev/null 2>&1
+vultr server reverse-dns set-ipv4 $SUBID $IP4_0 mail.$VHOST >/dev/null 2>&1
 
 # 5 mins should be enough but sometimes the *buntu repos can be slow
 echo "Wait 15 mins until NetServa packages have been installed"
-sleep 60; echo "14 mins to go"
-sleep 60; echo "13 mins to go"
-sleep 60; echo "12 mins to go"
-sleep 60; echo "11 mins to go"
-sleep 60; echo "10 mins to go"
-sleep 60; echo "9 mins to go"
-sleep 60; echo "8 mins to go"
-sleep 60; echo "7 mins to go"
-sleep 60; echo "6 mins to go"
-sleep 60; echo "5 mins to go"
-sleep 60; echo "4 mins to go"
-sleep 60; echo "3 mins to go"
-sleep 60; echo "2 mins to go"
-sleep 60; echo "1 minute to go!"
+sleep 60
+echo "14 mins to go"
+sleep 60
+echo "13 mins to go"
+sleep 60
+echo "12 mins to go"
+sleep 60
+echo "11 mins to go"
+sleep 60
+echo "10 mins to go"
+sleep 60
+echo "9 mins to go"
+sleep 60
+echo "8 mins to go"
+sleep 60
+echo "7 mins to go"
+sleep 60
+echo "6 mins to go"
+sleep 60
+echo "5 mins to go"
+sleep 60
+echo "4 mins to go"
+sleep 60
+echo "3 mins to go"
+sleep 60
+echo "2 mins to go"
+sleep 60
+echo "1 minute to go!"
 sleep 60
 
 if [[ ! -d $LECFG ]]; then
@@ -149,19 +163,19 @@ fi
 
 cd $LECFG
 
-[[ ! -f vultr.inc ]] && \
-    echo "APIKEY=$VULTR_API_KEY" > vultr.inc
+[[ ! -f vultr.inc ]] &&
+    echo "APIKEY=$VULTR_API_KEY" >vultr.inc
 
-[[ ! -f accounts/*/account_key.pem ]] && \
-    ./dehydrated --register --accept-terms > /dev/null 2>&1
+[[ ! -f accounts/*/account_key.pem ]] &&
+    ./dehydrated --register --accept-terms >/dev/null 2>&1
 
 echo "Install or update LetsEncrypt SSL certificates for $VHOST"
 [[ $_HOST != mail ]] && TMP="-d mail.$VHOST -d $_HOST.$VHOST" || TMP="-d $_HOST.$VHOST"
-./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $VHOST $TMP -d www.$VHOST > /dev/null 2>&1
+./dehydrated -c -t dns-01 -k hooks/vultr/vultr-hook.sh -d $VHOST $TMP -d www.$VHOST >/dev/null 2>&1
 
 echo "Create local SSL enabled nginx config for $VHOST"
 if [[ $_HOST != mail ]]; then
-    cat << EOS > $LECFG/nginx/$VHOST
+    cat <<EOS >$LECFG/nginx/$VHOST
 server {
     listen                      443 ssl http2;
     server_name                 mail.$VHOST;
@@ -171,7 +185,7 @@ server {
 }
 EOS
 fi
-cat << EOS >> $LECFG/nginx/$VHOST
+cat <<EOS >>$LECFG/nginx/$VHOST
 server {
     listen                      443 ssl http2;
     server_name                 $AHOST;
@@ -210,7 +224,7 @@ echo "Upload nginx SSL config to $IP4_0"
 rsync -q -e "$DOSSH" $LECFG/nginx/$VHOST $IP4_0:$C_WEB/sites-enabled/$VHOST
 
 echo "Add and create DKIM record for $VHOST"
-DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $VHOST; dkim show $VHOST"|grep "v=DKIM1")
+DKIM=$($DOSSH $IP4_0 ". .shrc; dkim add $VHOST; dkim show $VHOST" | grep "v=DKIM1")
 vultr dns record create -d $VHOST -n mail._domainkey -t TXT -D "\"$DKIM\""
 
 echo "Make sure postfix has current host details"
@@ -221,23 +235,23 @@ $DOSSH $IP4_0 ". .shrc; serva restart all"
 
 echo "Update SOA record"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/soa_update \
- --data "domain=$VHOST" \
- --data "nsprimary=ns1.$VHOST" \
- --data "email=admin@$VHOST"
+    https://api.vultr.com/v1/dns/soa_update \
+    --data "domain=$VHOST" \
+    --data "nsprimary=ns1.$VHOST" \
+    --data "email=admin@$VHOST"
 
 echo "Enable DNSSEC"
 # It seems dnssec is not part of the vultr binary, have to make raw API calls
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_enable \
- --data "domain=$VHOST" \
- --data "enable=yes"
+    https://api.vultr.com/v1/dns/dnssec_enable \
+    --data "domain=$VHOST" \
+    --data "enable=yes"
 
 echo "Add DNSSEC DS records"
 curl -s -H "API-Key: $VULTR_API_KEY" \
- https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST | \
- jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' | \
- while read DS; do swdsadd $VHOST $DS; done
+    https://api.vultr.com/v1/dns/dnssec_info?domain=$VHOST |
+    jq . | grep DS | awk '{print $4" "$5" "$6" "$7}' | tr -d '",' |
+    while read DS; do swdsadd $VHOST $DS; done
 
 echo "Setup vanity nameservers"
 swreghostadd $VHOST ns1.$VHOST $NS1IP

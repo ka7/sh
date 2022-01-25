@@ -12,7 +12,7 @@ VHOST=$1
 [[ -z $VULTR_API_KEY ]] && echo "ERROR: missing or empty VULTR_API_KEY" && exit 2
 
 vultr dns domain list | cut -f1 | grep -q -E "^$VHOST$"
-if [[ $? -eq 1 ]];then
+if [[ $? -eq 1 ]]; then
     echo "DNS for $VHOST does not exist at Vultr"
     exit 3
 fi

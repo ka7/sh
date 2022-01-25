@@ -2,8 +2,8 @@
 # .sh/bin/setup-host 20170524 - 20210923
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $1 =~ '-h' ]] && \
-  echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] &&
+    echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
@@ -47,7 +47,7 @@ php$V_PHP-pdo_mysql postfix-mysql"
     if [[ ! -f /etc/apk/repositories.orig ]]; then
         echo "### Update /etc/apk/repositories with $OSREL"
         mv /etc/apk/repositories /etc/apk/repositories.orig
-        cat << EOS > /etc/apk/repositories
+        cat <<EOS >/etc/apk/repositories
 https://$OSMIR/alpine/$OSREL/main
 https://$OSMIR/alpine/$OSREL/testing
 https://$OSMIR/alpine/$OSREL/community
@@ -136,64 +136,64 @@ ubuntu-advantage-tools vi* xinetd"
         echo "### Setup apt sources list for $OSREL"
         mv /etc/apt/sources.list /etc/apt/sources.list.orig
         if [[ $OSTYP == debian ]]; then
-            cat << EOS > /etc/apt/sources.list
+            cat <<EOS >/etc/apt/sources.list
 deb http://$OSMIR/debian/ $OSREL main
 deb http://$OSMIR/debian/ $OSREL-updates main
 deb http://security.debian.org/debian-security $OSREL/updates main
 EOS
         else
             sed ~/.sh/etc/_etc_apt_sources.list \
-            -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" > /etc/apt/sources.list
+                -e "s/_OSMIR/$OSMIR/" -e "s/_OSREL/$OSREL/" >/etc/apt/sources.list
         fi
 
-        cat << EOS | debconf-set-selections
+        cat <<EOS | debconf-set-selections
 postfix postfix/destinations string 'localhost'
 postfix postfix/mailname string 'localhost'
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
 
         echo "### Create key for bionic (18.04) repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 > /dev/null 2>&1
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 >/dev/null 2>&1
 
         echo "### Create key for openlitespeed repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 > /dev/null 2>&1
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 >/dev/null 2>&1
 
         echo "### Update package list for $OSREL, patience please..."
-        apt-get -yqq update > /dev/null
+        apt-get -yqq update >/dev/null
 
         echo "### Upgrade packages for $OSREL, more patience..."
-        apt-get -yqq -u dist-upgrade > /dev/null
+        apt-get -yqq -u dist-upgrade >/dev/null
 
         echo "### Install default package set, yet more patience..."
-        apt-get -yqq install $DLIST > /dev/null
+        apt-get -yqq install $DLIST >/dev/null
 
         if [[ $DTYPE == mysql ]]; then
             echo "### Install MYSQL package set, even more patience..."
-            apt-get -yqq install $MLIST > /dev/null
+            apt-get -yqq install $MLIST >/dev/null
 
             echo "### Change Mysql to utf8 otherwise pdns tables will not install"
             sed -i /etc/mysql/mariadb.conf.d/50-server.cnf \
-            -e "/^character-set-server/ s/utf8mb4/utf8/" \
-            -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/"
+                -e "/^character-set-server/ s/utf8mb4/utf8/" \
+                -e "/^collation-server/ s/utf8mb4_general_ci/utf8_general_ci/"
         fi
 
         echo "### Disable pdns until actually needed"
-        sc stop pdns > /dev/null 2>&1
-        sc disable pdns > /dev/null 2>&1
+        sc stop pdns >/dev/null 2>&1
+        sc disable pdns >/dev/null 2>&1
 
         echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
-        apt-get -yqq install spamprobe=1.4d-14build1 > /dev/null
-        apt-mark hold spamprobe > /dev/null
+        apt-get -yqq install spamprobe=1.4d-14build1 >/dev/null
+        apt-mark hold spamprobe >/dev/null
     fi
 
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
         if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
             echo "### Remove unattended-upgrades"
-            sc stop unattended-upgrades > /dev/null 2>&1
-            sc disable unattended-upgrades > /dev/null 2>&1
+            sc stop unattended-upgrades >/dev/null 2>&1
+            sc disable unattended-upgrades >/dev/null 2>&1
         fi
         echo "### Remove python and all related packages"
-        apt-get -yqq --purge remove $RLIST > /dev/null
+        apt-get -yqq --purge remove $RLIST >/dev/null
     fi
 fi
 
@@ -236,7 +236,7 @@ if [[ $OSTYP == alpine ]]; then
     if [[ ! -f /etc/resolv.conf.orig ]]; then
         mv /etc/resolv.conf /etc/resolv.conf.orig
         echo "### Change /etc/resolv.conf to 1.1.1.1 (static)"
-        cat << EOS | tee /etc/resolv.conf > /dev/null
+        cat <<EOS | tee /etc/resolv.conf >/dev/null
 nameserver 1.1.1.1
 nameserver 8.8.8.8
 EOS
@@ -244,13 +244,13 @@ EOS
 else
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
 
-    if [[ $(ls -A /etc/systemd/network/*.network > /dev/null 2>&1) ]]; then
+    if [[ $(ls -A /etc/systemd/network/*.network >/dev/null 2>&1) ]]; then
         echo "### /etc/systemd/network/*.network already exists"
     else
         echo "### Create /etc/systemd/network/10-dhcp.network"
         cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
         chmod 644 /etc/systemd/network/10-dhcp.network
-        sc enable systemd-networkd > /dev/null 2>&1
+        sc enable systemd-networkd >/dev/null 2>&1
     fi
 
 # TODO: we actually do want the 127.0.0.53 stub DNS resolver
@@ -265,7 +265,7 @@ fi
 
 if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
     echo "### Create /etc/sysctl.d/50-nginx-tweaks.conf"
-    cat << EOS > /etc/sysctl.d/50-nginx-tweaks.conf
+    cat <<EOS >/etc/sysctl.d/50-nginx-tweaks.conf
 # Auto created by NetServa HCP/SH on $(date +%Y%m%d)
 net.core.default_qdisc = fq
 net.ipv4.tcp_congestion_control = bbr
@@ -273,5 +273,5 @@ net.ipv4.tcp_notsent_lowat = 16384
 vm.swappiness = 1
 net.core.somaxconn = 512
 EOS
-    sysctl -p > /dev/null
+    sysctl -p >/dev/null
 fi

@@ -19,13 +19,13 @@ SOA=$(echo "
   WHERE type='SOA'
     AND domain_id='$DID'" | $SQDNS)
 
-SER=$(echo $SOA|awk '{print $3}')
-RID=$(echo $SOA|awk '{print $1}')
+SER=$(echo $SOA | awk '{print $3}')
+RID=$(echo $SOA | awk '{print $1}')
 NOW="$(date +%Y%m%d)00"
 
-(( $SER >= $NOW )) && NEW=$((SER+1)) || NEW=$NOW
+(($SER >= $NOW)) && NEW=$((SER + 1)) || NEW=$NOW
 
-REC=$(echo $SOA|awk -v r=${NEW} '{$3=r}1')
+REC=$(echo $SOA | awk -v r=${NEW} '{$3=r}1')
 UPD=$(date +"%Y-%m-%d %H:%M:%S")
 
 echo "

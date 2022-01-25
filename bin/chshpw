@@ -18,13 +18,13 @@ elif [[ $USERS -gt 1 ]]; then
     getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1 | sort | awk -F: '{printf "%-7s %-39s %s\n", $1, $5, $6}'
 elif [[ $USERS -eq 1 ]]; then
     GETPW=$(getent passwd | grep -E "^u[0-9]|$ADMIN" | grep $1)
-    UUSER=$(echo $GETPW|cut -d':' -f1)
-    VHOST=$(echo $GETPW|cut -d':' -f5)
-    [[ $VHOST =~ , ]] && VHOST=$(echo $VHOST|cut -d',' -f1)
+    UUSER=$(echo $GETPW | cut -d':' -f1)
+    VHOST=$(echo $GETPW | cut -d':' -f5)
+    [[ $VHOST =~ , ]] && VHOST=$(echo $VHOST | cut -d',' -f1)
     [[ $(id -u) -gt 0 ]] && SUDO='sudo -i' || SUDO=
     echo -n "$UUSER:$UPASS" | chpasswd
     echo "### Update shell password for $UUSER"
-    cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 SSH/SFTP
 =========
 

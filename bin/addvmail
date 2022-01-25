@@ -24,7 +24,8 @@ _DATE=$(date "+%Y-%m-%d %H:%M:%S")
 
 [[ -d $MPATH/Maildir ]] && echo "### Warning: $MPATH/Maildir already exists"
 
-HID=$(cat << EOS | $SQCMD
+HID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM vhosts
   WHERE domain = '$VHOST'
 EOS
@@ -32,7 +33,8 @@ EOS
 
 [[ -z $HID ]] && echo "### ERROR: $VHOST does not exist" && exit 5
 
-USRID=$(cat << EOS | $SQCMD
+USRID=$(
+    cat <<EOS | $SQCMD
  SELECT id FROM vmails
   WHERE user = '$EMAIL'
 EOS
@@ -43,8 +45,9 @@ if [[ -n $USRID ]]; then
 else
     echo "### Create $VUSER.vmails entry ($DTYPE)"
     PW=$(doveadm pw -s SHA512-CRYPT -p "$EPASS")
-#    echo "$EPASS = $PW"
-    DO_VMAIL=$(cat << EOS | $SQCMD
+    #    echo "$EPASS = $PW"
+    DO_VMAIL=$(
+        cat <<EOS | $SQCMD
  INSERT INTO vmails (
         hid,
         uid,
@@ -69,11 +72,12 @@ else
         '$_DATE'
 )
 EOS
-)
+    )
 
     echo "### Create $VUSER.valias entry ($DTYPE)"
     [[ $VUSER == 'admin' ]] && SOURCE="@$VHOST" || SOURCE="$VUSER@$VHOST"
-    DO_VALIAS=$(cat << EOS | $SQCMD
+    DO_VALIAS=$(
+        cat <<EOS | $SQCMD
  INSERT INTO valias (
         hid,
         source,
@@ -88,7 +92,7 @@ EOS
         '$_DATE'
 )
 EOS
-)
+    )
 fi
 
 if [[ ! -d $MPATH/Maildir ]]; then
@@ -105,7 +109,7 @@ else
         echo "### Fetch https://renta.net/public/_etc_spamprobe.tgz"
         cd /etc
         wget -q https://renta.net/public/_etc_spamprobe.tgz
-        tar xf _etc_spamprobe.tgz > /dev/null 2>&1
+        tar xf _etc_spamprobe.tgz >/dev/null 2>&1
     fi
     echo "### Create $MPATH/.spamprobe"
     mkdir $MPATH/.spamprobe
@@ -116,7 +120,7 @@ chown $(stat -c "%u:%g" $HPATH) -R $MPATH
 find $MPATH -type d -exec chmod 00750 {} +
 find $MPATH -type f -exec chmod 00640 {} +
 
-cat << EOS | tee -a /root/.vhosts/$VHOST.conf > /dev/null
+cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 Mail
 =========
 
