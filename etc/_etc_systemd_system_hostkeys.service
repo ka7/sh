@@ -12,7 +12,7 @@ ExecStartPre=-/bin/dd if=/dev/hwrng of=/dev/urandom count=1 bs=4096
 ExecStartPre=-/bin/sh -c "/bin/rm -f -v /etc/ssh/ssh_host_*_key*"
 ExecStart=/usr/bin/ssh-keygen -A -v
 ExecStartPost=/bin/systemctl disable hostkeys
-ExecStartPost=/bin/bash -c "[ ! -f /etc/hostname ] && cat /dev/urandom | tr -dc a-z | fold -w4 | head -c4 | tee /etc/hostname && hostname -F /etc/hostname"
+ExecStartPost=/bin/bash -c "[ ! -f /etc/hostname ] && cat /dev/urandom | tr -dc a-z | fold -w4 | head -c4 | tee /etc/hostname && systemctl reboot"
 
 [Install]
 WantedBy=multi-user.target
