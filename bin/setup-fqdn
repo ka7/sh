@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20211021
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-fqdn 20210327 - 20220202
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
 
@@ -241,7 +241,8 @@ EOS
 fi
 
 if [[ ! -f $CSMTP/vhosts/$MHOST ]]; then
-    addvip $MHOST $IP4_0
+    # default to 0.0.0.0, create delvip to remove and change to a real IP
+    addvip $MHOST 0.0.0.0
 fi
 
 if [[ ! -f /etc/aliases.lmdb ]]; then
