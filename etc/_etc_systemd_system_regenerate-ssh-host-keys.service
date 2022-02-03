@@ -1,0 +1,18 @@
+# .sh/etc/_etc_systemd_system_regenerate-ssh-host-keys.service 20220202 - 20220202
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[Unit]
+Description=Regenerate SSH host keys
+Before=ssh.service
+ConditionFileIsExecutable=/usr/bin/ssh-keygen
+
+[Service]
+Type=oneshot
+ExecStartPre=-/bin/dd if=/dev/hwrng of=/dev/urandom count=1 bs=4096
+ExecStartPre=-/bin/sh -c "/bin/rm -f -v /etc/ssh/ssh_host_*_key*"
+ExecStart=/usr/bin/ssh-keygen -A -v
+ExecStartPost=/bin/systemctl disable regenerate-ssh-host-keys
+ExecStartPost=/bin/sh -c "[ ! -f /etc/hostname ] && /usr/bin/pwgen -sB0A 6 1 > /etc/hostname"
+
+[Install]
+WantedBy=multi-user.target
