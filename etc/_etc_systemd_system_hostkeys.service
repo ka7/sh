@@ -1,4 +1,4 @@
-# .sh/etc/_etc_systemd_system_regenerate-ssh-host-keys.service 20220202 - 20220202
+# .sh/etc/_etc_systemd_system_hostkeys.service 20220202 - 20220202
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [Unit]
@@ -11,7 +11,7 @@ Type=oneshot
 ExecStartPre=-/bin/dd if=/dev/hwrng of=/dev/urandom count=1 bs=4096
 ExecStartPre=-/bin/sh -c "/bin/rm -f -v /etc/ssh/ssh_host_*_key*"
 ExecStart=/usr/bin/ssh-keygen -A -v
-ExecStartPost=/bin/systemctl disable regenerate-ssh-host-keys
+ExecStartPost=/bin/systemctl disable hostkeys
 ExecStartPost=/bin/bash -c "[ ! -f /etc/hostname ] && cat /dev/urandom tr -dc a-z | fold -w4 | head -c4 | tee /etc/hostname"
 ExecStartPost=/bin/bash -c "[ -f /etc/hostname ] && hostname -F /etc/hostname"
 
