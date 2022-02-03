@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20211020
+# .sh/lib/functions 20151231 - 20220202
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -107,6 +107,31 @@ newuid() {
 getdb() {
     echo $SQCMD
 }
+setdistro() {
+    # OS dependant overrides
+    if [[ $OSTYP == alpine ]]; then
+        V_PHP='8'
+        C_DNS='/etc/pdns'
+        C_DNS='/etc/pdns'
+        C_FPM="/etc/php$V_PHP"
+        C_SQL='/etc/my.cnf.d'
+        OSMIR='nl.alpinelinux.org'
+        OSREL='edge'
+        WUGID='nginx'
+#    elif [[ $OSTYP == arch ]]; then
+#        Consider adding an Archlinux distro type
+    elif [[ $OSTYP == manjaro ]]; then
+        C_DNS='/etc/powerdns'
+        C_FPM='/etc/php/php-fpm.d'
+        C_SQL='/etc/my.cnf.d'
+        WUGID='http'
+        OSMIR='manjaro.moson.eu'
+        OSREL='stable'
+    elif [[ $OSTYP == debian ]]; then
+        OSMIR='ftp.debian.org'
+        OSREL='bullseye'
+    fi
+}
 setuser() {
     local U_TMP=$(grepuser "$1")
     [[ $U_TMP && (($(grep -c . <<<"$U_TMP") != 1)) ]] && echo "Ambiguous result for '$1'" && return 10
@@ -154,7 +179,7 @@ sethost() {
     DTYPE='mysql'
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
-    OSREL=${OSREL:-'impish'}
+    OSREL=${OSREL:-'jammy'}
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
@@ -163,28 +188,7 @@ sethost() {
 
     C_FPM="/etc/php/$V_PHP/fpm"
 
-    # OS dependant overrides (maybe create a function)
-    if [[ $OSTYP == alpine ]]; then
-        V_PHP='8'
-        C_DNS='/etc/pdns'
-        C_DNS='/etc/pdns'
-        C_FPM="/etc/php$V_PHP"
-        C_SQL='/etc/my.cnf.d'
-        OSMIR='nl.alpinelinux.org'
-        OSREL='edge'
-        WUGID='nginx'
-    elif [[ $OSTYP == manjaro ]]; then
-        C_DNS='/etc/powerdns'
-        C_FPM='/etc/php/php-fpm.d'
-        C_SQL='/etc/my.cnf.d'
-        WUGID='http'
-        ### TODO: add these for manjaro
-        OSMIR='manjaro.moson.eu'
-        OSREL='testing'
-    elif [[ $OSTYP == debian ]]; then
-        OSMIR='ftp.debian.org'
-        OSREL='buster'
-    fi
+    setdistro
 
     U_GID=$U_UID
 
@@ -267,25 +271,7 @@ updhost() {
     OSTYP=$OSTYP
     C_FPM="/etc/php/$V_PHP/fpm"
 
-    # OS dependant overrides
-    if [[ $OSTYP == alpine ]]; then
-        C_DNS='/etc/pdns'
-        C_FPM='/etc/php7/php-fpm.d'
-        C_SQL='/etc/my.cnf.d'
-        WUGID='nginx'
-        OSMIR=''
-        OSREL=''
-    elif [[ $OSTYP == manjaro ]]; then
-        C_DNS='/etc/powerdns'
-        C_FPM='/etc/php/php-fpm.d'
-        C_SQL='/etc/my.cnf.d'
-        WUGID='http'
-        OSMIR=''
-        OSREL=''
-    elif [[ $OSTYP == debian ]]; then
-        OSMIR='ftp.debian.org'
-        OSREL='bullseye'
-    fi
+    setdistro
 
     if [[ $DTYPE == mysql ]]; then
         SQCMD=$EXMYS
@@ -298,4 +284,4 @@ updhost() {
     fi
     gethost >/root/.vhosts/$1
 }
-export -f chktime f gethost getuser getusers go2 grepuser newuid setuser sethost sc sx updhost
+export -f chktime f gethost getuser getusers go2 grepuser newuid setdistro sethost setuser sc sx updhost
