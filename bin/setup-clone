@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-clone 20220202 - 20220202
+# .sh/bin/setup-clone 20220202 - 20220204
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-clone" && exit 1
@@ -7,10 +7,13 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 echo -n '' > /etc/machine-id
-rm /etc/hostname
+rm /etc/hostname /var/lib/dbus/machine-id
 
-cp ~/.sh/etc/_etc_systemd_system_regenerate-ssh-host-keys.service /etc/systemd/system/regenerate-ssh-host-keys.service
+if [[ ! -f /etc/systemd/system/hostkeys.service ]]; then
+    cp ~/.sh/etc/_etc_systemd_system_hostkeys.service /etc/systemd/system/hostkeys.service
+fi
+
 systemctl daemon-reload
-systemctl enable regenerate-ssh-host-keys
+systemctl enable hostkeys
 
 echo "You can now convert this VM/CT into a template"
