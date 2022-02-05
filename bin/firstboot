@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# .sh/bin/firstboot 20220205 - 20220205
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ "-h" ]] && echo "Usage: firstboot" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+if [[ ! -f /etc/hostname ]]; then
+    rm /etc/ssh/ssh_host_*
+    ssh-keygen -A -v
+    cat /dev/urandom | tr -dc a-z | fold -w4 | head -c4 > /etc/hostname
+    sleep 1 && hostname -F /etc/hostname
+fi
+
+exit 0

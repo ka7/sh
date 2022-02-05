@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# .sh/bin/setup-vmtemplate 20220202 - 20220205
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' ]] && echo "Usage: setup-vmtemplate" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+rm /etc/hostname
+echo -n '' > /etc/machine-id
+
+if [[ -d /etc/cron.d ]]; then
+    if [[ ! -f /etc/cron.d/firstboot ]]; then
+        echo "@reboot root bash /root/.sh/bin/firstboot" > /etc/cron.d/firstboot
+        echo "Created: /etc/cron.d/firstboot"
+    else
+        echo "Warning: /etc/cron.d/firstboot already exists"
+    fi
+else
+    echo "Warning: /etc/cron.d does not exist, firstboot script not enabled"
+fi
+
+echo "You can now convert this VM/CT into a template"
