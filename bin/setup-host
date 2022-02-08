@@ -152,8 +152,8 @@ postfix postfix/mailname string 'localhost'
 postfix postfix/main_mailer_type string 'Internet Site'
 EOS
 
-        echo "### Create key for bionic (18.04) repo"
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 >/dev/null 2>&1
+#        echo "### Create key for bionic (18.04) repo"
+#        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32 >/dev/null 2>&1
 
         echo "### Create key for openlitespeed repo"
         apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 011AA62DEDA1F085 >/dev/null 2>&1
@@ -181,9 +181,9 @@ EOS
         sc stop pdns >/dev/null 2>&1
         sc disable pdns >/dev/null 2>&1
 
-        echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
-        apt-get -yqq install spamprobe=1.4d-14build1 >/dev/null
-        apt-mark hold spamprobe >/dev/null
+#        echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
+#        apt-get -yqq install spamprobe=1.4d-14build1 >/dev/null
+#        apt-mark hold spamprobe >/dev/null
     fi
 
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
