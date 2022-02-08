@@ -183,7 +183,7 @@ sethost() {
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
-    V_PHP=${V_PHP:-'8.0'}
+    V_PHP=${V_PHP:-'8.1'}
     WUGID='www-data'
 
     C_FPM="/etc/php/$V_PHP/fpm"
