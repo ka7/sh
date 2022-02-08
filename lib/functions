@@ -1,5 +1,5 @@
-# .sh/lib/functions 20151231 - 20220202
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/functions 20151231 - 20220208
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
     sc() {
@@ -179,7 +179,7 @@ sethost() {
     DTYPE='mysql'
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
-    OSREL=${OSREL:-'jammy'}
+    OSREL=${3:-'jammy'}
     TAREA='Australia'
     TCITY='Sydney'
     VPATH='/home/u'
@@ -196,8 +196,6 @@ sethost() {
     HDOMN=${VHOST#*.*}
 
     [[ $UUSER == $ADMIN ]] && DNAME=$ADMIN || DNAME=${VHOST//[.-]/_}
-
-    #OSREL=${3:-$OSREL} #should not be needed if ~/.myrc will override
 
     if [[ -z $4 ]]; then
         IP4_0=$(ip -4 route get 1.1.1.1 | awk '/src/ {print $7}')
