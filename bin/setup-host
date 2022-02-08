@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20210923
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-host 20170524 - 20220208
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] &&
     echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
@@ -90,7 +90,7 @@ elif [[ -f /etc/apt/sources.list ]]; then
 
     if [[ $OSTYP == debian ]]; then
         OSMIR=${OSMIR:-'ftp.debian.org'}
-        OSREL=${OSREL:-'buster'}
+        OSREL=${OSREL:-'bullseye'}
     fi
 
     # Default List of required core Netserva Debian packages
