@@ -33,7 +33,7 @@ if [[ -f /etc/alpine-release ]]; then
     alias s=$SUDO'apk search -v'
     alias lspkg=$SUDO'apk info'
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
-    alias ram=$SUDO'ps ax -o rss,vsz,comm | grep -v "   0" | sort -n'
+    alias ram=$SUDO'ps ax -o rss:10,vsz:10,comm | grep -v "   0" | sort -n'
     alias l=$SUDO'tail -f /var/log/messages'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
