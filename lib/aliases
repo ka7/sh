@@ -1,5 +1,5 @@
-# .sh/lib/aliases 20151231 - 20210909
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/lib/aliases 20151231 - 20220211
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $(type -t sc) == alias ]] && unalias sc
 
@@ -33,7 +33,7 @@ if [[ -f /etc/alpine-release ]]; then
     alias s=$SUDO'apk search -v'
     alias lspkg=$SUDO'apk info'
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
-    alias ram=$SUDO'ps -o rss,vsz,comm | grep -v "   0" | sort -n'
+    alias ram=$SUDO'ps ax -o rss,vsz,comm | grep -v "   0" | sort -n'
     alias l=$SUDO'tail -f /var/log/messages'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
