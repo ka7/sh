@@ -7,12 +7,12 @@ shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
 which also provides a foundation for the [NetServa HCP] PHP web interface.
 
 Currently tested on (WIP):
-
-- Ubuntu Focal (20.04) # Manually upgrade to hirsute (21.04) if needed
+```
+- Ubuntu Jammy (22.04) # Most tested
 - Manjaro Testing      # Partly done
 - Alpine Edge          # Almost done
-- Debian Buster        # TODO
-
+- Debian Bullseye      # Mostly done
+```
 ## Usage
 
 To use these scripts make sure you have the `git` package installed and
