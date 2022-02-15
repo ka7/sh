@@ -1,5 +1,5 @@
-# .sh/_shrc 20130315 - 20210527
-# Copyright (C) 2015-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/_shrc 20130315 - 20220215
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
@@ -25,7 +25,7 @@ EDITOR=nano
 if [ -f ~/.vhosts/$MHOST ]; then
     . ~/.vhosts/$MHOST
 else
-    sethost $MHOST
+    sethost $MHOST $DTYPE $OSREL
 fi
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
