@@ -6,5 +6,5 @@ deb http://_OSMIR/ubuntu _OSREL-updates main universe
 deb http://_OSMIR/ubuntu _OSREL-backports main universe
 deb http://security.ubuntu.com/ubuntu _OSREL-security main universe
 
-# Special case for spamprobe
-deb http://archive.ubuntu.com/ubuntu bionic main universe
+# Special case for spamprobe (no longer needed)
+# deb http://archive.ubuntu.com/ubuntu bionic main universe
