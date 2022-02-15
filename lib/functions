@@ -208,7 +208,9 @@ sethost() {
     DPATH="$DBSQL/$ADMIN/$ADMIN.db"
     EXMYS="mysql -BN $ADMIN"
     EXSQL="sqlite3 $DPATH"
-    DTYPE=${2:-'mysql'}
+
+# duplicate?
+#    DTYPE=${2:-'mysql'}
 
     if [[ $DTYPE == mysql ]]; then
         SQCMD=$EXMYS
