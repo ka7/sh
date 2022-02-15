@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20220208
+# .sh/lib/functions 20151231 - 20220215
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -176,7 +176,7 @@ sethost() {
     DBSQL='/var/lib/sqlite'
     DHOST='localhost'
     DPORT='3306'
-    DTYPE='mysql'
+    DTYPE=${2:-'mysql'}
     LROOT='/usr/local/lsws'
     OSMIR='archive.ubuntu.com'
     OSREL=${3:-'jammy'}
