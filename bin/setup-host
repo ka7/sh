@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220208
+# .sh/bin/setup-host 20170524 - 20220215
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] &&
@@ -110,7 +110,8 @@ redis-server rsyslog rsync sqlite3 sudo time unzip wget whois"
     MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server
 pdns-backend-mysql php$V_PHP-mysql postfix-mysql"
 
-    [[ $OSREL == focal ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
+# no longer needed
+#    [[ $OSREL == focal ]] && MLIST="$MLIST mariadb-client-10.3 mariadb-server-10.3"
 
     # Remove List of packages (RLIST="" to ignore removal)
     RLIST="*golang* *python* accountsservice apache2 at bind9 cloud*
