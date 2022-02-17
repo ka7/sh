@@ -12,16 +12,6 @@ DTYPE=${2:-$DTYPE}
 
 [[ -f ~/.shrc ]] && . ~/.shrc
 
-#if [[ -f ~/.shrc ]]; then
-#    . ~/.shrc
-#else
-#    if [[ -f /etc/os-release ]]; then
-#        OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
-#    else
-#        OSTYP=unknown
-#    fi
-#fi
-
 if [[ $OSTYP == alpine ]]; then
 
     echo "### Install Alpine base packages"
