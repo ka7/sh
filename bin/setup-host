@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220208
+# .sh/bin/setup-host 20170524 - 20220217
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] &&
@@ -27,7 +27,7 @@ if [[ $OSTYP == alpine ]]; then
     echo "### Install Alpine base packages"
 
     OSMIR=nl.alpinelinux.org
-    OSREL=edge
+    OSREL=latest-stable
     V_PHP=8
 
     # Missing OpenDMARC and SpamProbe
