@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220217
+# .sh/bin/setup-host 20170524 - 20220220
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] &&
@@ -182,8 +182,8 @@ EOS
             sc stop unattended-upgrades >/dev/null 2>&1
             sc disable unattended-upgrades >/dev/null 2>&1
         fi
-        echo "### Remove python and all related packages"
-        apt-get -yqq --purge remove $RLIST >/dev/null
+#        echo "### Remove python and all related packages"
+#        apt-get -yqq --purge remove $RLIST >/dev/null
     fi
 fi
 
