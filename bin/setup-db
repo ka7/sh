@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
-# .sh/etc/setup-db.sh 20170319 - 20210330
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-db 20170319 - 20220319
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# Suggested by Rachid
-#CREATE TABLE cookie IF NOT EXISTS(
-#user_id INT,
-#cookie CHAR(64),
-#expire TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#primary key(user_id, cookie)
-#);
+[[ $DEBUG ]] && set -x
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
 
@@ -378,3 +372,5 @@ CREATE INDEX virtual_aliases_source ON valias (source);
 CREATE INDEX virtual_aliases_hid ON valias (hid);
 CREATE INDEX mail_aliases_aid ON valias (aid);
 EOS
+
+[[ $DEBUG ]] && set +x
