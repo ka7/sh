@@ -12,8 +12,6 @@
 VHOST=${1:-$VHOST}
 DTYPE=${2:-$DTYPE}
 
-[[ $VHOST =~ '.' ]] || VHOST=$VHOST.local
-
 [[ -f ~/.shrc ]] && . ~/.shrc
 
 if [[ $OSTYP == alpine ]]; then

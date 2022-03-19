@@ -12,6 +12,8 @@ DEBUG=
 LXDBR=
 EDITOR=nano
 
+[[ $MHOST =~ '.' ]] || MHOST=$MHOST.local
+
 # Set the OS type
 [ -f /etc/os-release ] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
 
