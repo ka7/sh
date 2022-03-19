@@ -70,6 +70,7 @@ wget which whois"
     MLIST="mariadb mariadb-clients"
 
     pacman -Syu
+    pacman -R iptables
     pacman -S $DLIST --needed --noconfirm
     [[ $DTYPE == mysql ]] && pacman -S $MLIST --needed --noconfirm
 #    pacman -Qsq python | pacman -Rcns --noconfirm -
