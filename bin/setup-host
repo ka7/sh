@@ -266,7 +266,7 @@ else
         sed -i /etc/systemd/resolved.conf \
             -e 's/^#DNS=.*/DNS=1.1.1.1/' \
             -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
-            -e 's/^#Domains=.*/Domains=$VHOST/' \
+            -e "s/^#Domains=.*/Domains=$VHOST/" \
             -e 's/^#MulticastDNS=.*/MulticastDNS=yes/'
         sc restart systemd-resolved >/dev/null 2>&1
         sc enable systemd-resolved >/dev/null 2>&1
