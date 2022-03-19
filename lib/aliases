@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20220211
+# .sh/lib/aliases 20151231 - 20220319
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $(type -t sc) == alias ]] && unalias sc
@@ -37,8 +37,8 @@ if [[ -f /etc/alpine-release ]]; then
     alias l=$SUDO'tail -f /var/log/messages'
 elif [[ -f /etc/pacman.conf ]]; then
     alias i=$SUDO'pacman -S'
-    alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Sc --noconfirm'
-    alias uu='yay -Syyuu --noconfirm ; yay -Scc --noconfirm'
+    alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
+    alias uu='yay -Syyuu --noconfirm ; yay -Scc --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
     alias r=$SUDO'pacman -Rns'
     alias s=$SUDO'pacman -Ss'
     alias lspkg=$SUDO'pacman -Qn | grep'

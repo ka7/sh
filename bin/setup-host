@@ -59,29 +59,32 @@ EOS
 
 elif [[ -f /etc/pacman.conf ]]; then
 
-    echo "### Install Arch/Manjaro base packages"
+    if [[ ! -f /etc/pacman.d/mirrorlist.orig ]]; then
+        echo "### Install Arch/Manjaro base packages"
 
-    # Default List of required core Netserva Arch/Manjaro packages
-    DLIST="bash bc bridge-utils dovecot inetutils s-nail busybox ca-certificates
+        # Default List of required core Netserva Arch/Manjaro packages
+        DLIST="bash bc bridge-utils dovecot inetutils s-nail busybox ca-certificates
 curl db dovecot ebtables fcgiwrap gawk git iputils jq libxml2 mailgraph msmtp
 mtr mutt nano net-tools nginx-mainline opendkim opendmarc pflogsumm php php-fpm
 php-gd php-imap php-intl php-sqlite php-imagick php-redis perl-mail-spf
 pigeonhole postfix postfix-lmdb postfix-pcre postfix-sqlite powerdns pwgen redis
 rsync sqlite sudo time minizip wget which whois yay"
 
-    MLIST="mariadb mariadb-clients postfix-mysql"
+        # Optional Mariadb List of packages
+        MLIST="mariadb mariadb-clients postfix-mysql"
 
-    mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-    echo "!!! Normalize mirrorlist, use 'pacman-mirrors -f [NUMBER] [NUMBER]' to update"
-    echo "Server = http://$OSMIR/$OSREL/\$repo/\$arch" > /etc/pacman.d/mirrorlist
+        mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
+        echo "### Normalize mirrorlist, use 'pacman-mirrors --geoip --api -B stable' to update"
+        echo "Server = http://$OSMIR/$OSREL/\$repo/\$arch" > /etc/pacman.d/mirrorlist
 
-    pacman -Syu >/dev/null 2>&1
-    yes | pacman -S iptables-nft >/dev/null 2>&1
-    pacman -S $DLIST --needed --noconfirm >/dev/null 2>&1
+        pacman -Syu >/dev/null 2>&1
+        yes | pacman -S iptables-nft >/dev/null 2>&1
+        pacman -S $DLIST --needed --noconfirm >/dev/null 2>&1
 
-    if [[ $DTYPE == mysql ]]; then
-        pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
-        mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >/dev/null 2>&1
+        if [[ $DTYPE == mysql ]]; then
+            pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
+            mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >/dev/null 2>&1
+        fi
     fi
 
 elif [[ -f /etc/apt/sources.list ]]; then
