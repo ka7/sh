@@ -67,7 +67,7 @@ curl db dovecot ebtables fcgiwrap gawk git iputils jq libxml2 mailgraph msmtp
 mtr mutt nano net-tools nginx-mainline opendkim opendmarc pflogsumm php php-fpm
 php-gd php-imap php-intl php-sqlite php-imagick php-redis perl-mail-spf
 pigeonhole postfix postfix-lmdb postfix-pcre postfix-sqlite powerdns pwgen redis
-rsync sqlite sudo time minizip wget which whois"
+rsync sqlite sudo time minizip wget which whois yay"
 
     MLIST="mariadb mariadb-clients postfix-mysql"
 
