@@ -39,6 +39,11 @@ if [[ ! -d /etc/opendkim ]]; then
     dkim list
 fi
 
+if [[ ! -d $CIMAP ]]; then
+    echo "### Create $CIMAP"
+    mkdir $CIMAP
+fi
+
 if [[ ! -d $CIMAP/vhosts ]]; then
     echo "### Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts

@@ -70,6 +70,8 @@ php-gd php-imap php-intl php-sqlite php-imagick php-redis perl-mail-spf
 pigeonhole postfix postfix-lmdb postfix-pcre postfix-sqlite powerdns pwgen redis
 rsync sqlite sudo time minizip wget which whois yay"
 
+        # ? php-imap php-intl
+
         # Optional Mariadb List of packages
         MLIST="mariadb mariadb-clients postfix-mysql"
 
