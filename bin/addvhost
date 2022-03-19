@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20210415
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/addvhost 20170217 - 20220319
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: move anything to do with hosting plans into another script
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addvhost [uuser@]domain [cms(none|wp)] [ssl(none|le|self)] [ip]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+[[ $DEBUG ]] && set -x
 
 VHOST=$1
 DOCMS=${2:-''}
@@ -327,3 +329,5 @@ fi
 #       unless a better place is found or a dedicated script is created
 
 logging $VHOST update >/dev/null
+
+[[ $DEBUG ]] && set +x
