@@ -63,7 +63,7 @@ elif [[ -f /etc/pacman.conf ]]; then
 
     # Default List of required core Netserva Arch/Manjaro packages
     DLIST="bash bc inetutils s-nail busybox ca-certificates curl db
-dovecot ebtables fcgiwrap gawk git iptables-nft iputils jq libxml2 mailgraph
+dovecot ebtables fcgiwrap gawk git iputils jq libxml2 mailgraph
 msmtp mtr mutt nano net-tools nginx-mainline opendkim opendmarc powerdns
 pflogsumm php php-fpm php-gd php-imap php-intl php-sqlite php-imagick
 php-redis perl-mail-spf postfix pwgen redis rsync sqlite sudo time minizip
@@ -72,7 +72,7 @@ wget which whois"
     MLIST="mariadb mariadb-clients"
 
     pacman -Syu
-    pacman -R iptables
+    yes | pacman -S iptables-nft
     pacman -S $DLIST --needed --noconfirm
     [[ $DTYPE == mysql ]] && pacman -S $MLIST --needed --noconfirm
 #    pacman -Qsq python | pacman -Rcns --noconfirm -
