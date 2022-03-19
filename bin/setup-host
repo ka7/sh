@@ -260,7 +260,7 @@ else
         sc enable systemd-networkd >/dev/null 2>&1
     fi
 
-    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+    if [[ ! /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
         echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
         cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
