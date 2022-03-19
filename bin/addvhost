@@ -100,8 +100,11 @@ EOS
 
 if [[ -d $C_FPM ]]; then
 
-    _POOL=$C_FPM/pool.d
-    [[ $OSTYP == alpine ]] && _POOL=$C_FPM/php-fpm.d
+    if [[ $OSTYP == alpine || $OSTYP == manjaro ]]; then
+        _POOL=$C_FPM/php-fpm.d
+    else
+        _POOL=$C_FPM/pool.d
+    fi
 
     if [ -f $_POOL/$VHOST.conf ]; then
         echo "### $_POOL/$VHOST.conf already exists"
