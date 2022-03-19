@@ -2,13 +2,14 @@
 # .sh/bin/setup-etc 20151231 - 20220319
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $DEBUG ]] && set -x
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 source /root/.shrc || exit 3
+
+[[ $DEBUG ]] && set -x
 
 # Temporary self-signed SSL certificate defaults
 C="AU"

@@ -2,17 +2,16 @@
 # .sh/bin/setup-host 20170524 - 20220319
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-[[ $DEBUG ]] && set -x
-
-[[ $1 =~ '-h' ]] &&
-    echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
+[[ $1 =~ '-h' ]] && echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+source /root/.shrc || exit 3
+
+[[ $DEBUG ]] && set -x
+
 VHOST=${1:-$VHOST}
 DTYPE=${2:-$DTYPE}
-
-[[ -f ~/.shrc ]] && . ~/.shrc
 
 if [[ $OSTYP == alpine ]]; then
 
