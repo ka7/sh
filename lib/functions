@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20220215
+# .sh/lib/functions 20151231 - 20220319
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
@@ -122,7 +122,7 @@ setdistro() {
 #        Consider adding an Archlinux distro type
     elif [[ $OSTYP == manjaro ]]; then
         C_DNS='/etc/powerdns'
-        C_FPM='/etc/php/php-fpm.d'
+        C_FPM='/etc/php'
         C_SQL='/etc/my.cnf.d'
         WUGID='http'
         OSMIR='manjaro.moson.eu'
