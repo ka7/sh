@@ -2,6 +2,8 @@
 # .sh/bin/setup-host 20170524 - 20220319
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+[[ $DEBUG -gt 0 ]] && set -x
+
 [[ $1 =~ '-h' ]] &&
     echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
 
