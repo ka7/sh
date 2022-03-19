@@ -12,6 +12,8 @@
 VHOST=${1:-$VHOST}
 DTYPE=${2:-$DTYPE}
 
+[[ $VHOST =~ '.' ]] || VHOST=$VHOST.local
+
 [[ -f ~/.shrc ]] && . ~/.shrc
 
 if [[ $OSTYP == alpine ]]; then
@@ -282,3 +284,5 @@ net.core.somaxconn = 512
 EOS
     sysctl -p >/dev/null
 fi
+
+[[ $DEBUG ]] && set +x
