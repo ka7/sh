@@ -254,18 +254,20 @@ else
             cp ~/.sh/etc/_etc_systemd_network_eth0.network /etc/systemd/network/eth0.network
         fi
         chmod 644 /etc/systemd/network/*
-        sc enable systemd-networkd >/dev/null 2>&1
         sc restart systemd-networkd >/dev/null 2>&1
+        sc enable systemd-networkd >/dev/null 2>&1
     fi
 
-# TODO: we actually do want the 127.0.0.53 stub DNS resolver
-#    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
-#        echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
-#        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
-#        sed -i /etc/systemd/resolved.conf \
-#            -e 's/^#DNS=.*/DNS=1.1.1.1 8.8.8.8/' \
-#            -e 's/^#FallbackDNS=.*/FallbackDNS=1.0.0.1 8.8.4.4/'
-#        sc restart systemd-resolved
+    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+        echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
+        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+        sed -i /etc/systemd/resolved.conf \
+            -e 's/^#DNS=.*/DNS=1.1.1.1/' \
+            -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
+            -e 's/^#MulticastDNS=.*/MulticastDNS=yes/'
+        sc restart systemd-resolved >/dev/null 2>&1
+        sc enable systemd-resolved >/dev/null 2>&1
+    fi
 fi
 
 if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
