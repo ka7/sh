@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20210415
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-etc 20151231 - 20220319
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $DEBUG ]] && set -x
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-etc [mysql(default)|sqlite]" && exit 1
 
@@ -223,3 +225,5 @@ if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
     cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
     chmod 644 /usr/share/nginx/html/50x.html
 fi
+
+[[ $DEBUG ]] && set +x
