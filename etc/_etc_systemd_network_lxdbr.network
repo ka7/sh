@@ -1,0 +1,12 @@
+# .sh/etc/_etc_systemd_network_lxdbr.network 20220319 - 20220319
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[Match]
+Name=lxdbr0
+
+[Network]
+#Address=192.168.1.100/24
+#Gateway=192.168.1.1
+DHCP=ipv4
+DNS=1.1.1.1
+MulticastDNS=yes

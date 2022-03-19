@@ -1,0 +1,6 @@
+# .sh/etc/_etc_systemd_network_lxdbr.netdev 20220319 - 20220319
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[NetDev]
+Name=lxdbr0
+Kind=bridge
