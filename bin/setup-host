@@ -78,7 +78,10 @@ rsync sqlite sudo time minizip wget which whois"
     pacman -Syu >/dev/null 2>&1
     yes | pacman -S iptables-nft >/dev/null 2>&1
     pacman -S $DLIST --needed --noconfirm >/dev/null 2>&1
-    [[ $DTYPE == mysql ]] && pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
+    if [[ $DTYPE == mysql ]]; then
+        pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
+        mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >/dev/null 2>&1
+    fi
 
 elif [[ -f /etc/apt/sources.list ]]; then
 
