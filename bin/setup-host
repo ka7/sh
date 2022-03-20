@@ -91,6 +91,7 @@ rsync sqlite sudo time minizip wget which whois yay"
         if [[ $DTYPE == mysql ]]; then
             pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
             mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >/dev/null 2>&1
+            sc start mariadb
         fi
     fi
 
