@@ -22,12 +22,6 @@ VHOST=${VHOST#mail\.} # strip 'mail' hostname if exists
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
-# Patch for Manjaro adding this system group as a user group (bad!)
-grep -q '^autologin:x:1000' /etc/group
-if [[ $? -eq 0 ]]; then
-    groupmod -g 100 autologin
-fi
-
 grep -q '^sysadm:x:1000:1000' /etc/passwd
 if [[ $? -eq 0 ]]; then
     echo "### sysadm user has correct uid and gid (1000:1000)"

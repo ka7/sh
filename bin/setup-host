@@ -58,6 +58,12 @@ EOS
 
 elif [[ -f /etc/pacman.conf ]]; then
 
+    # Patch for Manjaro adding this system group as a user group (bad!)
+    grep -q '^autologin:x:1000' /etc/group
+    if [[ $? -eq 0 ]]; then
+        groupmod -g 100 autologin
+    fi
+
     if [[ ! -f /etc/pacman.d/mirrorlist.orig ]]; then
         echo "### Install Arch/Manjaro base packages"
 
