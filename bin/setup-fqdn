@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20220319
+# .sh/bin/setup-fqdn 20210327 - 20220320
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -22,9 +22,15 @@ VHOST=${VHOST#mail\.} # strip 'mail' hostname if exists
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
-grep -q '^sysadm:x:1000' /etc/passwd
+# Patch for Manjaro adding this system group as a user group (bad!)
+grep -q '^autologin:x:1000' /etc/group
 if [[ $? -eq 0 ]]; then
-    echo "### Warning: default sysadm:1000 user already exists"
+    groupmod -g 100 autologin
+fi
+
+grep -q '^sysadm:x:1000:1000' /etc/passwd
+if [[ $? -eq 0 ]]; then
+    echo "### sysadm user has correct uid and gid (1000:1000)"
 else
     _SADM=$(getent passwd 1000 | awk -F: '{print $1}')
     if [[ $_SADM ]]; then
@@ -256,7 +262,11 @@ fi
 
 [[ -e /usr/bin/systemctl ]] && sc daemon-reload >/dev/null 2>&1
 
-sc restart ssh
+if [[ $OSTYP == alpine || $OSTYP == manjaro ]]; then
+    sc restart sshd
+else
+    sc restart ssh
+fi
 
 if [[ -e /usr/sbin/opendkim ]]; then
     sc enable opendkim >/dev/null 2>&1
