@@ -14,7 +14,7 @@ else
     HNAME=$(hostname)
     HNAME=${HNAME/%\.*/}
     HDOMN=$(hostname -d)
-    [[ -z $HDOMN ]] && HDOMN='local'
+    [[ -z $HDOMN || $HDOMN == "(none)" ]] && HDOMN='local'
     VHOST=$HNAME.$HDOMN
 fi
 
