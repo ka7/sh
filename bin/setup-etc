@@ -11,13 +11,6 @@ source /root/.shrc || exit 3
 
 [[ $DEBUG ]] && set -x
 
-# Temporary self-signed SSL certificate defaults
-C="AU"
-ST="QLD"
-L="GoldCoast"
-O="NetServa"
-OU="IT Department"
-
 if [[ $DTYPE == sqlite ]]; then
     SQCMD=$EXSQL
 elif [[ $DTYPE == mysql ]]; then
