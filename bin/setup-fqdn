@@ -293,7 +293,15 @@ addvhost $HDOMN
 
 [[ $DTYPE == mysql ]] && addwp $HDOMN
 
-DIGIP=$(dig +short $MHOST | tail -n1)
+if [[ -e /usr/bin/drill ]]; then
+    DIGIP=$(drill $MHOST | awk "/^$MHOST/ {print \$5}")
+elif [[ -e /usr/bin/host ]]; then
+    DIGIP=$(host $MHOST | awk '{print $4}')
+elif [[ -e /usr/bin/dig ]]; then
+    DIGIP=$(dig +short $MHOST)
+else
+    DIGIP=
+fi
 
 if [[ $IP4_0 =~ ^(192\.168|127\.|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.) ]]; then
     cat <<EOS
