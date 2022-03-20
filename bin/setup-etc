@@ -178,6 +178,12 @@ fi
 if [[ ! -f $C_FPM/common.conf ]]; then
     echo "### Create $C_FPM/common.conf"
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
+    if [[ $OSTYP == alpine ]]; then
+        # this won't work until $C_FPM is adjusted as per manjaro
+        sed -i $C_FPM/common.conf -e 's/www-data/nginx/g'
+    elif [[ $OSTYP == manjaro ]]; then
+        sed -i $C_FPM/common.conf -e 's/www-data/http/g'
+    fi
 fi
 
 if [[ ! -f $C_FPM/php.ini.orig ]]; then
