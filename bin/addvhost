@@ -60,9 +60,7 @@ if [[ $(grepuser ":$VHOST:") ]]; then
     echo "### Warning: $UUSER for $VHOST already exists"
 else
     echo "### Create $UUSER user"
-    if [[ $OSTYP == alpine ]]; then
-        [[ $(getent group sudo) ]] || addgroup -S sudo
-    fi
+    [[ $(getent group sudo) ]] || addgroup -S sudo
     U_GRP=$([[ $U_UID = 1000 ]] && echo "-G sudo,adm")
     TMPIP=$([[ -n $USEIP ]] && echo ",$USEIP")
     useradd -M -U -s $U_SHL -u $U_UID -d $UPATH -c "$VHOST$TMPIP" $U_GRP $UUSER
