@@ -200,10 +200,9 @@ if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "### Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
+    [[ -d $C_DNS/pdns.conf ]] || mkdir $C_DNS/pdns.d
     if [[ $OSTYP == alpine ]]; then
-        sed -i $C_DNS/pdns.conf \
-            -e 's#/etc/powerdns/pdns.d#/etc/pdns/pdns.d#'
-        mkdir $C_DNS/pdns.d
+        sed -i $C_DNS/pdns.conf -e 's#/etc/powerdns/pdns.d#/etc/pdns/pdns.d#'
     fi
 fi
 
