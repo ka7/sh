@@ -262,18 +262,20 @@ else
     sc restart ssh
 fi
 
-if [[ -e /usr/sbin/opendkim ]]; then
-    sc enable opendkim >/dev/null 2>&1
-    sc restart opendkim
-fi
+if [[ $HDOMN != local ]]; then
+    if [[ -e /usr/sbin/opendkim ]]; then
+        sc enable opendkim >/dev/null 2>&1
+        sc restart opendkim
+    fi
 
-if [[ -e /usr/sbin/opendmarc ]]; then
-    sc enable opendmarc >/dev/null 2>&1
-    sc restart opendmarc
+    if [[ -e /usr/sbin/opendmarc ]]; then
+        sc enable opendmarc >/dev/null 2>&1
+        sc restart opendmarc
+fi
 fi
 
 serva restart web
-serva restart mail
+#serva restart mail
 
 # TODO: replace spamprobe with bogofilter (at least on Alpine)
 if [[ -e /usr/bin/spamprobe ]]; then
