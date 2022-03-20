@@ -262,7 +262,7 @@ else
     sc restart ssh
 fi
 
-if [[ $HDOMN != local ]]; then
+if [[ ! $HDOMN =~ local ]]; then
     if [[ -e /usr/sbin/opendkim ]]; then
         sc enable opendkim >/dev/null 2>&1
         sc restart opendkim
