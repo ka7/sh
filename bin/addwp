@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20220221
+# .sh/bin/addwp 20160231 - 20220321
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -7,6 +7,8 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 . /root/.vhosts/$1 || exit 3
+
+[[ $DEBUG ]] && set -x
 
 MULTI=${2:-''}
 FPATH=${3:-''}
@@ -24,10 +26,10 @@ fi
 
 if [[ $FPATH ]]; then
     WPURL="https://$VHOST/$FPATH"
-    FPATH="$WPATH/$FPATH"
+    FPATH="$WPATH/public/$FPATH"
 else
     WPURL="https://$VHOST"
-    FPATH="$WPATH"
+    FPATH="$WPATH/public"
 fi
 
 [[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
@@ -184,3 +186,5 @@ Password: $WPASS
 
 EOS
 fi
+
+[[ $DEBUG ]] && set +x
