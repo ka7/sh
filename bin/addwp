@@ -111,10 +111,6 @@ $WPAPP option set default_comment_status closed
     export PAGES=$(su $UUSER -c "$WPAPP post list --post_type=page --format=ids --path=$FPATH")
     export POSTS=$(su $UUSER -c "$WPAPP post list --post_type=post --format=ids --path=$FPATH")
 
-    #echo 'Install Kadence Starter Templates plugin' # OPTIONAL
-    #$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
-    #$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
-
     su - $UUSER -c "
 cd $FPATH
 $WPAPP plugin delete $PLUGINS
@@ -123,18 +119,11 @@ $WPAPP post delete $PAGES
 $WPAPP theme delete twentytwenty twentytwentyone
 
 echo 'Install Kadence theme'
-$WPAPP theme --quiet install kadence 2> /dev/null
-echo 'Create and active kadence-child theme'
-$WPAPP scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
-$WPAPP theme --quiet activate kadence-child $MSNET 2> /dev/null
+$WPAPP theme --quiet --activate install kadence 2> /dev/null
 
 echo 'Install Kadence Blocks plugin'
 $WPAPP plugin --quiet install kadence-blocks 2> /dev/null
 $WPAPP plugin --quiet activate kadence-blocks $MSNET 2> /dev/null
-
-echo 'Install Elementor plugin'
-$WPAPP plugin --quiet install elementor 2> /dev/null
-$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
 
 echo 'Install Autoptimize plugin'
 $WPAPP plugin --quiet install autoptimize 2> /dev/null
@@ -167,6 +156,19 @@ $WPAPP option update page_on_front $HOMEPAGE
 $WPAPP option update page_for_posts $NEWSPAGE
 $WPAPP option update show_on_front page
 " >/dev/null
+
+# Not needed but keep here just in case
+#echo 'Install Kadence Starter Templates plugin' # OPTIONAL
+#$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
+#$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
+#echo 'Create and active kadence-child theme'
+#$WPAPP scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
+#$WPAPP theme --quiet activate kadence-child $MSNET 2> /dev/null
+
+# Doesnt seem to work with PHP 8.1 just yet
+#echo 'Install Elementor plugin'
+#$WPAPP plugin --quiet install elementor 2> /dev/null
+#$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
 
     cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
