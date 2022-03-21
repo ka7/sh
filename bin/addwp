@@ -170,12 +170,13 @@ $WPAPP option update show_on_front page
 #$WPAPP plugin --quiet install elementor 2> /dev/null
 #$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
 
-    cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
-remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
-add_action('admin_head', function() {
-    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
-});
-EOS
+# Only needed when using a child-theme
+#    cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
+#remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
+#add_action('admin_head', function() {
+#    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
+#});
+#EOS
 
     chperms $VHOST
     cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
