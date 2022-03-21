@@ -192,7 +192,7 @@ if [[ ! -f $C_FPM/php.ini.orig ]]; then
         -e 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=1/' \
         -e 's/memory_limit = 128M/memory_limit = 512M/'
 
-    if [[ $OSTYP== manjaro ]]; then
+    if [[ $OSTYP == manjaro ]]; then
         sed -i $C_FPM/php.ini \
             -e 's/;extension=curl/extension=curl/' \
             -e 's/;extension=exif/extension=exif/' \
