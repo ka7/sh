@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvip 20190602 - 20220202
+# .sh/bin/addvip 20190602 - 20220321
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: addvip domain ip" && exit 1
@@ -7,6 +7,8 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 . ~/.shrc || exit 3
+
+[[ $DEBUG ]] && set -x
 
 VHOST=$1
 IP4_0=${2:-'0.0.0.0'}
@@ -149,3 +151,5 @@ mv $CSMTP/master.cf $CSMTP/master.cf.orig
 cat $CSMTP/vhosts/* >$CSMTP/master.cf
 
 serva restart mail
+
+[[ $DEBUG ]] && set +x
