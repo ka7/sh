@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220320
+# .sh/bin/setup-host 20170524 - 20220329
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
@@ -259,15 +259,15 @@ else
     if [[ $(ls -A /etc/systemd/network/*.network >/dev/null 2>&1) ]]; then
         echo "### /etc/systemd/network/*.network already exists"
     else
-#        if [[ -z $LXDBR ]]; then
-#            echo "### Create /etc/systemd/network/10-dhcp.network"
-#            cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
-#        else
+        if [[ -z $LXDBR ]]; then
+            echo "### Create /etc/systemd/network/10-dhcp.network"
+            cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
+        else
             echo "### Create /etc/systemd/network/lxdbr config}"
             cp ~/.sh/etc/_etc_systemd_network_lxdbr.network /etc/systemd/network/lxdbr.network
             cp ~/.sh/etc/_etc_systemd_network_lxdbr.netdev /etc/systemd/network/lxdbr.netdev
             cp ~/.sh/etc/_etc_systemd_network_eth0.network /etc/systemd/network/eth0.network
-#        fi
+        fi
         chmod 644 /etc/systemd/network/*
         sc restart systemd-networkd >/dev/null 2>&1
         sc enable systemd-networkd >/dev/null 2>&1
