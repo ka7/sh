@@ -22,15 +22,15 @@ if [[ $OSTYP == alpine ]]; then
     V_PHP=8
 
     # Missing OpenDMARC and SpamProbe
-    ALIST="bash bc bind-tools bogofilter busybox-static ca-certificates
-curl db dovecot dovecot-lmtpd dovecot-pigeonhole-plugin dovecot-sqlite
-ebtables fcgiwrap gawk git iputils jq msmtp msmtp mtr nano nginx opendkim
-opendkim-utils pdns pdns-backend-sqlite3 php$V_PHP php$V_PHP-curl
-php$V_PHP-fpm php$V_PHP-gd php$V_PHP-imap php$V_PHP-opcache
-php$V_PHP-pdo php$V_PHP-pdo_sqlite php$V_PHP-pecl-redis php$V_PHP-phar
-php$V_PHP-posix php$V_PHP-session php$V_PHP-simplexml php$V_PHP-zip
-postfix postfix-pcre postfix-policyd-spf-perl postfix-sqlite pwgen redis
-rsync s-nail shadow sqlite sudo wget which whois"
+    ALIST="bash bc bind-tools bogofilter busybox-static bridge-utils
+ca-certificates curl db dovecot dovecot-lmtpd dovecot-pigeonhole-plugin
+dovecot-sqlite ebtables fcgiwrap gawk git iputils jq msmtp msmtp mtr nano nginx
+opendkim opendkim-utils pdns pdns-backend-sqlite3 php$V_PHP php$V_PHP-curl
+php$V_PHP-fpm php$V_PHP-gd php$V_PHP-imap php$V_PHP-opcache php$V_PHP-pdo
+php$V_PHP-pdo_sqlite php$V_PHP-pecl-redis php$V_PHP-phar php$V_PHP-posix
+php$V_PHP-session php$V_PHP-simplexml php$V_PHP-zip postfix postfix-pcre
+postfix-policyd-spf-perl postfix-sqlite pwgen redis rsync s-nail shadow sqlite
+sudo wget which whois"
 
     MLIST="dovecot-mysql mariadb mariadb-client pdns-backend-mysql
 php$V_PHP-pdo_mysql postfix-mysql"
@@ -105,17 +105,17 @@ elif [[ -f /etc/apt/sources.list ]]; then
     fi
 
     # Default List of required core Netserva Debian packages
-    DLIST="apache2-utils apt-utils bash bc bind9-host bsd-mailx
-busybox-static ca-certificates curl db5.3-util deborphan dnsutils
-dovecot-imapd dovecot-lmtpd dovecot-managesieved dovecot-sqlite ebtables
-fcgiwrap gawk git gnupg iptables iputils-ping jq libxml2-utils mailgraph
-msmtp mtr-tiny mutt nano net-tools nginx-light opendkim opendkim-tools
-opendmarc openssh-server pdns-backend-sqlite3 pflogsumm php$V_PHP
-php$V_PHP-bcmath php$V_PHP-curl php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp
-php$V_PHP-imap php$V_PHP-intl php$V_PHP-mbstring php$V_PHP-soap
-php$V_PHP-sqlite3 php$V_PHP-xml php$V_PHP-zip php-imagick php-redis
-postfix postfix-lmdb postfix-policyd-spf-perl postfix-sqlite pwgen
-redis-server rsyslog rsync sqlite3 sudo time unzip wget whois"
+    DLIST="apache2-utils apt-utils bash bc bind9-host bridge-utils bsd-mailx
+busybox-static ca-certificates curl db5.3-util deborphan dnsutils dovecot-imapd
+dovecot-lmtpd dovecot-managesieved dovecot-sqlite ebtables fcgiwrap gawk git
+gnupg iptables iputils-ping jq libxml2-utils mailgraph msmtp mtr-tiny mutt nano
+net-tools nginx-light opendkim opendkim-tools opendmarc openssh-server
+pdns-backend-sqlite3 pflogsumm php$V_PHP php$V_PHP-bcmath php$V_PHP-curl
+php$V_PHP-fpm php$V_PHP-gd php$V_PHP-gmp php$V_PHP-imap php$V_PHP-intl
+php$V_PHP-mbstring php$V_PHP-soap php$V_PHP-sqlite3 php$V_PHP-xml php$V_PHP-zip
+php-imagick php-redis postfix postfix-lmdb postfix-policyd-spf-perl
+postfix-sqlite pwgen redis-server rsyslog rsync sqlite3 sudo time unzip wget
+whois"
 
     # Mysql List of packages (not need if using SQLite)
     MLIST="dovecot-mysql mariadb-common mariadb-client mariadb-server
