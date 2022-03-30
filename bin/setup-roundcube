@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-roundcube 20190630 - 20210405
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-roundcube 20190630 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-roundcube [domain] [rcver]" && exit 1
 
@@ -12,10 +12,10 @@ DBTMP=${VHOST//[.-]/_}
 
 . /root/.vhosts/$VHOST || exit 3
 
-if [[ -d $WPATH/vendor/roundcube/ ]]; then
-    echo "### $WPATH/roundcube already exists"
+if [[ -d $WPATH/html/vendor/roundcube/ ]]; then
+    echo "### $WPATH/html/roundcube already exists"
 else
-    echo "### Setup RoundCube in $WPATH"
+    echo "### Setup RoundCube in $WPATH/html"
     cd $UPATH/var
     [[ ! -f roundcubemail-$RCVER-complete.tar.gz ]] &&
         wget -q https://github.com/roundcube/roundcubemail/releases/download/$RCVER/roundcubemail-$RCVER-complete.tar.gz
@@ -38,9 +38,9 @@ else
         _DNSW="sqlite:////home/u/$MHOST/var/roundcubemail.db?mode=0646"
     fi
 
-    [[ -d www ]] && mv www www_old && mkdir www
-    mv roundcubemail-$RCVER/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www
-    cd www
+    [[ -d www/html ]] && mv www/html www/html_old && mkdir www/html
+    mv roundcubemail-$RCVER/{config,logs,plugins,program,skins,temp,vendor,composer*,index.php} www/html
+    cd www/html
     mkdir data
     wget -q https://getcomposer.org/composer.phar
 
@@ -60,7 +60,7 @@ else
 \$config['des_key'] = '$(pwgen -sB 24 1)';
 \$config['managesieve_host'] = 'tls://$MHOST';
 \$config['skin'] = 'elastic';
-\$config['plugins'] = ['archive','zipdownload','ident_switch','carddav','managesieve','password',];
+\$config['plugins'] = ['archive','zipdownload','carddav','contextmenu','managesieve'];
 EOS
 
     cat <<EOS >composer.json
@@ -94,8 +94,9 @@ EOS
 EOS
     #        "boressoft/ident_switch": "*", // this seems to be outdated
 
-    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $UPATH/var/www/.well-known
-    [[ -d $UPATH/var/www_old/hcp ]] && mv $UPATH/var/www_old/hcp $UPATH/var/www/hcp
+    # Not needed now?
+#    [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $UPATH/var/www/.well-known
+#    [[ -d $UPATH/var/www_old/hcp ]] && mv $UPATH/var/www_old/hcp $UPATH/var/www/hcp
 
     chperms $VHOST
 
