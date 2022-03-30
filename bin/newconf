@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/newconf 20200304 - 20200320
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newconf 20200304 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # WIP ### breakout web server config files from newssl
 
@@ -8,12 +8,14 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+[[ $DEBUG ]] && set -x
+
 VHOST=$1
 _ARGS="$2 $3 $4 $5 $6 $7 $8 $9"
 IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
 IPARG=
 
-source /root/.vhosts/$VHOST || exit
+. /root/.vhosts/$VHOST || exit
 
 for SUB in $_ARGS; do
     [[ $SUB =~ $IPREG ]] && IPARG="$SUB:" && continue
@@ -28,7 +30,7 @@ else
     WSERV=nginx
 fi
 
-[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
+[[ ! -d $WPATH/html ]] && echo "ERROR: $WPATH/html does not exist" && exit 3
 
 # Nginx config files
 
@@ -129,7 +131,7 @@ then ### OpenLiteSpeed config files
     if [[ ! -f $C_WEB/conf/vhosts/$VHOST/vhconf.conf ]]; then
         [[ -d $C_WEB/conf/vhosts/$VHOST ]] || mkdir -p $C_WEB/conf/vhosts/$VHOST
         cat <<EOS >$C_WEB/conf/vhosts/$VHOST/vhconf.conf
-docRoot                 $WPATH
+docRoot                 $WPATH/html
 vhDomain                $VHOST
 vhAliases               www.$VHOST
 adminEmails             localhost
@@ -200,4 +202,4 @@ else
     echo "'$WSERV' does not exist"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
