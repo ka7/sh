@@ -29,4 +29,4 @@ else
     echo "ERROR: ~/.vhosts/$VHOST does not exist"
 fi
 
-[[ $DEBUG ]] && set +x
+[[ $DEBUG ]] && set -x

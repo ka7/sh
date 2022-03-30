@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/newmaster 20160816 - 20190628
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newmaster 20160816 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: newmaster domain [passwd] [email] [path]" && exit 1
 
@@ -10,23 +10,25 @@ source /root/.vhosts/$1 || exit 3
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 4
 
+[[ $DEBUG ]] && set -x
+
 APASS=${2:-$APASS}
 EMAIL=${3:-"webmaster@$VHOST"}
-FPATH=${4:-''}
+_PATH=${4:-''}
 WPATH="$VPATH/$VHOST/var/www"
 UUSER=$(stat -c "%U" $WPATH)
 
 [[ -d $C_SSL/$VHOST ]] && SCHEME="https://" || SCHEME="http://"
 
-if [[ $FPATH ]]; then
-    WPURL=$SCHEME$VHOST/$FPATH
-    FPATH=$WPATH/$FPATH
+if [[ $_PATH ]]; then
+    WPURL=$SCHEME$VHOST/$_PATH
+    _PATH=$WPATH/html/$_PATH
 else
     WPURL=$SCHEME$VHOST
-    FPATH=$WPATH
+    _PATH=$WPATH/html
 fi
 
-if [ ! -f "$FPATH/wp-config.php" ]; then
+if [ ! -f "$_PATH/wp-config.php" ]; then
     echo "ERROR: This is not a Wordpress folder, run 'newwp' first" && exit 4
 fi
 
@@ -38,7 +40,7 @@ if [[ ! -x /usr/local/bin/wp ]]; then
 fi
 
 su - $UUSER -c "
-cd $FPATH
+cd $_PATH
 wp user create webmaster $EMAIL \
  --user_pass=$APASS \
  --first_name=Hosting \
@@ -49,4 +51,4 @@ wp user create webmaster $EMAIL \
 echo
 echo "Added $EMAIL / $APASS to $WPURL/wp-admin/"
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set -x

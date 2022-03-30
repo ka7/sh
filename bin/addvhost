@@ -294,7 +294,7 @@ DO_VMAILLOG=$(
 EOS
 )
 
-if [[ -d $WPATH && $DOCMS == wp ]]; then
+if [[ -d $WPATH/html && $DOCMS == wp ]]; then
     if [[ $DTYPE == mysql ]]; then
         addwp $VHOST
     else

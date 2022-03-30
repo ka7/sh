@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/newssl 20160121 - 20210509
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/newssl 20160121 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Depends on nginx and DNS already resolving to requested (sub)domains
 
@@ -22,6 +22,8 @@ IPREG="^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
 IPARG=
 NOCFG=
 
+[[ $DEBUG ]] && set -x
+
 for SUB in $_ARGS; do
     [[ $SUB =~ $IPREG ]] && IPARG="$SUB:" && continue
     [[ $SUB == '--force' ]] && SUBDS="$SUBDS --force" && continue
@@ -32,13 +34,13 @@ done
 AHOST=$(hostname -f | tr 'A-Z' 'a-z')
 VPATH="/home/u"
 WPATH="$VPATH/$AHOST/var/www"
-WACME="$WPATH/.well-known/acme-challenge"
+WACME="$WPATH/html/.well-known/acme-challenge"
 LEGIT="https://github.com/lukas2511/dehydrated.git"
 LECFG="/etc/dehydrated"
 C_SSL="/etc/ssl"
 C_WEB="/etc/nginx"
 
-[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does not exist" && exit 2
+[[ ! -d $WPATH/html ]] && echo "ERROR: $WPATH/html does not exist" && exit 2
 
 [[ ! -d $LECFG ]] &&
     mkdir $LECFG &&
@@ -51,7 +53,7 @@ C_WEB="/etc/nginx"
 
 if [[ ! -d $WACME ]]; then
     mkdir -p $WACME
-    chown $(stat -c "%u:%g" $WPATH) -R $WPATH/.well-known
+    chown $(stat -c "%u:%g" $WPATH/html) -R $WPATH/html/.well-known
 fi
 
 cd $LECFG
@@ -159,3 +161,5 @@ EOS
         echo "### Warning: not creating $C_WEB/sites-enabled/$VHOST"
     fi
 fi
+
+[[ $DEBUG ]] && set +x
