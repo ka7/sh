@@ -16,9 +16,6 @@ _PATH=${2:-''}
 [[ ! -d $_PATH ]] && echo "!!! ERROR: $_PATH does NOT exist" && exit 4
 
 if [[ -f $_PATH/wp-includes/version.php ]]; then
-    # Preserve non-Wordpress download folders, if exists
-    [[ -d $_PATH/public ]] && mv $_PATH/public $UPATH/var
-    [[ -d $_PATH/private ]] && mv $_PATH/private $UPATH/var
     echo "!!! Remove $_PATH"
     rm -rf $_PATH
     mkdir $_PATH
