@@ -10,6 +10,8 @@ MHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 
 . /root/.vhosts/$MHOST || exit 3
 
+[[ $DEBUG ]] && set -x
+
 if [[ -d $WPATH/html/hcp ]]; then
     echo "### $WPATH/html/hcp (HCP) already exists"
 else
@@ -123,3 +125,5 @@ chperms $MHOST
 serva restart web
 serva restart mail
 sleep 2
+
+[[ $DEBUG ]] && set +x
