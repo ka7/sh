@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-pma 20190630 - 20210331
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-pma 20190630 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-pma [domain]" && exit 1
 
@@ -12,8 +12,8 @@ PHPLA=phpLiteAdmin_v1-9-8-2.zip
 source /root/.vhosts/$VHOST || exit 3
 
 if [[ $DTYPE == mysql ]]; then
-    if [[ -d $WPATH/hcp/phpmyadmin ]]; then
-        echo "### $WPATH/hcp/phpmyadmin already exists"
+    if [[ -d $WPATH/html/hcp/phpmyadmin ]]; then
+        echo "### $WPATH/html/hcp/phpmyadmin already exists"
     else
         echo "### Setup phpmyadmin to https://$MHOST/hcp/phpmyadmin"
         cd $UPATH/var
@@ -35,11 +35,11 @@ Password: $DPASS
 EOS
     fi
 elif [[ $DTYPE == sqlite ]]; then
-    if [[ -f $WPATH/hcp/phpliteadmin.php ]]; then
-        echo "### $WPATH/hcp/phpliteadmin.php already exists"
+    if [[ -f $WPATH/html/hcp/phpliteadmin.php ]]; then
+        echo "### $WPATH/html/hcp/phpliteadmin.php already exists"
     else
         echo "### Setup phpliteadmin to https://$MHOST/hcp/phpliteadmin.php"
-        cd $WPATH/hcp/
+        cd $WPATH/html/hcp/
         wget https://bitbucket.org/phpliteadmin/public/downloads/$PHPLA
         unzip $PHPLA
         rm phpLiteAdmin_v1-9-7-1.zip readme.md
