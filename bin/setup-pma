@@ -9,7 +9,9 @@
 VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 PHPLA=phpLiteAdmin_v1-9-8-2.zip
 
-source /root/.vhosts/$VHOST || exit 3
+. /root/.vhosts/$VHOST || exit 3
+
+[[ $DEBUG ]] && set -x
 
 if [[ $DTYPE == mysql ]]; then
     if [[ -d $WPATH/html/hcp/phpmyadmin ]]; then
@@ -19,10 +21,10 @@ if [[ $DTYPE == mysql ]]; then
         cd $UPATH/var
         wget -q https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.gz
         tar xf phpMyAdmin-latest-english.tar.gz >/dev/null 2>&1
-        mv phpMyAdmin-*/ www/hcp/phpmyadmin
-        mv www/hcp/phpmyadmin/config.sample.inc.php www/hcp/phpmyadmin/config.inc.php
+        mv phpMyAdmin-*/ www/html/hcp/phpmyadmin
+        mv www/html/hcp/phpmyadmin/config.sample.inc.php www/html/hcp/phpmyadmin/config.inc.php
         ENCPW=$(newpw 4 | tr ' ' _)
-        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/hcp/phpmyadmin/config.inc.php
+        sed -i "/blowfish_secret/ s/''/'$ENCPW'/" www/html/hcp/phpmyadmin/config.inc.php
         rm phpMyAdmin-latest-english.tar.gz
         cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
 PhpMyadmin
