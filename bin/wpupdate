@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/wpupdate 20160817 - 20210715
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/wpupdate 20160817 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: wpupdate domain|all [path]" && exit 1
 
@@ -8,14 +8,16 @@
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 3
 
+[[ $DEBUG ]] && set -x
+
 export WP_CLI_CACHE_DIR="/var/tmp"
 
 wpupdate() {
-    [[ ! -d $1/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
-    UUSER=$(stat -c "%U" $1)
+    [[ ! -d $1/wp-admin ]] && echo "ERROR: $_PATH/html is not a Wordpress installation" && exit 4
+    _USER=$(stat -c "%U" $1)
     echo
-    echo -n "$UUSER $1 v"
-    su - $UUSER -c "
+    echo -n "$_USER $1 v"
+    su - $_USER -c "
 cd $1
 wp core version
 wp core update
@@ -25,7 +27,7 @@ wp plugin update-all
 }
 
 if [[ $1 == all ]]; then
-    WPS=$(find $VPATH -type d -name "wp-admin" | grep "var/www/wp-admin")
+    WPS=$(find $VPATH -type d -name "wp-admin" | grep "var/www/html/wp-admin")
     for WP in $WPS; do
         WPDIR=$(dirname $WP)
         if [[ ! -f $WPDIR/DONOTUPDATE ]]; then
@@ -33,7 +35,9 @@ if [[ $1 == all ]]; then
         fi
     done
 else
-    WPATH=$VPATH/$1/var/www
-    [[ -n $2 ]] && WPATH=$WPATH/$2
-    wpupdate $WPATH
+    _PATH=$VPATH/$1/var/www/html
+    [[ -n $2 ]] && _PATH=$_PATH/html/$2
+    wpupdate $_PATH
 fi
+
+[[ $DEBUG ]] && set +x
