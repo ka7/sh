@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20220319
+# .sh/bin/addvhost 20170217 - 20220330
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: move anything to do with hosting plans into another script
@@ -127,7 +127,7 @@ if [[ -d $UPATH ]]; then
     echo "### Warning: $UPATH already exists"
 else
     echo "### Create $UPATH"
-    mkdir -p $UPATH/{.cache,.ssh,.nano,.wp-cli,bin,etc,home,home/admin,home/u,var/log,var/run,var/tmp,var/www,var/www/private,var/www/public}
+    mkdir -p $UPATH/{.cache,.ssh,.nano,.wp-cli,bin,etc,home/u,var/log,var/run,var/tmp,var/www/html}
 fi
 
 if [[ -f $UPATH/.ssh/authorized_keys ]]; then
@@ -203,38 +203,38 @@ $UUSER:x:$U_GID:
 EOS
 fi
 
-if [[ -f $WPATH/index.html || -f $WPATH/index.php ]]; then
-    [[ -f $WPATH/index.html ]] && echo "### $WPATH/index.html already exists"
-    [[ -f $WPATH/index.php ]] && echo "### $WPATH/index.php already exists"
+if [[ -f $WPATH/html/index.html || -f $WPATH/html/index.php ]]; then
+    [[ -f $WPATH/html/index.html ]] && echo "### $WPATH/html/index.html already exists"
+    [[ -f $WPATH/html/index.php ]] && echo "### $WPATH/html/index.php already exists"
 else
-    echo "### Create $WPATH/index.html"
-    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" >$WPATH/index.html
+    echo "### Create $WPATH/html/index.html"
+    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" >$WPATH/html/index.html
 fi
 
-if [[ -f $WPATH/phpinfo.php ]]; then
-    echo "### $WPATH/phpinfo.php already exists"
+if [[ -f $WPATH/html/phpinfo.php ]]; then
+    echo "### $WPATH/html/phpinfo.php already exists"
 else
-    echo "### Create $WPATH/phpinfo.php"
-    echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" >$WPATH/phpinfo.php
+    echo "### Create $WPATH/html/phpinfo.php"
+    echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" >$WPATH/html/phpinfo.php
 fi
 
-if [[ -f $WPATH/private/.htpasswd ]]; then
-    echo "### $WPATH/private/.htpasswd already exists"
-else
-    PIN=$RANDOM
-    echo "### Create $WPATH/private/.htpasswd (guest/$PIN)"
-    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN >/dev/null 2>&1
-    [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
-    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
-Private
-=========
-
-WebFiles: $SCHEME$VHOST/private
-Username: guest
-Password: $PIN
-
-EOS
-fi
+#if [[ -f $WPATH/private/.htpasswd ]]; then
+#    echo "### $WPATH/private/.htpasswd already exists"
+#else
+#    PIN=$RANDOM
+#    echo "### Create $WPATH/private/.htpasswd (guest/$PIN)"
+#    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN >/dev/null 2>&1
+#    [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
+#    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
+#Private
+#=========
+#
+#WebFiles: $SCHEME$VHOST/private
+#Username: guest
+#Password: $PIN
+#
+#EOS
+#fi
 
 chperms $VHOST
 serva reload php
@@ -315,9 +315,6 @@ EOS
 if [[ -d $WPATH && $DOCMS == wp ]]; then
     if [[ $DTYPE == mysql ]]; then
         addwp $VHOST
-        [[ -d $UPATH/var/www_old/.well-known ]] && mv $UPATH/var/www_old/.well-known $WPATH
-        [[ -d $UPATH/var/www_old/private ]] && mv $UPATH/var/www_old/private $WPATH
-        [[ -d $UPATH/var/www_old/public ]] && mv $UPATH/var/www_old/public $WPATH
     else
         echo "### ERROR: WordPress requires MySQL"
     fi
