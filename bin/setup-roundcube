@@ -7,10 +7,12 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
-RCVER=${2:-'1.4.11'}
+RCVER=${2:-'1.6-beta'}
 DBTMP=${VHOST//[.-]/_}
 
 . /root/.vhosts/$VHOST || exit 3
+
+[[ $DEBUG ]] && set -x
 
 if [[ -d $WPATH/html/vendor/roundcube/ ]]; then
     echo "### $WPATH/html/roundcube already exists"
@@ -112,3 +114,5 @@ Webmail: https://$MHOST/
 EOS
 
 fi
+
+[[ $DEBUG ]] && set +x
