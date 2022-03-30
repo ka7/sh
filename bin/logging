@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/logging 20170417 - 20210112
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/logging 20170417 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO add AID (account/admin ID)
 
@@ -9,6 +9,8 @@
 [[ $(id -u) -gt 0 ]] && echo "!!! ERROR: must be root (use sudo -i)" && exit 2
 
 . ~/.shrc || exit 3
+
+[[ $DEBUG ]] && set -x
 
 [[ $2 == update ]] && UPD=1 || UPD=
 
@@ -143,4 +145,4 @@ else
     log_vmail $1
 fi
 
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set -x
