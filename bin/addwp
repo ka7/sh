@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20220321
+# .sh/bin/addwp 20160231 - 20220330
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -26,14 +26,14 @@ fi
 
 if [[ $FPATH ]]; then
     WPURL="https://$VHOST/$FPATH"
-    FPATH="$WPATH/public/$FPATH"
+    FPATH="$WPATH/html/$FPATH"
 else
     WPURL="https://$VHOST"
-    FPATH="$WPATH/public"
+    FPATH="$WPATH/html"
 fi
 
-[[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
-[[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
+#[[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
+#[[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
 
 if [[ ! -x $WPAPP ]]; then
     echo "### Install wp-cli as $WPAPP"
@@ -74,6 +74,27 @@ else
     mv wordpress $FPATH
     chown $U_UID:$WUGID -R $FPATH
 fi
+
+# Not needed but keep here just in case
+#echo 'Install Kadence Starter Templates plugin' # OPTIONAL
+#$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
+#$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
+#echo 'Create and active kadence-child theme'
+#$WPAPP scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
+#$WPAPP theme --quiet activate kadence-child $MSNET 2> /dev/null
+
+# Doesnt seem to work with PHP 8.1 just yet
+#echo 'Install Elementor plugin'
+#$WPAPP plugin --quiet install elementor 2> /dev/null
+#$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
+
+# Only needed when using a child-theme
+#    cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
+#remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
+#add_action('admin_head', function() {
+#    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
+#});
+#EOS
 
 if [[ -f $FPATH/wp-includes/version.php ]]; then
     echo "### Setting up Wordpress"
@@ -156,27 +177,6 @@ $WPAPP option update page_on_front $HOMEPAGE
 $WPAPP option update page_for_posts $NEWSPAGE
 $WPAPP option update show_on_front page
 " >/dev/null
-
-# Not needed but keep here just in case
-#echo 'Install Kadence Starter Templates plugin' # OPTIONAL
-#$WPAPP plugin --quiet install kadence-starter-templates 2> /dev/null
-#$WPAPP plugin --quiet activate kadence-starter-templates $MSNET 2> /dev/null
-#echo 'Create and active kadence-child theme'
-#$WPAPP scaffold --quiet child-theme kadence-child --parent_theme=kadence 2> /dev/null
-#$WPAPP theme --quiet activate kadence-child $MSNET 2> /dev/null
-
-# Doesnt seem to work with PHP 8.1 just yet
-#echo 'Install Elementor plugin'
-#$WPAPP plugin --quiet install elementor 2> /dev/null
-#$WPAPP plugin --quiet activate elementor $MSNET 2> /dev/null
-
-# Only needed when using a child-theme
-#    cat <<EOS >>$FPATH/wp-content/themes/kadence-child/functions.php
-#remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
-#add_action('admin_head', function() {
-#    echo '<style>.form-table th, .form-table td { padding: 0.25em; }</style>';
-#});
-#EOS
 
     chperms $VHOST
     cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
