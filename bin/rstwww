@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# .sh/bin/rstwww 20180205 - 20180511
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/rstwww 20180205 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+### WARNING: this has hardly been tested
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: rstwww domain [dbname] [oldomain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: setup server first" && exit 3
+
+[[ $DEBUG ]] && set -x
 
 VHOST=$1
 DNAME=${2:-${VHOST//[.-]/_}}
@@ -60,9 +64,9 @@ else
         mysql -e "SET PASSWORD FOR '$UUSER'@'localhost' = PASSWORD('$WPASS')"
         mysql -e "FLUSH PRIVILEGES"
 
-        sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/wp-config.php
-        sed -i "/DB_USER/s/'[^']*'/'$UUSER'/2" www/wp-config.php
-        sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/wp-config.php
+        sed -i "/DB_NAME/s/'[^']*'/'$DNAME'/2" www/html/wp-config.php
+        sed -i "/DB_USER/s/'[^']*'/'$UUSER'/2" www/html/wp-config.php
+        sed -i "/DB_PASSWORD/s/'[^']*'/'$WPASS'/2" www/html/wp-config.php
 
         wp user create $WPUSR $AMAIL \
             --user_pass=$WPASS \
@@ -91,4 +95,4 @@ Password: $WPASS
     echo "!!! Restored $VHOST - $(du -sbh www)"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
