@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/mvhost 20190602 - 20190610
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/mvhost 20190602 - 20200330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Requires "rhost" (remote ssh host) to be defined in ~/.ssh/config
 
 [[ -z $2 || $1 =~ -h ]] && echo "Usage: mvhost domain rhost" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+[[ $DEBUG ]] && set -x
 
 VHOST=$1
 RHOST=$2
@@ -15,7 +17,7 @@ if [[ ! -f /root/.vhosts/$VHOST ]]; then
     addvhost $VHOST
 fi
 
-source /root/.vhosts/$VHOST || exit
+. /root/.vhosts/$VHOST || exit
 
 if [[ $(mysql -BNe "SHOW DATABASES LIKE '$DNAME'") ]]; then
     echo "Warning: '$DNAME' database already exists"
@@ -52,18 +54,18 @@ else
     echo "Warning: $UPATH/var/$DNAME.sql does not exist"
 fi
 
-if [[ -f $WPATH/wp-config.php ]]; then
-    if [[ ! -f $WPATH/wp-config.php.bkp ]]; then
-        echo "Update: $WPATH/wp-config.php"
+if [[ -f $WPATH/html/wp-config.php ]]; then
+    if [[ ! -f $WPATH/html/wp-config.php.bkp ]]; then
+        echo "Update: $WPATH/html/wp-config.php"
         su - $UUSER -c "
-cd $WPATH
+cd $WPATH/html
 mv wp-config.php wp-config.php.bkp
 wp core config --dbname='$DNAME' --dbuser='$DUSER' --dbpass='$DPASS'
 chmod 640 wp-config.php
 "
     fi
 else
-    echo "Warning: $WPATH/wp-config.php does not exist"
+    echo "Warning: $WPATH/html/wp-config.php does not exist"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set -x
