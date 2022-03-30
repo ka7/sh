@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/wpreport 20160817 - 20180303
-# Copyright (C) 1995-2018 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/wpreport 20160817 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: wpreport domain|all [path]" && exit 1
 
@@ -8,22 +8,24 @@
 
 [[ ! -d $VPATH ]] && echo "!!! ERROR: '$VPATH' does NOT exist" && exit 3
 
+[[ $DEBUG ]] && set -x
+
 if [[ $1 == all ]]; then
     WPS=$(find $VPATH -type d -name "wp-admin")
     for WP in $WPS; do
-        WPATH=$(dirname $WP)
-        UUSER=$(stat -c "%U" $WPATH)
-        echo -e "$UUSER\t$WPATH"
+        _PATH=$(dirname $WP)
+        _USER=$(stat -c "%U" $_PATH)
+        echo -e "$_USER\t$_PATH"
     done
 else
     [[ $1 =~ \. ]] && VHOST=$1 || VHOST=$(host -t a $1 | cut -d' ' -f1)
-    WPATH=$VPATH/$VHOST/var/www
-    [[ -n $2 ]] && WPATH=$WPATH/$2
-    [[ ! -d $WPATH/wp-admin ]] && echo "ERROR: $WPATH is not a Wordpress installation" && exit 4
-    UUSER=$(stat -c "%U" $WPATH)
-    echo -n "$UUSER $WPATH v"
-    su - $UUSER -c "
-cd $WPATH
+    _PATH=$VPATH/$VHOST/var/www/html
+    [[ -n $2 ]] && _PATH=$_PATH/$2
+    [[ ! -d $_PATH/wp-admin ]] && echo "ERROR: $_PATH is not a Wordpress installation" && exit 4
+    _USER=$(stat -c "%U" $_PATH)
+    echo -n "$_USER $_PATH v"
+    su - $_USER -c "
+cd $_PATH
 wp core version 2> /dev/null
 wp theme list 2> /dev/null
 wp plugin list 2> /dev/null
@@ -31,4 +33,4 @@ wp user list 2> /dev/null
 "
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
