@@ -26,14 +26,11 @@ fi
 
 if [[ $FPATH ]]; then
     WPURL="https://$VHOST/$FPATH"
-    FPATH="$WPATH/html/$FPATH"
+    FPATH="$WPATH/html/$FPATHbkpwww"
 else
     WPURL="https://$VHOST"
     FPATH="$WPATH/html"
 fi
-
-#[[ -d $UPATH/var/public ]] && mv $UPATH/var/public $WPATH
-#[[ -d $UPATH/var/private ]] && mv $UPATH/var/private $WPATH
 
 if [[ ! -x $WPAPP ]]; then
     echo "### Install wp-cli as $WPAPP"

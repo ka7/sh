@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# .sh/bin/delrc 20190630 - 20191119
-# Copyright (C) 1995-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/delrc 20190630 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: delrc [domain]" && exit 1
 
@@ -8,10 +8,12 @@
 
 VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 
-source /root/.vhosts/$VHOST || exit 3
+. /root/.vhosts/$VHOST || exit 3
 
-if [[ ! -d $WPATH/vendor/roundcube/ ]]; then
-    echo "@@@ $WPATH/vendor/roundcube does not exist" && exit 4
+[[ $DEBUG ]] && set -x
+
+if [[ ! -d $WPATH/html/vendor/roundcube/ ]]; then
+    echo "@@@ $WPATH/html/vendor/roundcube does not exist" && exit 4
 else
     if [[ $DTYPE == mysql ]]; then
         DBTMP=${VHOST//[.-]/_}
@@ -21,9 +23,9 @@ else
         fi
     fi
     rm -rf $UPATH/var/roundcube* $UPATH/var/composer*
-    find $WPATH -maxdepth 1 ! -name www ! -name hcp ! -name .well-known ! -name public ! -name private -exec rm -rf {} +
-    touch $WPATH/index.html && chown $(stat -c '%u:%g' $WPATH) $WPATH/index.html
-    echo "@@@ Remove Roundcube from $WPATH ($DTYPE)"
+    find $WPATH -maxdepth 2 ! -name www ! -name hcp ! -name .well-known ! -name public ! -name html -exec rm -rf {} +
+    touch $WPATH/html/index.html && chown $(stat -c '%u:%g' $WPATH) $WPATH/html/index.html
+    echo "@@@ Remove Roundcube from $WPATH/html ($DTYPE)"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/delwp 20180202 - 20220321
+# .sh/bin/delwp 20180202 - 20220330
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delwp domain [path]" && exit 1
@@ -10,20 +10,20 @@
 
 [[ $DEBUG ]] && set -x
 
-FPATH=${2:-''}
-[[ $FPATH ]] && FPATH=$WPATH/public/$FPATH || FPATH=$WPATH/public
+_PATH=${2:-''}
+[[ $_PATH ]] && _PATH=$WPATH/html/$_PATH || _PATH=$WPATH/html
 
-[[ ! -d $FPATH ]] && echo "!!! ERROR: $FPATH does NOT exist" && exit 4
+[[ ! -d $_PATH ]] && echo "!!! ERROR: $_PATH does NOT exist" && exit 4
 
-if [[ -f $FPATH/wp-includes/version.php ]]; then
+if [[ -f $_PATH/wp-includes/version.php ]]; then
     # Preserve non-Wordpress download folders, if exists
-    [[ -d $FPATH/public ]] && mv $FPATH/public $UPATH/var
-    [[ -d $FPATH/private ]] && mv $FPATH/private $UPATH/var
-    echo "!!! Remove $FPATH"
-    rm -rf $FPATH
-    mkdir $FPATH
-    echo "!!! Create $FPATH/index.html"
-    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" >$FPATH/index.html
+    [[ -d $_PATH/public ]] && mv $_PATH/public $UPATH/var
+    [[ -d $_PATH/private ]] && mv $_PATH/private $UPATH/var
+    echo "!!! Remove $_PATH"
+    rm -rf $_PATH
+    mkdir $_PATH
+    echo "!!! Create $_PATH/index.html"
+    echo "<!DOCTYPE html><title>$VHOST</title><h1 style=\"text-align:center\">$VHOST</h1>" >$_PATH/index.html
     chperms $VHOST
 else
     echo "!!! ERROR: does not look like a Wordpress installation"

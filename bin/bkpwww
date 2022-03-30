@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# .sh/bin/bkpwww 20180205 - 20201018
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/bkpwww 20180205 - 20220330
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: bkpwww domain [dbname]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source ~/.vhosts/$1 || exit 4
+. /root/.vhosts/$1 || exit 3
+
+[[ $DEBUG ]] && set -x
 
 DNAME=${2:-$DNAME}
 TARNM="$(date +'%Y%m%d')-$VHOST.tgz"
 
-[[ ! -d $WPATH ]] && echo "ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 3
+[[ ! -d $WPATH/html ]] && echo "ERROR: $WPATH/html does NOT exist, run 'addvhost' first" && exit 3
 
 cd $UPATH/var
 
@@ -37,4 +39,4 @@ chmod 640 $TARNM
 
 echo "Created $(du -bh $TARNM)"
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set -x
