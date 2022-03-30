@@ -20,7 +20,7 @@ UPATH=$VPATH/$VHOST
 WPATH=$UPATH/var/www
 UUSER=$(stat -c "%U" $UPATH/var)
 
-[[ ! -d $WPATH ]] && echo "!!! ERROR: $WPATH does NOT exist, run 'addvhost' first" && exit 4
+[[ ! -d $WPATH/html ]] && echo "!!! ERROR: $WPATH/html does NOT exist, run 'addvhost' first" && exit 4
 
 cd $UPATH/var
 

@@ -218,24 +218,6 @@ else
     echo "<?php error_log(__FILE__.' '.\$_SERVER['REMOTE_ADDR']); phpinfo();" >$WPATH/html/phpinfo.php
 fi
 
-#if [[ -f $WPATH/private/.htpasswd ]]; then
-#    echo "### $WPATH/private/.htpasswd already exists"
-#else
-#    PIN=$RANDOM
-#    echo "### Create $WPATH/private/.htpasswd (guest/$PIN)"
-#    htpasswd -b -c $WPATH/private/.htpasswd guest $PIN >/dev/null 2>&1
-#    [[ $IP4_0 =~ ^192.168 || $IP4_0 =~ ^10 ]] && SCHEME="http://" || SCHEME="https://"
-#    cat <<EOS | tee -a /root/.vhosts/$VHOST.conf >/dev/null
-#Private
-#=========
-#
-#WebFiles: $SCHEME$VHOST/private
-#Username: guest
-#Password: $PIN
-#
-#EOS
-#fi
-
 chperms $VHOST
 serva reload php
 
