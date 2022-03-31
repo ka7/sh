@@ -1,18 +1,16 @@
-# .sh/_shrc 20130315 - 20220319
+# .sh/_shrc 20130315 - 20220331
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([ $(id -u) -gt 0 ] && echo 'sudo ')
-MHOST=$(hostname -f | tr 'A-Z' 'a-z')
+_HOST=$(hostname -f | tr 'A-Z' 'a-z')
 OSTYP=unknown
 COLOR=31
 LABEL=$(hostname)
 DEBUG=
 LXDBR=
 EDITOR=nano
-
-[[ $MHOST =~ '.' ]] || MHOST=$MHOST.local
 
 # Set the OS type
 [ -f /etc/os-release ] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
@@ -26,10 +24,11 @@ EDITOR=nano
 # Import managed env vars
 [ -f ~/.sh/lib/functions ] && . ~/.sh/lib/functions
 
-if [ -f ~/.vhosts/$MHOST ]; then
-    . ~/.vhosts/$MHOST
+if [ -f ~/.vhosts/$_HOST ]; then
+    . ~/.vhosts/$_HOST
 else
-    sethost $MHOST $DTYPE $OSREL
+    [[ $_HOST =~ '.' ]] || _HOST="mail.$_HOST.local"
+    sethost $_HOST $DTYPE $OSREL
 fi
 
 PS1="\[\033[1;${COLOR}m\]${LABEL} \w\[\033[0m\] "
