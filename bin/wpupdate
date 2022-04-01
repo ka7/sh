@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/wpupdate 20160817 - 20220330
+# .sh/bin/wpupdate 20160817 - 20220401
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: wpupdate domain|all [path]" && exit 1
@@ -27,7 +27,7 @@ wp plugin update-all
 }
 
 if [[ $1 == all ]]; then
-    WPS=$(find $VPATH -type d -name "wp-admin" | grep "var/www/html/wp-admin")
+    WPS=$(find $VPATH -type d -depth 4 -name "wp-admin")
     for WP in $WPS; do
         WPDIR=$(dirname $WP)
         if [[ ! -f $WPDIR/DONOTUPDATE ]]; then
@@ -35,8 +35,10 @@ if [[ $1 == all ]]; then
         fi
     done
 else
-    _PATH=$VPATH/$1/var/www/html
-    [[ -n $2 ]] && _PATH=$_PATH/html/$2
+    # Workaround to deal with webroot change to */html
+    _PATH=$VPATH/$1/var/www
+    [[ -d $_PATH/html ]] && _PATH=$_PATH/html
+    [[ -n $2 ]] && _PATH=$_PATH/$2
     wpupdate $_PATH
 fi
 
