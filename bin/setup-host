@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220329
+# .sh/bin/setup-host 20170524 - 20220401
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
@@ -91,7 +91,7 @@ rsync sqlite sudo time minizip wget which whois yay"
         if [[ $DTYPE == mysql ]]; then
             pacman -S $MLIST --needed --noconfirm >/dev/null 2>&1
             mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >/dev/null 2>&1
-            sc start mariadb
+            systemctl start mariadb
         fi
     fi
 
@@ -190,8 +190,8 @@ EOS
         fi
 
         echo "### Disable pdns until actually needed"
-        sc stop pdns >/dev/null 2>&1
-        sc disable pdns >/dev/null 2>&1
+        systemctl stop pdns >/dev/null 2>&1
+        systemctl disable pdns >/dev/null 2>&1
 
 #        echo "### Install bionic spamprobe (the focal+ spamprobe crashes)"
 #        apt-get -yqq install spamprobe=1.4d-14build1 >/dev/null
@@ -201,12 +201,20 @@ EOS
     if [[ -f /usr/bin/python3 && ! -d /usr/share/xsessions ]]; then
         if [[ -f /usr/share/unattended-upgrades/unattended-upgrade-shutdown ]]; then
             echo "### Remove unattended-upgrades"
-            sc stop unattended-upgrades >/dev/null 2>&1
-            sc disable unattended-upgrades >/dev/null 2>&1
+            systemctl stop unattended-upgrades >/dev/null 2>&1
+            systemctl disable unattended-upgrades >/dev/null 2>&1
         fi
-#        echo "### Remove python and all related packages"
-#        apt-get -yqq --purge remove $RLIST >/dev/null
+        # Comment out if cloud-init is required otherwise this is the lazy way
+        # to get rid of netplan so that systemd-networkd will work, especially
+        # when a bridge is wanted via the LXDBR env var.
+        echo "### Remove python and all related packages"
+        apt-get -yqq --purge remove $RLIST >/dev/null
     fi
+
+    # Let's make sure a few services are enabled
+    systemctl enable systemd-networkd
+    systemctl enable systemd-resolved
+    systemctl enable mailgraph
 fi
 
 # Git is now available so install the SH scripts, if not already
@@ -227,7 +235,7 @@ if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
     echo "### Create new /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
-    sc restart sshd
+    systemctl restart sshd
 fi
 
 if [[ ! -d /root/.ssh ]]; then
@@ -269,8 +277,8 @@ else
             cp ~/.sh/etc/_etc_systemd_network_eth0.network /etc/systemd/network/eth0.network
         fi
         chmod 644 /etc/systemd/network/*
-        sc restart systemd-networkd >/dev/null 2>&1
-        sc enable systemd-networkd >/dev/null 2>&1
+        systemctl restart systemd-networkd >/dev/null 2>&1
+        systemctl enable systemd-networkd >/dev/null 2>&1
     fi
 
     if [[ ! /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
@@ -281,8 +289,8 @@ else
             -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
             -e "s/^#Domains=.*/Domains=$HDOMN/" \
             -e 's/^#MulticastDNS=.*/MulticastDNS=yes/'
-        sc restart systemd-resolved >/dev/null 2>&1
-        sc enable systemd-resolved >/dev/null 2>&1
+        systemctl restart systemd-resolved >/dev/null 2>&1
+        systemctl enable systemd-resolved >/dev/null 2>&1
     fi
 fi
 

@@ -1,5 +1,5 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20200905
-# Copyright (C) 2015-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20220401
+# Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
 ### an account) then manually add a line like this to /etc/postfix/sasl_passwd
@@ -18,10 +18,11 @@
 
 # This may be needed in some cases
 #myhostname = _MHOST
+mydestination = localhost.$mydomain, localhost
 
 alias_maps = lmdb:/etc/aliases
 biff = no
-compatibility_level = 2
+compatibility_level = 3.6
 header_checks = regexp:/etc/postfix/header_checks
 home_mailbox = Maildir/
 inet_interfaces = localhost
