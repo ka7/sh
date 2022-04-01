@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newmaster 20160816 - 20220330
+# .sh/bin/newmaster 20160816 - 20220401
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: newmaster domain [passwd] [email] [path]" && exit 1
@@ -22,14 +22,22 @@ UUSER=$(stat -c "%U" $WPATH)
 
 if [[ $_PATH ]]; then
     WPURL=$SCHEME$VHOST/$_PATH
-    _PATH=$WPATH/html/$_PATH
+    if [[ -d $WPATH/html/$_PATH ]]; then
+        _PATH=$WPATH/html/$_PATH
+    else
+        _PATH=$WPATH/$_PATH
+    fi
 else
     WPURL=$SCHEME$VHOST
-    _PATH=$WPATH/html
+    if [[ -d $WPATH/html ]]; then
+        _PATH=$WPATH/html
+    else
+        _PATH=$WPATH
+    fi
 fi
 
 if [ ! -f "$_PATH/wp-config.php" ]; then
-    echo "ERROR: This is not a Wordpress folder, run 'newwp' first" && exit 4
+    echo "ERROR: This is not a Wordpress folder, run 'addwp vhost' first" && exit 4
 fi
 
 if [[ ! -x /usr/local/bin/wp ]]; then
