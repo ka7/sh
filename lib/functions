@@ -1,8 +1,8 @@
-# .sh/lib/functions 20151231 - 20220319
+# .sh/lib/functions 20151231 - 20220404
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 if [[ $OSTYP == alpine ]]; then
-    sc() {
+    sc () {
         if [ $1 = 'enable' ]; then
             $SUDO rc-update add $2
         elif [ $1 = 'disable' ]; then
@@ -12,16 +12,16 @@ if [[ $OSTYP == alpine ]]; then
         fi
     }
 else
-    sc() { $SUDO systemctl $1 $2; }
+    sc () { $SUDO systemctl $1 $2; }
 fi
 
-chktime() {
+chktime () {
     [[ $(($(stat -c %X $1) + $2)) < $(date +%s) ]] && return 0 || return 1
 }
-f() {
+f () {
     find . -type f -iname '*'$*'*' -ls
 }
-gethost() {
+gethost () {
     echo "\
 ADMIN='$ADMIN'
 AHOST='$AHOST'
@@ -78,10 +78,10 @@ WPATH='$WPATH'
 WPUSR='$WPUSR'
 WUGID='$WUGID'"
 }
-getusers() {
+getusers () {
     getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}'
 }
-getuser() {
+getuser () {
     echo "\
 UUSER=$UUSER
 U_UID=$U_UID
@@ -90,24 +90,29 @@ VHOST=$VHOST
 UPATH=$UPATH
 U_SHL=$U_SHL"
 }
-go2() {
+go2 () {
     if [[ $1 =~ "@" ]]; then
         cd /home/u/${1#*@}*/home/*${1%@*}
     else
         cd /home/u/$1*/var/www
     fi
 }
-grepuser() {
+grepuser () {
     getusers | grep -E "$1[,:]"
 }
-newuid() {
+newuid () {
     local uid=$(($(getusers | cut -d: -f3 | sort -n | tail -n1) + 1))
     [[ $uid == 1 ]] && echo 1000 || echo $uid
 }
-getdb() {
+getdb () {
     echo $SQCMD
 }
-setdistro() {
+lxm () {
+    lxc stop $1;
+    lxc move $1 --target $2;
+    lxc start $1
+}
+setdistro () {
     # OS dependant overrides
     if [[ $OSTYP == alpine ]]; then
         V_PHP='8'
@@ -132,7 +137,7 @@ setdistro() {
         OSREL='bullseye'
     fi
 }
-setuser() {
+setuser () {
     local U_TMP=$(grepuser "$1")
     [[ $U_TMP && (($(grep -c . <<<"$U_TMP") != 1)) ]] && echo "Ambiguous result for '$1'" && return 10
     UUSER=$(echo $U_TMP | cut -d: -f1)
@@ -142,7 +147,7 @@ setuser() {
     UPATH=$(echo $UUSER | cut -d: -f6)
     U_SHL=$(echo $UUSER | cut -d: -f7)
 }
-sethost() {
+sethost () {
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [distro($OSREL)] [IP]"
         return 1
@@ -242,14 +247,14 @@ sethost() {
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST
     AMAIL="$VUSER@$TEMPH"
 }
-sx() {
+sx () {
     [[ -z $2 || $1 =~ -h ]] &&
         echo "Usage: sx host command (host must be in ~/.ssh/config)" && return 1
     local _HOST=$1
     shift
     ssh $_HOST -q -t "bash -ci '$@'"
 }
-updhost() {
+updhost () {
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: updhost vhost [(mysql)|sqlite] [distro($OSREL)] [IP] [V_PHP]"
         return 1
