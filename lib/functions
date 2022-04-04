@@ -108,9 +108,10 @@ getdb () {
     echo $SQCMD
 }
 lxm () {
+    [[ -z $3 || $1 =~ -h ]] && echo "Usage: lxm name1 name2 node" && return 1;
     lxc stop $1;
-    lxc move $1 --target $2;
-    lxc start $1
+    lxc move $1 $2 --target $3;
+    lxc start $2
 }
 setdistro () {
     # OS dependant overrides
