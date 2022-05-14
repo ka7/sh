@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# .sh/bin/chwebroot 20220514 - 20220514
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ -h ]] && echo "Usage: chwebroot" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+sed 's#/var/www;#/var/www/html;#' -i /etc/nginx/common.conf
+sed 's#/var/www;#/var/www/html;#' -i /etc/nginx/sites-enabled/_default
+sed 's#/var/www/.well-known/;#/var/www/html/.well-known/;#' -i /etc/nginx/sites-enabled/*
+
+ls /root/.vhosts | while read i; do \
+  if [[ ! $i =~ \.conf ]]; then
+    grep -q WUGID= /root/.vhosts/$i
+
+    if [[ $? -gt 0 ]]; then
+      echo 'WUGID="www-data"' >> /root/.vhosts/$i
+    fi
+
+    grep -q OSTYP= /root/.vhosts/$i
+
+    if [[ $? -gt 0 ]]; then
+      echo 'OSTYP="ubuntu"' >> /root/.vhosts/$i
+    fi
+
+    sed "s/^OSREL='[^']*'/OSREL='jammy'/" -i /root/.vhosts/$i
+    sed "s/^V_PHP='[^']*'/V_PHP='8.1'/" -i /root/.vhosts/$i
+    sed "s#^C_FPM='[^']*'#C_FPM='/etc/php/8.1/fpm'#" -i /root/.vhosts/$i
+
+    mv /root/.vhosts/$i /root/.vhosts/x
+    sort /root/.vhosts/x > /root/.vhosts/$i
+    rm /root/.vhosts/x
+  fi
+done
+
+ls -d /home/u/*/var/www | while read i; do \
+  if [[ ! -d $i/html ]]; then
+    _VDIR=`dirname $i`
+
+    mv $_VDIR/www $_VDIR/x
+    mkdir $_VDIR/www
+    mv $_VDIR/x $_VDIR/www/html
+
+    chperms `echo $i | awk -F/ '{print $4}'`
+
+#  echo $i $_VDIR $_HOST
+  fi
+done
