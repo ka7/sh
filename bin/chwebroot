@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/chwebroot 20220514 - 20220514
+# .sh/bin/chwebroot 20220514 - 20220515
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: chwebroot" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
+sed 's#/var/www;#/var/www/html;#' -i /etc/nginx/hcp.conf
 sed 's#/var/www;#/var/www/html;#' -i /etc/nginx/common.conf
 sed 's#/var/www;#/var/www/html;#' -i /etc/nginx/sites-enabled/_default
 sed 's#/var/www/.well-known/;#/var/www/html/.well-known/;#' -i /etc/nginx/sites-enabled/*
