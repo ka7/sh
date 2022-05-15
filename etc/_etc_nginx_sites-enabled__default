@@ -4,9 +4,9 @@
 server {
     listen                      80;
     server_name                 _;
-    location                    ^~ /.well-known/acme-challenge/ { root /home/u/_MHOST/var/www; break; }
+    location                    ^~ /.well-known/acme-challenge/ { root /home/u/_MHOST/var/www/html; break; }
     location                    ~* (/.well-known/autoconfig/|/mail/config-v1.1.xml|/autodiscover/autodiscover.xml) {
-        root                    /home/u/_MHOST/var/www/.well-known/;
+        root                    /home/u/_MHOST/var/www/html/.well-known/;
         try_files               /autodiscover.php =404;
         fastcgi_pass            unix:/home/u/_MHOST/var/run/fpm.sock;
         include                 fastcgi.conf;

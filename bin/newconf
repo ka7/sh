@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/newconf 20200304 - 20220330
+# .sh/bin/newconf 20200304 - 20220515
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # WIP ### breakout web server config files from newssl
@@ -83,7 +83,6 @@ EOS
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 mail.$VHOST;
-    set                         \$domain mail.$VHOST;
     include                     $C_WEB/hcp.conf;
     include                     $C_WEB/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
@@ -109,7 +108,6 @@ EOS
 server {
     listen                      ${IPARG}443 ssl http2;
     server_name                 $VHOST;
-    set                         \$domain $VHOST;
     include                     $C_WEB/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addvhost 20170217 - 20220330
+# .sh/bin/addvhost 20170217 - 20220515
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: move anything to do with hosting plans into another script
@@ -254,7 +254,6 @@ if [[ $DOSSL == self ]]; then
 server {
     listen                      ${USEIP}443 ssl http2;
     server_name                 $VHOST;
-    set                         \$domain $VHOST;
     include                     /etc/nginx/common.conf;
     ssl_certificate             $C_SSL/$VHOST/fullchain.pem;
     ssl_certificate_key         $C_SSL/$VHOST/privkey.pem;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20220320
+# .sh/bin/setup-fqdn 20210327 - 20220515
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -237,7 +237,6 @@ if [[ ! -d $C_SSL/$MHOST ]]; then
 server {
     listen                      443 ssl http2;
     server_name                 $MHOST;
-    set                         \$domain $MHOST;
     include                     /etc/nginx/hcp.conf;
     include                     /etc/nginx/common.conf;
     ssl_certificate             $C_SSL/$MHOST/fullchain.pem;
