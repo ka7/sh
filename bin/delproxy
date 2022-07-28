@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# .sh/bin/delproxy 20160121 - 20220728
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ -z $1 || $1 =~ ' -h' ]] && echo "Usage: delproxy domain" && exit 1
+
+[[ $DEBUG ]] && set -x
+
+VHOST=$1
+SHOST=ssh.$VHOST
+C_SSL="/etc/ssl"
+C_WEB="/etc/nginx"
+
+if [[ -d $C_SSL/$VHOST ]]; then
+    rm -rf $C_SSL/$VHOST
+    echo "Removed $C_SSL/$VHOST"
+else
+     echo "$C_SSL/$VHOST does not exist"
+fi
+
+if [[ -f $C_WEB/sites-enabled/$VHOST ]]; then
+    rm $C_WEB/sites-enabled/$VHOST
+    echo "Removed $C_WEB/sites-enabled/$VHOST"
+else
+    echo "$C_WEB/sites-enabled/$VHOST does not exist"
+fi
+
+if [[ -d $C_SSL/$SHOST ]]; then
+    rm -rf $C_SSL/$SHOST
+    echo "Removed $C_SSL/$SHOST"
+else
+     echo "$C_SSL/$SHOST does not exist"
+fi
+
+if [[ -f $C_WEB/sites-enabled/$SHOST ]]; then
+    rm $C_WEB/sites-enabled/$SHOST
+    echo "Removed $C_WEB/sites-enabled/$SHOST"
+else
+    echo "$C_WEB/sites-enabled/$SHOST does not exist"
+fi
+
+nginx -t  >/dev/null 2>&1 && nginx -s reload >/dev/null 2>&1
+
+[[ $DEBUG ]] && set +x
