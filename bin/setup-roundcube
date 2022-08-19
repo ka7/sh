@@ -7,7 +7,7 @@
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
-RCVER=${2:-'1.6'}
+RCVER=${2:-'1.6.0'}
 DBTMP=${VHOST//[.-]/_}
 
 . /root/.vhosts/$VHOST || exit 3
