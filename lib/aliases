@@ -23,7 +23,7 @@ alias lx='lxc list'
 alias se='sudo nano -t -x -c'
 alias sn='[ -f ~/.note ] && cat ~/.note'
 alias wt="curl -s -w '%{time_total}\n' -o /dev/null"
-alias ram='ps -eo rss:8,vsz:8,%cpu:4,cmd  --sort=rss | grep -v "^\s\+0"'
+alias ram='ps -eo rss:8,vsz:8,%cpu:4,cmd:40 --sort=rss | grep -v "^\s\+0" | cut -c -79'
 alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
 if [[ -f /etc/alpine-release ]]; then
