@@ -15,7 +15,7 @@ EDITOR=nano
 # Set the OS type
 [[ -f /etc/os-release ]] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release|sed 's/"//g')
 
-[[ $OSTYP == openwrt ]] && hostname() {
+[[ $OSTYP == openwrt ]] && hostname () {
   if [[ -z $1 ]]; then
     alias hostname='uci get system.@system[0].hostname'
   elif [[ $1 == '-f' ]]; then
