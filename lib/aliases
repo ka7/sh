@@ -31,26 +31,26 @@ if [[ $OSTYP == openwrt ]]; then
     alias u=$SUDO'opkg update && '$SUDO'opkg list-upgradable | cut -f 1 -d " " | xargs -r opkg upgrade'
     alias r=$SUDO'opkg remove'
     alias s=$SUDO'opkg list'
-    alias lspkg=$SUDO'opkg list-installed'
+    alias lspkg=$SUDO'opkg list-installed | sort | grep'
     alias edpkg=$SUDO'nano -t -x -c /etc/opkg/customfeeds.conf'
     alias ram=$SUDO'ps ax -o rss:10,vsz:10,comm | grep -v "   0" | sort -n'
     alias l=$SUDO'logread -f'
-elif [[ -f /etc/alpine-release ]]; then
+elif [[ $OSTYP == alpine ]]; then
     alias i=$SUDO'apk add'
     alias u=$SUDO'apk update && '$SUDO'apk upgrade'
     alias r=$SUDO'apk del'
     alias s=$SUDO'apk search -v'
-    alias lspkg=$SUDO'apk info'
+    alias lspkg=$SUDO'apk info | sort | grep'
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
     alias ram=$SUDO'ps ax -o rss:10,vsz:10,comm | grep -v "   0" | sort -n'
     alias l=$SUDO'tail -f /var/log/messages'
-elif [[ -f /etc/pacman.conf ]]; then
+elif [[ $OSTYP == manjaro ]]; then
     alias i=$SUDO'pacman -S'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
     alias uu='yay -Syyuu --noconfirm ; yay -Scc --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
     alias r=$SUDO'pacman -Rns'
     alias s=$SUDO'pacman -Ss'
-    alias lspkg=$SUDO'pacman -Qn | grep'
+    alias lspkg=$SUDO'pacman -Qn | sort | grep'
     alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
 else
     alias i=$SUDO'apt-get install'
