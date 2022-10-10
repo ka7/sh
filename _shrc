@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20220331
+# .sh/_shrc 20130315 - 20221010
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
@@ -13,7 +13,7 @@ LXDBR=
 EDITOR=nano
 
 # Set the OS type
-[ -f /etc/os-release ] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release)
+[ -f /etc/os-release ] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release|sed 's/"//g')
 
 # Import global aliases
 [ -f ~/.sh/lib/aliases ] && . ~/.sh/lib/aliases
