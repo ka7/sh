@@ -13,9 +13,15 @@ LXDBR=
 EDITOR=nano
 
 # Set the OS type
-[ -f /etc/os-release ] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release|sed 's/"//g')
+[[ -f /etc/os-release ]] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release|sed 's/"//g')
 
-[ $OSTYP = 'openwrt' ] && alias hostname='uci get system.@system[0].hostname'
+[[ $OSTYP == openwrt ]] && hostname() {
+  if [[ -z $1 ]]; then
+    alias hostname='uci get system.@system[0].hostname'
+  elif [[ $1 == '-f' ]]; then
+    alias hostname='uci get dhcp.@domain[0].name'
+  fi
+}
 
 _HOST=$(hostname -f | tr 'A-Z' 'a-z')
 LABEL=$(hostname)
@@ -46,4 +52,4 @@ export DPORT DTYPE DUSER EPASS EXMYS EXSQL HNAME HDOMN IP4_0 LROOT LXDBR
 export MHOST MPATH OSMIR OSREL OSTYP SQCMD SQDNS TAREA TCITY UPASS UPATH
 export UUSER U_GID U_SHL U_UID VHOST VPATH VUSER V_PHP WPASS WPATH WPUSR
 
-[[ $DEBUG ]] && set +[x
+[[ $DEBUG ]] && set +x
