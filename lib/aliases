@@ -50,7 +50,7 @@ elif [[ $OSTYP == manjaro ]]; then
     alias uu='yay -Syyuu --noconfirm ; yay -Scc --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
     alias r=$SUDO'pacman -Rns'
     alias s=$SUDO'pacman -Ss'
-    alias lspkg=$SUDO'pacman -Qn | sort | grep'
+    alias lspkg=$SUDO'pacman -Qn'
     alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
 else
     alias i=$SUDO'apt-get install'
