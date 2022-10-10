@@ -2,6 +2,8 @@
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
+[[ $DEBUG ]] && set -x
+
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/snap/bin:~/.sh/bin
 SUDO=$([ $(id -u) -gt 0 ] && echo 'sudo ')
 OSTYP=unknown
@@ -43,3 +45,5 @@ export C_FPM C_SQL C_SSL C_WEB DBMYS DBSQL DEBUG DHOST DNAME DPASS DPATH
 export DPORT DTYPE DUSER EPASS EXMYS EXSQL HNAME HDOMN IP4_0 LROOT LXDBR
 export MHOST MPATH OSMIR OSREL OSTYP SQCMD SQDNS TAREA TCITY UPASS UPATH
 export UUSER U_GID U_SHL U_UID VHOST VPATH VUSER V_PHP WPASS WPATH WPUSR
+
+[[ $DEBUG ]] && set +[x
