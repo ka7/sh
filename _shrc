@@ -15,12 +15,12 @@ EDITOR=nano
 # Set the OS type
 [[ -f /etc/os-release ]] && OSTYP=$(awk -F= '/^ID=/ {print $2}' /etc/os-release|sed 's/"//g')
 
-[[ $OSTYP == openwrt ]] && hostname () {
+[[ $OSTYP == openwrt ]] && function hostname {
   if [[ -z $1 ]]; then
-    alias hostname='uci get system.@system[0].hostname'
-  elif [[ $1 == '-f' ]]; then
-    alias hostname='uci get dhcp.@domain[0].name'
-  fi
+    uci get system.@system[0].hostname
+  elif [[ $1 == -f ]]; then
+    uci get dhcp.@domain[0].name
+  fi;
 }
 
 _HOST=$(hostname -f | tr 'A-Z' 'a-z')
