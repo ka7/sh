@@ -1,7 +1,11 @@
-# .sh/lib/functions 20151231 - 20220404
+# .sh/lib/functions 20151231 - 20221010
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if [[ $OSTYP == alpine ]]; then
+if [[ $OSTYP == openwrt ]]; then
+    sc () {
+        $SUDO /etc/init.d/$2 $1
+    }
+elif [[ $OSTYP == alpine ]]; then
     sc () {
         if [ $1 = 'enable' ]; then
             $SUDO rc-update add $2
