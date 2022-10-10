@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20220926
+# .sh/lib/aliases 20151231 - 20221010
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $(type -t sc) == alias ]] && unalias sc
@@ -26,7 +26,16 @@ alias wt="curl -s -w '%{time_total}\n' -o /dev/null"
 alias ram='ps -eo rss:10,vsz:10,%cpu:5,cmd --sort=rss | grep -v "^\s\+0" | cut -c -79'
 alias hcp='shm pull; su - sysadm -c "cd var/www/hcp; git pull"'
 
-if [[ -f /etc/alpine-release ]]; then
+if [[ $OSTYP == openwrt ]]; then
+    alias i=$SUDO'opkg install'
+    alias u=$SUDO'opkg update && '$SUDO'opkg list-upgradable | cut -f 1 -d " " | xargs -r opkg upgrade'
+    alias r=$SUDO'opkg remove'
+    alias s=$SUDO'opkg list'
+    alias lspkg=$SUDO'opkg list-installed'
+    alias edpkg=$SUDO'nano -t -x -c /etc/opkg/customfeeds.conf'
+    alias ram=$SUDO'ps ax -o rss:10,vsz:10,comm | grep -v "   0" | sort -n'
+    alias l=$SUDO'logread -f'
+elif [[ -f /etc/alpine-release ]]; then
     alias i=$SUDO'apk add'
     alias u=$SUDO'apk update && '$SUDO'apk upgrade'
     alias r=$SUDO'apk del'
