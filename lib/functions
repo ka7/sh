@@ -1,10 +1,10 @@
-# .sh/lib/functions 20151231 - 20221010
+# .sh/lib/functions 20151231 - 20221016
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
+f () { find . -type f -iname '*'$*'*'; }
+
 if [[ $OSTYP == openwrt ]]; then
-    sc () {
-        $SUDO /etc/init.d/$2 $1
-    }
+    sc () { $SUDO /etc/init.d/$2 $1; }
 elif [[ $OSTYP == alpine ]]; then
     sc () {
         if [ $1 = 'enable' ]; then
@@ -16,14 +16,12 @@ elif [[ $OSTYP == alpine ]]; then
         fi
     }
 else
+    f () { find . -type f -iname '*'$*'*' -ls; }
     sc () { $SUDO systemctl $1 $2; }
 fi
 
 chktime () {
     [[ $(($(stat -c %X $1) + $2)) < $(date +%s) ]] && return 0 || return 1
-}
-f () {
-    find . -type f -iname '*'$*'*' -ls
 }
 gethost () {
     echo "\
