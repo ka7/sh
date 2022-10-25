@@ -1,4 +1,4 @@
-# .sh/etc/_etc_cron.d_netserva 20170614 - 20191123
+# .sh/etc/_etc_cron.d_netserva 20170614 - 20221026
 # Copyright (C) 2015-2019 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/root/.sh/bin
@@ -15,7 +15,6 @@ MAILTO=_MAILTO
 
 20 0 * * * root doveadm expunge -A mailbox Trash savedbefore 7d
 
-*/16 * * * * root delpwtxt
+30 0 * * * root [[ -S /var/run/mysqld/mysqld.sock ]] && bkpmysql
 
-# Uncomment if running mysql
-#30 0 * * * root bkpmysql
+#*/16 * * * * root delpwtxt
