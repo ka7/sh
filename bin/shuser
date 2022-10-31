@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/shuser 20160130 - 20210121
+# .sh/bin/shuser 20160130 - 20221031
 # Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # TODO: if uid == 1000 then uid = sysadm else uid= u####
+
+[[ $DEBUG ]] && set -x
 
 [[ $1 =~ '-h' ]] && echo "Usage: shuser [email*]" && exit 1
 
@@ -44,4 +46,4 @@ else
     echo "No matching users"
 fi
 
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
