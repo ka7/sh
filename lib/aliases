@@ -1,4 +1,4 @@
-# .sh/lib/aliases 20151231 - 20221016
+# .sh/lib/aliases 20151231 - 20221101
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $(type -t sc) == alias ]] && unalias sc
@@ -48,7 +48,7 @@ elif [[ $OSTYP == alpine ]]; then
 elif [[ $OSTYP == manjaro ]]; then
     alias edpkg=$SUDO'nano -t -x -c /etc/pacman.conf'
     alias i=$SUDO'pacman -S'
-    alias lspkg=$SUDO'pacman -Qn'
+    alias lspkg=$SUDO'pacman -Qs'
     alias r=$SUDO'pacman -Rns'
     alias s=$SUDO'pacman -Ss'
     alias u=$SUDO'pacman -Syu --noconfirm ; '$SUDO' pacman -Scc --noconfirm'
