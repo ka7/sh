@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20221010
+# .sh/_shrc 20130315 - 20221117
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
@@ -27,7 +27,8 @@ if [[ $OSTYP == openwrt ]]; then
         if [[ -z $1 ]]; then
             uci get system.@system[0].hostname
         elif [[ $1 == -f ]]; then
-            uci get dhcp.@domain[0].name
+            #uci get dhcp.@domain[0].name # wrong one?
+            uci get dhcp.@dnsmasq[0].domain
         fi
     }
 fi
