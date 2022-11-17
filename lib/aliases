@@ -34,7 +34,7 @@ if [[ $OSTYP == openwrt ]]; then
     alias p='ps | grep -v grep | grep'
     alias r=$SUDO'opkg remove'
     alias ram=$SUDO'ps ax -o rss:10,vsz:10,comm | grep -v "   0" | sort -n'
-    alias s=$SUDO'opkg list | grep '
+    alias s=$SUDO'opkg list | sort | grep '
     alias u=$SUDO'opkg update && '$SUDO'opkg list-upgradable | cut -f 1 -d " " | xargs -r opkg upgrade'
 elif [[ $OSTYP == alpine ]]; then
     alias edpkg=$SUDO'nano -t -x -c /etc/apk/repositories'
