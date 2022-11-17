@@ -24,10 +24,12 @@ if [[ $OSTYP == openwrt ]]; then
         fi
     }
     function hostname {
+        local _host=$(uci get system.@system[0].hostname)
         if [[ -z $1 ]]; then
-            uci get system.@system[0].hostname
+            echo $_host
         elif [[ $1 == -f ]]; then
-            #uci get dhcp.@domain[0].name # wrong one?
+            echo $_host.$(uci get dhcp.@dnsmasq[0].domain)
+        elif [[ $1 == -d ]]; then
             uci get dhcp.@dnsmasq[0].domain
         fi
     }
