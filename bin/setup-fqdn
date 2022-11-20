@@ -17,43 +17,13 @@ OU="IT Department"
 
 [[ $1 ]] && _FQDN=$1 || _FQDN=$(hostname -f)
 
-#if [[ $1 ]]; then
-#    _FQDN=$1
-#else
-#    _HOST=$(hostname)
-#    [[ $_HOST =~ \. ]] && _HOST=${_HOST%%.*} && hostname $_HOST
-#    _DOMN=$(hostname -d)
-#    [[ -z $_DOMN || $_DOMN == '(none)' ]] && _DOMN='local'
-#    _FQDN=$_HOST.$_DOMN
-#fi
+_sanitize_fqdn $_FQDN
 
-if [[ ${_FQDN%%.*} == ${_FQDN#*.} ]]; then
-    HNAME=$_FQDN
-    DNAME='local'
-else
-    HNAME=${_FQDN%%.*}
-    DNAME=${_FQDN#*.}
-fi
-
-if [[ $HNAME == mail && $DNAME == local ]]; then
-    VHOST=netserva.$DNAME
-    MHOST=$HNAME.$VHOST
-elif [[ $HNAME == mail ]]; then
-    VHOST=$DNAME
-    MHOST=$HNAME.$DNAME
-else
-    VHOST=$HNAME.$DNAME
-    MHOST=$HNAME.$DNAME
-fi
-
-export HNAME DNAME VHOST MHOST
-
-# The above is to sanitize the below variables
-#echo "HNAME=$HNAME"
-#echo "DNAME=$DNAME"
-#echo "VHOST=$VHOST"
-#echo "MHOST=$MHOST"
-#exit
+echo "HNAME=$HNAME"
+echo "DNAME=$DNAME"
+echo "VHOST=$VHOST"
+echo "MHOST=$MHOST"
+exit
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 

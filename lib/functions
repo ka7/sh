@@ -20,10 +20,12 @@ else
     sc () { $SUDO systemctl $1 $2; }
 fi
 
-chktime () {
+chktime ()
+{
     [[ $(($(stat -c %X $1) + $2)) < $(date +%s) ]] && return 0 || return 1
 }
-gethost () {
+gethost ()
+{
     echo "\
 ADMIN='$ADMIN'
 AHOST='$AHOST'
@@ -80,10 +82,12 @@ WPATH='$WPATH'
 WPUSR='$WPUSR'
 WUGID='$WUGID'"
 }
-getusers () {
+getusers ()
+{
     getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}'
 }
-getuser () {
+getuser ()
+{
     echo "\
 UUSER=$UUSER
 U_UID=$U_UID
@@ -92,30 +96,52 @@ VHOST=$VHOST
 UPATH=$UPATH
 U_SHL=$U_SHL"
 }
-go2 () {
+go2 ()
+{
     if [[ $1 =~ "@" ]]; then
         cd /home/u/${1#*@}*/home/*${1%@*}
     else
         cd /home/u/$1*/var/www
     fi
 }
-grepuser () {
+grepuser ()
+{
     getusers | grep -E "$1[,:]"
 }
-newuid () {
+newuid ()
+{
     local uid=$(($(getusers | cut -d: -f3 | sort -n | tail -n1) + 1))
     [[ $uid == 1 ]] && echo 1000 || echo $uid
 }
-getdb () {
+getdb ()
+{
     echo $SQCMD
 }
-lxm () {
-    [[ -z $3 || $1 =~ -h ]] && echo "Usage: lxm name1 name2 node" && return 1;
-    lxc stop $1;
-    lxc move $1 $2 --target $3;
-    lxc start $2
+_sanitize_fqdn ()
+{
+    if [[ ${1%%.*} == ${1#*.} ]]; then
+        HNAME=$1
+        DNAME='local'
+    else
+        HNAME=${1%%.*}
+        DNAME=${1#*.}
+    fi
+
+    if [[ $HNAME == mail && $DNAME == local ]]; then
+        VHOST=netserva.$DNAME
+        MHOST=$HNAME.$VHOST
+    elif [[ $HNAME == mail ]]; then
+        VHOST=$DNAME
+        MHOST=$HNAME.$DNAME
+    else
+        VHOST=$HNAME.$DNAME
+        MHOST=$HNAME.$DNAME
+    fi
+
+    export HNAME DNAME VHOST MHOST
 }
-setdistro () {
+setdistro ()
+{
     # OS dependant overrides
     if [[ $OSTYP == alpine ]]; then
         V_PHP='8'
@@ -140,7 +166,8 @@ setdistro () {
         OSREL='bullseye'
     fi
 }
-setuser () {
+setuser ()
+{
     local U_TMP=$(grepuser "$1")
     [[ $U_TMP && (($(grep -c . <<<"$U_TMP") != 1)) ]] && echo "Ambiguous result for '$1'" && return 10
     UUSER=$(echo $U_TMP | cut -d: -f1)
@@ -150,23 +177,26 @@ setuser () {
     UPATH=$(echo $UUSER | cut -d: -f6)
     U_SHL=$(echo $UUSER | cut -d: -f7)
 }
-sethost () {
+sethost ()
+{
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [distro($OSREL)] [IP]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         UUSER=${1%@*}
-        VHOST=${1#*@}
+        _FQDN=${1#*@}
         if [[ $UUSER == u* ]]; then
             U_UID=${UUSER#*u}
         else
             [[ $A_UID ]] && U_UID=$A_UID || U_UID=1000
         fi
     else
-        VHOST=$1
+        _FQDN=$1
         U_UID=$(newuid)
         UUSER=$([[ $U_UID = 1000 ]] && echo "sysadm" || echo "u$U_UID")
     fi
+
+    _sanitize_fqdn $_FQDN
 
     # Global static shell variables (default to ubuntu)
     ADMIN='sysadm'
@@ -200,9 +230,6 @@ sethost () {
 
     U_GID=$U_UID
 
-#    HNAME=${VHOST%%.*}
-#    HDOMN=${VHOST#*.*}
-
     [[ $UUSER == $ADMIN ]] && DNAME=$ADMIN || DNAME=${VHOST//[.-]/_}
 
     if [[ -z $4 ]]; then
@@ -216,9 +243,6 @@ sethost () {
     DPATH="$DBSQL/$ADMIN/$ADMIN.db"
     EXMYS="mysql -BN $ADMIN"
     EXSQL="sqlite3 $DPATH"
-
-# duplicate?
-#    DTYPE=${2:-'mysql'}
 
     if [[ $DTYPE == mysql ]]; then
         SQCMD=$EXMYS
@@ -237,8 +261,7 @@ sethost () {
     UPASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
     WPASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
 
-#    AHOST=$(hostname -f | tr 'A-Z' 'a-z')
-#    MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
+    AHOST=$(hostname -f | tr 'A-Z' 'a-z')
 
     DUSER=$UUSER
     MPATH=$VPATH/$VHOST/home
@@ -250,14 +273,16 @@ sethost () {
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST
     AMAIL="$VUSER@$TEMPH"
 }
-sx () {
+sx ()
+{
     [[ -z $2 || $1 =~ -h ]] &&
         echo "Usage: sx host command (host must be in ~/.ssh/config)" && return 1
     local _HOST=$1
     shift
     ssh $_HOST -q -t "bash -ci '$@'"
 }
-updhost () {
+updhost ()
+{
     if [[ -z $1 || $1 =~ -h ]]; then
         echo "Usage: updhost vhost [(mysql)|sqlite] [distro($OSREL)] [IP] [V_PHP]"
         return 1
@@ -269,8 +294,7 @@ updhost () {
         echo "ERROR: /root/.vhosts/$1 does not exist" && return 2
     fi
 
-#    HNAME=${1%%.*}
-#    HDOMN=${1#*.*}
+    _sanitize_fqdn $1
 
     DTYPE=${2:-$DTYPE}
     OSREL=${3:-$OSREL}
