@@ -24,6 +24,7 @@ chktime ()
 {
     [[ $(($(stat -c %X $1) + $2)) < $(date +%s) ]] && return 0 || return 1
 }
+
 gethost ()
 {
     echo "\
@@ -82,10 +83,12 @@ WPATH='$WPATH'
 WPUSR='$WPUSR'
 WUGID='$WUGID'"
 }
+
 getusers ()
 {
     getent passwd | awk -F: '{if ($3 > 999 && $3 < 65534) print}'
 }
+
 getuser ()
 {
     echo "\
@@ -96,6 +99,7 @@ VHOST=$VHOST
 UPATH=$UPATH
 U_SHL=$U_SHL"
 }
+
 go2 ()
 {
     if [[ $1 =~ "@" ]]; then
@@ -104,42 +108,47 @@ go2 ()
         cd /home/u/$1*/var/www
     fi
 }
+
 grepuser ()
 {
     getusers | grep -E "$1[,:]"
 }
+
 newuid ()
 {
     local uid=$(($(getusers | cut -d: -f3 | sort -n | tail -n1) + 1))
     [[ $uid == 1 ]] && echo 1000 || echo $uid
 }
+
 getdb ()
 {
     echo $SQCMD
 }
-_sanitize_fqdn ()
+
+sanitize_fqdn ()
 {
     if [[ ${1%%.*} == ${1#*.} ]]; then
         HNAME=$1
-        DNAME='local'
+        HDOMN='local'
     else
         HNAME=${1%%.*}
-        DNAME=${1#*.}
+        HDOMN=${1#*.}
     fi
 
-    if [[ $HNAME == mail && $DNAME == local ]]; then
-        VHOST=netserva.$DNAME
+    if [[ $HNAME == mail && $HDOMN == local ]]; then
+        VHOST=netserva.$HDOMN
         MHOST=$HNAME.$VHOST
     elif [[ $HNAME == mail ]]; then
-        VHOST=$DNAME
-        MHOST=$HNAME.$DNAME
+        VHOST=$HDOMN
+        MHOST=$HNAME.$HDOMN
     else
-        VHOST=$HNAME.$DNAME
-        MHOST=$HNAME.$DNAME
+        VHOST=$HNAME.$HDOMN
+        MHOST=$HNAME.$HDOMN
     fi
 
-    export HNAME DNAME VHOST MHOST
+    export HNAME HDOMN VHOST MHOST
 }
+
 setdistro ()
 {
     # OS dependant overrides
@@ -152,8 +161,8 @@ setdistro ()
         OSMIR='nl.alpinelinux.org'
         OSREL='edge'
         WUGID='nginx'
-#    elif [[ $OSTYP == arch ]]; then
-#        Consider adding an Archlinux distro type
+    elif [[ $OSTYP == openwrt ]]; then
+        echo "TODO: add settings for OpenWrt"
     elif [[ $OSTYP == manjaro ]]; then
         C_DNS='/etc/powerdns'
         C_FPM='/etc/php'
@@ -166,6 +175,7 @@ setdistro ()
         OSREL='bullseye'
     fi
 }
+
 setuser ()
 {
     local U_TMP=$(grepuser "$1")
@@ -177,6 +187,7 @@ setuser ()
     UPATH=$(echo $UUSER | cut -d: -f6)
     U_SHL=$(echo $UUSER | cut -d: -f7)
 }
+
 sethost ()
 {
     if [[ -z $1 || $1 =~ -h ]]; then
@@ -196,7 +207,7 @@ sethost ()
         UUSER=$([[ $U_UID = 1000 ]] && echo "sysadm" || echo "u$U_UID")
     fi
 
-    _sanitize_fqdn $_FQDN
+    sanitize_fqdn $_FQDN
 
     # Global static shell variables (default to ubuntu)
     ADMIN='sysadm'
@@ -273,6 +284,7 @@ sethost ()
     [[ $VHOST == $AHOST ]] && TEMPH=${VHOST#*.} || TEMPH=$VHOST
     AMAIL="$VUSER@$TEMPH"
 }
+
 sx ()
 {
     [[ -z $2 || $1 =~ -h ]] &&
@@ -281,6 +293,7 @@ sx ()
     shift
     ssh $_HOST -q -t "bash -ci '$@'"
 }
+
 updhost ()
 {
     if [[ -z $1 || $1 =~ -h ]]; then
@@ -317,4 +330,5 @@ updhost ()
     fi
     gethost >/root/.vhosts/$1
 }
+
 export -f chktime f gethost getuser getusers go2 grepuser newuid setdistro sethost setuser sc sx updhost
