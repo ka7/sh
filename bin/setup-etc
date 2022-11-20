@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20220321
+# .sh/bin/setup-etc 20151231 - 20221120
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 
@@ -218,7 +218,7 @@ if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     echo "### Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
-    [[ ! -d $C_DNS/pdns.d ]] || mkdir $C_DNS/pdns.d
+    [[ ! -d $C_DNS/pdns.d ]] && mkdir $C_DNS/pdns.d
     if [[ $OSTYP == alpine ]]; then
         sed -i $C_DNS/pdns.conf -e 's#/etc/powerdns/pdns.d#/etc/pdns/pdns.d#'
     fi
