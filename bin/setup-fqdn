@@ -17,7 +17,7 @@ OU="IT Department"
 
 [[ $1 ]] && _FQDN=$1 || _FQDN=$(hostname -f)
 
-_sanitize_fqdn $_FQDN
+sanitize_fqdn $_FQDN
 
 echo "HNAME=$HNAME"
 echo "DNAME=$DNAME"
