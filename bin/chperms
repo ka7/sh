@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
-# .sh/bin/chperms 20151231 - 20210112
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/chperms 20151231 - 20221120
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: chperms vhost|all" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
 if [[ $1 == all ]]; then
-    source ~/.shrc || exit 3
+    . ~/.shrc || exit 3
 else
-    source ~/.vhosts/$1 || exit 3
+    . ~/.vhosts/$1 || exit 3
 fi
 
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 4
 
-source /root/.sh/lib/_chperms || exit 5
+. ~/.sh/lib/_chperms || exit 5
+
+[[ $DEBUG ]] && set -x
 
 if [[ $1 == all ]]; then
     cd $VPATH
@@ -33,4 +35,4 @@ else
     echo "ERROR: Unknown argument $1"
 fi
 
-#systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
