@@ -15,15 +15,17 @@ L="GoldCoast"
 O="NetServa"
 OU="IT Department"
 
-if [[ $1 ]]; then
-    _FQDN=$1
-else
-    _HOST=$(hostname)
-    [[ $_HOST =~ \. ]] && _HOST=${_HOST%%.*} && hostname $_HOST
-    _DOMN=$(hostname -d)
-    [[ -z $_DOMN || $_DOMN == '(none)' ]] && _DOMN='local'
-    _FQDN=$_HOST.$_DOMN
-fi
+[[ $1 ]] && _FQDN=$1 || _FQDN=$(hostname -f)
+
+#if [[ $1 ]]; then
+#    _FQDN=$1
+#else
+#    _HOST=$(hostname)
+#    [[ $_HOST =~ \. ]] && _HOST=${_HOST%%.*} && hostname $_HOST
+#    _DOMN=$(hostname -d)
+#    [[ -z $_DOMN || $_DOMN == '(none)' ]] && _DOMN='local'
+#    _FQDN=$_HOST.$_DOMN
+#fi
 
 if [[ ${_FQDN%%.*} == ${_FQDN#*.} ]]; then
     HNAME=$_FQDN
@@ -43,6 +45,8 @@ else
     VHOST=$HNAME.$DNAME
     MHOST=$HNAME.$DNAME
 fi
+
+export HNAME DNAME VHOST MHOST
 
 # The above is to sanitize the below variables
 #echo "HNAME=$HNAME"

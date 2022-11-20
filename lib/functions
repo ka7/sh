@@ -1,4 +1,4 @@
-# .sh/lib/functions 20151231 - 20221016
+# .sh/lib/functions 20151231 - 20221120
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 f () { find . -type f -iname '*'$*'*'; }
@@ -200,8 +200,8 @@ sethost () {
 
     U_GID=$U_UID
 
-    HNAME=${VHOST%%.*}
-    HDOMN=${VHOST#*.*}
+#    HNAME=${VHOST%%.*}
+#    HDOMN=${VHOST#*.*}
 
     [[ $UUSER == $ADMIN ]] && DNAME=$ADMIN || DNAME=${VHOST//[.-]/_}
 
@@ -237,8 +237,8 @@ sethost () {
     UPASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
     WPASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)
 
-    AHOST=$(hostname -f | tr 'A-Z' 'a-z')
-    MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
+#    AHOST=$(hostname -f | tr 'A-Z' 'a-z')
+#    MHOST="mail.$(echo $VHOST | sed 's/^mail\.//')"
 
     DUSER=$UUSER
     MPATH=$VPATH/$VHOST/home
@@ -269,8 +269,9 @@ updhost () {
         echo "ERROR: /root/.vhosts/$1 does not exist" && return 2
     fi
 
-    HNAME=${1%%.*}
-    HDOMN=${1#*.*}
+#    HNAME=${1%%.*}
+#    HDOMN=${1#*.*}
+
     DTYPE=${2:-$DTYPE}
     OSREL=${3:-$OSREL}
     IP4_0=${4:-$(hostname -i | cut -d ' ' -f -1)}
