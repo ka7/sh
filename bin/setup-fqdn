@@ -8,8 +8,6 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. ~/.shrc
-
 # Temporary self-signed SSL certificate defaults
 C="AU"
 ST="QLD"
