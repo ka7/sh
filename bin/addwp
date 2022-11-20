@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/addwp 20160231 - 20220330
+# .sh/bin/addwp 20160231 - 20221120
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: addwp domain [multi] [path]" && exit 1
@@ -134,7 +134,7 @@ cd $FPATH
 $WPAPP plugin delete $PLUGINS
 $WPAPP post delete $POSTS
 $WPAPP post delete $PAGES
-$WPAPP theme delete twentytwenty twentytwentyone
+$WPAPP theme delete twentytwentyone
 
 echo 'Install Kadence theme'
 $WPAPP theme --quiet --activate install kadence 2> /dev/null
