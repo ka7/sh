@@ -307,7 +307,7 @@ updhost ()
         echo "ERROR: /root/.vhosts/$1 does not exist" && return 2
     fi
 
-    _sanitize_fqdn $1
+    sanitize_fqdn $1
 
     DTYPE=${2:-$DTYPE}
     OSREL=${3:-$OSREL}
