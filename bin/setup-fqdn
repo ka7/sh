@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20220515
+# .sh/bin/setup-fqdn 20210327 - 20221120
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -16,16 +16,40 @@ O="NetServa"
 OU="IT Department"
 
 if [[ $1 ]]; then
-    VHOST=$1
+    _FQDN=$1
 else
-    HNAME=$(hostname)
-    HNAME=${HNAME/%\.*/}
-    HDOMN=$(hostname -d)
-    [[ -z $HDOMN || $HDOMN == "(none)" ]] && HDOMN='local'
-    VHOST=$HNAME.$HDOMN
+    _HOST=$(hostname)
+    [[ $_HOST =~ \. ]] && _HOST=${_HOST%%.*} && hostname $_HOST
+    _DOMN=$(hostname -d)
+    [[ -z $_DOMN || $_DOMN == '(none)' ]] && _DOMN='local'
+    _FQDN=$_HOST.$_DOMN
 fi
 
-VHOST=${VHOST#mail\.} # strip 'mail' hostname if exists
+if [[ ${_FQDN%%.*} == ${_FQDN#*.} ]]; then
+    HNAME=$_FQDN
+    DNAME='local'
+else
+    HNAME=${_FQDN%%.*}
+    DNAME=${_FQDN#*.}
+fi
+
+if [[ $HNAME == mail && $DNAME == local ]]; then
+    VHOST=netserva.$DNAME
+    MHOST=$HNAME.$VHOST
+elif [[ $HNAME == mail ]]; then
+    VHOST=$DNAME
+    MHOST=$HNAME.$DNAME
+else
+    VHOST=$HNAME.$DNAME
+    MHOST=$HNAME.$DNAME
+fi
+
+# The above is to sanitize the below variables
+#echo "HNAME=$HNAME"
+#echo "DNAME=$DNAME"
+#echo "VHOST=$VHOST"
+#echo "MHOST=$MHOST"
+#exit
 
 [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts
 
@@ -38,11 +62,11 @@ else
         echo "### Remove current UID 1000 user '$_SADM'"
         userdel -rf $_SADM
     fi
-    echo "### Create vhost sysadm@mail.$VHOST"
-    addvhost sysadm@mail.$VHOST
+    echo "### Create vhost sysadm@$MHOST"
+    addvhost sysadm@$MHOST
 fi
 
-. /root/.vhosts/mail.$VHOST
+. ~/.vhosts/$MHOST
 
 if [[ ! -f /etc/hosts.orig ]]; then
     cp /etc/hosts /etc/hosts.orig
