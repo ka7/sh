@@ -22,7 +22,7 @@ OU="IT Department"
 sanitize_fqdn $_FQDN
 
 echo "HNAME=$HNAME"
-echo "DNAME=$DNAME"
+echo "HDOMN=$HDOMN"
 echo "VHOST=$VHOST"
 echo "MHOST=$MHOST"
 exit
