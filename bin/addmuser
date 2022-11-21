@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# .sh/bin/addmuser 20221121 - 20221121
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
+
+[[ $1 =~ '-h' || -z $3 ]] && echo "Usage: addmuser mysqldb user password" && exit 1
+
+[[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
+
+. ~/.shrc || exit 3
+
+[[ mysql != $DTYPE ]] && echo "Error: only works with mysql" && exit 3
+
+[[ $DEBUG ]] && set -x
+
+echo "### Create MySQL privileges for $2 on $1"
+cat <<EOS | mysql
+GRANT ALL ON $1 . * TO '$2'@'localhost' IDENTIFIED BY '$3';
+FLUSH PRIVILEGES;
+EOS
+
+[[ $DEBUG ]] && set +x
