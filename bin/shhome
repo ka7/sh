@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/shhome 20200805 - 20200907
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shhome 20200805 - 20221122
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ -h ]] && echo "Usage: shhome [user]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. ~/.shrc || exit 3
+. ~/.shrc
 
 _USER=${1:-''}
 

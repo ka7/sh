@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-db 20170319 - 20220319
+# .sh/bin/setup-db 20170319 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-db [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.shrc || exit 3
+. ~/.shrc
 
 [[ $DEBUG ]] && set -x
 

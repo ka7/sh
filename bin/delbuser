@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/delbuser 20200804 - 20200805
-# Copyright (C) 1995-2020 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/delbuser 20200804 - 20221122
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: delbuser user" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. ~/.shrc || exit 3
+. ~/.shrc
 
 _USER=$1
 _CONF="/root/.vhosts/$MHOST.conf"

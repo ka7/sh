@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-host 20170524 - 20220401
+# .sh/bin/setup-host 20170524 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-host [fqdn] [(mysql)|sqlite]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.shrc || exit 3
+. ~/.shrc
 
 [[ $DEBUG ]] && set -x
 
@@ -227,7 +227,7 @@ if [[ ! -d /root/.sh ]]; then
     git config --global pull.rebase false
 fi
 
-. ~/.shrc || exit 3
+. ~/.shrc
 
 [[ ! -d $VPATH ]] && echo "### Create $VPATH" && mkdir -p $VPATH
 

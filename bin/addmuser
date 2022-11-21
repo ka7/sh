@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# .sh/bin/addmuser 20221121 - 20221121
+# .sh/bin/addmuser 20221121 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' || -z $3 ]] && echo "Usage: addmuser mysqldb user password" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. ~/.shrc || exit 3
+. ~/.shrc
 
-set -x
 [[ $DTYPE != mysql ]] && echo "Error: only works with mysql" && exit 4
-set +x
 
 [[ $DEBUG ]] && set -x
 

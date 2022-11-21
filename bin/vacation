@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/vacation 20201224 - 20211223
+# .sh/bin/vacation 20201224 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 # Vacation file format is plain text with the Suject on the first line
@@ -9,7 +9,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-. /root/.shrc || exit 3
+. ~/.shrc
 
 EMAIL=${1}
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-etc 20151231 - 20221120
+# .sh/bin/setup-etc 20151231 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 
@@ -7,7 +7,7 @@
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-source /root/.shrc || exit 3
+. ~/.shrc
 
 [[ $DEBUG ]] && set -x
 
