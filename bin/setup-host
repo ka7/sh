@@ -219,11 +219,13 @@ fi
 
 # Git is now available so install the SH scripts, if not already
 
-if [[ ! -d /root/.sh ]]; then
+if [[ -d ~/.sh ]]; then
+    echo "### Exists ~/.sh"
+else
     echo "### Setup NetServa SH scripts"
     cd && git clone -q https://github.com/netserva/sh .sh
-    /root/.sh/bin/shm install
-    /root/.sh/bin/shm perms
+    ~/.sh/bin/shm install
+    ~/.sh/bin/shm perms
     git config --global pull.rebase false
 fi
 
@@ -231,20 +233,26 @@ fi
 
 [[ ! -d $VPATH ]] && echo "### Create $VPATH" && mkdir -p $VPATH
 
-if [[ ! -f /etc/ssh/sshd_config.orig ]]; then
-    echo "### Create new /etc/ssh/sshd_config"
+if [[ -f /etc/ssh/sshd_config.orig ]]; then
+    echo "### Exists /etc/ssh/sshd_config.orig"
+else
+    echo "### Create /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
     cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart sshd
 fi
 
-if [[ ! -d /root/.ssh ]]; then
-    echo "### Create host /root/.ssh dir"
+if [[ -d /root/.ssh ]]; then
+    echo "### Exists /root/.ssh"
+else
+    echo "### Create/root/.sshr"
     mkdir /root/.ssh
     chmod 700 /root/.ssh
 fi
 
 if [[ ! -f /root/.ssh/config ]]; then
+    echo "### Exists /root/.ssh/config"
+else
     echo "### Create host /root/.ssh/config"
     cp ~/.sh/etc/_.ssh_config ~/.ssh/config
     chmod 600 /root/.ssh/*
@@ -264,8 +272,9 @@ EOS
 else
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
 
-    if [[ $(ls -A /etc/systemd/network/*.network >/dev/null 2>&1) ]]; then
-        echo "### /etc/systemd/network/*.network already exists"
+#    if [[ $(ls -A /etc/systemd/network/*.network >/dev/null 2>&1) ]]; then
+    if ls /etc/systemd/network/*.network > /dev/null; then
+        echo "### Exists /etc/systemd/network/*.network"
     else
         if [[ -z $LXDBR ]]; then
             echo "### Create /etc/systemd/network/10-dhcp.network"
@@ -281,7 +290,9 @@ else
         systemctl enable systemd-networkd >/dev/null 2>&1
     fi
 
-    if [[ ! /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+    if [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]]; then
+        echo "### Exists /etc/resolv.conf to 1.1.1.1 (systemd)"
+    else
         echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
         cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
@@ -294,7 +305,9 @@ else
     fi
 fi
 
-if [[ ! -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
+if [[ -f /etc/sysctl.d/50-nginx-tweaks.conf ]]; then
+    echo "### Exists /etc/sysctl.d/50-nginx-tweaks.conf"
+else
     echo "### Create /etc/sysctl.d/50-nginx-tweaks.conf"
     cat <<EOS >/etc/sysctl.d/50-nginx-tweaks.conf
 # Auto created by NetServa HCP/SH on $(date +%Y%m%d)
