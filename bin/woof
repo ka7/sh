@@ -8,6 +8,8 @@
 
 . ~/.shrc # just for VPATH
 
+[[ $DEBUG ]] && set -x
+
 [[ ! -d $VPATH ]] && echo "ERROR: $VPATH does not exist" && exit 4
 
 M_LHS=$(echo $1 | cut -d@ -f1)
@@ -36,4 +38,4 @@ else
     echo "ERROR: mailbox does not exist: $MPATH"
 fi
 
-systemd-cat -t hlog echo "$(whoami) $(basename $0) $*"
+[[ $DEBUG ]] && set +x
