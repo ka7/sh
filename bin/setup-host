@@ -148,7 +148,7 @@ ubuntu-advantage-tools vi* xinetd"
     fi
 
     if [[ -f /etc/apt/sources.list.orig ]]; then
-        echo "Exists /etc/apt/sources.list.orig"
+        echo "### Exists /etc/apt/sources.list.orig"
     else
         export DEBIAN_FRONTEND=noninteractive
         export TERM=linux
@@ -222,7 +222,7 @@ EOS
     # Let's make sure a few services are enabled
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
-    systemctl enable mailgraph
+    systemctl enable mailgraph >/dev/null
 fi
 
 # Git is now available so install the SH scripts, if not already
