@@ -1,4 +1,4 @@
-# .sh/etc/_etc_postfix_main.cf 20170101 - 20220401
+# .sh/etc/_etc_postfix_main.cf 20170101 - 20221122
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 ### If you need to relay mail through an upstream mailserver (where you have
@@ -30,7 +30,7 @@ inet_protocols = ipv4
 mailbox_size_limit = 0
 non_smtpd_milters = inet:127.0.0.1:8891,inet:127.0.0.1:54321
 postscreen_dnsbl_action = enforce
-postscreen_dnsbl_sites = zen.spamhaus.org dnbsbl.sorbs.net bl.spamcop.net
+postscreen_dnsbl_sites = dnbsbl.sorbs.net bl.spamcop.net
 postscreen_dnsbl_threshold = 2
 postscreen_greet_action = enforce
 recipient_delimiter = +
@@ -38,7 +38,7 @@ sender_dependent_default_transport_maps = lmdb:/etc/postfix/sender_transport
 smtp_tls_CApath = /etc/ssl/certs
 smtp_tls_session_cache_database = lmdb:${data_directory}/smtp_scache
 smtpd_client_restrictions = permit_mynetworks permit_sasl_authenticated
-    reject_unknown_client_hostname reject_rbl_client zen.spamhaus.org
+    reject_unknown_client_hostname
     reject_rbl_client bl.spamcop.net
 smtpd_helo_restrictions = permit_mynetworks permit_sasl_authenticated
     reject_invalid_helo_hostname reject_non_fqdn_helo_hostname
