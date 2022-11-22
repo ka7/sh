@@ -61,7 +61,7 @@ fi
 ### postfix
 
 if [[ -f $CSMTP/main.cf.orig ]]; then
-    echo "### Exists $CSMTP/main.cf"
+    echo "### Exists $CSMTP/main.cf.orig"
 else
     echo "### Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
@@ -71,7 +71,7 @@ else
 fi
 
 if [[ -f $CSMTP/master.cf.orig ]]; then
-    echo "### Exists $CSMTP/master.cf"
+    echo "### Exists $CSMTP/master.cf.orig"
 else
     echo "### Create $CSMTP/master.cf"
     mv $CSMTP/master.cf $CSMTP/master.cf.orig
@@ -81,8 +81,8 @@ fi
 
 ### dovecot
 
-if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
-    echo "### Exists $CIMAP/dovecot.conf"
+if [[ -f $CIMAP/dovecot.conf.orig ]]; then
+    echo "### Exists $CIMAP/dovecot.conf.orig"
 else
     echo "### Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
