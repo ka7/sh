@@ -222,7 +222,7 @@ EOS
     # Let's make sure a few services are enabled
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
-    systemctl enable mailgraph >/dev/null
+    systemctl enable mailgraph >/dev/null 2>&1
 fi
 
 # Git is now available so install the SH scripts, if not already
