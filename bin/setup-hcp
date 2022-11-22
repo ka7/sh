@@ -8,7 +8,7 @@
 
 MHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')} # install into primary vhost
 
-. ~/.vhosts/$MHOST || exit 3
+[[ -f ~/.vhosts/$MHOST ]] && . ~/.vhosts/$MHOST || exit 3
 
 [[ $DEBUG ]] && set -x
 
