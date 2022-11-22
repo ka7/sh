@@ -22,35 +22,47 @@ fi
 ### Create missing directories
 
 # For Alpine
-if [[ ! -d $C_WEB/sites-enabled ]]; then
+if [[ -d $C_WEB/sites-enabled ]]; then
+    echo "### Exists $C_WEB/sites-enabled"
+else
     echo "### Create $C_WEB/sites-enabled"
     mkdir $C_WEB/sites-enabled
 fi
 
-if [[ ! -d /etc/opendkim ]]; then
+if [[ -d /etc/opendkim ]]; then
+    echo "### Exists /etc/opendkim"
+else
     echo "### Create /etc/opendkim"
     # mkdir and move to opendkim section
     dkim list
 fi
 
-if [[ ! -d $CIMAP ]]; then
+if [[ -d $CIMAP ]]; then
+    echo "### Exists $CIMAP"
+else
     echo "### Create $CIMAP"
     mkdir $CIMAP
 fi
 
-if [[ ! -d $CIMAP/vhosts ]]; then
+if [[ -d $CIMAP/vhosts ]]; then
+    echo "### Exists $CIMAP/vhosts"
+else
     echo "### Create $CIMAP/vhosts"
     mkdir $CIMAP/vhosts
 fi
 
-if [[ ! -d $CIMAP/sieve ]]; then
+if [[ -d $CIMAP/sieve ]]; then
+    echo "### Exists $CIMAP/sieve"
+else
     echo "### Create $CIMAP/sieve"
     mkdir $CIMAP/sieve
 fi
 
 ### postfix
 
-if [[ ! -f $CSMTP/main.cf.orig ]]; then
+if [[ -f $CSMTP/main.cf.orig ]]; then
+    echo "### Exists $CSMTP/main.cf"
+else
     echo "### Create $CSMTP/main.cf for $DTYPE"
     mv $CSMTP/main.cf $CSMTP/main.cf.orig
     cp ~/.sh/etc/_etc_postfix_main.cf $CSMTP/main.cf
@@ -58,7 +70,9 @@ if [[ ! -f $CSMTP/main.cf.orig ]]; then
     chmod 644 $CSMTP/main.cf $CSMTP/header_checks
 fi
 
-if [[ ! -f $CSMTP/master.cf.orig ]]; then
+if [[ -f $CSMTP/master.cf.orig ]]; then
+    echo "### Exists $CSMTP/master.cf"
+else
     echo "### Create $CSMTP/master.cf"
     mv $CSMTP/master.cf $CSMTP/master.cf.orig
     cp ~/.sh/etc/_etc_postfix_master.cf $CSMTP/master.cf
@@ -68,6 +82,8 @@ fi
 ### dovecot
 
 if [[ ! -f $CIMAP/dovecot.conf.orig ]]; then
+    echo "### Exists $CIMAP/dovecot.conf"
+else
     echo "### Create $CIMAP/dovecot.conf for $DTYPE"
     mv -f $CIMAP/dovecot.conf $CIMAP/dovecot.conf.orig
     cp ~/.sh/etc/_etc_dovecot_dovecot.conf $CIMAP/dovecot.conf
@@ -98,32 +114,44 @@ if [[ -e /usr/bin/spamprobe ]]; then
         echo "### Create $CIMAP/sieve/global.sieve"
         cp ~/.sh/etc/_etc_dovecot_sieve_global.sieve $CIMAP/sieve/global.sieve
     fi
+else
+    echo "### Exists /usr/bin/spamprobe"
 fi
 
 ### nginx
 
-if [[ ! -f $C_WEB/common.conf ]]; then
+if [[ -f $C_WEB/common.conf ]]; then
+    echo "### Exists $C_WEB/common.conf"
+else
     echo "### Create $C_WEB/common.conf"
     cp ~/.sh/etc/_etc_nginx_common.conf $C_WEB/common.conf
 fi
 
-if [[ ! -f $C_WEB/php.conf ]]; then
+if [[ -f $C_WEB/php.conf ]]; then
+    echo "### Exists $C_WEB/php.conf"
+else
     echo "### Create $C_WEB/php.conf"
     cp ~/.sh/etc/_etc_nginx_php.conf $C_WEB/php.conf
 fi
 
 # Not strictly necessary at this point (could be in setup-hcp)
-if [[ ! -f $C_WEB/hcp.conf ]]; then
+if [[ -f $C_WEB/hcp.conf ]]; then
+    echo "### Exists $C_WEB/hcp.conf"
+else
     echo "### Create $C_WEB/hcp.conf"
     cp ~/.sh/etc/_etc_nginx_hcp.conf $C_WEB/hcp.conf
 fi
 
-if [[ ! -f $C_WEB/headers.conf ]]; then
+if [[ -f $C_WEB/headers.conf ]]; then
+    echo "### Exists $C_WEB/headers.conf"
+else
     echo "### Create $C_WEB/headers.conf"
     cp ~/.sh/etc/_etc_nginx_headers.conf $C_WEB/headers.conf
 fi
 
-if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
+if [[ -f $C_WEB/nginx.conf.orig ]]; then
+    echo "### Exists $C_WEB/nginx.conf"
+else
     echo "### Create $C_WEB/nginx.conf"
     mv $C_WEB/nginx.conf $C_WEB/nginx.conf.orig
     cp ~/.sh/etc/_etc_nginx_nginx.conf $C_WEB/nginx.conf
@@ -131,21 +159,27 @@ if [[ ! -f $C_WEB/nginx.conf.orig ]]; then
         sed -i $C_WEB/nginx.conf -e "s/www-data/$WUGID/"
 fi
 
-if [[ ! -f $C_WEB/sites-enabled/_localhost ]]; then
+if [[ -f $C_WEB/sites-enabled/_localhost ]]; then
+    echo "### Exists $C_WEB/sites-enabled/_localhost"
+else
     echo "### Create $C_WEB/sites-enabled/_localhost"
     cp ~/.sh/etc/_etc_nginx_sites-enabled__localhost $C_WEB/sites-enabled/_localhost
 fi
 
 ### opendkim and opendmarc
 
-if [[ ! -f /etc/opendkim.conf.orig ]]; then
+if [[ -f /etc/opendkim.conf.orig ]]; then
+    echo "### Exists /etc/opendkim.conf"
+else
     echo "### Create /etc/opendkim.conf"
     touch /etc/opendkim.conf.orig
     cp ~/.sh/etc/_etc_opendkim.conf /etc/opendkim.conf
     chown opendkim:opendkim /etc/opendkim.conf
 fi
 
-if [[ ! -f /etc/opendmarc.conf.orig ]]; then
+if [[ -f /etc/opendmarc.conf.orig ]]; then
+    echo "### Exists /etc/opendmarc.conf.orig"
+else
     echo "### Create /etc/opendmarc.conf"
     touch /etc/opendmarc.conf.orig
     cp ~/.sh/etc/_etc_opendmarc.conf /etc/opendmarc.conf
@@ -153,13 +187,17 @@ fi
 
 if [[ $OSTYP != alpine ]]; then
 
-    if [[ ! -f /etc/systemd/system/opendkim.service ]]; then
+    if [[ -f /etc/systemd/system/opendkim.service ]]; then
+        echo "### Exists /etc/systemd/system/opendkim.service"
+    else
         echo "### Create /etc/systemd/system/opendkim.service"
         cp ~/.sh/etc/_etc_systemd_system_opendkim.service /etc/systemd/system/opendkim.service
         chmod 644 /etc/systemd/system/opendkim.service
     fi
 
-    if [[ ! -f /etc/systemd/system/opendmarc.service ]]; then
+    if [[ -f /etc/systemd/system/opendmarc.service ]]; then
+        echo "### Exists /etc/systemd/system/opendmarc.service"
+    else
         echo "### Create /etc/systemd/system/opendmarc.service"
         cp ~/.sh/etc/_etc_systemd_system_opendmarc.service /etc/systemd/system/opendmarc.service
         chmod 644 /etc/systemd/system/opendmarc.service
@@ -168,7 +206,9 @@ fi
 
 ### php
 
-if [[ ! -f $C_FPM/common.conf ]]; then
+if [[ -f $C_FPM/common.conf ]]; then
+    echo "### Exists $C_FPM/common.conf"
+else
     echo "### Create $C_FPM/common.conf"
     cp ~/.sh/etc/_etc_php_7.0_fpm_common.conf $C_FPM/common.conf
     if [[ $OSTYP == alpine ]]; then
@@ -179,7 +219,9 @@ if [[ ! -f $C_FPM/common.conf ]]; then
     fi
 fi
 
-if [[ ! -f $C_FPM/php.ini.orig ]]; then
+if [[ -f $C_FPM/php.ini.orig ]]; then
+    echo "### Exists $C_FPM/php.ini.orig"
+else
     echo "### Modify $C_FPM/php.ini"
     cp $C_FPM/php.ini $C_FPM/php.ini.orig
     sed -i $C_FPM/php.ini \
@@ -214,7 +256,9 @@ fi
 
 ### pdns
 
-if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
+if [[ -f $C_DNS/pdns.conf.orig ]]; then
+    echo "### Exists $C_DNS/pdns.conf.orig"
+else
     echo "### Create $C_DNS/pdns.conf"
     mv $C_DNS/pdns.conf $C_DNS/pdns.conf.orig
     cp ~/.sh/etc/_etc_powerdns_pdns.conf $C_DNS/pdns.conf
@@ -224,25 +268,33 @@ if [[ ! -f $C_DNS/pdns.conf.orig ]]; then
     fi
 fi
 
-if [[ ! -f /etc/sudoers.d/99-sysadm ]]; then
+if [[ -f /etc/sudoers.d/99-sysadm ]]; then
+    echo "### Exists /etc/sudoers.d/99-sysadm"
+else
     echo "### Create /etc/sudoers.d/99-sysadm"
     cp ~/.sh/etc/_etc_sudoers.d_99-sysadm /etc/sudoers.d/99-sysadm
     chmod 0440 /etc/sudoers.d/99-sysadm
 fi
 
-if [[ ! -f $C_SSL/dhparams.pem ]]; then
-    echo "### Create dhparams.pem"
+if [[ -f $C_SSL/dhparams.pem ]]; then
+    echo "### Exists $C_SSL/dhparams.pem"
+else
+    echo "### Create $C_SSL/dhparams.pem"
     openssl dhparam -dsaparam -out $C_SSL/dhparams.pem 4096 >/dev/null 2>&1
 fi
 
-if [[ ! -f $C_WEB/sites-enabled/_default ]]; then
-    echo "### Create generic Port 80 nginx default config"
+if [[ -f $C_WEB/sites-enabled/_default ]]; then
+    echo "### Exists $C_WEB/sites-enabled/_default"
+else
+    echo "### Create $C_WEB/sites-enabled/_default"
     [[ -L $C_WEB/sites-enabled/default ]] && rm $C_WEB/sites-enabled/default
     cp ~/.sh/etc/_etc_nginx_sites-enabled__default $C_WEB/sites-enabled/_default
 fi
 
 # Missing from Ubuntu nginx installation
-if [[ ! -f /usr/share/nginx/html/50x.html ]]; then
+if [[ -f /usr/share/nginx/html/50x.html ]]; then
+    echo "### Exists /usr/share/nginx/html/50x.html"
+else
     echo "### Create /usr/share/nginx/html/50x.html"
     [[ ! -d /usr/share/nginx/html ]] && mkdir -p /usr/share/nginx/html
     cp ~/.sh/etc/_usr_share_nginx_html_50x.html /usr/share/nginx/html/50x.html
