@@ -35,7 +35,9 @@ sudo wget which whois"
     MLIST="dovecot-mysql mariadb mariadb-client pdns-backend-mysql
 php$V_PHP-pdo_mysql postfix-mysql"
 
-    if [[ ! -f /etc/apk/repositories.orig ]]; then
+    if [[ -f /etc/apk/repositories.orig ]]; then
+        echo "### Exists /etc/apk/repositories.orig"
+    else
         echo "### Update /etc/apk/repositories with $OSREL"
         mv /etc/apk/repositories /etc/apk/repositories.orig
         cat <<EOS >/etc/apk/repositories
@@ -56,7 +58,7 @@ EOS
     echo "### Create symlink to /usr/bin/php"
     cd /usr/bin && ln -s php$V_PHP php
 
-elif [[ -f /etc/pacman.conf ]]; then
+elif [[ $OSTYP == manjaro ]]; then
 
     # Patch for Manjaro adding this system group as a user group (bad!)
     grep -q '^autologin:x:1000' /etc/group
@@ -64,7 +66,9 @@ elif [[ -f /etc/pacman.conf ]]; then
         groupmod -g 100 autologin
     fi
 
-    if [[ ! -f /etc/pacman.d/mirrorlist.orig ]]; then
+    if [[ -f /etc/pacman.d/mirrorlist.orig ]]; then
+        echo "### Exists /etc/pacman.d/mirrorlist.orig"
+    else
         echo "### Install Arch/Manjaro base packages"
 
         # Default List of required core Netserva Arch/Manjaro packages
@@ -95,7 +99,7 @@ rsync sqlite sudo time minizip wget which whois yay"
         fi
     fi
 
-elif [[ -f /etc/apt/sources.list ]]; then
+elif [[ $OSTYPE == ubuntu || $OSTYP == debian ]]; then
 
     echo "### Install Debian/Ubuntu base packages"
 
@@ -136,12 +140,16 @@ ubuntu-advantage-tools vi* xinetd"
         sed -i 's;#precedence ::ffff:0:0/96  100;precedence ::ffff:0:0/96  100;' /etc/gai.conf
     fi
 
-    if [[ ! -f /etc/apt/apt.conf.d/20local ]]; then
+    if [[ -f /etc/apt/apt.conf.d/20local ]]; then
+        echo "### Exists /etc/apt/apt.conf.d/20local"
+    else
         echo "### Create /etc/apt/apt.conf.d/20local"
         cp ~/.sh/etc/_etc_apt_apt.conf.d_20local /etc/apt/apt.conf.d/20local
     fi
 
-    if [[ ! -f /etc/apt/sources.list.orig ]]; then
+    if [[ -f /etc/apt/sources.list.orig ]]; then
+        echo "Exists /etc/apt/sources.list.orig"
+    else
         export DEBIAN_FRONTEND=noninteractive
         export TERM=linux
 
@@ -222,7 +230,7 @@ fi
 if [[ -d ~/.sh ]]; then
     echo "### Exists ~/.sh"
 else
-    echo "### Setup NetServa SH scripts"
+    echo "### Setup  ~/.sh (NetServa SH scripts)"
     cd && git clone -q https://github.com/netserva/sh .sh
     ~/.sh/bin/shm install
     ~/.sh/bin/shm perms
@@ -238,24 +246,24 @@ if [[ -f /etc/ssh/sshd_config.orig ]]; then
 else
     echo "### Create /etc/ssh/sshd_config"
     mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
-    cp /root/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
+    cp ~/.sh/etc/_etc_ssh_sshd__config /etc/ssh/sshd_config
     systemctl restart sshd
 fi
 
-if [[ -d /root/.ssh ]]; then
-    echo "### Exists /root/.ssh"
+if [[ -d ~/.ssh ]]; then
+    echo "### Exists ~/.ssh"
 else
-    echo "### Create/root/.sshr"
-    mkdir /root/.ssh
-    chmod 700 /root/.ssh
+    echo "### Create ~/.ssh"
+    mkdir ~/.ssh
+    chmod 700 ~/.ssh
 fi
 
-if [[ ! -f /root/.ssh/config ]]; then
-    echo "### Exists /root/.ssh/config"
+if [[ -f ~/.ssh/config ]]; then
+    echo "### Exists ~/.ssh/config"
 else
-    echo "### Create host /root/.ssh/config"
+    echo "### Create host ~/.ssh/config"
     cp ~/.sh/etc/_.ssh_config ~/.ssh/config
-    chmod 600 /root/.ssh/*
+    chmod 600 ~/.ssh/*
 fi
 
 # If we are NOT on a systemd system (ie; Alpine)
