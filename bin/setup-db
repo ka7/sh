@@ -15,7 +15,7 @@ DTYPE=${1:-'mysql'}
 if [[ $DTYPE == sqlite ]]; then
 
     if [[ -d $DBSQL ]]; then
-        echo "### $DBSQL already exists"
+        echo "### Exists $DBSQL"
     else
         echo "### Create $DBSQL"
         mkdir -p $DBSQL/{dovecot,postfix,$ADMIN}
@@ -33,7 +33,7 @@ if [[ $DTYPE == sqlite ]]; then
 elif [[ $DTYPE == mysql ]]; then
 
     if [[ -f ~/.my.cnf ]]; then
-        echo "### ~/.my.cnf (MySQL) already exists"
+        echo "### Exists ~/.my.cnf (MySQL)"
     else
         echo "### Create ~/.my.cnf"
         cat <<EOS | tee ~/.my.cnf >/dev/null
@@ -48,7 +48,7 @@ EOS
     fi
 
     if [[ -d $DBMYS/$ADMIN ]]; then
-        echo "### $DBMYS/$ADMIN already exists"
+        echo "### Exists $DBMYS/$ADMIN"
     else
         echo "### Create MySQL privileges"
         cat <<EOS | mysql
@@ -67,6 +67,8 @@ EOS
 else
     echo "### ERROR: unknown argument '$DTYPE'" && exit 2
 fi
+
+### FIXME: do not re-run SQL queries, check they exist first
 
 cat <<EOS | $SQCMD
 CREATE TABLE IF NOT EXISTS accounts (
