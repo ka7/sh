@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-pma 20190630 - 20220330
+# .sh/bin/setup-pma 20190630 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-pma [domain]" && exit 1
@@ -9,7 +9,7 @@
 VHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
 PHPLA=phpLiteAdmin_v1-9-8-2.zip
 
-. /root/.vhosts/$VHOST || exit 3
+[[ -f ~/.vhosts/$VHOST ]] && . ~/.vhosts/$VHOST || exit 3
 
 [[ $DEBUG ]] && set -x
 
@@ -36,9 +36,11 @@ Password: $DPASS
 
 EOS
     fi
+
 elif [[ $DTYPE == sqlite ]]; then
+
     if [[ -f $WPATH/html/hcp/phpliteadmin.php ]]; then
-        echo "### $WPATH/html/hcp/phpliteadmin.php already exists"
+        echo "### Exists $WPATH/html/hcp/phpliteadmin.php"
     else
         echo "### Setup phpliteadmin to https://$MHOST/hcp/phpliteadmin.php"
         cd $WPATH/html/hcp/
@@ -71,3 +73,5 @@ Password: $DPASS
 EOS
     fi
 fi
+
+[[ $DEBUG ]] && set +x

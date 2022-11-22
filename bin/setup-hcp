@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-hcp 20170519 - 20220330
+# .sh/bin/setup-hcp 20170519 - 20221122
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-hcp [domain]" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-MHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')}
+MHOST=${1:-$(hostname -f | tr 'A-Z' 'a-z')} # install into primary vhost
 
-. /root/.vhosts/$MHOST || exit 3
+. ~/.vhosts/$MHOST || exit 3
 
 [[ $DEBUG ]] && set -x
 
 if [[ -d $WPATH/html/hcp ]]; then
-    echo "### $WPATH/html/hcp (HCP) already exists"
+    echo "### Exists $WPATH/html/hcp"
 else
     echo "### Clone Netserva HCP to $WPATH/html/hcp"
     git clone https://github.com/netserva/hcp $WPATH/html/hcp >/dev/null 2>&1
@@ -26,7 +26,7 @@ else
     (null,1,0,1,'$AMAIL','System','Administrator','','',0,'','$APASS_HASH','2018-01-01 00:00:01','2018-01-01 00:00:01');
 EOS
     if [[ -f $WPATH/html/hcp/.htpasswd ]]; then
-        echo "### $WPATH/html/hcp/.htpasswd already exists"
+        echo "### Exists $WPATH/html/hcp/.htpasswd"
     else
         HUSER=$(pwgen -sB 8 1)
         HPASS=$(pwgen -sB 8 1)
@@ -57,7 +57,7 @@ EOS
 fi
 
 if [[ -f $WPATH/html/.well-known/autodiscover.php ]]; then
-    echo "### $WPATH/html/.well-known/autodiscover.php already exists"
+    echo "### Exists $WPATH/html/.well-known/autodiscover.php"
 else
     echo "### Setup $WPATH/html/.well-known/autodiscover.php with $MHOST"
     [[ ! -d $WPATH/html/.well-known ]] && mkdir -p $WPATH/html/.well-known
@@ -67,14 +67,14 @@ fi
 # Even if SQLite is the default, this is so switching to MySQL has a chance
 # of working when index.php db=>type is dynamically changed to "mysql".
 if [[ -f $WPATH/html/hcp/lib/.ht_pw ]]; then
-    echo "### $WPATH/html/hcp/lib/.ht_pw already exists"
+    echo "### Exists $WPATH/html/hcp/lib/.ht_pw"
 else
     echo "### Create $WPATH/html/hcp/lib/.ht_pw"
     echo $DPASS >$WPATH/html/hcp/lib/.ht_pw
 fi
 
 if [[ -f $WPATH/html/hcp/lib/.ht_conf.php ]]; then
-    echo "### $WPATH/html/hcp/lib/.ht_conf.php already exists"
+    echo "### Exists $WPATH/html/hcp/lib/.ht_conf.php"
 else
     echo "### Create $WPATH/html/hcp/lib/.ht_conf.php for '$DTYPE' (edit to modify/extend)"
     TPDNS=
