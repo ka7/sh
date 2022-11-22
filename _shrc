@@ -1,4 +1,4 @@
-# .sh/_shrc 20130315 - 20221117
+# .sh/_shrc 20130315 - 20221122
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 #shopt -s expand_aliases
 
@@ -50,7 +50,7 @@ LABEL=$(hostname)
 if [ -f ~/.vhosts/$_HOST ]; then
     . ~/.vhosts/$_HOST
 else
-    [[ $_HOST =~ '.' ]] || _HOST="mail.$_HOST.local"
+#    [[ $_HOST =~ '.' ]] || _HOST="mail.$_HOST.local"
     sethost $_HOST $DTYPE $OSREL
 fi
 
