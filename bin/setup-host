@@ -99,7 +99,7 @@ rsync sqlite sudo time minizip wget which whois yay"
         fi
     fi
 
-elif [[ $OSTYPE == ubuntu || $OSTYP == debian ]]; then
+elif [[ $OSTYP == ubuntu || $OSTYP == debian ]]; then
 
     echo "### Install Debian/Ubuntu base packages"
 
