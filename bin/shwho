@@ -6,7 +6,7 @@
 
 [[ $DEBUG ]] && set -x
 
-whois $1 | grep -E "(Registrar:|Registrar Name:|Name Server:|DNSSEC:)"
+whois $1 | grep -E "^(Registrar:|Registrar Name:|Name Server:|DNSSEC:)"
 
 echo "$1 = $(dig +short $1 | tr '\n' ' ')"
 
