@@ -10,12 +10,12 @@ whois $1 | grep -E "(Registrar:|Registrar Name:|Name Server:|DNSSEC:)"
 
 echo "$1 = $(dig +short $1 | tr '\n' ' ')"
 
-MX=$(dig +short mx $1)
+MX=$(dig +short mx $1 | awk '{print $2}' | sed -e 's/\.$//')
 IP=$(dig +short $MX)
 
 if [[ $IP ]]; then
     echo "$MX = $IP"
-    PTR=$(dig +short -x $IP)
+    PTR=$(dig +short -x $IP | sed -e 's/\.$//')
     [[ $PTR ]] && echo "$IP = $PTR"
 fi
 
