@@ -10,10 +10,11 @@ whois $1 | grep -E "(Registrar:|Registrar Name:|Name Server:|DNSSEC:)"
 
 echo "$1 = $(dig +short $1 | tr '\n' ' ')"
 
-IP=$(dig +short mail.$1)
+MX=$(dig +short mx $1)
+IP=$(dig +short $MX)
 
 if [[ $IP ]]; then
-    echo "mail.$1 = $IP"
+    echo "$MX = $IP"
     PTR=$(dig +short -x $IP)
     [[ $PTR ]] && echo "$IP = $PTR"
 fi
