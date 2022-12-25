@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-vmtemplate 20220202 - 20220205
+# .sh/bin/setup-vmtemplate 20220202 - 20221225
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-vmtemplate" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-rm /etc/hostname
-echo -n '' > /etc/machine-id
+[[ $DEBUG ]] && set -x
 
 if [[ -d /etc/cron.d ]]; then
     if [[ ! -f /etc/cron.d/firstboot ]]; then
@@ -21,3 +20,5 @@ else
 fi
 
 echo "You can now convert this VM/CT into a template"
+
+[[ $DEBUG ]] && set +x

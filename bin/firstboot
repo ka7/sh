@@ -1,16 +1,28 @@
 #!/usr/bin/env bash
-# .sh/bin/firstboot 20220205 - 20220205
+# .sh/bin/firstboot 20220205 - 20221225
 # Copyright (C) 2015-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ "-h" ]] && echo "Usage: firstboot" && exit 1
 
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 
-if [[ ! -f /etc/hostname ]]; then
+[[ $DEBUG ]] && set -x
+
+if [[ -f /etc/cron.d/firstboot ]]; then
+    echo -n '' > /etc/machine-id
+    echo -n '' > /var/lib/dbus/machine-id
+    systemd-machine-id-setup
     rm /etc/ssh/ssh_host_*
     ssh-keygen -A -v
-    cat /dev/urandom | tr -dc a-z | fold -w4 | head -c4 > /etc/hostname
-    sleep 1 && hostname -F /etc/hostname
+
+    if [[ ! -f /etc/hostname ]]; then
+        cat /dev/urandom | tr -dc a-z | fold -w4 | head -c4 > /etc/hostname
+        sleep 1 && hostname -F /etc/hostname
+    fi
+
+    rm -rf /etc/cron.d/firstboot
 fi
+
+[[ $DEBUG ]] && set +x
 
 exit 0
