@@ -20,7 +20,7 @@ if [[ -f /etc/cron.d/firstboot ]]; then
         sleep 1 && hostname -F /etc/hostname
     fi
 
-    rm -rf /etc/cron.d/firstboot
+    ( sleep 2; rm -f /etc/cron.d/firstboot; )
 fi
 
 [[ $DEBUG ]] && set +x
