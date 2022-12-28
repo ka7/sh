@@ -1,39 +1,26 @@
 # NetServa SH
 
-This **SH**ell project is a set of Ubuntu/systemd Bash aliases and env
-variables to help make it easier to manage your Bash shell from an upstream
-(Github) repository. The project also includes an associated collection of
-shell scripts to setup and manage a simple Ubuntu Web, Mail and DNS server
-which also provides a foundation for the [NetServa HCP] PHP web interface.
+This **SH**ell project is a set of shell aliases and env variables to help
+manage your CLI shell from an upstream (Github) repository. The project
+also includes an associated collection of shell scripts to setup and manage
+a simple Web, Mail and DNS server which also provides a foundation for the
+[NetServa HCP] PHP web interface.
 
-Currently tested on (WIP):
+Currently tested on:
 ```
 - Ubuntu Jammy (22.04) # Most tested
-- Manjaro Testing      # Partly done
+- Manjaro Stable       # Partly done
 - Alpine Edge          # Almost done
 - Debian Bullseye      # Mostly done
+- OpenWrt Latest       # WIP
 ```
 ## Usage
 
-To use these scripts make sure you have the `git` package installed and
-either [fork this project] and clone your own copy (so you can provide
-patches via [pull requests]) or simply clone this repo and use the scripts
-anyway you care to. The simplest way to install and setup this project is
-to copy and paste this one-liner as root. Please [review the script] at
-Github first...
+The simplest way to install and setup this project is to make sure `bash`,
+`wget` and `git` are installed first then copy and paste this one-liner as
+root. Please [review the script] at Github first...
 
-    wget -q https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh ; . setup-sh
-
-**Note:** make sure `curl` and `git` are installed first. Use `which git`
-and if nothing is returned then manually update the package list and make
-sure these very basic packages are available...
-
-    # Ubuntu and Debian example
-    sudo apt -y update
-    sudo apt -y full-upgrade
-    sudo apt -y install --no-install-recommends ca-certificates curl git nano net-tools openssh-server rsync
-
-    # TODO: add Manjaro and Alpine examples
+    bash <(wget -qLO - https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh)
 
 To install this project manually, copy and paste these 3 lines below...
 
@@ -96,7 +83,6 @@ within itself sources ~/.myrc as personal env var and alias overrides.)
 
 Some other useful aliases not list above are...
 
-    lx ...... Shorthand for "lxc list"
     ram ..... To show a simple sorted list of apps and their ram usage
     block ... Block or drop a an IP from accessing the system
     unblock . Unblock the above blocked IP
@@ -123,7 +109,7 @@ can be ignored if not needed. If used then the config files for each vhost
 are stored in `~/.vhosts`. The initial (perhaps only) entry would be for
 the current host (ie; when using LXD containers) using `hostname -f` as
 the full filename path, ie; `cat ~/.vhosts/$(hostname -f)` should provide
-the settings for the current host after `setup-host` is run. It could be
+the settings for the current host after `setup-fqdn` is run. It could be
 set up manually using the below as an example of a non-public local LAN
 domainname assuming that `hostname` returns `myhost`...
 ```
