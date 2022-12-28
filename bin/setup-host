@@ -225,20 +225,6 @@ EOS
     systemctl enable mailgraph >/dev/null 2>&1
 fi
 
-# Git is now available so install the SH scripts, if not already
-
-if [[ -d ~/.sh ]]; then
-    echo "### Exists ~/.sh"
-else
-    echo "### Setup  ~/.sh (NetServa SH scripts)"
-    cd && git clone -q https://github.com/netserva/sh .sh
-    ~/.sh/bin/shm install
-    ~/.sh/bin/shm perms
-    git config --global pull.rebase false
-fi
-
-. ~/.shrc
-
 [[ ! -d $VPATH ]] && echo "### Create $VPATH" && mkdir -p $VPATH
 
 if [[ -f /etc/ssh/sshd_config.orig ]]; then

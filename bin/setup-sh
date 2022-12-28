@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-sh 20170319 - 20210330
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/setup-sh 20170319 - 20221228
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-if [ -d ~/.sh ]; then
+if [[ -d ~/.sh ]]; then
     echo "Update NetServa SH scripts"
     ~/.sh/bin/shm pull
+elif [[ ! -e /usr/bin/git ]]; then
+    echo "Please install the git package" && exit 1
 else
     echo "Setup NetServa SH scripts"
     cd
@@ -12,6 +14,6 @@ else
     ~/.sh/bin/shm install >/dev/null
     ~/.sh/bin/shm perms
     git config --global pull.rebase false
+    echo "Type '. ~/.shrc' to initialize the system"
+    echo "and 'gethost' to view default ENV variables"
 fi
-
-. ~/.shrc
