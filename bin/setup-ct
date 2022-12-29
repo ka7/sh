@@ -2,8 +2,8 @@
 # .sh/bin/setup-ct 20221229 - 20221229
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
-# Latest Ubuntu LTS (manually update this to YOUR storage:vztmpl/*)
-_TMPL="ceph-fs:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+# Latest Ubuntu LTS (manually update this to your CT template)
+_TMPL="/mnt/pve/ceph-fs/template/cache/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
 
 [[ -z $1 || $1 =~ -h ]] && echo "Usage: setup-ct ctname [storage]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
