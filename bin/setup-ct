@@ -12,7 +12,7 @@ _TMPL="/mnt/pve/ceph-fs/template/cache/ubuntu-22.04-standard_22.04-1_amd64.tar.z
 [[ $DEBUG ]] && set -x
 
 _NAME=$1
-_STOR=${2:'local-zfs'}
+_STOR=${2:-'local-zfs'}
 _CTID=`pvesh get /cluster/nextid`
 
 pct create $_CTID $_TMPL \
