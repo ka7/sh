@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# .sh/bin/shm 20130210 - 20210316
-# Copyright (C) 1995-2021 Mark Constable <markc@renta.net> (AGPL-3.0)
+# .sh/bin/shm 20130210 - 20221229
+# Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ -z $REPO ]] && REPO=~/.sh
+
+[[ $DEBUG ]] && set -x
 
 usage() {
     echo "\
@@ -31,8 +33,6 @@ sh_install() {
     [ -f ~/.profile ] && sed -i 's/^mesg/#mesg/' ~/.profile
     touch ~/.hushlogin
     echo "[ -f ~/.shrc ] && . ~/.shrc" >>~/.bashrc
-    echo
-    echo ". ~/.shrc"
 }
 
 sh_remove() {
@@ -55,9 +55,8 @@ sh_remove_all() {
     rm -rf $REPO
     echo "
 ### To reinstall this repo use...
-cd
-git clone https://github.com/netserva/sh .sh
-.sh/bin/shm install
+cd && git clone https://github.com/netserva/sh .sh
+$REPO/bin/shm install
 . ~/.shrc
 "
 }
@@ -82,3 +81,5 @@ removeall) sh_remove_all ;;
 perms) sh_perms ;;
 *) usage ;;
 esac
+
+[[ $DEBUG ]] && set +x
