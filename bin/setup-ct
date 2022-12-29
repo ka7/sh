@@ -21,7 +21,8 @@ pct create $_CTID $_TMPL \
  -cores 2 \
  -memory 1024 \
  -swap 512 \
- -rootfs volume=$_STOR:4G \
+ --storage $_STOR \
+ -rootfs $_STOR:4 \
  -net0 name=eth0,bridge=vmbr0,ip=dhcp
 
 pct start $_CTID
