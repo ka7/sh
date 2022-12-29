@@ -23,11 +23,11 @@ fi
 _CTID=`pvesh get /cluster/nextid`
 
 pct create $_CTID $_TMPL \
- -ostype ubuntu \
  -hostname $_NAME \
+ -ostype ubuntu \
  -cores 2 \
  -memory 1024 \
- -swap 512 \
+ -swap 512M \
  --storage $_STOR \
  -rootfs $_STOR:4 \
  -net0 name=eth0,bridge=vmbr0,ip=dhcp
@@ -38,10 +38,14 @@ pct exec $_CTID -- mkdir -p /root/.ssh && chmod 700 /root/.ssh
 pct push $_CTID ~/.ssh/authorized_keys /root/.ssh/authorized_keys
 pct exec $_CTID -- chmod 600 /root/.ssh/authorized_keys
 pct exec $_CTID -- bash -c "\
-  DEBIAN_FRONTEND=noninteractive \
-  apt-get -qq update &&\
-  apt-get -yqq -u dist-upgrade &&\
-  apt-get -yqq install git nano wget"
+ DEBIAN_FRONTEND=noninteractive LC_ALL=C TERM=linux\
+ apt-get -qq update &&\
+ apt-get -yqq -u dist-upgrade >/dev/null &&\
+ apt-get -yqq install git nano wget >/dev/null"
 pct exec $_CTID -- bash <(wget -qLO - https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh)
+echo
+pct config $_CTID
+echo
+echo "To enter the container type: pct exec $_CTID -- bash"
 
 [[ $DEBUG ]] && set +x
