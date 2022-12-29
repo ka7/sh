@@ -5,7 +5,7 @@
 # Latest Ubuntu LTS (manually update this to your CT template)
 _TMPL="/mnt/pve/ceph-fs/template/cache/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
 
-[[ -z $1 || $1 =~ -h ]] && echo "Usage: setup-ct ctname [storage]" && exit 1
+[[ -z $1 || $1 =~ -h ]] && echo "Usage: setup-ct ctname [storage|remove]" && exit 1
 [[ $(id -u) -gt 0 ]] && echo "ERROR: must be root (use sudo -i)" && exit 2
 [[ ! -d /etc/pve ]] && echo "ERROR: $0 only works on a Proxmox host" && exit 3
 
@@ -13,6 +13,13 @@ _TMPL="/mnt/pve/ceph-fs/template/cache/ubuntu-22.04-standard_22.04-1_amd64.tar.z
 
 _NAME=$1
 _STOR=${2:-'local-zfs'}
+
+if [[ $_STOR == remove ]]; then
+    pct stop $1
+    pct destroy $1 --purge
+    exit 4
+fi
+
 _CTID=`pvesh get /cluster/nextid`
 
 pct create $_CTID $_TMPL \
@@ -29,8 +36,12 @@ pct start $_CTID
 
 pct exec $_CTID -- mkdir -p /root/.ssh && chmod 700 /root/.ssh
 pct push $_CTID ~/.ssh/authorized_keys /root/.ssh/authorized_keys
-pct exec $_CTID -- chmod 600 /root/.ssh/*
-pct exec $_CTID -- bash -c "apt update && apt full-upgrade -y && apt install -q -y git nano wget"
+pct exec $_CTID -- chmod 600 /root/.ssh/authorized_keys
+pct exec $_CTID -- bash -c "\
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get -qq update &&\
+  apt-get -yqq -u dist-upgrade &&\
+  apt-get -yqq install git nano wget"
 pct exec $_CTID -- bash <(wget -qLO - https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh)
 
 [[ $DEBUG ]] && set +x
