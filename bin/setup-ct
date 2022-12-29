@@ -30,7 +30,7 @@ pct create $_CTID $_TMPL \
  -swap 512 \
  --storage $_STOR \
  -rootfs $_STOR:4 \
- -net0 name=eth0,bridge=vmbr0,ip=dhcp
+ -net0 name=eth0,bridge=vmbr0,ip=dhcp >/dev/null
 
 pct start $_CTID
 
@@ -38,7 +38,7 @@ pct exec $_CTID -- mkdir -p /root/.ssh && chmod 700 /root/.ssh
 pct push $_CTID ~/.ssh/authorized_keys /root/.ssh/authorized_keys
 pct exec $_CTID -- chmod 600 /root/.ssh/authorized_keys
 pct exec $_CTID -- bash -c "\
- DEBIAN_FRONTEND=noninteractive LC_ALL=C TERM=linux\
+ DEBIAN_FRONTEND=noninteractive LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 TERM=linux\
  apt-get -qq update &&\
  apt-get -yqq -u dist-upgrade >/dev/null &&\
  apt-get -yqq install git nano wget >/dev/null"
