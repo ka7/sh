@@ -27,7 +27,7 @@ pct create $_CTID $_TMPL \
  -ostype ubuntu \
  -cores 2 \
  -memory 1024 \
- -swap 512M \
+ -swap 512 \
  --storage $_STOR \
  -rootfs $_STOR:4 \
  -net0 name=eth0,bridge=vmbr0,ip=dhcp
