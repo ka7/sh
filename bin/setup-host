@@ -266,19 +266,13 @@ EOS
 else
     [[ ! -d /etc/systemd/network ]] && mkdir /etc/systemd/network
 
-#    if [[ $(ls -A /etc/systemd/network/*.network >/dev/null 2>&1) ]]; then
     if ls /etc/systemd/network/*.network > /dev/null; then
         echo "### Exists /etc/systemd/network/*.network"
     else
-        if [[ -z $LXDBR ]]; then
-            echo "### Create /etc/systemd/network/10-dhcp.network"
-            cp ~/.sh/etc/_etc_systemd_network_10-dhcp.network /etc/systemd/network/10-dhcp.network
-        else
-            echo "### Create /etc/systemd/network/lxdbr config}"
-            cp ~/.sh/etc/_etc_systemd_network_lxdbr.network /etc/systemd/network/lxdbr.network
-            cp ~/.sh/etc/_etc_systemd_network_lxdbr.netdev /etc/systemd/network/lxdbr.netdev
-            cp ~/.sh/etc/_etc_systemd_network_eth0.network /etc/systemd/network/eth0.network
-        fi
+        echo "### Create /etc/systemd/network/lxdbr config}"
+        cp ~/.sh/etc/_etc_systemd_network_lxdbr.network /etc/systemd/network/lxdbr.network
+        cp ~/.sh/etc/_etc_systemd_network_lxdbr.netdev /etc/systemd/network/lxdbr.netdev
+        cp ~/.sh/etc/_etc_systemd_network_eth0.network /etc/systemd/network/eth0.network
         chmod 644 /etc/systemd/network/*
         systemctl restart systemd-networkd >/dev/null 2>&1
         systemctl enable systemd-networkd >/dev/null 2>&1
@@ -288,7 +282,8 @@ else
         echo "### Exists /etc/resolv.conf to 1.1.1.1 (systemd)"
     else
         echo "### Change /etc/resolv.conf to 1.1.1.1 (systemd)"
-        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
+# Leave the stub-resolv.conf in place
+#        cd /etc && rm resolv.conf && ln -s ../run/systemd/resolve/resolv.conf
         sed -i /etc/systemd/resolved.conf \
             -e 's/^#DNS=.*/DNS=1.1.1.1/' \
             -e 's/^#FallbackDNS=.*/FallbackDNS=8.8.8.8/' \
