@@ -175,7 +175,7 @@ setdistro ()
         WUGID='nginx'
     elif [[ $OSTYP == debian ]]; then
         OSMIR='ftp.debian.org'
-        OSREL=${OSREL:-'bullseye']
+        OSREL=${OSREL:-'bullseye'}
     elif [[ $OSTYP == manjaro ]]; then
         C_DNS='/etc/powerdns'
         C_FPM='/etc/php'
