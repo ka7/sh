@@ -1,3 +1,5 @@
+    bash <(wget -qLO - https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh)
+
 # NetServa SH
 
 This **SH**ell project is a set of shell aliases and env variables to help
@@ -113,16 +115,11 @@ the settings for the current host after `setup-fqdn` is run. It could be
 set up manually using the below as an example of a non-public local LAN
 domainname assuming that `hostname` returns `myhost`...
 ```
-~ echo myhost.netservs.lan > /etc/hostname
-~ hostname myhost.netservs.lan
-~ sethost sysadm@$(hostname -f) $(newpw 5)
-~ [[ ! -d ~/.vhosts ]] && mkdir ~/.vhosts && chmod 700 ~/.vhosts
-~ gethost > ~/.vhosts/$(hostname -f) && chmod 600 ~/.vhosts/$(hostname -f)
-~ echo -e "\n$IP4_0\t$(hostname -f) $(hostname)" >> /etc/hosts
-~ cat ~/.vhosts/$(hostname -f)
+~ sethost sysadm@netserva.local
+~ cat gethost
 ADMIN='sysadm'
-AHOST='myhost.netservs.lan'
-AMAIL='admin@myhost.netservs.lan'
+AHOST='netserva.local'
+AMAIL='admin@netserva.local'
 ANAME='System Administrator'
 APASS='phSdkd1XVxXWVDyT'
 A_GID='1000'
@@ -131,7 +128,7 @@ BPATH='/home/backups'
 CIMAP='/etc/dovecot'
 CSMTP='/etc/postfix'
 C_DNS='/etc/powerdns'
-C_FPM='/etc/php/7.2/fpm'
+C_FPM='/etc/php/8.1/fpm'
 C_SQL='/etc/mysql'
 C_SSL='/etc/ssl'
 C_WEB='/etc/nginx'
@@ -148,29 +145,31 @@ EPASS='j6Wrh0tWbbZfzh19'
 EXMYS='mysql -BN sysadm'
 EXSQL='sqlite3 /var/lib/sqlite/sysadm/sysadm.db'
 IP4_0='192.168.0.2'
-MHOST='myhost.netservs.lan'
-MPATH='/home/u/myhost.netservs.lan/home'
+MHOST='netserva.local'
+MPATH='/home/u/netserva.local/home'
 OSMIR='archive.ubuntu.com'
-OSREL='bionic'
+OSREL='jammy'
+OSTYP='ubuntu'
 SQCMD='mysql -BN sysadm'
 TAREA='Australia'
 TCITY='Sydney'
 UPASS='rSfQ66I137AHjedp'
-UPATH='/home/u/myhost.netservs.lan'
+UPATH='/home/u/netserva.local'
 UUSER='sysadm'
 U_GID='1000'
 U_SHL='/bin/bash'
 U_UID='1000'
-VHOST='myhost.netservs.lan'
+VHOST='netserva.local'
 VPATH='/home/u'
 VUSER='admin'
-V_PHP='7.2'
+V_PHP='8.1'
 WPASS='phSdkd1XVxXWVDyT'
-WPATH='/home/u/myhost.netservs.lan/var/www'
+WPATH='/home/u/netserva.local/var/www'
 WPUSR='wzoqqh'
+WUGID='www-data'
 ```
 If this host is a server then using `addvhost example.org` would add
-another virtual host and create another config file called
+yet another virtual host and create another config file called
 `~/.vhosts/example.org` where `grep PASS ~/.vhosts/example.org` would
 reveal the passwords used during the setup procedure.
 
@@ -183,7 +182,7 @@ standalone from the command line as well.
 
 There are also some semi-related posts on my [personal blog].
 
-_All scripts and documentation are Copyright (C) 1995-2018 Mark Constable and Licensed [AGPL-3.0]_
+_All scripts and documentation are Copyright (C) 1995-2023 Mark Constable and Licensed [AGPL-3.0]_
 
 [Github]: https://github.com/netserva/sh
 [NetServa HCP]: https://github.com/netserva/hcp
