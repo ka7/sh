@@ -203,7 +203,7 @@ setuser ()
 sethost ()
 {
     if [[ -z $1 || $1 =~ -h ]]; then
-        echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite] [distro($OSREL)] [IP]"
+        echo "Usage: sethost uuser@domain|domain [(mysql)|sqlite]"
         return 1
     elif [[ $1 =~ "@" ]]; then
         UUSER=${1%@*}
@@ -231,7 +231,7 @@ sethost ()
     DBSQL='/var/lib/sqlite'
     DHOST='localhost'
     DPORT='3306'
-    DTYPE=${DTYPE:-'mysql'}
+    DTYPE=${2:-${DTYPE:-'mysql'}}
     LROOT='/usr/local/lsws'
     TAREA='Australia'
     TCITY='Sydney'
