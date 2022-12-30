@@ -160,7 +160,7 @@ setdistro ()
     C_SSL='/etc/ssl'
     C_WEB='/etc/nginx'
     OSMIR='archive.ubuntu.com'
-    OSREL='jammy'
+    OSREL=${OSREL:-'jammy'}
     WUGID='www-data'
 
     # OS dependant overrides
@@ -171,17 +171,17 @@ setdistro ()
         C_FPM="/etc/php$V_PHP"
         C_SQL='/etc/my.cnf.d'
         OSMIR='nl.alpinelinux.org'
-        OSREL='edge'
+        OSREL=${OSREL:-'edge'}
         WUGID='nginx'
     elif [[ $OSTYP == debian ]]; then
         OSMIR='ftp.debian.org'
-        OSREL='bullseye'
+        OSREL=${OSREL:-'bullseye']
     elif [[ $OSTYP == manjaro ]]; then
         C_DNS='/etc/powerdns'
         C_FPM='/etc/php'
         C_SQL='/etc/my.cnf.d'
         OSMIR='manjaro.moson.eu'
-        OSREL='stable'
+        OSREL=${OSREL:-'stable'}
         WUGID='http'
     elif [[ $OSTYP == openwrt ]]; then
         echo "TODO: add settings for OpenWrt"
@@ -231,7 +231,7 @@ sethost ()
     DBSQL='/var/lib/sqlite'
     DHOST='localhost'
     DPORT='3306'
-    DTYPE=${2:-'mysql'}
+    DTYPE=${2:-${DTYPE:-'mysql'}}
     LROOT='/usr/local/lsws'
     TAREA='Australia'
     TCITY='Sydney'
