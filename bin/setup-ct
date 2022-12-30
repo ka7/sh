@@ -39,13 +39,13 @@ pct exec $_CTID -- mkdir -p /root/.ssh && chmod 700 /root/.ssh
 pct push $_CTID ~/.ssh/authorized_keys /root/.ssh/authorized_keys
 pct exec $_CTID -- chmod 600 /root/.ssh/authorized_keys
 
-pct exec $_CTID -- bash -c "su root &&\
- echo 'Update repo lists...' &&\
+pct exec $_CTID -- bash -c "su -c '\
+ echo \'Update repo lists...\' &&\
  apt-get -qq update &&\
- echo 'Upgrade packages...' &&\
+ echo \'Upgrade packages...\' &&\
  DEBIAN_FRONTEND=noninteractive apt-get -yqq -u dist-upgrade >/dev/null &&\
- echo 'Make sure git, nano and wget are installed...' &&\
- DEBIAN_FRONTEND=noninteractive apt-get -yqq install git nano wget >/dev/null"
+ echo \'Make sure git, nano and wget are installed...\' &&\
+ DEBIAN_FRONTEND=noninteractive apt-get -yqq install git nano wget >/dev/null'"
 
 pct exec $_CTID -- bash <(wget -qLO - https://raw.githubusercontent.com/netserva/sh/master/bin/setup-sh)
 echo
