@@ -231,7 +231,7 @@ sethost ()
     DBSQL='/var/lib/sqlite'
     DHOST='localhost'
     DPORT='3306'
-    DTYPE=${2:-${DTYPE:-'mysql'}}
+    DTYPE=${DTYPE:-'mysql'}
     LROOT='/usr/local/lsws'
     TAREA='Australia'
     TCITY='Sydney'
