@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# .sh/bin/setup-fqdn 20210327 - 20221120
+# .sh/bin/setup-fqdn 20210327 - 20221230
 # Copyright (C) 1995-2022 Mark Constable <markc@renta.net> (AGPL-3.0)
 
 [[ $1 =~ '-h' ]] && echo "Usage: setup-fqdn [domain]" && exit 1
@@ -287,9 +287,9 @@ if [[ -e /usr/bin/spamprobe ]]; then
     fi
 fi
 
-addvhost $HDOMN
-
-[[ $DTYPE == mysql ]] && addwp $HDOMN
+# Add these manually
+#addvhost $HDOMN
+#[[ $DTYPE == mysql ]] && addwp $HDOMN
 
 if [[ -e /usr/bin/drill ]]; then
     DIGIP=$(drill $MHOST | awk "/^$MHOST/ {print \$5}")
